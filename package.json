@@ -1,0 +1,32 @@
+{
+  "name": "token-geyser-v2",
+  "license": "GPL-3.0",
+  "author": "dev-support@ampleforth.org",
+  "scripts": {
+    "compile": "yarn hardhat compile",
+    "test": "yarn hardhat test",
+    "format": "yarn prettier --config .prettierrc --write '**/*.ts' 'contracts/**/*.sol'",
+    "lint": "yarn solhint 'contracts/**/*.sol'"
+  },
+  "pre-commit": [
+    "format",
+    "lint"
+  ],
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.0.0",
+    "@nomiclabs/hardhat-waffle": "^2.0.0",
+    "@openzeppelin/contracts": "^3.2.2-solc-0.7",
+    "@types/chai": "^4.2.14",
+    "@types/mocha": "^8.0.3",
+    "@types/node": "^14.14.6",
+    "hardhat": "^2.0.2",
+    "pre-commit": "^1.2.2",
+    "prettier": "^2.1.2",
+    "prettier-plugin-solidity": "^1.0.0-alpha.59",
+    "solc": "0.7.4",
+    "solhint": "^3.3.1",
+    "solhint-plugin-prettier": "^0.0.5",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.5"
+  }
+}

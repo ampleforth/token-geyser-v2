@@ -206,7 +206,7 @@ contract Geyser is Ownable, CloneFactory {
                 decimals
             );
         } else {
-            newRewardShares = amount.muld(toDecimals(BASE_SHARES_PER_WEI, decimals), decimals);
+            newRewardShares = amount.mul(BASE_SHARES_PER_WEI);
         }
 
         // add reward shares to total

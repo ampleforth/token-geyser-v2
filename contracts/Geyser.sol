@@ -38,7 +38,6 @@ contract Geyser is Ownable, CloneFactory {
     // todo: #6 consider using CarefulMath
     // https://github.com/compound-finance/compound-protocol/blob/master/contracts/CarefulMath.sol
     using SafeMath for uint256;
-    using SafeMath for uint8;
     using DecimalMath for uint256;
     using DecimalMath for uint8;
 

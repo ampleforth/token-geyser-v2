@@ -11,11 +11,16 @@ import {IRewardPool} from "./RewardPool/RewardPool.sol";
 import {IFactory} from "./Factory/IFactory.sol";
 import {CloneFactory} from "./Factory/CloneFactory.sol";
 
-// todo: #1 improve precision with decimal math or fixed point math
-// - make sure have order of operations where division is last
-// - division can be dangerous, minimize and use decimal math
-// https://github.com/HQ20/contracts/tree/master/contracts/math
-// https://github.com/compound-finance/compound-protocol/blob/master/contracts/Exponential.sol
+import {DecimalMath} from "./Math/DecimalMath.sol";
+
+interface IERC20Detailed is IERC20 {
+    function decimals() external view returns (uint8);
+
+    function name() external view returns (string memory);
+
+    function symbol() external view returns (string memory);
+}
+
 // todo: #2 make stake ownership transferable - consider using vault ownership for access control
 // todo: #3 make geyser upgradable
 // todo: #14 consider adding an emergency stop
@@ -33,10 +38,21 @@ contract Geyser is Ownable, CloneFactory {
     // todo: #6 consider using CarefulMath
     // https://github.com/compound-finance/compound-protocol/blob/master/contracts/CarefulMath.sol
     using SafeMath for uint256;
+    using SafeMath for uint8;
+    using DecimalMath for uint256;
+    using DecimalMath for uint8;
 
     /// constants ///
 
     uint256 public constant BASE_SHARES_PER_WEI = 1000000;
+
+    function toDecimals(uint256 input, uint8 decimals) private pure returns (uint256 output) {
+        return input.mul(DecimalMath.unit(decimals));
+    }
+
+    function fromDecimals(uint256 input, uint8 decimals) private pure returns (uint256 output) {
+        return input.div(DecimalMath.unit(decimals));
+    }
 
     /// storage ///
 
@@ -56,8 +72,9 @@ contract Geyser is Ownable, CloneFactory {
         address rewardToken;
         address rewardPool;
         uint256 rewardScalingFloor;
-        uint256 rewardScalingDuration;
-        uint256 rewardShares;
+        uint256 rewardScalingCeiling;
+        uint256 rewardScalingTime;
+        uint256 rewardSharesOutstanding;
         uint256 totalStake;
         uint256 totalStakeUnits;
         uint256 lastUpdate;
@@ -68,8 +85,8 @@ contract Geyser is Ownable, CloneFactory {
 
     struct RewardSchedule {
         uint256 duration;
-        uint256 startTimestamp;
-        uint256 emissionRate;
+        uint256 start;
+        uint256 shares;
     }
 
     struct UserData {
@@ -112,14 +129,21 @@ contract Geyser is Ownable, CloneFactory {
         address stakingToken,
         address rewardToken,
         uint256 rewardScalingFloor,
-        uint256 rewardScalingDuration
+        uint256 rewardScalingCeiling,
+        uint256 rewardScalingTime
     ) external onlyOwner returns (uint256 geyserID) {
-        // the rewardScalingFloor must be <= 100%
-        require(rewardScalingFloor <= 100, "Geyser: rewardScalingFloor above 100");
+        // the scaling floor must be smaller than ceiling
+        require(rewardScalingFloor <= rewardScalingCeiling, "Geyser: rewardScalingFloor above 100");
 
-        // setting rewardScalingDuration to 0 would cause divide by zero error
-        // to disable reward scaling, use rewardScalingFloor = 100 and rewardScalingDuration = 1
-        require(rewardScalingDuration != 0, "Geyser: rewardScalingDuration cannot be zero");
+        // setting rewardScalingTime to 0 would cause divide by zero error
+        // to disable reward scaling, use rewardScalingFloor == rewardScalingCeiling
+        require(rewardScalingTime != 0, "Geyser: rewardScalingTime cannot be zero");
+
+        // reward token must have decimals defined and >= 2 to enable reward scaling
+        require(
+            IERC20Detailed(rewardToken).decimals() >= 2,
+            "Geyser: reward token has insuficient decimals"
+        );
 
         // deploy reward token pool
         bytes memory args = abi.encode(rewardToken);
@@ -134,7 +158,8 @@ contract Geyser is Ownable, CloneFactory {
         geyser.rewardToken = rewardToken;
         geyser.rewardPool = rewardPool;
         geyser.rewardScalingFloor = rewardScalingFloor;
-        geyser.rewardScalingDuration = rewardScalingDuration;
+        geyser.rewardScalingCeiling = rewardScalingCeiling;
+        geyser.rewardScalingTime = rewardScalingTime;
 
         // emit event
         emit GeyserCreated(geyserID);
@@ -164,23 +189,32 @@ contract Geyser is Ownable, CloneFactory {
         // validate duration
         require(duration != 0, "Geyser: invalid duration"); // todo: add justification
 
+        // get reward token decimals
+        uint8 decimals = IERC20Detailed(geyser.rewardToken).decimals();
+
         // create new reward shares
         // if existing rewards on this geyser
         //   mint new shares proportional to % change in rewards remaining
+        //   newShares = remainingShares * newReward / rewardRemaining
         // else
-        //   mint new shares with BASE_SHARES_PER_WEI significant places
-        uint256 newRewardShares = (geyser.rewardShares > 0)
-            ? (100 + (100 * amount) / IERC20(geyser.rewardToken).balanceOf(geyser.rewardPool)) *
-                geyser.rewardShares
-            : amount * BASE_SHARES_PER_WEI;
+        //   mint new shares with BASE_SHARES_PER_WEI initial conversion rate
+        //   store as fixed point number with same number of decimals as reward token
+        uint256 newRewardShares;
+        if (geyser.rewardSharesOutstanding > 0) {
+            uint256 rewardRemaining = IERC20(geyser.rewardToken).balanceOf(geyser.rewardPool);
+            newRewardShares = geyser.rewardSharesOutstanding.muld(amount, decimals).divd(
+                rewardRemaining,
+                decimals
+            );
+        } else {
+            newRewardShares = amount.muld(toDecimals(BASE_SHARES_PER_WEI, decimals), decimals);
+        }
 
         // add reward shares to total
-        geyser.rewardShares = geyser.rewardShares.add(newRewardShares);
+        geyser.rewardSharesOutstanding = geyser.rewardSharesOutstanding.add(newRewardShares);
 
         // store new reward schedule
-        geyser.rewardSchedules.push(
-            RewardSchedule(duration, block.timestamp, newRewardShares.div(duration))
-        );
+        geyser.rewardSchedules.push(RewardSchedule(duration, block.timestamp, newRewardShares));
 
         // transfer reward tokens to reward pool
         require(
@@ -303,6 +337,12 @@ contract Geyser is Ownable, CloneFactory {
         // fetch user storage reference
         UserData storage user = geyser.users[msg.sender];
 
+        // get reward token decimals
+        uint8 decimals = IERC20Detailed(geyser.rewardToken).decimals();
+
+        // get reward amount remaining
+        uint256 rewardRemaining = IERC20(geyser.rewardToken).balanceOf(geyser.rewardPool);
+
         // validate recipient
         recipient = validateRecipient(geyser, user, recipient);
 
@@ -318,30 +358,39 @@ contract Geyser is Ownable, CloneFactory {
         updateStakeUnitAccounting(geyser);
 
         // calculate vested portion of reward pool
-        uint256 totalRewardAvailable;
+        uint256 rewardAvailable;
         {
             // calculate reward shares available across all reward schedules
-            uint256 totalSharesAvailable;
+            uint256 sharesAvailable;
             for (uint256 index = 0; index < geyser.rewardSchedules.length; index++) {
                 // fetch reward schedule storage reference
                 RewardSchedule storage schedule = geyser.rewardSchedules[index];
 
                 // caculate amount of shares available on this schedule
-                uint256 sharesAvailable = schedule.emissionRate.mul(
-                    block.timestamp.sub(schedule.startTimestamp)
-                );
+                // if (now - start) >= duration
+                //   sharesAvailable = shares
+                // else
+                //   sharesAvailable = shares * (now - start) / duration
+                uint256 currentSharesAvailable;
+                if (block.timestamp.sub(schedule.start) >= schedule.duration) {
+                    currentSharesAvailable = schedule.shares;
+                } else {
+                    currentSharesAvailable = schedule
+                        .shares
+                        .muld(toDecimals(block.timestamp.sub(schedule.start), decimals), decimals)
+                        .divd(toDecimals(schedule.duration, decimals), decimals);
+                }
 
                 // add to total
-                totalSharesAvailable = totalSharesAvailable.add(sharesAvailable);
+                sharesAvailable = sharesAvailable.add(currentSharesAvailable);
             }
 
-            // calculate value of reward share in reward tokens
-            uint256 rewardPerShare = IERC20(geyser.rewardToken).balanceOf(geyser.rewardPool).div(
-                geyser.rewardShares
+            // convert shares to reward
+            // rewardAvailable = sharesAvailable * rewardRemaining / sharesOutstanding
+            rewardAvailable = sharesAvailable.muld(rewardRemaining, decimals).divd(
+                geyser.rewardSharesOutstanding,
+                decimals
             );
-
-            // convert totalSharesAvailable to totalRewardAvailable
-            totalRewardAvailable = totalSharesAvailable.mul(rewardPerShare);
         }
 
         // calculate user time weighted reward with scaling
@@ -369,7 +418,7 @@ contract Geyser is Ownable, CloneFactory {
                         // delete stake data
                         user.stakes.pop();
                     } else {
-                        // set current amount to remaining withdrawl amount to account for
+                        // set current amount to remaining withdrawl amount
                         currentAmount = amountToWithdraw;
 
                         // update stake data
@@ -384,11 +433,13 @@ contract Geyser is Ownable, CloneFactory {
                     // decrement counter
                     amountToWithdraw = amountToWithdraw.sub(currentAmount);
 
-                    // calculate stake time weight as stake units
+                    // calculate time weighted stake
                     uint256 stakeUnits = currentAmount.mul(stakeDuration);
 
                     // calculate base reward
-                    baseReward = totalRewardAvailable.mul(stakeUnits).div(geyser.totalStakeUnits);
+                    // baseReward = rewardAvailable * stakeUnits / totalStakeUnits
+                    // todo: #19 should stakeUnits be converted to decimals before multiplication?
+                    baseReward = rewardAvailable.mul(stakeUnits).div(geyser.totalStakeUnits);
 
                     // update cached totalStakeUnits
                     // todo: consider updating in memory to avoid storage writes
@@ -396,20 +447,42 @@ contract Geyser is Ownable, CloneFactory {
                 }
 
                 // calculate scaled reward
+                // if no scaling or scaling period completed
+                //   reward = baseReward
+                // else
+                //   minReward = baseReward * scalingFloor
+                //   bonusReward = baseReward
+                //                 * (scalingCeiling - scalingFloor)
+                //                 * duration / scalingTime
+                //   reward = minReward + bonusReward
                 uint256 currentReward;
-                if (stakeDuration >= geyser.rewardScalingDuration) {
+                if (
+                    stakeDuration >= geyser.rewardScalingTime ||
+                    geyser.rewardScalingFloor == geyser.rewardScalingCeiling
+                ) {
                     // no reward scaling applied
                     currentReward = baseReward;
                 } else {
-                    // calculate scaling factor
-                    uint256 scalingFactor = geyser.rewardScalingFloor.add(
-                        uint256(100).sub(geyser.rewardScalingFloor).mul(stakeDuration).div(
-                            geyser.rewardScalingDuration
-                        )
+                    // calculate minimum reward using scaling floor
+                    uint256 minReward = baseReward.muld(
+                        toDecimals(geyser.rewardScalingFloor, decimals - 2),
+                        decimals
                     );
 
-                    // apply scaling factor
-                    currentReward = baseReward.mul(scalingFactor).div(100);
+                    // calculate bonus reward with vested portion of scaling factor
+                    uint256 bonusReward = baseReward
+                        .muld(
+                        toDecimals(
+                            geyser.rewardScalingCeiling.sub(geyser.rewardScalingFloor),
+                            decimals - 2
+                        ),
+                        decimals
+                    )
+                        .mul(stakeDuration)
+                        .div(geyser.rewardScalingTime);
+
+                    // add minimum reward and bonus reward
+                    currentReward = minReward.add(bonusReward);
                 }
 
                 // add reward to total reward counter
@@ -417,34 +490,29 @@ contract Geyser is Ownable, CloneFactory {
             }
         }
 
-        // update rewardShares outstanding
+        // update reward shares outstanding
         {
-            // calculate shares to reward conversion rate
-            uint256 sharesPerReward = geyser.rewardShares.div(
-                IERC20(geyser.rewardToken).balanceOf(geyser.rewardPool)
+            // calculate shares to burn
+            // sharesToBurn = sharesOutstanding * reward / rewardRemaining
+            uint256 sharesToBurn = geyser.rewardSharesOutstanding.muld(reward, decimals).divd(
+                rewardRemaining,
+                decimals
             );
 
-            // remove claimed reward shares
-            geyser.rewardShares = geyser.rewardShares.sub(sharesPerReward.mul(reward));
+            // burn claimed shares
+            geyser.rewardSharesOutstanding = geyser.rewardSharesOutstanding.sub(sharesToBurn);
         }
 
         // transfer bonus tokens from reward pool to recipient
         if (geyser.bonusTokens.length > 0) {
-            // calculate reward proportion
-            // todo: consider using reward share conversion rate for consistency
-            uint256 rewardProportion = reward.div(
-                IERC20(geyser.rewardToken).balanceOf(geyser.rewardPool)
-            );
-
-            // transfer proportional of each bonus token
             for (uint256 index = 0; index < geyser.bonusTokens.length; index++) {
                 // fetch bonus token address reference
                 address bonusToken = geyser.bonusTokens[index];
 
-                // calculate proportional amount
-                uint256 bonusAmount = rewardProportion.mul(
-                    IERC20(bonusToken).balanceOf(geyser.rewardPool)
-                );
+                // calculate bonus token amount
+                // bonusAmount = bonusRemaining * reward / rewardRemaining
+                uint256 bonusRemaining = IERC20(bonusToken).balanceOf(geyser.rewardPool);
+                uint256 bonusAmount = bonusRemaining.mul(reward).div(rewardRemaining);
 
                 // transfer bonus tokens
                 IRewardPool(geyser.rewardPool).sendERC20(bonusToken, recipient, bonusAmount);

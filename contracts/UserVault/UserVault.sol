@@ -21,12 +21,10 @@ interface IUserVault {
 
 /// @title User Vault
 /// @dev Security contact: dev-support@ampleforth.org
-// todo: consider adding an emergency stop
-// todo: consider adding support for other token standards
-// todo: consider adding support for ERC1271
-// todo: add recovery for staking tokens sent to vault
+// todo: #15 consider adding support for other token standards to user vault
+// todo: #16 consider adding support for ERC1271 to user vault
 contract UserVault is IUserVault, Ownable, Initializable {
-    // todo: consider packing storage
+    // todo: #17 consider packing user vault storage
     address public _stakingToken;
     address public _geyser;
     uint256 public _geyserID;

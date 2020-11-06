@@ -14,8 +14,7 @@ interface IRewardPool {
 
 /// @title Reward Pool
 /// @dev Security contact: dev-support@ampleforth.org
-// todo: consider adding an emergency stop
-// todo: consider adding support for other token standards
+// todo: #18 consider adding support for other token standards to reward pool
 contract RewardPool is IRewardPool, Ownable {
     function sendERC20(
         address token,

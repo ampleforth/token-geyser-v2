@@ -11,12 +11,15 @@ import {IRewardPool} from "./RewardPool/RewardPool.sol";
 import {IFactory} from "./Factory/IFactory.sol";
 import {CloneFactory} from "./Factory/CloneFactory.sol";
 
-// todo: improve precision with decimal math or fixed point math
+// todo: #1 improve precision with decimal math or fixed point math
+// - make sure have order of operations where division is last
+// - division can be dangerous, minimize and use decimal math
 // https://github.com/HQ20/contracts/tree/master/contracts/math
 // https://github.com/compound-finance/compound-protocol/blob/master/contracts/Exponential.sol
-// todo: make stake ownership transferable - consider using vault ownership for access control
-// todo: consider making geyser upgradable
-// todo: review math summary
+// todo: #2 make stake ownership transferable - consider using vault ownership for access control
+// todo: #3 make geyser upgradable
+// todo: #14 consider adding an emergency stop
+// todo: #4 update documentation with math
 /// totalRewardShares (share) = rewardInitial (wei) * BASE (share/wei)
 /// rewardPerShare (wei/share) = rewardBalance (wei) / totalRewardShares (share)
 /// emissionRate (share/sec) = totalRewardShares (share) / duration (sec)
@@ -27,7 +30,7 @@ import {CloneFactory} from "./Factory/CloneFactory.sol";
 /// reward (wei) = baseReward (wei) * (minBonusPercent + (100 - minBonusPercent)
 ///                * stakeTime (sec) / bonusTime (sec))
 contract Geyser is Ownable, CloneFactory {
-    // todo: consider using CarefulMath
+    // todo: #6 consider using CarefulMath
     // https://github.com/compound-finance/compound-protocol/blob/master/contracts/CarefulMath.sol
     using SafeMath for uint256;
 
@@ -41,25 +44,26 @@ contract Geyser is Ownable, CloneFactory {
     address public tokenPoolFactory;
 
     // token vault template
-    // todo: consider using efficient address
+    // todo: #5 consider using efficient address
     address public tokenVaultTemplate;
 
     // geysers
     GeyserData[] private _geysers;
 
+    // todo: #10 improve struct packing
     struct GeyserData {
         address stakingToken;
         address rewardToken;
         address rewardPool;
-        uint256 rewardScalingFloor; // todo: consider packing
-        uint256 rewardScalingDuration; // todo: consider packing
+        uint256 rewardScalingFloor;
+        uint256 rewardScalingDuration;
         uint256 rewardShares;
         uint256 totalStake;
         uint256 totalStakeUnits;
         uint256 lastUpdate;
-        address[] bonusTokens; // todo: consider making enumerable
+        address[] bonusTokens;
         RewardSchedule[] rewardSchedules;
-        mapping(address => UserData) users; // todo: consider making enumerable
+        mapping(address => UserData) users; // todo: #9 consider making users enumerable
     }
 
     struct RewardSchedule {
@@ -69,7 +73,7 @@ contract Geyser is Ownable, CloneFactory {
     }
 
     struct UserData {
-        address vault; // todo: consider sharing vault across multiple geyser
+        address vault; // todo: #7 consider sharing vault across multiple geyser
         uint256 totalStake;
         UserStake[] stakes;
     }
@@ -256,7 +260,7 @@ contract Geyser is Ownable, CloneFactory {
         user.stakes.push(UserStake(amount, block.timestamp));
 
         // update cached total user and total geyser deposits
-        // todo: consider removing user totalStake cache and calculate dynamically
+        // todo: #11 consider removing user totalStake cache and calculate dynamically
         user.totalStake = user.totalStake.add(amount);
         geyser.totalStake = geyser.totalStake.add(amount);
 
@@ -341,7 +345,7 @@ contract Geyser is Ownable, CloneFactory {
         }
 
         // calculate user time weighted reward with scaling
-        // todo: consider implementing with recursion
+        // todo: #12 consider implementing reward calculations with recursion
         uint256 reward = 0;
         {
             // calculate user time weighted stake using LIFO
@@ -482,7 +486,7 @@ contract Geyser is Ownable, CloneFactory {
     }
 
     /// @notice Update stake unit accounting
-    // todo: consider updating in memory to avoid storage writes
+    // todo: #13 consider updating stake unit accounting in memory to avoid storage writes
     function updateStakeUnitAccounting(GeyserData storage geyser) private {
         // calculate time since last accounting update
         uint256 timeSinceLastUpdate = block.timestamp.sub(geyser.lastUpdate);

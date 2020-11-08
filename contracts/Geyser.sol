@@ -5,7 +5,7 @@ import {SafeMath} from "@openzeppelin/contracts/math/SafeMath.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import {IUserVault} from "./UserVault/UserVault.sol";
+import {IVault} from "./Vault/Vault.sol";
 import {IRewardPool} from "./RewardPool/RewardPool.sol";
 
 import {IFactory} from "./Factory/IFactory.sol";
@@ -21,19 +21,9 @@ interface IERC20Detailed is IERC20 {
     function symbol() external view returns (string memory);
 }
 
-// todo: #2 make stake ownership transferable - consider using vault ownership for access control
 // todo: #3 make geyser upgradable
-// todo: #14 consider adding an emergency stop
 // todo: #4 update documentation with math
-/// totalRewardShares (share) = rewardInitial (wei) * BASE (share/wei)
-/// rewardPerShare (wei/share) = rewardBalance (wei) / totalRewardShares (share)
-/// emissionRate (share/sec) = totalRewardShares (share) / duration (sec)
-/// sharesAvailable (share) = emissionRate (share/sec) * (now - start) (sec)
-/// rewardAvailable (wei) = sharesAvailable (share) * rewardPerShare (wei/share)
-/// userStakeUnits (wei*sec) = sum(userStakeAmount (wei) * (now - stakeTime) (sec))
-/// baseReward (wei) = rewardAvailable (wei) * userStakeUnits (wei*sec) / userStakeUnits (wei*sec)
-/// reward (wei) = baseReward (wei) * (minBonusPercent + (100 - minBonusPercent)
-///                * stakeTime (sec) / bonusTime (sec))
+// todo: #14 consider adding an emergency stop
 contract Geyser is Ownable, CloneFactory {
     // todo: #6 consider using CarefulMath
     // https://github.com/compound-finance/compound-protocol/blob/master/contracts/CarefulMath.sol
@@ -79,7 +69,7 @@ contract Geyser is Ownable, CloneFactory {
         uint256 lastUpdate;
         address[] bonusTokens;
         RewardSchedule[] rewardSchedules;
-        mapping(address => UserData) users; // todo: #9 consider making users enumerable
+        mapping(address => VaultData) vaults; // todo: #9 consider making vaults enumerable
     }
 
     struct RewardSchedule {
@@ -88,13 +78,13 @@ contract Geyser is Ownable, CloneFactory {
         uint256 shares;
     }
 
-    struct UserData {
-        address vault; // todo: #7 consider sharing vault across multiple geyser
+    struct VaultData {
+        bool deployed;
         uint256 totalStake;
-        UserStake[] stakes;
+        StakeData[] stakes;
     }
 
-    struct UserStake {
+    struct StakeData {
         uint256 amount;
         uint256 timestamp;
     }
@@ -108,10 +98,10 @@ contract Geyser is Ownable, CloneFactory {
 
     /// user events ///
 
-    event UserDeposit(uint256 geyserID, address user, uint256 amount);
-    event UserWithdraw(
+    event Deposit(uint256 geyserID, address vault, uint256 amount);
+    event Withdraw(
         uint256 geyserID,
-        address user,
+        address vault,
         address recipient,
         uint256 amount,
         uint256 reward
@@ -276,47 +266,58 @@ contract Geyser is Ownable, CloneFactory {
     ///   - after geyser with geyserID created,
     ///   - can be called multiple times with same geyserID
     /// state scope: should only modify state in
-    ///   - _geysers[geyserID].users[msg.sender]
+    ///   - _geysers[geyserID].vaults[vaultAddress]
     ///   - _geysers[geyserID].totalStake
-    /// token transfer: transfer staking tokens from user to user vault
-    function deposit(uint256 geyserID, uint256 amount) external {
+    /// token transfer: transfer staking tokens from msg.sender to vault
+    /// @dev Note, anyone can deposit to any vault.
+    function deposit(
+        uint256 geyserID,
+        address vaultAddress,
+        uint256 amount
+    ) external {
         // fetch geyser storage reference
         GeyserData storage geyser = _geysers[geyserID];
 
-        // fetch user storage reference
-        UserData storage user = geyser.users[msg.sender];
+        // fetch vault storage reference
+        VaultData storage vault = geyser.vaults[vaultAddress];
 
-        // update cached sum of stake units across all users
+        // update cached sum of stake units across all vaults
         updateStakeUnitAccounting(geyser);
 
-        // store deposit amount and timestamp
-        user.stakes.push(UserStake(amount, block.timestamp));
-
-        // update cached total user and total geyser deposits
-        // todo: #11 consider removing user totalStake cache and calculate dynamically
-        user.totalStake = user.totalStake.add(amount);
-        geyser.totalStake = geyser.totalStake.add(amount);
-
-        // create vault if first deposit
-        if (user.vault == address(0)) {
+        // create vault if first deposit, else verify vault is deployed
+        if (vaultAddress == address(0)) {
             bytes memory args = abi.encodeWithSelector(
-                IUserVault.initialize.selector,
+                IVault.initialize.selector,
                 geyser.stakingToken,
                 msg.sender,
                 geyserID
             );
-            user.vault = CloneFactory._create(tokenVaultTemplate, args);
+            vaultAddress = CloneFactory._create(tokenVaultTemplate, args);
+            vault = geyser.vaults[vaultAddress];
+        } else {
+            // verify vault deployed at this address for this geyser
+            require(vault.deployed, "Geyser: no vault deployed at this address for this geyser");
         }
+
+        // store deposit amount and timestamp
+        vault.stakes.push(StakeData(amount, block.timestamp));
+
+        // update cached total vault and geyser deposits
+        // todo: #11 consider removing vault totalStake cache and calculate dynamically
+        vault.totalStake = vault.totalStake.add(amount);
+        geyser.totalStake = geyser.totalStake.add(amount);
 
         // transfer staking tokens to vault
         require(
-            IERC20(geyser.stakingToken).transferFrom(msg.sender, user.vault, amount),
-            "Geyser: transfer to user vault failed"
+            IERC20(geyser.stakingToken).transferFrom(msg.sender, vaultAddress, amount),
+            "Geyser: transfer to vault failed"
         );
 
         // emit event
-        emit UserDeposit(geyserID, msg.sender, amount);
+        emit Deposit(geyserID, vaultAddress, amount);
     }
+
+    function withdrawMultiple(uint256[] calldata geysers, address[] calldata vaults) external {}
 
     /// @notice Withdraw staking tokens and claim reward
     /// access control: anyone
@@ -327,14 +328,21 @@ contract Geyser is Ownable, CloneFactory {
     /// token transfer:
     function withdraw(
         uint256 geyserID,
+        address vaultAddress,
         uint256 amount,
         address recipient
     ) external {
         // fetch geyser storage reference
         GeyserData storage geyser = _geysers[geyserID];
 
-        // fetch user storage reference
-        UserData storage user = geyser.users[msg.sender];
+        // fetch vault storage reference
+        VaultData storage vault = geyser.vaults[vaultAddress];
+
+        // verify vault deployed at this address for this geyser
+        require(vault.deployed, "Geyser: no vault deployed at this address for this geyser");
+
+        // require msg.sender is vault owner
+        require(IVault(vaultAddress).getOwner() == msg.sender, "Geyser: only vault owner");
 
         // get reward token decimals
         uint8 decimals = IERC20Detailed(geyser.rewardToken).decimals();
@@ -343,17 +351,17 @@ contract Geyser is Ownable, CloneFactory {
         uint256 rewardRemaining = IERC20(geyser.rewardToken).balanceOf(geyser.rewardPool);
 
         // validate recipient
-        recipient = validateRecipient(geyser, user, recipient);
+        recipient = validateRecipient(geyser, vaultAddress, recipient);
 
-        // check for sufficient user stake amount
-        // todo: consider removing user totalStake cache and calculate dynamically
-        require(user.totalStake >= amount, "Geyser: insufficient user stake");
+        // check for sufficient vault stake amount
+        // todo: consider removing vault totalStake cache and calculate dynamically
+        require(vault.totalStake >= amount, "Geyser: insufficient vault stake");
 
         // check for sufficient geyser stake amount
         // if this check fails, there is a bug is stake accounting
         assert(geyser.totalStake >= amount);
 
-        // update cached sum of stake units across all users
+        // update cached sum of stake units across all vaults
         updateStakeUnitAccounting(geyser);
 
         // calculate vested portion of reward pool
@@ -392,15 +400,15 @@ contract Geyser is Ownable, CloneFactory {
             );
         }
 
-        // calculate user time weighted reward with scaling
+        // calculate vault time weighted reward with scaling
         // todo: #12 consider implementing reward calculations with recursion
         uint256 reward = 0;
         {
-            // calculate user time weighted stake using LIFO
+            // calculate vault time weighted stake using LIFO
             uint256 amountToWithdraw = amount;
             while (amountToWithdraw > 0) {
-                // fetch user stake storage reference
-                UserStake storage lastStake = user.stakes[user.stakes.length.sub(1)];
+                // fetch vault stake storage reference
+                StakeData storage lastStake = vault.stakes[vault.stakes.length.sub(1)];
 
                 // calculate stake duration
                 uint256 stakeDuration = block.timestamp.sub(lastStake.timestamp);
@@ -415,7 +423,7 @@ contract Geyser is Ownable, CloneFactory {
                         currentAmount = lastStake.amount;
 
                         // delete stake data
-                        user.stakes.pop();
+                        vault.stakes.pop();
                     } else {
                         // set current amount to remaining withdrawl amount
                         currentAmount = amountToWithdraw;
@@ -424,9 +432,9 @@ contract Geyser is Ownable, CloneFactory {
                         lastStake.amount = lastStake.amount.sub(currentAmount);
                     }
 
-                    // update cached total user and total geyser deposits
-                    // todo: consider removing user totalStake cache and calculate dynamically
-                    user.totalStake = user.totalStake.sub(currentAmount);
+                    // update cached total vault and geyser deposits
+                    // todo: consider removing vault totalStake cache and calculate dynamically
+                    vault.totalStake = vault.totalStake.sub(currentAmount);
                     geyser.totalStake = geyser.totalStake.sub(currentAmount);
 
                     // decrement counter
@@ -519,37 +527,44 @@ contract Geyser is Ownable, CloneFactory {
         }
 
         // transfer staking tokens from vault to recipient
-        IUserVault(user.vault).sendERC20(geyser.stakingToken, recipient, amount);
+        IVault(vaultAddress).sendERC20(geyser.stakingToken, recipient, amount);
 
         // transfer reward tokens from reward pool to recipient
         IRewardPool(geyser.rewardPool).sendERC20(geyser.rewardToken, recipient, reward);
 
         // emit event
-        emit UserWithdraw(geyserID, msg.sender, recipient, amount, reward);
+        emit Withdraw(geyserID, vaultAddress, recipient, amount, reward);
     }
 
-    // rescue tokens from user vault
-    function rescueStakingTokensFromUserVault(uint256 geyserID, address recipient) external {
+    // rescue tokens from vault
+    function rescueStakingTokensFromVault(
+        uint256 geyserID,
+        address vaultAddress,
+        address recipient
+    ) external {
         // fetch geyser storage reference
         GeyserData storage geyser = _geysers[geyserID];
 
-        // fetch user storage reference
-        UserData storage user = geyser.users[msg.sender];
+        // fetch vault storage reference
+        VaultData storage vault = geyser.vaults[vaultAddress];
+
+        // verify vault deployed at this address for this geyser
+        require(vault.deployed, "Geyser: no vault deployed at this address for this geyser");
+
+        // require msg.sender is vault owner
+        require(IVault(vaultAddress).getOwner() == msg.sender, "Geyser: only vault owner");
 
         // validate recipient
-        recipient = validateRecipient(geyser, user, recipient);
-
-        // check that a vault exists
-        require(user.vault != address(0), "Geyser: no user vault for this geyser");
+        recipient = validateRecipient(geyser, vaultAddress, recipient);
 
         // calculate amount of staking tokens to rescue
-        uint256 amount = IERC20(geyser.stakingToken).balanceOf(user.vault).sub(user.totalStake);
+        uint256 amount = IERC20(geyser.stakingToken).balanceOf(vaultAddress).sub(vault.totalStake);
 
         // require non-zero amount
         require(amount > 0, "Geyser: no tokens to rescue");
 
         // transfer tokens to recipient
-        IUserVault(user.vault).sendERC20(geyser.stakingToken, recipient, amount);
+        IVault(vaultAddress).sendERC20(geyser.stakingToken, recipient, amount);
     }
 
     /// @notice Update stake unit accounting
@@ -568,7 +583,7 @@ contract Geyser is Ownable, CloneFactory {
     // validate recipient
     function validateRecipient(
         GeyserData storage geyser,
-        UserData storage user,
+        address vaultAddress,
         address recipient
     ) private view returns (address validRecipient) {
         // sanity check recipient for potential input errors
@@ -576,7 +591,7 @@ contract Geyser is Ownable, CloneFactory {
         require(recipient != geyser.stakingToken, "Geyser: cannot withdraw to stakingToken");
         require(recipient != geyser.rewardToken, "Geyser: cannot withdraw to rewardToken");
         require(recipient != geyser.rewardPool, "Geyser: cannot withdraw to rewardPool");
-        require(recipient != user.vault, "Geyser: cannot withdraw to user vault");
+        require(recipient != vaultAddress, "Geyser: cannot withdraw to vault");
 
         // if recipient undefined, set to msg.sender
         if (recipient == address(0)) {

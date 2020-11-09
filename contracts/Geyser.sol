@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity 0.7.4;
+pragma experimental ABIEncoderV2;
 
 import {SafeMath} from "@openzeppelin/contracts/math/SafeMath.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {EnumerableSet} from "@openzeppelin/contracts/utils/EnumerableSet.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import {IVault} from "./Vault/Vault.sol";
@@ -31,6 +33,7 @@ contract Geyser is Powered, Ownable, CloneFactory {
     using SafeMath for uint256;
     using DecimalMath for uint256;
     using DecimalMath for uint8;
+    using EnumerableSet for EnumerableSet.AddressSet;
 
     /// constants ///
 
@@ -55,6 +58,8 @@ contract Geyser is Powered, Ownable, CloneFactory {
 
     // geysers
     GeyserData[] private _geysers;
+    mapping(uint256 => mapping(address => VaultData)) private _vaults;
+    mapping(uint256 => EnumerableSet.AddressSet) private _vaultSet;
 
     // todo: #10 improve struct packing
     struct GeyserData {
@@ -70,7 +75,6 @@ contract Geyser is Powered, Ownable, CloneFactory {
         uint256 lastUpdate;
         address[] bonusTokens;
         RewardSchedule[] rewardSchedules;
-        mapping(address => VaultData) vaults; // todo: #9 consider making vaults enumerable
     }
 
     struct RewardSchedule {
@@ -80,7 +84,6 @@ contract Geyser is Powered, Ownable, CloneFactory {
     }
 
     struct VaultData {
-        bool deployed;
         uint256 totalStake;
         StakeData[] stakes;
     }
@@ -107,6 +110,36 @@ contract Geyser is Powered, Ownable, CloneFactory {
         uint256 amount,
         uint256 reward
     );
+
+    /// getter functions ///
+
+    function getGeyserSetLength(uint256 geyserID) external view returns (GeyserData memory geyser) {
+        return _geysers[geyserID];
+    }
+
+    function getGeyserData(uint256 geyserID) external view returns (GeyserData memory geyser) {
+        return _geysers[geyserID];
+    }
+
+    function getVaultSetLength(uint256 geyserID) external view returns (uint256 length) {
+        return _vaultSet[geyserID].length();
+    }
+
+    function getVaultAddressAtIndex(uint256 geyserID, uint256 vaultIndex)
+        external
+        view
+        returns (address vaultAddress)
+    {
+        return _vaultSet[geyserID].at(vaultIndex);
+    }
+
+    function getVaultData(uint256 geyserID, address vaultAddress)
+        external
+        view
+        returns (VaultData memory vault)
+    {
+        return _vaults[geyserID][vaultAddress];
+    }
 
     /// initializer ///
 
@@ -278,6 +311,7 @@ contract Geyser is Powered, Ownable, CloneFactory {
     ///   - _geysers[geyserID].totalStake
     /// token transfer: transfer staking tokens from msg.sender to vault
     /// @dev Note, anyone can deposit to any vault.
+    // todo: consider seperating vault creation from deposit
     function deposit(
         uint256 geyserID,
         address vaultAddress,
@@ -287,12 +321,12 @@ contract Geyser is Powered, Ownable, CloneFactory {
         GeyserData storage geyser = _geysers[geyserID];
 
         // fetch vault storage reference
-        VaultData storage vault = geyser.vaults[vaultAddress];
+        VaultData storage vault = _vaults[geyserID][vaultAddress];
 
         // update cached sum of stake units across all vaults
         updateStakeUnitAccounting(geyser);
 
-        // create vault if first deposit, else verify vault is deployed
+        // create vault if first deposit, else verify vault is registered
         if (vaultAddress == address(0)) {
             // craft initialization calldata
             bytes memory args = abi.encodeWithSelector(
@@ -306,14 +340,18 @@ contract Geyser is Powered, Ownable, CloneFactory {
             // create vault clone
             vaultAddress = CloneFactory._create(tokenVaultTemplate, args);
 
-            // fetch vault storage reference
-            vault = geyser.vaults[vaultAddress];
+            // add vault to vault set
+            // should never fail given fresh vault deployment
+            assert(_vaultSet[geyserID].add(vaultAddress));
 
-            // store deployment status
-            vault.deployed = true;
+            // fetch vault storage reference
+            vault = _vaults[geyserID][vaultAddress];
         } else {
-            // verify vault deployed at this address for this geyser
-            require(vault.deployed, "Geyser: no vault deployed at this address for this geyser");
+            // verify vault at this address for this geyser
+            require(
+                _vaultSet[geyserID].contains(vaultAddress),
+                "Geyser: no vault at this address for this geyser"
+            );
         }
 
         // store deposit amount and timestamp
@@ -334,7 +372,8 @@ contract Geyser is Powered, Ownable, CloneFactory {
         emit Deposit(geyserID, vaultAddress, amount);
     }
 
-    function withdrawMultiple(uint256[] calldata geysers, address[] calldata vaults) external {}
+    // todo: implement multiple vault withdraw function
+    function withdrawMultiple(address[] calldata vaultAddress) external {}
 
     /// @notice Withdraw staking tokens and claim reward
     /// access control: anyone
@@ -353,10 +392,13 @@ contract Geyser is Powered, Ownable, CloneFactory {
         GeyserData storage geyser = _geysers[geyserID];
 
         // fetch vault storage reference
-        VaultData storage vault = geyser.vaults[vaultAddress];
+        VaultData storage vault = _vaults[geyserID][vaultAddress];
 
-        // verify vault deployed at this address for this geyser
-        require(vault.deployed, "Geyser: no vault deployed at this address for this geyser");
+        // verify vault at this address for this geyser
+        require(
+            _vaultSet[geyserID].contains(vaultAddress),
+            "Geyser: no vault at this address for this geyser"
+        );
 
         // require msg.sender is vault owner
         require(IVault(vaultAddress).getOwner() == msg.sender, "Geyser: only vault owner");
@@ -563,10 +605,13 @@ contract Geyser is Powered, Ownable, CloneFactory {
         GeyserData storage geyser = _geysers[geyserID];
 
         // fetch vault storage reference
-        VaultData storage vault = geyser.vaults[vaultAddress];
+        VaultData storage vault = _vaults[geyserID][vaultAddress];
 
-        // verify vault deployed at this address for this geyser
-        require(vault.deployed, "Geyser: no vault deployed at this address for this geyser");
+        // verify vault at this address for this geyser
+        require(
+            _vaultSet[geyserID].contains(vaultAddress),
+            "Geyser: no vault at this address for this geyser"
+        );
 
         // require msg.sender is vault owner
         require(IVault(vaultAddress).getOwner() == msg.sender, "Geyser: only vault owner");

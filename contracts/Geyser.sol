@@ -13,6 +13,8 @@ import {CloneFactory} from "./Factory/CloneFactory.sol";
 
 import {DecimalMath} from "./Math/DecimalMath.sol";
 
+import {Powered} from "./PowerSwitch/Powered.sol";
+
 interface IERC20Detailed is IERC20 {
     function decimals() external view returns (uint8);
 
@@ -23,8 +25,7 @@ interface IERC20Detailed is IERC20 {
 
 // todo: #3 make geyser upgradable
 // todo: #4 update documentation with math
-// todo: #14 consider adding an emergency stop
-contract Geyser is Ownable, CloneFactory {
+contract Geyser is Powered, Ownable, CloneFactory {
     // todo: #6 consider using CarefulMath
     // https://github.com/compound-finance/compound-protocol/blob/master/contracts/CarefulMath.sol
     using SafeMath for uint256;
@@ -107,6 +108,12 @@ contract Geyser is Ownable, CloneFactory {
         uint256 reward
     );
 
+    /// initializer ///
+
+    constructor(address powerSwitch) {
+        Powered._setPowerSwitch(powerSwitch);
+    }
+
     /// admin functions ///
 
     /// @notice Create new geyser program
@@ -120,7 +127,7 @@ contract Geyser is Ownable, CloneFactory {
         uint256 rewardScalingFloor,
         uint256 rewardScalingCeiling,
         uint256 rewardScalingTime
-    ) external onlyOwner returns (uint256 geyserID) {
+    ) external onlyOwner onlyOnline returns (uint256 geyserID) {
         // the scaling floor must be smaller than ceiling
         require(rewardScalingFloor <= rewardScalingCeiling, "Geyser: rewardScalingFloor above 100");
 
@@ -134,8 +141,8 @@ contract Geyser is Ownable, CloneFactory {
             "Geyser: reward token has insuficient decimals"
         );
 
-        // deploy reward token pool
-        bytes memory args = abi.encode(rewardToken);
+        // deploy reward pool
+        bytes memory args = abi.encode(Powered._getPowerSwitch());
         address rewardPool = IFactory(tokenPoolFactory).create(args);
 
         // get geyserID
@@ -168,7 +175,7 @@ contract Geyser is Ownable, CloneFactory {
         uint256 geyserID,
         uint256 amount,
         uint256 duration
-    ) external onlyOwner {
+    ) external onlyOwner onlyOnline {
         // fetch geyser storage reference
         GeyserData storage geyser = _geysers[geyserID];
 
@@ -216,7 +223,7 @@ contract Geyser is Ownable, CloneFactory {
     }
 
     // register bonus token
-    function registerBonusToken(uint256 geyserID, address token) external onlyOwner {
+    function registerBonusToken(uint256 geyserID, address token) external onlyOwner onlyOnline {
         // fetch geyser storage reference
         GeyserData storage geyser = _geysers[geyserID];
 
@@ -233,7 +240,7 @@ contract Geyser is Ownable, CloneFactory {
         address token,
         address recipient,
         uint256 amount
-    ) external onlyOwner {
+    ) external onlyOwner onlyOnline {
         // fetch geyser storage reference
         GeyserData storage geyser = _geysers[geyserID];
 
@@ -250,13 +257,14 @@ contract Geyser is Ownable, CloneFactory {
     }
 
     // update pool template
-    function updateTokenPoolFactory(address factory) external onlyOwner {
+    function updateTokenPoolFactory(address factory) external onlyOwner onlyOnline {
         tokenPoolFactory = factory;
         emit TokenPoolFactoryUpdated(factory, msg.sender);
     }
 
     // update vault template
-    function updateVaultTemplate(address template) external onlyOwner {}
+    // todo: implement updating vault template
+    function updateVaultTemplate(address template) external onlyOwner onlyOnline {}
 
     /// user functions ///
 
@@ -274,7 +282,7 @@ contract Geyser is Ownable, CloneFactory {
         uint256 geyserID,
         address vaultAddress,
         uint256 amount
-    ) external {
+    ) external onlyOnline {
         // fetch geyser storage reference
         GeyserData storage geyser = _geysers[geyserID];
 
@@ -339,7 +347,7 @@ contract Geyser is Ownable, CloneFactory {
         address vaultAddress,
         uint256 amount,
         address recipient
-    ) external {
+    ) external onlyOnline {
         // fetch geyser storage reference
         GeyserData storage geyser = _geysers[geyserID];
 
@@ -549,7 +557,7 @@ contract Geyser is Ownable, CloneFactory {
         uint256 geyserID,
         address vaultAddress,
         address recipient
-    ) external {
+    ) external onlyOnline {
         // fetch geyser storage reference
         GeyserData storage geyser = _geysers[geyserID];
 
@@ -574,6 +582,8 @@ contract Geyser is Ownable, CloneFactory {
         // transfer tokens to recipient
         IVault(vaultAddress).sendERC20(geyser.stakingToken, recipient, amount);
     }
+
+    /// internal functions ///
 
     /// @notice Update stake unit accounting
     // todo: #13 consider updating stake unit accounting in memory to avoid storage writes

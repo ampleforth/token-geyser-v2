@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity 0.7.4;
 
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ECDSA} from "@openzeppelin/contracts/cryptography/ECDSA.sol";
+
+import {Ownable} from "./Ownable.sol";
 
 interface IERC1271 {
     function isValidSignature(bytes32 _messageHash, bytes memory _signature)

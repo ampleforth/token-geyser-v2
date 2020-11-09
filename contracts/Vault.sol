@@ -1,13 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity 0.7.4;
 
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Initializable} from "@openzeppelin/contracts/proxy/Initializable.sol";
 
-import {Powered} from "../PowerSwitch/Powered.sol";
-
-import {ERC1271} from "./ERC1271.sol";
+import {Powered} from "./PowerSwitch/Powered.sol";
+import {ERC1271, Ownable} from "./Access/ERC1271.sol";
 
 interface IVault {
     function initialize(
@@ -42,8 +40,7 @@ contract Vault is IVault, ERC1271, Powered {
         uint256 geyserID
     ) public override initializer {
         // set initialization data
-        // todo: #21 set ownership directly to user instead of factory to save 5k gas per deploy
-        Ownable.transferOwnership(owner);
+        Ownable._setOwnership(owner);
         // todo: consider hardcoding powerswitch address to save on vault deployment consts
         Powered._setPowerSwitch(powerSwitch);
         _stakingToken = stakingToken;

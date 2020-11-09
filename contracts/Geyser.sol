@@ -3,12 +3,11 @@ pragma solidity 0.7.4;
 pragma experimental ABIEncoderV2;
 
 import {SafeMath} from "@openzeppelin/contracts/math/SafeMath.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/EnumerableSet.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import {IVault} from "./Vault/Vault.sol";
-import {IRewardPool} from "./RewardPool/RewardPool.sol";
+import {IVault} from "./Vault.sol";
+import {IRewardPool} from "./RewardPool.sol";
 
 import {IFactory} from "./Factory/IFactory.sol";
 import {CloneFactory} from "./Factory/CloneFactory.sol";
@@ -16,6 +15,7 @@ import {CloneFactory} from "./Factory/CloneFactory.sol";
 import {DecimalMath} from "./Math/DecimalMath.sol";
 
 import {Powered} from "./PowerSwitch/Powered.sol";
+import {Ownable} from "./Access/Ownable.sol";
 
 interface IERC20Detailed is IERC20 {
     function decimals() external view returns (uint8);
@@ -25,7 +25,6 @@ interface IERC20Detailed is IERC20 {
     function symbol() external view returns (string memory);
 }
 
-// todo: #3 make geyser upgradable
 // todo: #4 update documentation with math
 contract Geyser is Powered, Ownable, CloneFactory {
     // todo: #6 consider using CarefulMath
@@ -35,7 +34,7 @@ contract Geyser is Powered, Ownable, CloneFactory {
     using DecimalMath for uint8;
     using EnumerableSet for EnumerableSet.AddressSet;
 
-    /// constants ///
+    /* constants */
 
     uint256 public constant BASE_SHARES_PER_WEI = 1000000;
 
@@ -47,14 +46,14 @@ contract Geyser is Powered, Ownable, CloneFactory {
         return input.div(DecimalMath.unit(decimals));
     }
 
-    /// storage ///
+    /* storage */
 
-    // token pool factory
-    address public tokenPoolFactory;
+    // reward pool factory
+    address private _rewardPoolFactory;
 
-    // token vault template
+    // vault template
     // todo: #5 consider using efficient address
-    address public tokenVaultTemplate;
+    address private _vaultTemplate;
 
     // geysers
     GeyserData[] private _geysers;
@@ -93,14 +92,15 @@ contract Geyser is Powered, Ownable, CloneFactory {
         uint256 timestamp;
     }
 
-    /// admin events ///
+    /* admin events */
 
     event GeyserCreated(uint256 geyserID);
     event GeyserFunded(uint256 geyserID, uint256 amount, uint256 duration);
     event BonusTokenRegistered(uint256 geyserID, address token);
-    event TokenPoolFactoryUpdated(address newFactory, address caller);
+    event RewardPoolFactoryUpdated(address oldFactory, address newFactory);
+    event VaultTemplateUpdated(address oldTemplate, address newFactory);
 
-    /// user events ///
+    /* user events */
 
     event Deposit(uint256 geyserID, address vault, uint256 amount);
     event Withdraw(
@@ -111,7 +111,7 @@ contract Geyser is Powered, Ownable, CloneFactory {
         uint256 reward
     );
 
-    /// getter functions ///
+    /* getter functions */
 
     function getGeyserSetLength(uint256 geyserID) external view returns (GeyserData memory geyser) {
         return _geysers[geyserID];
@@ -141,13 +141,22 @@ contract Geyser is Powered, Ownable, CloneFactory {
         return _vaults[geyserID][vaultAddress];
     }
 
-    /// initializer ///
+    function getRewardPoolFactory() external view returns (address factory) {
+        return _rewardPoolFactory;
+    }
 
-    constructor(address powerSwitch) {
+    function getVaultTemplate() external view returns (address template) {
+        return _vaultTemplate;
+    }
+
+    /* initializer */
+
+    function initialize(address owner, address powerSwitch) external initializer {
+        Ownable._setOwnership(owner);
         Powered._setPowerSwitch(powerSwitch);
     }
 
-    /// admin functions ///
+    /* admin functions */
 
     /// @notice Create new geyser program
     /// access control: only admin
@@ -176,7 +185,7 @@ contract Geyser is Powered, Ownable, CloneFactory {
 
         // deploy reward pool
         bytes memory args = abi.encode(Powered._getPowerSwitch());
-        address rewardPool = IFactory(tokenPoolFactory).create(args);
+        address rewardPool = IFactory(_rewardPoolFactory).create(args);
 
         // get geyserID
         geyserID = _geysers.length;
@@ -289,17 +298,19 @@ contract Geyser is Powered, Ownable, CloneFactory {
         IRewardPool(geyser.rewardPool).sendERC20(token, recipient, amount);
     }
 
-    // update pool template
-    function updateTokenPoolFactory(address factory) external onlyOwner onlyOnline {
-        tokenPoolFactory = factory;
-        emit TokenPoolFactoryUpdated(factory, msg.sender);
+    // update reward pool factory
+    function updateRewardPoolFactory(address factory) external onlyOwner onlyOnline {
+        emit RewardPoolFactoryUpdated(_rewardPoolFactory, factory);
+        _rewardPoolFactory = factory;
     }
 
     // update vault template
-    // todo: implement updating vault template
-    function updateVaultTemplate(address template) external onlyOwner onlyOnline {}
+    function updateVaultTemplate(address template) external onlyOwner onlyOnline {
+        emit VaultTemplateUpdated(_vaultTemplate, template);
+        _vaultTemplate = template;
+    }
 
-    /// user functions ///
+    /* user functions */
 
     /// @notice Deposit staking tokens
     /// access control: anyone
@@ -338,7 +349,7 @@ contract Geyser is Powered, Ownable, CloneFactory {
             );
 
             // create vault clone
-            vaultAddress = CloneFactory._create(tokenVaultTemplate, args);
+            vaultAddress = CloneFactory._create(_vaultTemplate, args);
 
             // add vault to vault set
             // should never fail given fresh vault deployment
@@ -629,7 +640,7 @@ contract Geyser is Powered, Ownable, CloneFactory {
         IVault(vaultAddress).sendERC20(geyser.stakingToken, recipient, amount);
     }
 
-    /// internal functions ///
+    /* internal functions */
 
     /// @notice Update stake unit accounting
     // todo: #13 consider updating stake unit accounting in memory to avoid storage writes

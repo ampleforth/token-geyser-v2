@@ -299,6 +299,7 @@ contract Geyser is Powered, Ownable, CloneFactory {
                 IVault.initialize.selector,
                 geyser.stakingToken,
                 msg.sender,
+                Powered._getPowerSwitch(),
                 geyserID
             );
 

@@ -7,8 +7,9 @@ import {RewardPool} from "./RewardPool.sol";
 /// @title Reward Pool Factory
 /// @dev Security contact: dev-support@ampleforth.org
 contract RewardPoolFactory is IFactory {
-    function create(bytes calldata) external override returns (address) {
-        RewardPool pool = new RewardPool();
+    function create(bytes calldata args) external override returns (address) {
+        address powerSwitch = abi.decode(args, (address));
+        RewardPool pool = new RewardPool(powerSwitch);
         pool.transferOwnership(msg.sender);
         return address(pool);
     }

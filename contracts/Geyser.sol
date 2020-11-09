@@ -286,14 +286,22 @@ contract Geyser is Ownable, CloneFactory {
 
         // create vault if first deposit, else verify vault is deployed
         if (vaultAddress == address(0)) {
+            // craft initialization calldata
             bytes memory args = abi.encodeWithSelector(
                 IVault.initialize.selector,
                 geyser.stakingToken,
                 msg.sender,
                 geyserID
             );
+
+            // create vault clone
             vaultAddress = CloneFactory._create(tokenVaultTemplate, args);
+
+            // fetch vault storage reference
             vault = geyser.vaults[vaultAddress];
+
+            // store deployment status
+            vault.deployed = true;
         } else {
             // verify vault deployed at this address for this geyser
             require(vault.deployed, "Geyser: no vault deployed at this address for this geyser");

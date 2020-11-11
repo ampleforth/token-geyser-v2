@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity 0.7.4;
 
-import {IFactory} from "../Factory/IFactory.sol";
-import {RewardPool} from "./RewardPool.sol";
+import {IFactory} from "./IFactory.sol";
+import {RewardPool} from "../RewardPool.sol";
 
 /// @title Reward Pool Factory
 /// @dev Security contact: dev-support@ampleforth.org

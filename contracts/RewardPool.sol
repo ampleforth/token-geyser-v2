@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity 0.7.4;
 
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import {Powered} from "../PowerSwitch/Powered.sol";
+import {Powered} from "./PowerSwitch/Powered.sol";
+import {Ownable} from "./Access/Ownable.sol";
 
 interface IRewardPool {
     function sendERC20(
@@ -21,6 +21,7 @@ interface IRewardPool {
 // todo: #18 consider adding support for other token standards to reward pool
 contract RewardPool is IRewardPool, Powered, Ownable {
     constructor(address powerSwitch) {
+        Ownable._setOwnership(msg.sender);
         Powered._setPowerSwitch(powerSwitch);
     }
 

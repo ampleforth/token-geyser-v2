@@ -29,9 +29,9 @@ interface IVault {
 // todo: #15 consider adding support for other token standards to vault
 contract Vault is IVault, ERC1271, Powered {
     // todo: #17 consider packing vault storage
-    address public _stakingToken;
-    address public _geyser;
-    uint256 public _geyserID;
+    address private _stakingToken;
+    address private _geyser;
+    uint256 private _geyserID;
 
     function initialize(
         address stakingToken,
@@ -48,14 +48,34 @@ contract Vault is IVault, ERC1271, Powered {
         _geyserID = geyserID;
     }
 
+    /* getter functions */
+
+    function getOwner() external view override returns (address owner) {
+        return Ownable.owner();
+    }
+
+    function getStakingToken() external view returns (address stakingToken) {
+        return _stakingToken;
+    }
+
+    function getGeyser() external view returns (address geyser) {
+        return _geyser;
+    }
+
+    function getGeyserID() external view returns (uint256 geyserID) {
+        return _geyserID;
+    }
+
+    /* user functions */
+
     function sendERC20(
         address token,
         address to,
         uint256 value
-    ) external override onlyOwner {
+    ) external override {
         // validate access control
         if (token == _stakingToken && !Powered.isOffline()) {
-            // only the geyser can transfer the staking tokens
+            // only the geyser can transfer the staking tokens when online
             require(msg.sender == _geyser, "Vault: only geyser can transfer staking token");
         } else {
             // only the owner can transfer all other tokens
@@ -70,9 +90,5 @@ contract Vault is IVault, ERC1271, Powered {
 
         // transfer tokens
         require(IERC20(token).transfer(to, value), "Vault: token transfer failed");
-    }
-
-    function getOwner() external view override returns (address owner) {
-        return Ownable.owner();
     }
 }

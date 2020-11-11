@@ -7,6 +7,8 @@ import {Initializable} from "@openzeppelin/contracts/proxy/Initializable.sol";
 
 import {Powered} from "../PowerSwitch/Powered.sol";
 
+import {ERC1271} from "./ERC1271.sol";
+
 interface IVault {
     function initialize(
         address stakingToken,
@@ -27,8 +29,7 @@ interface IVault {
 /// @title Vault
 /// @dev Security contact: dev-support@ampleforth.org
 // todo: #15 consider adding support for other token standards to vault
-// todo: #16 consider adding support for ERC1271 to vault
-contract Vault is IVault, Ownable, Powered {
+contract Vault is IVault, ERC1271, Powered {
     // todo: #17 consider packing vault storage
     address public _stakingToken;
     address public _geyser;

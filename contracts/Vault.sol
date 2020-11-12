@@ -74,12 +74,17 @@ contract Vault is IVault, ERC1271, Powered {
         uint256 value
     ) external override {
         // validate access control
-        if (token == _stakingToken && !Powered.isOffline()) {
-            // only the geyser can transfer the staking tokens when online
-            require(msg.sender == _geyser, "Vault: only geyser can transfer staking token");
-        } else {
+        // when online
+        // - only the geyser can transfer staking token
+        // - only the owner can transfer all other tokens
+        // when offline
+        // - only the owner can transfer any tokens
+        if (token != _stakingToken || Powered.isOffline()) {
             // only the owner can transfer all other tokens
             require(msg.sender == Ownable.owner(), "Vault: only owner can transfer other tokens");
+        } else {
+            // only the geyser can transfer the staking tokens when online
+            require(msg.sender == _geyser, "Vault: only geyser can transfer staking token");
         }
 
         // validate recipient

@@ -412,7 +412,7 @@ contract Geyser is Powered, Ownable, CloneFactory {
         );
 
         // require msg.sender is vault owner
-        require(IVault(vaultAddress).getOwner() == msg.sender, "Geyser: only vault owner");
+        require(IVault(vaultAddress).owner() == msg.sender, "Geyser: only vault owner");
 
         // get reward token decimals
         uint8 decimals = IERC20Detailed(geyser.rewardToken).decimals();
@@ -625,7 +625,7 @@ contract Geyser is Powered, Ownable, CloneFactory {
         );
 
         // require msg.sender is vault owner
-        require(IVault(vaultAddress).getOwner() == msg.sender, "Geyser: only vault owner");
+        require(IVault(vaultAddress).owner() == msg.sender, "Geyser: only vault owner");
 
         // validate recipient
         recipient = validateRecipient(geyser, vaultAddress, recipient);

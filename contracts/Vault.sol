@@ -10,7 +10,7 @@ import {ERC1271, Ownable} from "./Access/ERC1271.sol";
 interface IVault {
     function initialize(
         address stakingToken,
-        address owner,
+        address ownerAddress,
         address powerSwitch,
         uint256 geyserID
     ) external;
@@ -21,7 +21,7 @@ interface IVault {
         uint256 value
     ) external;
 
-    function getOwner() external view returns (address owner);
+    function owner() external view returns (address ownerAddress);
 }
 
 /// @title Vault
@@ -35,12 +35,12 @@ contract Vault is IVault, ERC1271, Powered {
 
     function initialize(
         address stakingToken,
-        address owner,
+        address ownerAddress,
         address powerSwitch,
         uint256 geyserID
     ) public override initializer {
         // set initialization data
-        Ownable._setOwnership(owner);
+        Ownable._setOwnership(ownerAddress);
         // todo: consider hardcoding powerswitch address to save on vault deployment consts
         Powered._setPowerSwitch(powerSwitch);
         _stakingToken = stakingToken;
@@ -50,7 +50,7 @@ contract Vault is IVault, ERC1271, Powered {
 
     /* getter functions */
 
-    function getOwner() external view override returns (address owner) {
+    function owner() public view override(IVault, Ownable) returns (address ownerAddress) {
         return Ownable.owner();
     }
 

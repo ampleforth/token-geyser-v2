@@ -26,7 +26,7 @@ contract ERC1271 is IERC1271, Ownable {
         override
         returns (bytes4)
     {
-        require(signature.length == 65, "ERC1271: Invalid _signature length");
+        require(signature.length == 65, "ERC1271: Invalid signature length");
         address signer = messageHash.recover(signature);
         return signer == Ownable.owner() ? VALID_SIG : INVALID_SIG;
     }

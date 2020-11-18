@@ -91,7 +91,7 @@ contract Geyser is Powered, Ownable, CloneFactory {
 
     /* admin events */
 
-    event GeyserCreated();
+    event GeyserCreated(address rewardPool, address powerSwitch);
     event GeyserFunded(uint256 amount, uint256 duration);
     event BonusTokenRegistered(address token);
     event VaultTemplateUpdated(address oldTemplate, address newFactory);
@@ -131,8 +131,8 @@ contract Geyser is Powered, Ownable, CloneFactory {
 
     function initialize(
         address owner,
-        address powerSwitch,
         address rewardPoolFactory,
+        address powerSwitchFactory,
         address stakingToken,
         address rewardToken,
         uint256 rewardScalingFloor,
@@ -152,13 +152,15 @@ contract Geyser is Powered, Ownable, CloneFactory {
             "Geyser: reward token has insuficient decimals"
         );
 
-        // set external contracts
-        Ownable._setOwnership(owner);
-        Powered._setPowerSwitch(powerSwitch);
+        // deploy power switch
+        address powerSwitch = IFactory(powerSwitchFactory).create(abi.encode(owner));
 
         // deploy reward pool
-        bytes memory args = abi.encode(powerSwitch);
-        address rewardPool = IFactory(rewardPoolFactory).create(args);
+        address rewardPool = IFactory(rewardPoolFactory).create(abi.encode(powerSwitch));
+
+        // set internal configs
+        Ownable._setOwnership(owner);
+        Powered._setPowerSwitch(powerSwitch);
 
         // commit to storage
         _geyser.stakingToken = stakingToken;
@@ -167,6 +169,9 @@ contract Geyser is Powered, Ownable, CloneFactory {
         _geyser.rewardScalingFloor = rewardScalingFloor;
         _geyser.rewardScalingCeiling = rewardScalingCeiling;
         _geyser.rewardScalingTime = rewardScalingTime;
+
+        // emit event
+        emit GeyserCreated(rewardPool, powerSwitch);
     }
 
     /* admin functions */

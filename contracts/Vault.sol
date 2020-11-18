@@ -11,8 +11,7 @@ interface IVault {
     function initialize(
         address stakingToken,
         address ownerAddress,
-        address powerSwitch,
-        uint256 geyserID
+        address powerSwitch
     ) external;
 
     function sendERC20(
@@ -28,24 +27,24 @@ interface IVault {
 /// @dev Security contact: dev-support@ampleforth.org
 // todo: #15 consider adding support for other token standards to vault
 contract Vault is IVault, ERC1271, Powered {
+    /* storage */
+
     // todo: #17 consider packing vault storage
     address private _stakingToken;
     address private _geyser;
-    uint256 private _geyserID;
+
+    /* initializer */
 
     function initialize(
         address stakingToken,
         address ownerAddress,
-        address powerSwitch,
-        uint256 geyserID
+        address powerSwitch
     ) public override initializer {
         // set initialization data
         Ownable._setOwnership(ownerAddress);
-        // todo: consider hardcoding powerswitch address to save on vault deployment consts
         Powered._setPowerSwitch(powerSwitch);
         _stakingToken = stakingToken;
         _geyser = msg.sender;
-        _geyserID = geyserID;
     }
 
     /* getter functions */
@@ -62,10 +61,6 @@ contract Vault is IVault, ERC1271, Powered {
         return _geyser;
     }
 
-    function getGeyserID() external view returns (uint256 geyserID) {
-        return _geyserID;
-    }
-
     /* user functions */
 
     function sendERC20(
@@ -79,7 +74,7 @@ contract Vault is IVault, ERC1271, Powered {
         // - only the owner can transfer all other tokens
         // when offline
         // - only the owner can transfer any tokens
-        if (token != _stakingToken || Powered.isOffline()) {
+        if (token != _stakingToken || Powered.isShutdown()) {
             // only the owner can transfer all other tokens
             require(msg.sender == Ownable.owner(), "Vault: only owner can transfer other tokens");
         } else {

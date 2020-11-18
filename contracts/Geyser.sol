@@ -94,7 +94,7 @@ contract Geyser is Powered, Ownable, CloneFactory {
     event GeyserCreated(address rewardPool, address powerSwitch);
     event GeyserFunded(uint256 amount, uint256 duration);
     event BonusTokenRegistered(address token);
-    event VaultTemplateUpdated(address oldTemplate, address newFactory);
+    event VaultTemplateUpdated(address oldTemplate, address newTemplate);
 
     /* user events */
 

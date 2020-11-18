@@ -6569,10 +6569,10 @@ solc@0.7.3:
     semver "^5.5.0"
     tmp "0.0.33"
 
-solc@0.7.4:
-  version "0.7.4"
-  resolved "https://registry.yarnpkg.com/solc/-/solc-0.7.4.tgz#9c5ed81ae0692e3e614e47cd5b500b0f9485b98d"
-  integrity sha512-IVLqAfUkJqgTS0JIgFPeC50ehUeBXu2eE+iU+rqb6UeOyf6w/BB/EsNcTSTpjtUti8BTG/sCd2qVhrWVYy7p0g==
+solc@0.7.5:
+  version "0.7.5"
+  resolved "https://registry.yarnpkg.com/solc/-/solc-0.7.5.tgz#8dad9536075a113adcbcb2ace80d486b389f273c"
+  integrity sha512-RdcYGj2qjg+maWYRZPW65QvOOYbwexDT9xaOEQJtRI0TIYfzTJmslJ4f9S56VNjJsIR1zHdUIiPyuhF7wGIylw==
   dependencies:
     command-exists "^1.2.8"
     commander "3.0.2"

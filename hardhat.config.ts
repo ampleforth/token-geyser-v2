@@ -5,7 +5,7 @@ import '@nomiclabs/hardhat-waffle'
 
 export default {
   solidity: {
-    version: '0.7.4',
+    version: '0.7.5',
   },
   mocha: {
     timeout: 100000,

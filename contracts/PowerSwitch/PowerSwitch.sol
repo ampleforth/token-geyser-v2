@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity 0.7.4;
 
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {Ownable} from "../Access/Ownable.sol";
 
 interface IPowerSwitch {
     function powerOff() external;
@@ -15,6 +15,10 @@ contract PowerSwitch is IPowerSwitch, Ownable {
     bool private _offline;
 
     event PowerOff();
+
+    constructor(address owner) {
+        Ownable._setOwnership(owner);
+    }
 
     function powerOff() external override onlyOwner {
         require(_offline == false, "PowerSwitch: already off");

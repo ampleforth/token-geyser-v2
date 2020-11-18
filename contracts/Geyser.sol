@@ -471,101 +471,7 @@ contract Geyser is Powered, Ownable, CloneFactory {
         }
 
         // calculate vault time weighted reward with scaling
-        // todo: #12 consider implementing reward calculations with recursion
-        uint256 reward = 0;
-        {
-            // calculate vault time weighted stake using LIFO
-            uint256 amountToWithdraw = amount;
-            while (amountToWithdraw > 0) {
-                // fetch vault stake storage reference
-                StakeData storage lastStake = vault.stakes[vault.stakes.length.sub(1)];
-
-                // calculate stake duration
-                uint256 stakeDuration = block.timestamp.sub(lastStake.timestamp);
-
-                // calculate base reward
-                uint256 baseReward;
-                {
-                    // get the stake amount to withdraw from the last stake
-                    uint256 currentAmount;
-                    if (lastStake.amount <= amountToWithdraw) {
-                        // set current amount to total amount in this stake
-                        currentAmount = lastStake.amount;
-
-                        // delete stake data
-                        vault.stakes.pop();
-                    } else {
-                        // set current amount to remaining withdrawl amount
-                        currentAmount = amountToWithdraw;
-
-                        // update stake data
-                        lastStake.amount = lastStake.amount.sub(currentAmount);
-                    }
-
-                    // update cached total vault and geyser deposits
-                    // todo: consider removing vault totalStake cache and calculate dynamically
-                    vault.totalStake = vault.totalStake.sub(currentAmount);
-                    geyser.totalStake = geyser.totalStake.sub(currentAmount);
-
-                    // decrement counter
-                    amountToWithdraw = amountToWithdraw.sub(currentAmount);
-
-                    // calculate time weighted stake
-                    uint256 stakeUnits = currentAmount.mul(stakeDuration);
-
-                    // calculate base reward
-                    // baseReward = rewardAvailable * stakeUnits / totalStakeUnits
-                    // todo: #19 should stakeUnits be converted to decimals before multiplication?
-                    baseReward = rewardAvailable.mul(stakeUnits).div(geyser.totalStakeUnits);
-
-                    // update cached totalStakeUnits
-                    // todo: consider updating in memory to avoid storage writes
-                    geyser.totalStakeUnits = geyser.totalStakeUnits.sub(stakeUnits);
-                }
-
-                // calculate scaled reward
-                // if no scaling or scaling period completed
-                //   reward = baseReward
-                // else
-                //   minReward = baseReward * scalingFloor
-                //   bonusReward = baseReward
-                //                 * (scalingCeiling - scalingFloor)
-                //                 * duration / scalingTime
-                //   reward = minReward + bonusReward
-                uint256 currentReward;
-                if (
-                    stakeDuration >= geyser.rewardScalingTime ||
-                    geyser.rewardScalingFloor == geyser.rewardScalingCeiling
-                ) {
-                    // no reward scaling applied
-                    currentReward = baseReward;
-                } else {
-                    // calculate minimum reward using scaling floor
-                    uint256 minReward = baseReward.muld(
-                        toDecimals(geyser.rewardScalingFloor, decimals - 2),
-                        decimals
-                    );
-
-                    // calculate bonus reward with vested portion of scaling factor
-                    uint256 bonusReward = baseReward
-                        .muld(
-                        toDecimals(
-                            geyser.rewardScalingCeiling.sub(geyser.rewardScalingFloor),
-                            decimals - 2
-                        ),
-                        decimals
-                    )
-                        .mul(stakeDuration)
-                        .div(geyser.rewardScalingTime);
-
-                    // add minimum reward and bonus reward
-                    currentReward = minReward.add(bonusReward);
-                }
-
-                // add reward to total reward counter
-                reward = reward.add(currentReward);
-            }
-        }
+        uint256 reward = calculateRewardRecursively(geyser, vault, amount, rewardAvailable);
 
         // update reward shares outstanding
         {
@@ -653,6 +559,162 @@ contract Geyser is Powered, Ownable, CloneFactory {
         geyser.totalStakeUnits = geyser.totalStakeUnits.add(newStakeUnits);
         // update cached lastUpdate
         geyser.lastUpdate = block.timestamp;
+    }
+
+    function calculateRewardRecursively(
+        GeyserData storage geyser,
+        VaultData storage vault,
+        uint256 amountToWithdraw,
+        uint256 rewardAvailable
+    ) private returns (uint256 reward) {
+        // fetch vault stake storage reference
+        StakeData memory lastStake = vault.stakes[vault.stakes.length.sub(1)];
+
+        // calculate stake duration
+        uint256 stakeDuration = block.timestamp.sub(lastStake.timestamp);
+
+        if (lastStake.amount > amountToWithdraw) {
+            // if size of last stake is more than amountToWithdraw -> base case
+            // - set current amount
+            // - calculate current reward
+            // - update last stake amount in storage
+            // - update cached values (vault.totalStake, geyser.totalStake, geyser.totalStakeUnits)
+            // - return current reward
+
+            // set current amount to remaining withdrawl amount
+            uint256 currentAmount = amountToWithdraw;
+
+            // calculate reward amount
+            (uint256 currentReward, uint256 stakeUnits) = calculateCurrentReward(
+                geyser,
+                IntermediateValue(rewardAvailable, currentAmount, stakeDuration)
+            );
+
+            // update stake data
+            lastStake.amount = lastStake.amount.sub(currentAmount);
+
+            // update cached total vault and geyser deposits
+            // todo: consider removing vault totalStake cache and calculate dynamically
+            vault.totalStake = vault.totalStake.sub(currentAmount);
+            geyser.totalStake = geyser.totalStake.sub(currentAmount);
+
+            // update cached totalStakeUnits
+            // todo: consider updating in memory to avoid storage writes
+            geyser.totalStakeUnits = geyser.totalStakeUnits.sub(stakeUnits);
+
+            // return reward amount
+            return currentReward;
+        } else {
+            // else if size of last stake is less than amountToWithdraw -> recursive case
+            // - set current amount
+            // - calculate current reward
+            // - delete last stake
+            // - update cached values (vault.totalStake, geyser.totalStake, geyser.totalStakeUnits)
+            // - recurse with updated amountToWithdraw and rewardAvailable
+            // - return sum of recursion and current reward
+
+            // set current amount to total amount in this stake
+            uint256 currentAmount = lastStake.amount;
+
+            // calculate reward amount
+            (uint256 currentReward, uint256 stakeUnits) = calculateCurrentReward(
+                geyser,
+                IntermediateValue(rewardAvailable, currentAmount, stakeDuration)
+            );
+
+            // delete stake data
+            vault.stakes.pop();
+
+            // update cached total vault and geyser deposits
+            // todo: consider removing vault totalStake cache and calculate dynamically
+            vault.totalStake = vault.totalStake.sub(currentAmount);
+            geyser.totalStake = geyser.totalStake.sub(currentAmount);
+
+            // update cached totalStakeUnits
+            // todo: consider updating in memory to avoid storage writes
+            geyser.totalStakeUnits = geyser.totalStakeUnits.sub(stakeUnits);
+
+            // recurse
+            uint256 recursiveSum = calculateRewardRecursively(
+                geyser,
+                vault,
+                amountToWithdraw.sub(currentAmount),
+                rewardAvailable.sub(currentReward)
+            );
+
+            // return reward sum
+            return recursiveSum.add(currentReward);
+        }
+    }
+
+    // used to avoid hitting stack depth limit
+    struct IntermediateValue {
+        uint256 rewardAvailable;
+        uint256 currentAmount;
+        uint256 stakeDuration;
+    }
+
+    function calculateCurrentReward(GeyserData storage geyser, IntermediateValue memory params)
+        internal
+        view
+        returns (uint256 currentReward, uint256 stakeUnits)
+    {
+        // - calculate stake units
+        // - calculate stake units / total stake units as size of withdrawl
+        // - multiply by reward availalbe to determine base reward
+        // - apply reward scaling to obtain current reward
+
+        // get reward token decimals
+        uint8 decimals = IERC20Detailed(geyser.rewardToken).decimals();
+
+        // calculate time weighted stake
+        stakeUnits = params.currentAmount.mul(params.stakeDuration);
+
+        // calculate base reward
+        // baseReward = rewardAvailable * stakeUnits / totalStakeUnits
+        // todo: #19 should stakeUnits be converted to decimals before multiplication?
+        uint256 baseReward = params.rewardAvailable.mul(stakeUnits).div(geyser.totalStakeUnits);
+
+        // calculate scaled reward
+        // if no scaling or scaling period completed
+        //   currentReward = baseReward
+        // else
+        //   minReward = baseReward * scalingFloor
+        //   bonusReward = baseReward
+        //                 * (scalingCeiling - scalingFloor)
+        //                 * duration / scalingTime
+        //   currentReward = minReward + bonusReward
+        if (
+            params.stakeDuration >= geyser.rewardScalingTime ||
+            geyser.rewardScalingFloor == geyser.rewardScalingCeiling
+        ) {
+            // no reward scaling applied
+            currentReward = baseReward;
+        } else {
+            // calculate minimum reward using scaling floor
+            uint256 minReward = baseReward.muld(
+                toDecimals(geyser.rewardScalingFloor, decimals - 2),
+                decimals
+            );
+
+            // calculate bonus reward with vested portion of scaling factor
+            uint256 bonusReward = baseReward
+                .muld(
+                toDecimals(
+                    geyser.rewardScalingCeiling.sub(geyser.rewardScalingFloor),
+                    decimals - 2
+                ),
+                decimals
+            )
+                .mul(params.stakeDuration)
+                .div(geyser.rewardScalingTime);
+
+            // add minimum reward and bonus reward
+            currentReward = minReward.add(bonusReward);
+        }
+
+        // return scaled reward
+        return (currentReward, stakeUnits);
     }
 
     // validate recipient

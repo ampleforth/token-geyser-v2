@@ -20,27 +20,33 @@ interface IRewardPool {
 /// @dev Security contact: dev-support@ampleforth.org
 // todo: #18 consider adding support for other token standards to reward pool
 contract RewardPool is IRewardPool, Powered, Ownable {
+    /* initializer */
+
     constructor(address powerSwitch) {
         Ownable._setOwnership(msg.sender);
         Powered._setPowerSwitch(powerSwitch);
     }
 
+    /* user functions */
+
     function sendERC20(
         address token,
         address to,
         uint256 value
-    ) external override onlyOwner onlyOnline {
+    ) external override onlyOwner notShutdown {
         require(IERC20(token).transfer(to, value), "RewardPool: token transfer failed");
     }
+
+    /* emergency functions */
 
     function rescueERC20(address[] calldata tokens, address recipient)
         external
         override
-        onlyOffline
+        onlyShutdown
     {
         // only callable by controller
         require(
-            msg.sender == Powered._getPowerController(),
+            msg.sender == Powered.getPowerController(),
             "RewardPool: only controller can withdraw after shutdown"
         );
 

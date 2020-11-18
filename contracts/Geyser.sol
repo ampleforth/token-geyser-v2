@@ -240,7 +240,7 @@ contract Geyser is Powered, Ownable, CloneFactory {
         address token,
         address recipient,
         uint256 amount
-    ) external onlyOwner onlyOnline {
+    ) external onlyOwner notShutdown {
         // check not attempting to withdraw reward token
         require(token != _geyser.rewardToken, "Geyser: cannot rescue reward token");
 
@@ -254,7 +254,7 @@ contract Geyser is Powered, Ownable, CloneFactory {
     }
 
     // update vault template
-    function updateVaultTemplate(address template) external onlyOwner onlyOnline {
+    function updateVaultTemplate(address template) external onlyOwner notShutdown {
         emit VaultTemplateUpdated(_vaultTemplate, template);
         _vaultTemplate = template;
     }
@@ -287,7 +287,7 @@ contract Geyser is Powered, Ownable, CloneFactory {
                 IVault.initialize.selector,
                 _geyser.stakingToken,
                 msg.sender,
-                Powered._getPowerSwitch()
+                Powered.getPowerSwitch()
             );
 
             // create vault clone
@@ -453,7 +453,7 @@ contract Geyser is Powered, Ownable, CloneFactory {
     // rescue tokens from vault
     function rescueStakingTokensFromVault(address vaultAddress, address recipient)
         external
-        onlyOnline
+        notShutdown
     {
         // fetch vault storage reference
         VaultData storage vault = _vaults[vaultAddress];

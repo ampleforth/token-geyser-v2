@@ -5,33 +5,57 @@ import {IPowerSwitch} from "./PowerSwitch.sol";
 import {Initializable} from "@openzeppelin/contracts/proxy/Initializable.sol";
 
 contract Powered is Initializable {
+    /* storage */
+
     address private _powerSwitch;
 
+    /* modifiers */
+
     modifier onlyOnline() {
-        require(!isOffline(), "Powered: is offline");
+        require(isOnline(), "Powered: is not online");
         _;
     }
 
     modifier onlyOffline() {
-        require(isOffline(), "Powered: is online");
+        require(isOffline(), "Powered: is not offline");
         _;
     }
 
-    // initializer
+    modifier notShutdown() {
+        require(!isShutdown(), "Powered: is shutdown");
+        _;
+    }
+
+    modifier onlyShutdown() {
+        require(isShutdown(), "Powered: is not shutdown");
+        _;
+    }
+
+    /* initializer */
+
     function _setPowerSwitch(address powerSwitch) internal initializer {
         _powerSwitch = powerSwitch;
     }
 
-    // getters
+    /* getter functions */
+
+    function isOnline() public view returns (bool status) {
+        return IPowerSwitch(_powerSwitch).isOnline();
+    }
+
     function isOffline() public view returns (bool status) {
         return IPowerSwitch(_powerSwitch).isOffline();
     }
 
-    function _getPowerSwitch() internal view returns (address powerSwitch) {
+    function isShutdown() public view returns (bool status) {
+        return IPowerSwitch(_powerSwitch).isShutdown();
+    }
+
+    function getPowerSwitch() public view returns (address powerSwitch) {
         return _powerSwitch;
     }
 
-    function _getPowerController() internal view returns (address controller) {
+    function getPowerController() public view returns (address controller) {
         return IPowerSwitch(_powerSwitch).getPowerController();
     }
 }

@@ -33,7 +33,7 @@ contract RewardPool is IRewardPool, Powered, Ownable {
         address token,
         address to,
         uint256 value
-    ) external override onlyOwner notShutdown {
+    ) external override onlyOwner onlyOnline {
         require(IERC20(token).transfer(to, value), "RewardPool: token transfer failed");
     }
 

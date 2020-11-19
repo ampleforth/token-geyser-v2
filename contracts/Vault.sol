@@ -73,20 +73,29 @@ contract Vault is IVault, ERC1271, Powered {
         // - only the geyser can transfer staking token
         // - only the owner can transfer all other tokens
         // when offline
+        // - no one can transfer staking token
+        // - only the owner can transfer all other tokens
+        // when shutdown
         // - only the owner can transfer any tokens
-        if (token != _stakingToken || Powered.isShutdown()) {
-            // only the owner can transfer all other tokens
-            require(msg.sender == Ownable.owner(), "Vault: only owner can transfer other tokens");
-        } else {
+        if (token == _stakingToken && Powered.isOnline()) {
             // only the geyser can transfer the staking tokens when online
-            require(msg.sender == _geyser, "Vault: only geyser can transfer staking token");
+            require(
+                msg.sender == _geyser,
+                "Vault: only geyser can transfer staking token when online"
+            );
+        } else if (token == _stakingToken && Powered.isOffline()) {
+            // no one can transfer the staking tokens when offline
+            revert("Vault: cannot transfer staking token when offline");
+        } else {
+            // only the owner can transfer all other tokens
+            require(msg.sender == Ownable.owner(), "Vault: only owner can transfer");
         }
 
         // validate recipient
         require(to != address(this), "Vault: cannot transfer tokens back to the vault");
         require(to != address(0), "Vault: cannot transfer tokens to null");
         require(to != token, "Vault: cannot transfer tokens to token");
-        require(to != _geyser, "Vault: cannot transfer tokens to token");
+        require(to != _geyser, "Vault: cannot transfer tokens to geyser");
 
         // transfer tokens
         require(IERC20(token).transfer(to, value), "Vault: token transfer failed");

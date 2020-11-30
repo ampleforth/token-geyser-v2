@@ -5,8 +5,20 @@ import '@nomiclabs/hardhat-waffle'
 import '@openzeppelin/hardhat-upgrades'
 
 export default {
+  networks: {
+    hardhat: {
+      allowUnlimitedContractSize: true,
+    },
+  },
   solidity: {
-    version: '0.7.5',
+    compilers: [
+      {
+        version: '0.4.24',
+      },
+      {
+        version: '0.7.5',
+      },
+    ],
   },
   mocha: {
     timeout: 100000,

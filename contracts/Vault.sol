@@ -20,7 +20,13 @@ interface IVault {
         uint256 value
     ) external;
 
+    function transferOwnership(address newOwner) external;
+
     function owner() external view returns (address ownerAddress);
+
+    function getStakingToken() external view returns (address stakingToken);
+
+    function getGeyser() external view returns (address geyser);
 }
 
 /// @title Vault
@@ -53,15 +59,19 @@ contract Vault is IVault, ERC1271, Powered {
         return Ownable.owner();
     }
 
-    function getStakingToken() external view returns (address stakingToken) {
+    function getStakingToken() external view override returns (address stakingToken) {
         return _stakingToken;
     }
 
-    function getGeyser() external view returns (address geyser) {
+    function getGeyser() external view override returns (address geyser) {
         return _geyser;
     }
 
     /* user functions */
+
+    function transferOwnership(address newOwner) public override(IVault, Ownable) {
+        Ownable.transferOwnership(newOwner);
+    }
 
     function sendERC20(
         address token,

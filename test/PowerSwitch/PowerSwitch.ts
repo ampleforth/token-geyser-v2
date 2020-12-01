@@ -1,6 +1,6 @@
 import { ethers } from 'hardhat'
 import { Contract } from 'ethers'
-import { HardHatSigner } from '../utils'
+import { deployContract, HardHatSigner } from '../utils'
 
 import { expect } from 'chai'
 
@@ -12,14 +12,8 @@ describe('PowerSwitch', function () {
     // prepare signers
     accounts = await ethers.getSigners()
     // deploy mock
-    await deployMock()
+    Mock = await deployContract('PowerSwitch', [accounts[0].address])
   })
-
-  async function deployMock() {
-    const factory = await ethers.getContractFactory('PowerSwitch')
-    Mock = await factory.deploy(accounts[0].address)
-    await Mock.deployed()
-  }
 
   describe('powerOn', function () {
     it('should fail if msg.sender is not admin', async function () {

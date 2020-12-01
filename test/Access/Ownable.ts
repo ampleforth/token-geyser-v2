@@ -1,6 +1,6 @@
 import { ethers } from 'hardhat'
 import { Contract } from 'ethers'
-import { HardHatSigner } from '../utils'
+import { deployContract, HardHatSigner } from '../utils'
 
 import { expect } from 'chai'
 
@@ -12,14 +12,8 @@ describe('Ownable', function () {
     // prepare signers
     accounts = await ethers.getSigners()
     // deploy mock
-    await deployMock()
+    MockOwnable = await deployContract('MockOwnable', [accounts[0].address])
   })
-
-  async function deployMock() {
-    const factory = await ethers.getContractFactory('MockOwnable')
-    MockOwnable = await factory.deploy(accounts[0].address)
-    await MockOwnable.deployed()
-  }
 
   describe('restrictedCall', function () {
     it('should fail if not called by owner', async function () {

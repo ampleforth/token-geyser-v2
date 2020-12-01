@@ -1,6 +1,6 @@
 import { ethers } from 'hardhat'
 import { Contract } from 'ethers'
-import { HardHatSigner } from '../utils'
+import { deployContract, HardHatSigner } from '../utils'
 
 import { expect } from 'chai'
 
@@ -16,17 +16,11 @@ describe('ERC1271', function () {
     // prepare signers
     accounts = await ethers.getSigners()
     // deploy mock
-    await deployMock()
-  })
-
-  async function deployMock() {
-    const factory = await ethers.getContractFactory('MockERC1271')
-    MockERC1271 = await factory.deploy()
-    await MockERC1271.deployed()
+    MockERC1271 = await deployContract('MockERC1271')
     VALID_SIG = MockERC1271.interface.getSighash(
       'isValidSignature(bytes32,bytes)',
     )
-  }
+  })
 
   describe('isValidSignature', function () {
     describe('base case', function () {

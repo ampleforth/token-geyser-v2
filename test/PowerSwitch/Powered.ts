@@ -1,6 +1,6 @@
 import { ethers } from 'hardhat'
 import { Contract } from 'ethers'
-import { HardHatSigner } from '../utils'
+import { deployContract, HardHatSigner } from '../utils'
 
 import { expect } from 'chai'
 
@@ -13,21 +13,9 @@ describe('Powered', function () {
     // prepare signers
     accounts = await ethers.getSigners()
     // deploy mock
-    await deployPowerSwitch()
-    await deployMock()
+    PowerSwitch = await deployContract('PowerSwitch', [accounts[0].address])
+    Mock = await deployContract('MockPowered', [PowerSwitch.address])
   })
-
-  async function deployPowerSwitch() {
-    const factory = await ethers.getContractFactory('PowerSwitch')
-    PowerSwitch = await factory.deploy(accounts[0].address)
-    await PowerSwitch.deployed()
-  }
-
-  async function deployMock() {
-    const factory = await ethers.getContractFactory('MockPowered')
-    Mock = await factory.deploy(PowerSwitch.address)
-    await Mock.deployed()
-  }
 
   describe('getPowerSwitch', function () {
     it('should succeed', async function () {

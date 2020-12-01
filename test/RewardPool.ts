@@ -1,6 +1,6 @@
 import { ethers } from 'hardhat'
-import { BigNumberish, Contract } from 'ethers'
-import { HardHatSigner } from './utils'
+import { Contract } from 'ethers'
+import { deployContract, HardHatSigner } from './utils'
 
 import { expect } from 'chai'
 
@@ -15,29 +15,10 @@ describe('RewardPool', function () {
     // prepare signers
     accounts = await ethers.getSigners()
     // deploy mock
-    await deployPowerSwitch()
-    await deployMock()
-    ERC20 = await deployERC20(Mock.address, amount)
+    PowerSwitch = await deployContract('PowerSwitch', [accounts[1].address])
+    Mock = await deployContract('RewardPool', [PowerSwitch.address])
+    ERC20 = await deployContract('MockERC20', [Mock.address, amount])
   })
-
-  async function deployPowerSwitch() {
-    const factory = await ethers.getContractFactory('PowerSwitch')
-    PowerSwitch = await factory.deploy(accounts[1].address)
-    await PowerSwitch.deployed()
-  }
-
-  async function deployERC20(recipient: string, amount: BigNumberish) {
-    const factory = await ethers.getContractFactory('MockERC20')
-    const ERC20 = await factory.deploy(recipient, amount)
-    await ERC20.deployed()
-    return ERC20
-  }
-
-  async function deployMock() {
-    const factory = await ethers.getContractFactory('RewardPool')
-    Mock = await factory.deploy(PowerSwitch.address)
-    await Mock.deployed()
-  }
 
   describe('sendERC20', function () {
     it('should succeed if msg.sender is admin', async function () {
@@ -191,7 +172,7 @@ describe('RewardPool', function () {
       let num = 100
       let tokens = []
       for (let index = 0; index < num; index++) {
-        tokens.push(await deployERC20(Mock.address, amount))
+        tokens.push(await deployContract('MockERC20', [Mock.address, amount]))
       }
       let txPromise = Mock.connect(accounts[1]).rescueERC20(
         tokens.map((token) => token.address),

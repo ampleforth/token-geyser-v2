@@ -1,6 +1,6 @@
 import { ethers, network } from 'hardhat'
 import { BigNumberish, Contract, Signer } from 'ethers'
-import { HardHatSigner } from './utils'
+import { deployContract, HardHatSigner } from './utils'
 
 import { expect } from 'chai'
 
@@ -17,27 +17,17 @@ describe('RewardPool', function () {
     // prepare signers
     accounts = await ethers.getSigners()
     // deploy mock
-    await deployPowerSwitch()
-    StakingToken = await deployERC20(accounts[0].address, amount)
-    await deployMock()
+    PowerSwitch = await deployContract('PowerSwitch', [accounts[1].address])
+    StakingToken = await deployContract('MockERC20', [
+      accounts[0].address,
+      amount,
+    ])
+    Mock = await deployVault()
     await StakingToken.transfer(Mock.address, amount)
-    ERC20 = await deployERC20(Mock.address, amount)
+    ERC20 = await deployContract('MockERC20', [Mock.address, amount])
   })
 
-  async function deployPowerSwitch() {
-    const factory = await ethers.getContractFactory('PowerSwitch')
-    PowerSwitch = await factory.deploy(accounts[1].address)
-    await PowerSwitch.deployed()
-  }
-
-  async function deployERC20(recipient: string, amount: BigNumberish) {
-    const factory = await ethers.getContractFactory('MockERC20')
-    const ERC20 = await factory.deploy(recipient, amount)
-    await ERC20.deployed()
-    return ERC20
-  }
-
-  async function deployMock() {
+  async function deployVault() {
     const template = await (await ethers.getContractFactory('Vault')).deploy()
     const CloneFactory = await (
       await ethers.getContractFactory('MockCloneFactory')
@@ -58,12 +48,12 @@ describe('RewardPool', function () {
       args,
     )
     await CloneFactory.create(template.address, args)
-    Mock = await ethers.getContractAt('Vault', instance, accounts[0])
     await network.provider.request({
       method: 'hardhat_impersonateAccount',
       params: [CloneFactory.address],
     })
     Geyser = ethers.provider.getSigner(CloneFactory.address)
+    return await ethers.getContractAt('Vault', instance, accounts[0])
   }
 
   describe('owner', function () {

@@ -4,6 +4,7 @@ import '@nomiclabs/hardhat-ethers'
 import '@nomiclabs/hardhat-waffle'
 import '@openzeppelin/hardhat-upgrades'
 import 'hardhat-gas-reporter'
+import 'solidity-coverage'
 
 export default {
   networks: {

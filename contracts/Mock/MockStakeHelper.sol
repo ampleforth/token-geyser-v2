@@ -22,7 +22,7 @@ contract MockStakeHelper {
         IGeyser(geyser).deposit(vault, amount);
 
         // withdraw
-        IGeyser(geyser).withdraw(vault, amount, msg.sender);
+        IGeyser(geyser).withdraw(vault, msg.sender, amount);
     }
 
     function multiCreateAndDeposit(address geyser, uint256 amount)

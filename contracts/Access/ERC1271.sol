@@ -12,6 +12,9 @@ interface IERC1271 {
         returns (bytes4 magicValue);
 }
 
+/// @title ERC1271
+/// @notice Ownable wrapper for ERC1271 compatibility
+/// @dev Security contact: dev-support@ampleforth.org
 contract ERC1271 is IERC1271, Ownable {
     using ECDSA for bytes32;
 

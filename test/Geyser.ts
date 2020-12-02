@@ -433,7 +433,7 @@ describe('Geyser', function () {
             })
           })
         })
-        describe.only('after withdrawl', function () {
+        describe('after withdrawl', function () {
           const depositAmount = ethers.utils.parseEther('100')
 
           let vault: Contract

@@ -30,12 +30,11 @@ interface IVault {
 }
 
 /// @title Vault
+/// @notice Vault for isolated storage of staking tokens
 /// @dev Security contact: dev-support@ampleforth.org
-// todo: #15 consider adding support for other token standards to vault
 contract Vault is IVault, ERC1271, Powered {
     /* storage */
 
-    // todo: #17 consider packing vault storage
     address private _stakingToken;
     address private _geyser;
 
@@ -73,6 +72,22 @@ contract Vault is IVault, ERC1271, Powered {
         Ownable.transferOwnership(newOwner);
     }
 
+    /// @notice Send an ERC20 token
+    /// access control:
+    ///   - when online
+    ///     - only the geyser can transfer staking token
+    ///     - only the owner can transfer all other tokens
+    ///   - when offline
+    ///     - no one can transfer staking token
+    ///     - only the owner can transfer all other tokens
+    ///   - when shutdown
+    ///     - only the owner can transfer any tokens
+    /// state machine: anytime
+    /// state scope: none
+    /// token transfer: transfer tokens from self to recipient
+    /// @param token address The token to send
+    /// @param to address The recipient to send to
+    /// @param value uint256 Amount of tokens to send
     function sendERC20(
         address token,
         address to,

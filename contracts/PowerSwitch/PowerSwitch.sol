@@ -23,6 +23,9 @@ interface IPowerSwitch {
     function getPowerController() external view returns (address controller);
 }
 
+/// @title PowerSwitch
+/// @notice Standalone pausing and emergency stop functionality
+/// @dev Security contact: dev-support@ampleforth.org
 contract PowerSwitch is IPowerSwitch, Ownable {
     /* storage */
 

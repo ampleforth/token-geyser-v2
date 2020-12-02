@@ -4,6 +4,9 @@ pragma solidity 0.7.5;
 import {IPowerSwitch} from "./PowerSwitch.sol";
 import {Initializable} from "@openzeppelin/contracts/proxy/Initializable.sol";
 
+/// @title Powered
+/// @notice Helper for calling external PowerSwitch
+/// @dev Security contact: dev-support@ampleforth.org
 contract Powered is Initializable {
     /* storage */
 

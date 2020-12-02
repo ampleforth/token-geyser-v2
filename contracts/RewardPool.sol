@@ -17,8 +17,8 @@ interface IRewardPool {
 }
 
 /// @title Reward Pool
+/// @notice Vault for isolated storage of reward tokens
 /// @dev Security contact: dev-support@ampleforth.org
-// todo: #18 consider adding support for other token standards to reward pool
 contract RewardPool is IRewardPool, Powered, Ownable {
     /* initializer */
 
@@ -29,6 +29,16 @@ contract RewardPool is IRewardPool, Powered, Ownable {
 
     /* user functions */
 
+    /// @notice Send an ERC20 token
+    /// access control: only owner
+    /// state machine:
+    ///   - can be called multiple times
+    ///   - only online
+    /// state scope: none
+    /// token transfer: transfer tokens from self to recipient
+    /// @param token address The token to send
+    /// @param to address The recipient to send to
+    /// @param value uint256 Amount of tokens to send
     function sendERC20(
         address token,
         address to,
@@ -39,6 +49,15 @@ contract RewardPool is IRewardPool, Powered, Ownable {
 
     /* emergency functions */
 
+    /// @notice Rescue multiple ERC20 tokens
+    /// access control: only power controller
+    /// state machine:
+    ///   - can be called multiple times
+    ///   - only shutdown
+    /// state scope: none
+    /// token transfer: transfer tokens from self to recipient
+    /// @param tokens address[] The tokens to rescue
+    /// @param recipient address The recipient to rescue to
     function rescueERC20(address[] calldata tokens, address recipient)
         external
         override

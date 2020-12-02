@@ -433,7 +433,7 @@ describe('Geyser', function () {
             })
           })
         })
-        describe('after withdrawl', function () {
+        describe.only('after withdrawl', function () {
           const depositAmount = ethers.utils.parseEther('100')
 
           let vault: Contract
@@ -445,9 +445,12 @@ describe('Geyser', function () {
               .connect(user)
               .approve(geyser.address, depositAmount)
 
-            vault = await geyser
-              .connect(user)
-              .callStatic.createVaultAndDeposit(depositAmount)
+            vault = await ethers.getContractAt(
+              'Vault',
+              await geyser
+                .connect(user)
+                .callStatic.createVaultAndDeposit(depositAmount),
+            )
             await geyser.connect(user).createVaultAndDeposit(depositAmount)
 
             await increaseTime(rewardScalingDuration)
@@ -464,7 +467,7 @@ describe('Geyser', function () {
               await increaseTime(rewardScalingDuration / 2)
               await geyser
                 .connect(user)
-                .withdraw(vault, depositAmount, user.address)
+                .withdraw(vault.address, user.address, depositAmount)
             })
             it('should succeed', async function () {
               await geyser
@@ -524,7 +527,7 @@ describe('Geyser', function () {
               await increaseTime(rewardScalingDuration)
               await geyser
                 .connect(user)
-                .withdraw(vault, depositAmount, user.address)
+                .withdraw(vault.address, user.address, depositAmount)
             })
             it('should succeed', async function () {
               await geyser
@@ -1326,7 +1329,7 @@ describe('Geyser', function () {
           await geyser.connect(user).deposit(vault.address, depositAmount)
           await geyser
             .connect(user)
-            .withdraw(vault.address, depositAmount, user.address)
+            .withdraw(vault.address, user.address, depositAmount)
           await stakingToken
             .connect(user)
             .approve(geyser.address, depositAmount)
@@ -1482,7 +1485,7 @@ describe('Geyser', function () {
             await expect(
               geyser
                 .connect(user)
-                .withdraw(vault.address, depositAmount, user.address),
+                .withdraw(vault.address, user.address, depositAmount),
             ).to.be.revertedWith('Powered: is not online')
           })
         })
@@ -1492,7 +1495,7 @@ describe('Geyser', function () {
             await expect(
               geyser
                 .connect(user)
-                .withdraw(vault.address, depositAmount, user.address),
+                .withdraw(vault.address, user.address, depositAmount),
             ).to.be.revertedWith('Powered: is not online')
           })
         })
@@ -1501,7 +1504,7 @@ describe('Geyser', function () {
             await expect(
               geyser
                 .connect(user)
-                .withdraw(user.address, depositAmount, user.address),
+                .withdraw(user.address, user.address, depositAmount),
             ).to.be.revertedWith('Geyser: invalid vault')
           })
         })
@@ -1510,7 +1513,7 @@ describe('Geyser', function () {
             await expect(
               geyser
                 .connect(admin)
-                .withdraw(vault.address, depositAmount, user.address),
+                .withdraw(vault.address, user.address, depositAmount),
             ).to.be.revertedWith('Geyser: only vault owner')
           })
         })
@@ -1520,7 +1523,7 @@ describe('Geyser', function () {
               await expect(
                 geyser
                   .connect(user)
-                  .withdraw(vault.address, depositAmount, vault.address),
+                  .withdraw(vault.address, vault.address, depositAmount),
               ).to.be.revertedWith('Geyser: invalid address')
             })
           })
@@ -1529,7 +1532,7 @@ describe('Geyser', function () {
               await expect(
                 geyser
                   .connect(user)
-                  .withdraw(vault.address, depositAmount, geyser.address),
+                  .withdraw(vault.address, geyser.address, depositAmount),
               ).to.be.revertedWith('Geyser: invalid address')
             })
           })
@@ -1540,8 +1543,8 @@ describe('Geyser', function () {
                   .connect(user)
                   .withdraw(
                     vault.address,
-                    depositAmount,
                     ethers.constants.AddressZero,
+                    depositAmount,
                   ),
               ).to.be.revertedWith('Geyser: invalid address')
             })
@@ -1551,7 +1554,7 @@ describe('Geyser', function () {
               await expect(
                 geyser
                   .connect(user)
-                  .withdraw(vault.address, depositAmount, stakingToken.address),
+                  .withdraw(vault.address, stakingToken.address, depositAmount),
               ).to.be.revertedWith('Geyser: invalid address')
             })
           })
@@ -1560,7 +1563,7 @@ describe('Geyser', function () {
               await expect(
                 geyser
                   .connect(user)
-                  .withdraw(vault.address, depositAmount, rewardToken.address),
+                  .withdraw(vault.address, rewardToken.address, depositAmount),
               ).to.be.revertedWith('Geyser: invalid address')
             })
           })
@@ -1569,7 +1572,7 @@ describe('Geyser', function () {
               await expect(
                 geyser
                   .connect(user)
-                  .withdraw(vault.address, depositAmount, rewardPool.address),
+                  .withdraw(vault.address, rewardPool.address, depositAmount),
               ).to.be.revertedWith('Geyser: invalid address')
             })
           })
@@ -1577,7 +1580,7 @@ describe('Geyser', function () {
         describe('with amount of zero', function () {
           it('should fail', async function () {
             await expect(
-              geyser.connect(user).withdraw(vault.address, 0, user.address),
+              geyser.connect(user).withdraw(vault.address, user.address, 0),
             ).to.be.revertedWith('Geyser: no amount withdrawn')
           })
         })
@@ -1586,7 +1589,7 @@ describe('Geyser', function () {
             await expect(
               geyser
                 .connect(user)
-                .withdraw(vault.address, depositAmount.add(1), user.address),
+                .withdraw(vault.address, user.address, depositAmount.add(1)),
             ).to.be.revertedWith('Geyser: insufficient vault stake')
           })
         })
@@ -1620,12 +1623,12 @@ describe('Geyser', function () {
         it('should succeed', async function () {
           await geyser
             .connect(user)
-            .withdraw(vault.address, depositAmount, user.address)
+            .withdraw(vault.address, user.address, depositAmount)
         })
         it('should update state', async function () {
           await geyser
             .connect(user)
-            .withdraw(vault.address, depositAmount, user.address)
+            .withdraw(vault.address, user.address, depositAmount)
 
           const geyserData = await geyser.getGeyserData()
           const vaultData = await geyser.getVaultData(vault.address)
@@ -1641,7 +1644,7 @@ describe('Geyser', function () {
           await expect(
             geyser
               .connect(user)
-              .withdraw(vault.address, depositAmount, user.address),
+              .withdraw(vault.address, user.address, depositAmount),
           )
             .to.emit(geyser, 'Withdraw')
             .withArgs(vault.address, user.address, depositAmount, rewardAmount)
@@ -1649,7 +1652,7 @@ describe('Geyser', function () {
         it('should transfer tokens', async function () {
           const txPromise = geyser
             .connect(user)
-            .withdraw(vault.address, depositAmount, user.address)
+            .withdraw(vault.address, user.address, depositAmount)
           await expect(txPromise)
             .to.emit(rewardToken, 'Transfer')
             .withArgs(rewardPool.address, user.address, rewardAmount)
@@ -1695,12 +1698,12 @@ describe('Geyser', function () {
         it('should succeed', async function () {
           await geyser
             .connect(user)
-            .withdraw(vault.address, depositAmount, user.address)
+            .withdraw(vault.address, user.address, depositAmount)
         })
         it('should update state', async function () {
           await geyser
             .connect(user)
-            .withdraw(vault.address, depositAmount, user.address)
+            .withdraw(vault.address, user.address, depositAmount)
 
           const geyserData = await geyser.getGeyserData()
           const vaultData = await geyser.getVaultData(vault.address)
@@ -1718,7 +1721,7 @@ describe('Geyser', function () {
           await expect(
             geyser
               .connect(user)
-              .withdraw(vault.address, depositAmount, user.address),
+              .withdraw(vault.address, user.address, depositAmount),
           )
             .to.emit(geyser, 'Withdraw')
             .withArgs(
@@ -1731,7 +1734,7 @@ describe('Geyser', function () {
         it('should transfer tokens', async function () {
           const txPromise = geyser
             .connect(user)
-            .withdraw(vault.address, depositAmount, user.address)
+            .withdraw(vault.address, user.address, depositAmount)
           await expect(txPromise)
             .to.emit(rewardToken, 'Transfer')
             .withArgs(rewardPool.address, user.address, expectedReward)
@@ -1764,12 +1767,12 @@ describe('Geyser', function () {
         it('should succeed', async function () {
           await geyser
             .connect(user)
-            .withdraw(vault.address, depositAmount, user.address)
+            .withdraw(vault.address, user.address, depositAmount)
         })
         it('should update state', async function () {
           await geyser
             .connect(user)
-            .withdraw(vault.address, depositAmount, user.address)
+            .withdraw(vault.address, user.address, depositAmount)
 
           const geyserData = await geyser.getGeyserData()
           const vaultData = await geyser.getVaultData(vault.address)
@@ -1785,7 +1788,7 @@ describe('Geyser', function () {
           await expect(
             geyser
               .connect(user)
-              .withdraw(vault.address, depositAmount, user.address),
+              .withdraw(vault.address, user.address, depositAmount),
           )
             .to.emit(geyser, 'Withdraw')
             .withArgs(
@@ -1798,7 +1801,7 @@ describe('Geyser', function () {
         it('should transfer tokens', async function () {
           const txPromise = geyser
             .connect(user)
-            .withdraw(vault.address, depositAmount, user.address)
+            .withdraw(vault.address, user.address, depositAmount)
           await expect(txPromise)
             .to.emit(stakingToken, 'Transfer')
             .withArgs(vault.address, user.address, depositAmount)
@@ -1840,12 +1843,12 @@ describe('Geyser', function () {
         it('should succeed', async function () {
           await geyser
             .connect(user)
-            .withdraw(vault.address, depositAmount, user.address)
+            .withdraw(vault.address, user.address, depositAmount)
         })
         it('should update state', async function () {
           await geyser
             .connect(user)
-            .withdraw(vault.address, depositAmount, user.address)
+            .withdraw(vault.address, user.address, depositAmount)
 
           const geyserData = await geyser.getGeyserData()
           const vaultData = await geyser.getVaultData(vault.address)
@@ -1863,7 +1866,7 @@ describe('Geyser', function () {
           await expect(
             geyser
               .connect(user)
-              .withdraw(vault.address, depositAmount, user.address),
+              .withdraw(vault.address, user.address, depositAmount),
           )
             .to.emit(geyser, 'Withdraw')
             .withArgs(
@@ -1876,7 +1879,7 @@ describe('Geyser', function () {
         it('should transfer tokens', async function () {
           const txPromise = geyser
             .connect(user)
-            .withdraw(vault.address, depositAmount, user.address)
+            .withdraw(vault.address, user.address, depositAmount)
           await expect(txPromise)
             .to.emit(rewardToken, 'Transfer')
             .withArgs(rewardPool.address, user.address, expectedReward)
@@ -2001,12 +2004,12 @@ describe('Geyser', function () {
         it('should succeed', async function () {
           await geyser
             .connect(user)
-            .withdraw(vault.address, depositAmount, user.address)
+            .withdraw(vault.address, user.address, depositAmount)
         })
         it('should update state', async function () {
           await geyser
             .connect(user)
-            .withdraw(vault.address, depositAmount, user.address)
+            .withdraw(vault.address, user.address, depositAmount)
 
           const geyserData = await geyser.getGeyserData()
           const vaultData = await geyser.getVaultData(vault.address)
@@ -2024,7 +2027,7 @@ describe('Geyser', function () {
           await expect(
             geyser
               .connect(user)
-              .withdraw(vault.address, depositAmount, user.address),
+              .withdraw(vault.address, user.address, depositAmount),
           )
             .to.emit(geyser, 'Withdraw')
             .withArgs(
@@ -2037,7 +2040,7 @@ describe('Geyser', function () {
         it('should transfer tokens', async function () {
           const txPromise = geyser
             .connect(user)
-            .withdraw(vault.address, depositAmount, user.address)
+            .withdraw(vault.address, user.address, depositAmount)
           await expect(txPromise)
             .to.emit(rewardToken, 'Transfer')
             .withArgs(rewardPool.address, user.address, expectedReward)
@@ -2082,12 +2085,12 @@ describe('Geyser', function () {
         it('should succeed', async function () {
           await geyser
             .connect(user)
-            .withdraw(vault.address, depositAmount.div(2), user.address)
+            .withdraw(vault.address, user.address, depositAmount.div(2))
         })
         it('should update state', async function () {
           await geyser
             .connect(user)
-            .withdraw(vault.address, depositAmount.div(2), user.address)
+            .withdraw(vault.address, user.address, depositAmount.div(2))
 
           const geyserData = await geyser.getGeyserData()
           const vaultData = await geyser.getVaultData(vault.address)
@@ -2108,7 +2111,7 @@ describe('Geyser', function () {
           await expect(
             geyser
               .connect(user)
-              .withdraw(vault.address, depositAmount.div(2), user.address),
+              .withdraw(vault.address, user.address, depositAmount.div(2)),
           )
             .to.emit(geyser, 'Withdraw')
             .withArgs(
@@ -2121,7 +2124,7 @@ describe('Geyser', function () {
         it('should transfer tokens', async function () {
           const txPromise = geyser
             .connect(user)
-            .withdraw(vault.address, depositAmount.div(2), user.address)
+            .withdraw(vault.address, user.address, depositAmount.div(2))
           await expect(txPromise)
             .to.emit(rewardToken, 'Transfer')
             .withArgs(rewardPool.address, user.address, expectedReward)
@@ -2179,12 +2182,12 @@ describe('Geyser', function () {
         it('should succeed', async function () {
           await geyser
             .connect(user)
-            .withdraw(vault.address, withdrawAmount, user.address)
+            .withdraw(vault.address, user.address, withdrawAmount)
         })
         it('should update state', async function () {
           await geyser
             .connect(user)
-            .withdraw(vault.address, withdrawAmount, user.address)
+            .withdraw(vault.address, user.address, withdrawAmount)
 
           const geyserData = await geyser.getGeyserData()
           const vaultData = await geyser.getVaultData(vault.address)
@@ -2208,7 +2211,7 @@ describe('Geyser', function () {
           await expect(
             geyser
               .connect(user)
-              .withdraw(vault.address, withdrawAmount, user.address),
+              .withdraw(vault.address, user.address, withdrawAmount),
           )
             .to.emit(geyser, 'Withdraw')
             .withArgs(
@@ -2221,7 +2224,7 @@ describe('Geyser', function () {
         it('should transfer tokens', async function () {
           const txPromise = geyser
             .connect(user)
-            .withdraw(vault.address, withdrawAmount, user.address)
+            .withdraw(vault.address, user.address, withdrawAmount)
           await expect(txPromise)
             .to.emit(rewardToken, 'Transfer')
             .withArgs(rewardPool.address, user.address, expectedReward)
@@ -2279,12 +2282,12 @@ describe('Geyser', function () {
         it('should succeed', async function () {
           await geyser
             .connect(user)
-            .withdraw(vault.address, withdrawAmount, user.address)
+            .withdraw(vault.address, user.address, withdrawAmount)
         })
         it('should update state', async function () {
           await geyser
             .connect(user)
-            .withdraw(vault.address, withdrawAmount, user.address)
+            .withdraw(vault.address, user.address, withdrawAmount)
 
           const geyserData = await geyser.getGeyserData()
           const vaultData = await geyser.getVaultData(vault.address)
@@ -2300,7 +2303,7 @@ describe('Geyser', function () {
           await expect(
             geyser
               .connect(user)
-              .withdraw(vault.address, withdrawAmount, user.address),
+              .withdraw(vault.address, user.address, withdrawAmount),
           )
             .to.emit(geyser, 'Withdraw')
             .withArgs(
@@ -2313,7 +2316,7 @@ describe('Geyser', function () {
         it('should transfer tokens', async function () {
           const txPromise = geyser
             .connect(user)
-            .withdraw(vault.address, withdrawAmount, user.address)
+            .withdraw(vault.address, user.address, withdrawAmount)
           await expect(txPromise)
             .to.emit(rewardToken, 'Transfer')
             .withArgs(rewardPool.address, user.address, expectedReward)
@@ -2358,12 +2361,12 @@ describe('Geyser', function () {
           it('should succeed', async function () {
             await geyser
               .connect(user)
-              .withdraw(vault.address, depositAmount, user.address)
+              .withdraw(vault.address, user.address, depositAmount)
           })
           it('should update state', async function () {
             await geyser
               .connect(user)
-              .withdraw(vault.address, depositAmount, user.address)
+              .withdraw(vault.address, user.address, depositAmount)
 
             const geyserData = await geyser.getGeyserData()
             const vaultData = await geyser.getVaultData(vault.address)
@@ -2379,7 +2382,7 @@ describe('Geyser', function () {
             await expect(
               geyser
                 .connect(user)
-                .withdraw(vault.address, depositAmount, user.address),
+                .withdraw(vault.address, user.address, depositAmount),
             )
               .to.emit(geyser, 'Withdraw')
               .withArgs(
@@ -2392,7 +2395,7 @@ describe('Geyser', function () {
           it('should transfer tokens', async function () {
             const txPromise = geyser
               .connect(user)
-              .withdraw(vault.address, depositAmount, user.address)
+              .withdraw(vault.address, user.address, depositAmount)
             await expect(txPromise)
               .to.emit(rewardToken, 'Transfer')
               .withArgs(rewardPool.address, user.address, rewardAmount)
@@ -2424,12 +2427,12 @@ describe('Geyser', function () {
           it('should succeed', async function () {
             await geyser
               .connect(user)
-              .withdraw(vault.address, depositAmount, user.address)
+              .withdraw(vault.address, user.address, depositAmount)
           })
           it('should update state', async function () {
             await geyser
               .connect(user)
-              .withdraw(vault.address, depositAmount, user.address)
+              .withdraw(vault.address, user.address, depositAmount)
 
             const geyserData = await geyser.getGeyserData()
             const vaultData = await geyser.getVaultData(vault.address)
@@ -2447,7 +2450,7 @@ describe('Geyser', function () {
             await expect(
               geyser
                 .connect(user)
-                .withdraw(vault.address, depositAmount, user.address),
+                .withdraw(vault.address, user.address, depositAmount),
             )
               .to.emit(geyser, 'Withdraw')
               .withArgs(
@@ -2460,7 +2463,7 @@ describe('Geyser', function () {
           it('should transfer tokens', async function () {
             const txPromise = geyser
               .connect(user)
-              .withdraw(vault.address, depositAmount, user.address)
+              .withdraw(vault.address, user.address, depositAmount)
             await expect(txPromise)
               .to.emit(rewardToken, 'Transfer')
               .withArgs(rewardPool.address, user.address, expectedReward)
@@ -2516,15 +2519,15 @@ describe('Geyser', function () {
         it('should succeed', async function () {
           await geyser.connect(user).withdrawMulti(
             vaults,
-            vaults.map(() => depositAmount),
             vaults.map(() => user.address),
+            vaults.map(() => depositAmount),
           )
         })
         it('should update state', async function () {
           await geyser.connect(user).withdrawMulti(
             vaults,
-            vaults.map(() => depositAmount),
             vaults.map(() => user.address),
+            vaults.map(() => depositAmount),
           )
 
           const geyserData = await geyser.getGeyserData()
@@ -2538,8 +2541,8 @@ describe('Geyser', function () {
         it('should emit event', async function () {
           let txPromise = geyser.connect(user).withdrawMulti(
             vaults,
-            vaults.map(() => depositAmount),
             vaults.map(() => user.address),
+            vaults.map(() => depositAmount),
           )
           for (let index = 0; index < vaults.length; index++) {
             await expect(txPromise)
@@ -2555,8 +2558,8 @@ describe('Geyser', function () {
         it('should transfer tokens', async function () {
           let txPromise = geyser.connect(user).withdrawMulti(
             vaults,
-            vaults.map(() => depositAmount),
             vaults.map(() => user.address),
+            vaults.map(() => depositAmount),
           )
           for (let index = 0; index < vaults.length; index++) {
             await expect(txPromise)
@@ -2580,15 +2583,15 @@ describe('Geyser', function () {
         it('should succeed', async function () {
           await geyser.connect(user).withdrawMulti(
             vaults,
-            vaults.map(() => depositAmount),
             vaults.map(() => user.address),
+            vaults.map(() => depositAmount),
           )
         })
         it('should update state', async function () {
           await geyser.connect(user).withdrawMulti(
             vaults,
-            vaults.map(() => depositAmount),
             vaults.map(() => user.address),
+            vaults.map(() => depositAmount),
           )
 
           const geyserData = await geyser.getGeyserData()
@@ -2602,8 +2605,8 @@ describe('Geyser', function () {
         it('should emit event', async function () {
           let txPromise = geyser.connect(user).withdrawMulti(
             vaults,
-            vaults.map(() => depositAmount),
             vaults.map(() => user.address),
+            vaults.map(() => depositAmount),
           )
           for (let index = 0; index < vaults.length; index++) {
             await expect(txPromise)
@@ -2619,8 +2622,8 @@ describe('Geyser', function () {
         it('should transfer tokens', async function () {
           let txPromise = geyser.connect(user).withdrawMulti(
             vaults,
-            vaults.map(() => depositAmount),
             vaults.map(() => user.address),
+            vaults.map(() => depositAmount),
           )
           for (let index = 0; index < vaults.length; index++) {
             await expect(txPromise)
@@ -2644,15 +2647,15 @@ describe('Geyser', function () {
         it('should succeed', async function () {
           await geyser.connect(user).withdrawMulti(
             vaults,
-            vaults.map(() => depositAmount),
             vaults.map(() => user.address),
+            vaults.map(() => depositAmount),
           )
         })
         it('should update state', async function () {
           await geyser.connect(user).withdrawMulti(
             vaults,
-            vaults.map(() => depositAmount),
             vaults.map(() => user.address),
+            vaults.map(() => depositAmount),
           )
 
           const geyserData = await geyser.getGeyserData()
@@ -2666,8 +2669,8 @@ describe('Geyser', function () {
         it('should emit event', async function () {
           let txPromise = geyser.connect(user).withdrawMulti(
             vaults,
-            vaults.map(() => depositAmount),
             vaults.map(() => user.address),
+            vaults.map(() => depositAmount),
           )
           for (let index = 0; index < vaults.length; index++) {
             await expect(txPromise)
@@ -2683,8 +2686,8 @@ describe('Geyser', function () {
         it('should transfer tokens', async function () {
           let txPromise = geyser.connect(user).withdrawMulti(
             vaults,
-            vaults.map(() => depositAmount),
             vaults.map(() => user.address),
+            vaults.map(() => depositAmount),
           )
           for (let index = 0; index < vaults.length; index++) {
             await expect(txPromise)
@@ -2706,8 +2709,8 @@ describe('Geyser', function () {
           await expect(
             geyser.connect(user).withdrawMulti(
               vaults,
-              vaults.map(() => depositAmount),
               vaults.map(() => user.address),
+              vaults.map(() => depositAmount),
             ),
           ).to.be.revertedWith('Powered: is not online')
         })
@@ -2718,8 +2721,8 @@ describe('Geyser', function () {
           await expect(
             geyser.connect(user).withdrawMulti(
               vaults,
-              vaults.map(() => depositAmount),
               vaults.map(() => user.address),
+              vaults.map(() => depositAmount),
             ),
           ).to.be.revertedWith('Powered: is not online')
         })
@@ -2729,8 +2732,8 @@ describe('Geyser', function () {
           await expect(
             geyser.connect(user).withdrawMulti(
               vaults,
-              [depositAmount],
               vaults.map(() => user.address),
+              [depositAmount],
             ),
           ).to.be.revertedWith('Geyser: wrong input array length')
         })
@@ -2740,8 +2743,8 @@ describe('Geyser', function () {
           await expect(
             geyser.connect(user).withdrawMulti(
               vaults,
-              vaults.map(() => depositAmount),
               [user.address],
+              vaults.map(() => depositAmount),
             ),
           ).to.be.revertedWith('Geyser: wrong input array length')
         })

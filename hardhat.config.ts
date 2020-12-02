@@ -27,6 +27,6 @@ export default {
   },
   gasReporter: {
     currency: 'USD',
-    enabled: false,
+    enabled: process.env.REPORT_GAS ? true : false,
   },
 } as HardhatUserConfig

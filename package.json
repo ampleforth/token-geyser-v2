@@ -5,6 +5,8 @@
   "scripts": {
     "compile": "yarn hardhat compile",
     "test": "yarn hardhat test",
+    "profile": "REPORT_GAS=true yarn hardhat test",
+    "coverage": "yarn hardhat coverage",
     "format": "yarn prettier --config .prettierrc --write '**/*.ts' 'contracts/**/*.sol'",
     "lint": "yarn solhint 'contracts/**/*.sol'"
   },

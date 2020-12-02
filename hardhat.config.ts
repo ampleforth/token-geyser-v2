@@ -3,6 +3,7 @@ import { HardhatUserConfig } from 'hardhat/config'
 import '@nomiclabs/hardhat-ethers'
 import '@nomiclabs/hardhat-waffle'
 import '@openzeppelin/hardhat-upgrades'
+import 'hardhat-gas-reporter'
 
 export default {
   networks: {
@@ -22,5 +23,9 @@ export default {
   },
   mocha: {
     timeout: 100000,
+  },
+  gasReporter: {
+    currency: 'USD',
+    enabled: false,
   },
 } as HardhatUserConfig

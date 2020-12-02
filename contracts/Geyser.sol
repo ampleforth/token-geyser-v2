@@ -12,18 +12,8 @@ import {IRewardPool} from "./RewardPool.sol";
 import {IFactory} from "./Factory/IFactory.sol";
 import {CloneFactory} from "./Factory/CloneFactory.sol";
 
-import {DecimalMath} from "./Math/DecimalMath.sol";
-
 import {Powered} from "./PowerSwitch/Powered.sol";
 import {Ownable} from "./Access/Ownable.sol";
-
-interface IERC20Detailed is IERC20 {
-    function decimals() external view returns (uint8);
-
-    function name() external view returns (string memory);
-
-    function symbol() external view returns (string memory);
-}
 
 interface IGeyser {
     struct GeyserData {
@@ -79,21 +69,11 @@ interface IGeyser {
 /// @dev Security contact: dev-support@ampleforth.org
 contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
     using SafeMath for uint256;
-    using DecimalMath for uint256;
-    using DecimalMath for uint8;
     using EnumerableSet for EnumerableSet.AddressSet;
 
     /* constants */
 
     uint256 public constant BASE_SHARES_PER_WEI = 1000000;
-
-    function toDecimals(uint256 input, uint8 decimals) private pure returns (uint256 output) {
-        return input.mul(DecimalMath.unit(decimals));
-    }
-
-    function fromDecimals(uint256 input, uint8 decimals) private pure returns (uint256 output) {
-        return input.div(DecimalMath.unit(decimals));
-    }
 
     /* storage */
 
@@ -182,12 +162,6 @@ contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
         // to disable reward scaling, use rewardScalingFloor == rewardScalingCeiling
         require(rewardScalingTime != 0, "Geyser: rewardScalingTime cannot be zero");
 
-        // reward token must have decimals defined and >= 2 to enable reward scaling
-        require(
-            IERC20Detailed(rewardToken).decimals() >= 2,
-            "Geyser: reward token has insuficient decimals"
-        );
-
         // deploy power switch
         address powerSwitch = IFactory(powerSwitchFactory).create(abi.encode(owner));
 
@@ -228,9 +202,6 @@ contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
         // validate duration
         require(duration != 0, "Geyser: invalid duration");
 
-        // get reward token decimals
-        uint8 decimals = IERC20Detailed(_geyser.rewardToken).decimals();
-
         // create new reward shares
         // if existing rewards on this geyser
         //   mint new shares proportional to % change in rewards remaining
@@ -241,10 +212,7 @@ contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
         uint256 newRewardShares;
         if (_geyser.rewardSharesOutstanding > 0) {
             uint256 rewardRemaining = IERC20(_geyser.rewardToken).balanceOf(_geyser.rewardPool);
-            newRewardShares = _geyser.rewardSharesOutstanding.muld(amount, decimals).divd(
-                rewardRemaining,
-                decimals
-            );
+            newRewardShares = _geyser.rewardSharesOutstanding.mul(amount).div(rewardRemaining);
         } else {
             newRewardShares = amount.mul(BASE_SHARES_PER_WEI);
         }
@@ -490,9 +458,6 @@ contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
         // require msg.sender is vault owner
         require(IVault(vault).owner() == msg.sender, "Geyser: only vault owner");
 
-        // get reward token decimals
-        uint8 decimals = IERC20Detailed(_geyser.rewardToken).decimals();
-
         // get reward amount remaining
         uint256 rewardRemaining = IERC20(_geyser.rewardToken).balanceOf(_geyser.rewardPool);
 
@@ -511,7 +476,7 @@ contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
         updateStakeUnitAccounting();
 
         // calculate vested portion of reward pool
-        uint256 rewardLocked = calculateRewardLocked(rewardRemaining, decimals);
+        uint256 rewardLocked = calculateRewardLocked(rewardRemaining);
 
         // calculate vault time weighted reward with scaling
         uint256 reward = calculateRewardRecursively(
@@ -524,10 +489,7 @@ contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
         if (reward > 0) {
             // calculate shares to burn
             // sharesToBurn = sharesOutstanding * reward / rewardRemaining
-            uint256 sharesToBurn = _geyser.rewardSharesOutstanding.muld(reward, decimals).divd(
-                rewardRemaining,
-                decimals
-            );
+            uint256 sharesToBurn = _geyser.rewardSharesOutstanding.mul(reward).div(rewardRemaining);
 
             // burn claimed shares
             _geyser.rewardSharesOutstanding = _geyser.rewardSharesOutstanding.sub(sharesToBurn);
@@ -619,7 +581,7 @@ contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
         requireNotEqual(recipient, address(0));
     }
 
-    function calculateRewardLocked(uint256 rewardRemaining, uint8 decimals)
+    function calculateRewardLocked(uint256 rewardRemaining)
         private
         view
         returns (uint256 rewardLocked)
@@ -645,10 +607,7 @@ contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
                 currentSharesLocked = 0;
             } else {
                 currentSharesLocked = schedule.shares.sub(
-                    schedule
-                        .shares
-                        .muld(toDecimals(block.timestamp.sub(schedule.start), decimals), decimals)
-                        .divd(toDecimals(schedule.duration, decimals), decimals)
+                    schedule.shares.mul(block.timestamp.sub(schedule.start)).div(schedule.duration)
                 );
             }
 
@@ -658,10 +617,7 @@ contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
 
         // convert shares to reward
         // rewardLocked = sharesLocked * rewardRemaining / sharesOutstanding
-        rewardLocked = sharesLocked.muld(rewardRemaining, decimals).divd(
-            _geyser.rewardSharesOutstanding,
-            decimals
-        );
+        rewardLocked = sharesLocked.mul(rewardRemaining).div(_geyser.rewardSharesOutstanding);
 
         // explicit return
         return rewardLocked;
@@ -755,9 +711,6 @@ contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
         // - multiply by reward availalbe to determine base reward
         // - apply reward scaling to obtain current reward
 
-        // get reward token decimals
-        uint8 decimals = IERC20Detailed(_geyser.rewardToken).decimals();
-
         // calculate time weighted stake
         uint256 stakeUnits = params.currentAmount.mul(params.stakeDuration);
 
@@ -776,9 +729,9 @@ contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
         // if no scaling or scaling period completed
         //   currentReward = baseReward
         // else
-        //   minReward = baseReward * scalingFloor
+        //   minReward = baseReward * scalingFloor / scalingCeiling
         //   bonusReward = baseReward
-        //                 * (scalingCeiling - scalingFloor)
+        //                 * (scalingCeiling - scalingFloor) / scalingCeiling
         //                 * duration / scalingTime
         //   currentReward = minReward + bonusReward
         if (
@@ -789,21 +742,15 @@ contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
             currentReward = baseReward;
         } else {
             // calculate minimum reward using scaling floor
-            uint256 minReward = baseReward.muld(
-                toDecimals(_geyser.rewardScalingFloor, decimals - 2),
-                decimals
+            uint256 minReward = baseReward.mul(_geyser.rewardScalingFloor).div(
+                _geyser.rewardScalingCeiling
             );
 
             // calculate bonus reward with vested portion of scaling factor
             uint256 bonusReward = baseReward
-                .muld(
-                toDecimals(
-                    _geyser.rewardScalingCeiling.sub(_geyser.rewardScalingFloor),
-                    decimals - 2
-                ),
-                decimals
-            )
                 .mul(params.stakeDuration)
+                .mul(_geyser.rewardScalingCeiling.sub(_geyser.rewardScalingFloor))
+                .div(_geyser.rewardScalingCeiling)
                 .div(_geyser.rewardScalingTime);
 
             // add minimum reward and bonus reward

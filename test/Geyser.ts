@@ -28,9 +28,7 @@ describe('Geyser', function () {
   const BASE_SHARES_PER_WEI = 1000000
   const DAY = 24 * 3600
   const YEAR = 365 * DAY
-  const rewardScalingFloor = 33
-  const rewardScalingCeiling = 100
-  const rewardScalingDuration = 60 * DAY
+  const rewardScaling = { floor: 33, ceiling: 100, time: 60 * DAY }
 
   let amplInitialSupply: BigNumber
 
@@ -44,13 +42,13 @@ describe('Geyser', function () {
     const baseReward = rewardAvailable
       .mul(stakeUnits)
       .div(stakeUnits.add(otherStakeUnits))
-    const minReward = baseReward.mul(rewardScalingFloor).div(100)
+    const minReward = baseReward.mul(rewardScaling.floor).div(100)
     const bonusReward = baseReward
-      .mul(rewardScalingCeiling - rewardScalingFloor)
+      .mul(rewardScaling.ceiling - rewardScaling.floor)
       .mul(stakeDuration)
-      .div(rewardScalingDuration)
+      .div(rewardScaling.time)
       .div(100)
-    return stakeDuration >= rewardScalingDuration
+    return stakeDuration >= rewardScaling.time
       ? baseReward
       : minReward.add(bonusReward)
   }
@@ -77,7 +75,7 @@ describe('Geyser', function () {
   })
 
   describe('initialize', function () {
-    describe('when rewardScalingFloor > rewardScalingCeiling', function () {
+    describe('when rewardScaling.floor > rewardScaling.ceiling', function () {
       it('should fail', async function () {
         const args = [
           admin.address,
@@ -86,9 +84,11 @@ describe('Geyser', function () {
           stakingToken.address,
           rewardToken.address,
           vaultTemplate.address,
-          rewardScalingCeiling + 1,
-          rewardScalingCeiling,
-          rewardScalingDuration,
+          [
+            rewardScaling.ceiling + 1,
+            rewardScaling.ceiling,
+            rewardScaling.time,
+          ],
         ]
         await expect(deployGeyser(args)).to.be.reverted
       })
@@ -102,9 +102,7 @@ describe('Geyser', function () {
           stakingToken.address,
           rewardToken.address,
           vaultTemplate.address,
-          rewardScalingFloor,
-          rewardScalingCeiling,
-          0,
+          [rewardScaling.floor, rewardScaling.ceiling, 0],
         ]
         await expect(deployGeyser(args)).to.be.reverted
       })
@@ -118,9 +116,7 @@ describe('Geyser', function () {
           stakingToken.address,
           rewardToken.address,
           vaultTemplate.address,
-          rewardScalingFloor,
-          rewardScalingCeiling,
-          rewardScalingDuration,
+          [rewardScaling.floor, rewardScaling.ceiling, rewardScaling.time],
         ]
         const geyser = await deployGeyser(args)
 
@@ -130,8 +126,8 @@ describe('Geyser', function () {
         expect(data.rewardToken).to.eq(rewardToken.address)
         expect(data.rewardPool).to.not.eq(ethers.constants.AddressZero)
         expect(data.vaultTemplate).to.eq(vaultTemplate.address)
-        expect(data.rewardScalingFloor).to.eq(33)
-        expect(data.rewardScalingCeiling).to.eq(100)
+        expect(data.rewardScaling.floor).to.eq(33)
+        expect(data.rewardScaling.ceiling).to.eq(100)
         expect(data.rewardSharesOutstanding).to.eq(0)
         expect(data.totalStake).to.eq(0)
         expect(data.totalStakeUnits).to.eq(0)
@@ -161,9 +157,7 @@ describe('Geyser', function () {
         stakingToken.address,
         rewardToken.address,
         vaultTemplate.address,
-        rewardScalingFloor,
-        rewardScalingCeiling,
-        rewardScalingDuration,
+        [rewardScaling.floor, rewardScaling.ceiling, rewardScaling.time],
       ]
       geyser = await deployGeyser(args)
       powerSwitch = await ethers.getContractAt(
@@ -453,18 +447,18 @@ describe('Geyser', function () {
             )
             await geyser.connect(user).createVaultAndDeposit(depositAmount)
 
-            await increaseTime(rewardScalingDuration)
+            await increaseTime(rewardScaling.time)
 
             await rewardToken
               .connect(admin)
               .approve(geyser.address, amplInitialSupply)
             await geyser
               .connect(admin)
-              .fundGeyser(amplInitialSupply.div(2), rewardScalingDuration)
+              .fundGeyser(amplInitialSupply.div(2), rewardScaling.time)
           })
           describe('with partial rewards exausted', function () {
             beforeEach(async function () {
-              await increaseTime(rewardScalingDuration / 2)
+              await increaseTime(rewardScaling.time / 2)
               await geyser
                 .connect(user)
                 .withdraw(vault.address, user.address, depositAmount)
@@ -472,12 +466,12 @@ describe('Geyser', function () {
             it('should succeed', async function () {
               await geyser
                 .connect(admin)
-                .fundGeyser(amplInitialSupply.div(2), rewardScalingDuration)
+                .fundGeyser(amplInitialSupply.div(2), rewardScaling.time)
             })
             it('should update state correctly', async function () {
               await geyser
                 .connect(admin)
-                .fundGeyser(amplInitialSupply.div(2), rewardScalingDuration)
+                .fundGeyser(amplInitialSupply.div(2), rewardScaling.time)
 
               const data = await geyser.getGeyserData()
 
@@ -485,15 +479,11 @@ describe('Geyser', function () {
                 amplInitialSupply.mul(BASE_SHARES_PER_WEI).mul(3).div(4),
               )
               expect(data.rewardSchedules.length).to.eq(2)
-              expect(data.rewardSchedules[0].duration).to.eq(
-                rewardScalingDuration,
-              )
+              expect(data.rewardSchedules[0].duration).to.eq(rewardScaling.time)
               expect(data.rewardSchedules[0].shares).to.eq(
                 amplInitialSupply.mul(BASE_SHARES_PER_WEI).div(2),
               )
-              expect(data.rewardSchedules[1].duration).to.eq(
-                rewardScalingDuration,
-              )
+              expect(data.rewardSchedules[1].duration).to.eq(rewardScaling.time)
               expect(data.rewardSchedules[1].start).to.eq(await getTimestamp())
               expect(data.rewardSchedules[1].shares).to.eq(
                 amplInitialSupply.mul(BASE_SHARES_PER_WEI).div(2),
@@ -503,16 +493,16 @@ describe('Geyser', function () {
               await expect(
                 geyser
                   .connect(admin)
-                  .fundGeyser(amplInitialSupply.div(2), rewardScalingDuration),
+                  .fundGeyser(amplInitialSupply.div(2), rewardScaling.time),
               )
                 .to.emit(geyser, 'GeyserFunded')
-                .withArgs(amplInitialSupply.div(2), rewardScalingDuration)
+                .withArgs(amplInitialSupply.div(2), rewardScaling.time)
             })
             it('should transfer tokens', async function () {
               await expect(
                 geyser
                   .connect(admin)
-                  .fundGeyser(amplInitialSupply.div(2), rewardScalingDuration),
+                  .fundGeyser(amplInitialSupply.div(2), rewardScaling.time),
               )
                 .to.emit(rewardToken, 'Transfer')
                 .withArgs(
@@ -524,7 +514,7 @@ describe('Geyser', function () {
           })
           describe('with full rewards exausted', function () {
             beforeEach(async function () {
-              await increaseTime(rewardScalingDuration)
+              await increaseTime(rewardScaling.time)
               await geyser
                 .connect(user)
                 .withdraw(vault.address, user.address, depositAmount)
@@ -532,12 +522,12 @@ describe('Geyser', function () {
             it('should succeed', async function () {
               await geyser
                 .connect(admin)
-                .fundGeyser(amplInitialSupply.div(2), rewardScalingDuration)
+                .fundGeyser(amplInitialSupply.div(2), rewardScaling.time)
             })
             it('should update state correctly', async function () {
               await geyser
                 .connect(admin)
-                .fundGeyser(amplInitialSupply.div(2), rewardScalingDuration)
+                .fundGeyser(amplInitialSupply.div(2), rewardScaling.time)
 
               const data = await geyser.getGeyserData()
 
@@ -545,15 +535,11 @@ describe('Geyser', function () {
                 amplInitialSupply.mul(BASE_SHARES_PER_WEI).div(2),
               )
               expect(data.rewardSchedules.length).to.eq(2)
-              expect(data.rewardSchedules[0].duration).to.eq(
-                rewardScalingDuration,
-              )
+              expect(data.rewardSchedules[0].duration).to.eq(rewardScaling.time)
               expect(data.rewardSchedules[0].shares).to.eq(
                 amplInitialSupply.mul(BASE_SHARES_PER_WEI).div(2),
               )
-              expect(data.rewardSchedules[1].duration).to.eq(
-                rewardScalingDuration,
-              )
+              expect(data.rewardSchedules[1].duration).to.eq(rewardScaling.time)
               expect(data.rewardSchedules[1].start).to.eq(await getTimestamp())
               expect(data.rewardSchedules[1].shares).to.eq(
                 amplInitialSupply.mul(BASE_SHARES_PER_WEI).div(2),
@@ -563,16 +549,16 @@ describe('Geyser', function () {
               await expect(
                 geyser
                   .connect(admin)
-                  .fundGeyser(amplInitialSupply.div(2), rewardScalingDuration),
+                  .fundGeyser(amplInitialSupply.div(2), rewardScaling.time),
               )
                 .to.emit(geyser, 'GeyserFunded')
-                .withArgs(amplInitialSupply.div(2), rewardScalingDuration)
+                .withArgs(amplInitialSupply.div(2), rewardScaling.time)
             })
             it('should transfer tokens', async function () {
               await expect(
                 geyser
                   .connect(admin)
-                  .fundGeyser(amplInitialSupply.div(2), rewardScalingDuration),
+                  .fundGeyser(amplInitialSupply.div(2), rewardScaling.time),
               )
                 .to.emit(rewardToken, 'Transfer')
                 .withArgs(
@@ -661,7 +647,7 @@ describe('Geyser', function () {
             it('should fail', async function () {
               await expect(
                 geyser.connect(admin).registerBonusToken(bonusToken.address),
-              ).to.be.revertedWith('Geyser: bonus token already registered')
+              ).to.be.revertedWith('Geyser: invalid address')
             })
           })
           describe('with different bonus token', function () {
@@ -1034,9 +1020,7 @@ describe('Geyser', function () {
         stakingToken.address,
         rewardToken.address,
         vaultTemplate.address,
-        rewardScalingFloor,
-        rewardScalingCeiling,
-        rewardScalingDuration,
+        [rewardScaling.floor, rewardScaling.ceiling, rewardScaling.time],
       ]
       geyser = await deployGeyser(args)
       powerSwitch = await ethers.getContractAt(
@@ -1459,9 +1443,9 @@ describe('Geyser', function () {
           await rewardToken.connect(admin).approve(geyser.address, rewardAmount)
           await geyser
             .connect(admin)
-            .fundGeyser(rewardAmount, rewardScalingDuration)
+            .fundGeyser(rewardAmount, rewardScaling.time)
 
-          await increaseTime(rewardScalingDuration)
+          await increaseTime(rewardScaling.time)
 
           await stakingToken
             .connect(admin)
@@ -1477,7 +1461,7 @@ describe('Geyser', function () {
             await geyser.getVaultAtIndex(0),
           )
 
-          await increaseTime(rewardScalingDuration)
+          await increaseTime(rewardScaling.time)
         })
         describe('when offline', function () {
           it('should fail', async function () {
@@ -1600,9 +1584,9 @@ describe('Geyser', function () {
           await rewardToken.connect(admin).approve(geyser.address, rewardAmount)
           await geyser
             .connect(admin)
-            .fundGeyser(rewardAmount, rewardScalingDuration)
+            .fundGeyser(rewardAmount, rewardScaling.time)
 
-          await increaseTime(rewardScalingDuration)
+          await increaseTime(rewardScaling.time)
 
           await stakingToken
             .connect(admin)
@@ -1618,7 +1602,7 @@ describe('Geyser', function () {
             await geyser.getVaultAtIndex(0),
           )
 
-          await increaseTime(rewardScalingDuration)
+          await increaseTime(rewardScaling.time)
         })
         it('should succeed', async function () {
           await geyser
@@ -1662,7 +1646,7 @@ describe('Geyser', function () {
         })
       })
       describe('with partially vested stake', function () {
-        const stakeDuration = rewardScalingDuration / 2
+        const stakeDuration = rewardScaling.time / 2
         const expectedReward = calculateExpectedReward(
           depositAmount,
           stakeDuration,
@@ -1675,9 +1659,9 @@ describe('Geyser', function () {
           await rewardToken.connect(admin).approve(geyser.address, rewardAmount)
           await geyser
             .connect(admin)
-            .fundGeyser(rewardAmount, rewardScalingDuration)
+            .fundGeyser(rewardAmount, rewardScaling.time)
 
-          await increaseTime(rewardScalingDuration)
+          await increaseTime(rewardScaling.time)
 
           await stakingToken
             .connect(admin)
@@ -1762,7 +1746,7 @@ describe('Geyser', function () {
             await geyser.getVaultAtIndex(0),
           )
 
-          await increaseTime(rewardScalingDuration)
+          await increaseTime(rewardScaling.time)
         })
         it('should succeed', async function () {
           await geyser
@@ -1810,7 +1794,7 @@ describe('Geyser', function () {
       describe('with partially vested reward', function () {
         const expectedReward = calculateExpectedReward(
           depositAmount,
-          rewardScalingDuration,
+          rewardScaling.time,
           rewardAmount.div(2),
           0,
         )
@@ -1831,14 +1815,14 @@ describe('Geyser', function () {
             await geyser.getVaultAtIndex(0),
           )
 
-          await increaseTime(rewardScalingDuration)
+          await increaseTime(rewardScaling.time)
 
           await rewardToken.connect(admin).approve(geyser.address, rewardAmount)
           await geyser
             .connect(admin)
-            .fundGeyser(rewardAmount, rewardScalingDuration)
+            .fundGeyser(rewardAmount, rewardScaling.time)
 
-          await increaseTime(rewardScalingDuration / 2)
+          await increaseTime(rewardScaling.time / 2)
         })
         it('should succeed', async function () {
           await geyser
@@ -1895,9 +1879,9 @@ describe('Geyser', function () {
           await rewardToken.connect(admin).approve(geyser.address, rewardAmount)
           await geyser
             .connect(admin)
-            .fundGeyser(rewardAmount, rewardScalingDuration)
+            .fundGeyser(rewardAmount, rewardScaling.time)
 
-          await increaseTime(rewardScalingDuration)
+          await increaseTime(rewardScaling.time)
 
           vault = await ethers.getContractAt(
             'Vault',
@@ -1981,9 +1965,9 @@ describe('Geyser', function () {
           await rewardToken.connect(admin).approve(geyser.address, rewardAmount)
           await geyser
             .connect(admin)
-            .fundGeyser(rewardAmount, rewardScalingDuration)
+            .fundGeyser(rewardAmount, rewardScaling.time)
 
-          await increaseTime(rewardScalingDuration)
+          await increaseTime(rewardScaling.time)
 
           await stakingToken
             .connect(admin)
@@ -2052,9 +2036,9 @@ describe('Geyser', function () {
       describe('with partial amount from single deposit', function () {
         const expectedReward = calculateExpectedReward(
           depositAmount.div(2),
-          rewardScalingDuration,
+          rewardScaling.time,
           rewardAmount,
-          depositAmount.div(2).mul(rewardScalingDuration),
+          depositAmount.div(2).mul(rewardScaling.time),
         )
 
         let vault: Contract
@@ -2062,9 +2046,9 @@ describe('Geyser', function () {
           await rewardToken.connect(admin).approve(geyser.address, rewardAmount)
           await geyser
             .connect(admin)
-            .fundGeyser(rewardAmount, rewardScalingDuration)
+            .fundGeyser(rewardAmount, rewardScaling.time)
 
-          await increaseTime(rewardScalingDuration)
+          await increaseTime(rewardScaling.time)
 
           await stakingToken
             .connect(admin)
@@ -2080,7 +2064,7 @@ describe('Geyser', function () {
             await geyser.getVaultAtIndex(0),
           )
 
-          await increaseTime(rewardScalingDuration)
+          await increaseTime(rewardScaling.time)
         })
         it('should succeed', async function () {
           await geyser
@@ -2100,7 +2084,7 @@ describe('Geyser', function () {
           )
           expect(geyserData.totalStake).to.eq(depositAmount.div(2))
           expect(geyserData.totalStakeUnits).to.eq(
-            depositAmount.div(2).mul(rewardScalingDuration),
+            depositAmount.div(2).mul(rewardScaling.time),
           )
           expect(geyserData.lastUpdate).to.eq(await getTimestamp())
           expect(vaultData.totalStake).to.eq(depositAmount.div(2))
@@ -2138,9 +2122,9 @@ describe('Geyser', function () {
         const withdrawAmount = currentDeposit.div(2)
         const expectedReward = calculateExpectedReward(
           withdrawAmount,
-          rewardScalingDuration,
+          rewardScaling.time,
           rewardAmount,
-          currentDeposit.div(2).mul(rewardScalingDuration),
+          currentDeposit.div(2).mul(rewardScaling.time),
         ).sub(1) // account for division dust
 
         let vault: Contract, MockStakeHelper: Contract
@@ -2148,9 +2132,9 @@ describe('Geyser', function () {
           await rewardToken.connect(admin).approve(geyser.address, rewardAmount)
           await geyser
             .connect(admin)
-            .fundGeyser(rewardAmount, rewardScalingDuration)
+            .fundGeyser(rewardAmount, rewardScaling.time)
 
-          await increaseTime(rewardScalingDuration)
+          await increaseTime(rewardScaling.time)
 
           vault = await ethers.getContractAt(
             'Vault',
@@ -2177,7 +2161,7 @@ describe('Geyser', function () {
             3,
           )
 
-          await increaseTime(rewardScalingDuration)
+          await increaseTime(rewardScaling.time)
         })
         it('should succeed', async function () {
           await geyser
@@ -2199,7 +2183,7 @@ describe('Geyser', function () {
             currentDeposit.sub(withdrawAmount),
           )
           expect(geyserData.totalStakeUnits).to.eq(
-            currentDeposit.sub(withdrawAmount).mul(rewardScalingDuration),
+            currentDeposit.sub(withdrawAmount).mul(rewardScaling.time),
           )
           expect(geyserData.lastUpdate).to.eq(await getTimestamp())
           expect(vaultData.totalStake).to.eq(currentDeposit.sub(withdrawAmount))
@@ -2238,7 +2222,7 @@ describe('Geyser', function () {
         const withdrawAmount = currentDeposit
         const expectedReward = calculateExpectedReward(
           withdrawAmount,
-          rewardScalingDuration,
+          rewardScaling.time,
           rewardAmount,
           0,
         )
@@ -2248,9 +2232,9 @@ describe('Geyser', function () {
           await rewardToken.connect(admin).approve(geyser.address, rewardAmount)
           await geyser
             .connect(admin)
-            .fundGeyser(rewardAmount, rewardScalingDuration)
+            .fundGeyser(rewardAmount, rewardScaling.time)
 
-          await increaseTime(rewardScalingDuration)
+          await increaseTime(rewardScaling.time)
 
           vault = await ethers.getContractAt(
             'Vault',
@@ -2277,7 +2261,7 @@ describe('Geyser', function () {
             3,
           )
 
-          await increaseTime(rewardScalingDuration)
+          await increaseTime(rewardScaling.time)
         })
         it('should succeed', async function () {
           await geyser
@@ -2331,9 +2315,9 @@ describe('Geyser', function () {
           await rewardToken.connect(admin).approve(geyser.address, rewardAmount)
           await geyser
             .connect(admin)
-            .fundGeyser(rewardAmount, rewardScalingDuration)
+            .fundGeyser(rewardAmount, rewardScaling.time)
 
-          await increaseTime(rewardScalingDuration)
+          await increaseTime(rewardScaling.time)
 
           await bonusToken
             .connect(admin)
@@ -2356,7 +2340,7 @@ describe('Geyser', function () {
         })
         describe('with fully vested stake', function () {
           beforeEach(async function () {
-            await increaseTime(rewardScalingDuration)
+            await increaseTime(rewardScaling.time)
           })
           it('should succeed', async function () {
             await geyser
@@ -2408,7 +2392,7 @@ describe('Geyser', function () {
           })
         })
         describe('with partially vested stake', function () {
-          const stakeDuration = rewardScalingDuration / 2
+          const stakeDuration = rewardScaling.time / 2
           const expectedReward = calculateExpectedReward(
             depositAmount,
             stakeDuration,
@@ -2486,11 +2470,9 @@ describe('Geyser', function () {
       let vaults: string[]
       beforeEach(async function () {
         await rewardToken.connect(admin).approve(geyser.address, rewardAmount)
-        await geyser
-          .connect(admin)
-          .fundGeyser(rewardAmount, rewardScalingDuration)
+        await geyser.connect(admin).fundGeyser(rewardAmount, rewardScaling.time)
 
-        await increaseTime(rewardScalingDuration)
+        await increaseTime(rewardScaling.time)
 
         MockStakeHelper = await (
           await (
@@ -2513,7 +2495,7 @@ describe('Geyser', function () {
           depositAmount,
         )
 
-        await increaseTime(rewardScalingDuration)
+        await increaseTime(rewardScaling.time)
       })
       describe('when online', function () {
         it('should succeed', async function () {
@@ -2758,9 +2740,7 @@ describe('Geyser', function () {
       let vault: Contract
       beforeEach(async function () {
         await rewardToken.connect(admin).approve(geyser.address, rewardAmount)
-        await geyser
-          .connect(admin)
-          .fundGeyser(rewardAmount, rewardScalingDuration)
+        await geyser.connect(admin).fundGeyser(rewardAmount, rewardScaling.time)
 
         await stakingToken.connect(admin).transfer(user.address, depositAmount)
         await stakingToken.connect(user).approve(geyser.address, depositAmount)

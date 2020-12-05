@@ -43,7 +43,7 @@ export async function deployAmpl(admin: HardHatSigner) {
   return { ampl, amplInitialSupply }
 }
 
-export async function deployGeyser(args: Array<string | number>) {
+export async function deployGeyser(args: Array<any>) {
   const factory = await ethers.getContractFactory('Geyser')
   return upgrades.deployProxy(factory, args, {
     unsafeAllowCustomTypes: true,

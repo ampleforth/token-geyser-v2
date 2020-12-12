@@ -4,7 +4,7 @@ import { deployContract, HardHatSigner } from './utils'
 
 import { expect } from 'chai'
 
-describe('RewardPool', function () {
+describe('Vault', function () {
   let accounts: HardHatSigner[]
   let PowerSwitch: Contract
   let StakingToken: Contract
@@ -219,7 +219,7 @@ describe('RewardPool', function () {
             Mock.address,
             amount,
           ),
-        ).to.be.revertedWith('Vault: cannot transfer tokens back to the vault')
+        ).to.be.revertedWith('Vault: invalid address')
       })
       it('should fail if recipient is address(0)', async function () {
         await expect(
@@ -228,7 +228,7 @@ describe('RewardPool', function () {
             ethers.constants.AddressZero,
             amount,
           ),
-        ).to.be.revertedWith('Vault: cannot transfer tokens to null')
+        ).to.be.revertedWith('Vault: invalid address')
       })
       it('should fail if recipient is token', async function () {
         await expect(
@@ -237,7 +237,7 @@ describe('RewardPool', function () {
             ERC20.address,
             amount,
           ),
-        ).to.be.revertedWith('Vault: cannot transfer tokens to token')
+        ).to.be.revertedWith('Vault: invalid address')
       })
       it('should fail if recipient is geyser', async function () {
         await expect(
@@ -246,7 +246,7 @@ describe('RewardPool', function () {
             await Geyser.getAddress(),
             amount,
           ),
-        ).to.be.revertedWith('Vault: cannot transfer tokens to geyser')
+        ).to.be.revertedWith('Vault: invalid address')
       })
     })
     describe('amount', function () {
@@ -279,6 +279,86 @@ describe('RewardPool', function () {
         await expect(txPromise)
           .to.emit(ERC20, 'Transfer')
           .withArgs(Mock.address, accounts[0].address, '0')
+      })
+    })
+  })
+
+  describe('externalCall', function () {
+    describe('as non-owner', function () {
+      it('should fail', async function () {
+        await expect(
+          Mock.connect(accounts[1]).externalCall(
+            accounts[1].address,
+            0,
+            '0x',
+            21000,
+          ),
+        ).to.be.revertedWith('Ownable: caller is not the owner')
+      })
+    })
+    describe('to staking token', function () {
+      it('should fail', async function () {
+        await expect(
+          Mock.connect(accounts[0]).externalCall(
+            StakingToken.address,
+            0,
+            '0x',
+            21000,
+          ),
+        ).to.be.revertedWith('Vault: cannot call staking token')
+      })
+    })
+    describe('as owner', function () {
+      it('should succeed', async function () {
+        await Mock.connect(accounts[0]).externalCall(
+          accounts[1].address,
+          0,
+          '0x',
+          21000,
+        )
+      })
+    })
+    describe('when online', function () {
+      it('should succeed', async function () {
+        await Mock.connect(accounts[0]).externalCall(
+          accounts[1].address,
+          0,
+          '0x',
+          21000,
+        )
+      })
+    })
+    describe('when offline', function () {
+      it('should succeed', async function () {
+        await PowerSwitch.connect(accounts[1]).powerOff()
+        await Mock.connect(accounts[0]).externalCall(
+          accounts[1].address,
+          0,
+          '0x',
+          21000,
+        )
+      })
+    })
+    describe('when shutdown', function () {
+      it('should succeed', async function () {
+        await PowerSwitch.connect(accounts[1]).emergencyShutdown()
+        await Mock.connect(accounts[0]).externalCall(
+          accounts[1].address,
+          0,
+          '0x',
+          21000,
+        )
+      })
+    })
+    describe('receiving ETH', function () {
+      it('should succeed', async function () {
+        await Mock.connect(accounts[0]).externalCall(
+          accounts[1].address,
+          0,
+          '0x',
+          21000,
+          { value: 1 },
+        )
       })
     })
   })

@@ -6,6 +6,7 @@ import {Initializable} from "@openzeppelin/contracts/proxy/Initializable.sol";
 
 import {Powered} from "./PowerSwitch/Powered.sol";
 import {ERC1271, Ownable} from "./Access/ERC1271.sol";
+import {ExternalCall} from "./ExternalCall/ExternalCall.sol";
 
 interface IVault {
     function initialize(
@@ -32,7 +33,7 @@ interface IVault {
 /// @title Vault
 /// @notice Vault for isolated storage of staking tokens
 /// @dev Security contact: dev-support@ampleforth.org
-contract Vault is IVault, ERC1271, Powered {
+contract Vault is IVault, ERC1271, Powered, ExternalCall {
     /* storage */
 
     address private _stakingToken;
@@ -117,12 +118,31 @@ contract Vault is IVault, ERC1271, Powered {
         }
 
         // validate recipient
-        require(to != address(this), "Vault: cannot transfer tokens back to the vault");
-        require(to != address(0), "Vault: cannot transfer tokens to null");
-        require(to != token, "Vault: cannot transfer tokens to token");
-        require(to != _geyser, "Vault: cannot transfer tokens to geyser");
+        require(to != address(this), "Vault: invalid address");
+        require(to != address(0), "Vault: invalid address");
+        require(to != token, "Vault: invalid address");
+        require(to != _geyser, "Vault: invalid address");
 
         // transfer tokens
         require(IERC20(token).transfer(to, value), "Vault: token transfer failed");
+    }
+
+    /// @notice Perform an external call from the vault
+    /// access control: only owner
+    /// state machine: anytime
+    /// state scope: none
+    /// token transfer: restricted from calling staking token
+    /// @param to Destination address of transaction.
+    /// @param value Ether value of transaction
+    /// @param data Data payload of transaction
+    /// @param gas Gas that should be used for the transaction
+    function externalCall(
+        address to,
+        uint256 value,
+        bytes calldata data,
+        uint256 gas
+    ) external payable onlyOwner returns (bool success) {
+        require(to != _stakingToken, "Vault: cannot call staking token");
+        return _externalCall(to, value, data, gas);
     }
 }

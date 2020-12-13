@@ -4,5 +4,5 @@ pragma solidity 0.7.5;
 interface IFactory {
     function create(bytes calldata args) external returns (address);
 
-    function create2(bytes calldata args) external returns (address);
+    function create2(bytes calldata args, bytes32 salt) external returns (address);
 }

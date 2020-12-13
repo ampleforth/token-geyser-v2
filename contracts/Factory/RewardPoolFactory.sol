@@ -14,7 +14,7 @@ contract RewardPoolFactory is IFactory {
         return address(pool);
     }
 
-    function create2(bytes calldata) external pure override returns (address) {
+    function create2(bytes calldata, bytes32) external pure override returns (address) {
         revert("RewardPoolFactory: unused function");
     }
 }

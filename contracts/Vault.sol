@@ -3,54 +3,60 @@ pragma solidity 0.7.5;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Initializable} from "@openzeppelin/contracts/proxy/Initializable.sol";
+import {EnumerableSet} from "@openzeppelin/contracts/utils/EnumerableSet.sol";
 
-import {Powered} from "./PowerSwitch/Powered.sol";
 import {ERC1271, Ownable} from "./Access/ERC1271.sol";
 import {ExternalCall} from "./ExternalCall/ExternalCall.sol";
 
 interface IVault {
-    function initialize(
-        address stakingToken,
-        address ownerAddress,
-        address powerSwitch
-    ) external;
-
-    function sendERC20(
-        address token,
-        address to,
-        uint256 value
-    ) external;
+    function initialize(address ownerAddress) external;
 
     function transferOwnership(address newOwner) external;
 
     function owner() external view returns (address ownerAddress);
 
-    function getStakingToken() external view returns (address stakingToken);
+    function lock(
+        address token,
+        uint256 amount,
+        bytes calldata permission
+    ) external;
 
-    function getGeyser() external view returns (address geyser);
+    function unlock(
+        address token,
+        uint256 amount,
+        bytes calldata permission
+    ) external;
 }
 
 /// @title Vault
 /// @notice Vault for isolated storage of staking tokens
 /// @dev Security contact: dev-support@ampleforth.org
-contract Vault is IVault, ERC1271, Powered, ExternalCall {
+contract Vault is IVault, ERC1271, Initializable, ExternalCall {
+    using EnumerableSet for EnumerableSet.Bytes32Set;
+
     /* storage */
 
-    address private _stakingToken;
-    address private _geyser;
+    struct LockData {
+        address geyser;
+        address token;
+        uint256 balance;
+    }
+
+    uint256 lockNonce;
+    mapping(bytes32 => LockData) public locks;
+    EnumerableSet.Bytes32Set private lockSet;
 
     /* initializer */
 
-    function initialize(
-        address stakingToken,
-        address ownerAddress,
-        address powerSwitch
-    ) public override initializer {
+    function initialize(address ownerAddress) external override initializer {
         // set initialization data
         Ownable._setOwnership(ownerAddress);
-        Powered._setPowerSwitch(powerSwitch);
-        _stakingToken = stakingToken;
-        _geyser = msg.sender;
+    }
+
+    /* pure functions */
+
+    function calculateLockID(address geyser, address token) public pure returns (bytes32 lockID) {
+        return keccak256(abi.encodePacked(geyser, token));
     }
 
     /* getter functions */
@@ -59,72 +65,22 @@ contract Vault is IVault, ERC1271, Powered, ExternalCall {
         return Ownable.owner();
     }
 
-    function getStakingToken() external view override returns (address stakingToken) {
-        return _stakingToken;
+    function getLockBalance(address geyser, address token) external view returns (uint256 balance) {
+        return locks[calculateLockID(geyser, token)].balance;
     }
 
-    function getGeyser() external view override returns (address geyser) {
-        return _geyser;
+    function getTokensLocked(address token) external view returns (uint256 balance) {
+        for (uint256 index; index < lockSet.length(); index++) {
+            LockData storage lockData = locks[lockSet.at(index)];
+            if (lockData.token == token && lockData.balance > balance) balance = lockData.balance;
+        }
+        return balance;
     }
 
     /* user functions */
 
     function transferOwnership(address newOwner) public override(IVault, Ownable) {
         Ownable.transferOwnership(newOwner);
-    }
-
-    /// @notice Send an ERC20 token
-    /// access control:
-    ///   - when online
-    ///     - only the geyser can transfer staking token
-    ///     - only the owner can transfer all other tokens
-    ///   - when offline
-    ///     - no one can transfer staking token
-    ///     - only the owner can transfer all other tokens
-    ///   - when shutdown
-    ///     - only the owner can transfer any tokens
-    /// state machine: anytime
-    /// state scope: none
-    /// token transfer: transfer tokens from self to recipient
-    /// @param token address The token to send
-    /// @param to address The recipient to send to
-    /// @param value uint256 Amount of tokens to send
-    function sendERC20(
-        address token,
-        address to,
-        uint256 value
-    ) external override {
-        // validate access control
-        // when online
-        // - only the geyser can transfer staking token
-        // - only the owner can transfer all other tokens
-        // when offline
-        // - no one can transfer staking token
-        // - only the owner can transfer all other tokens
-        // when shutdown
-        // - only the owner can transfer any tokens
-        if (token == _stakingToken && Powered.isOnline()) {
-            // only the geyser can transfer the staking tokens when online
-            require(
-                msg.sender == _geyser,
-                "Vault: only geyser can transfer staking token when online"
-            );
-        } else if (token == _stakingToken && Powered.isOffline()) {
-            // no one can transfer the staking tokens when offline
-            revert("Vault: cannot transfer staking token when offline");
-        } else {
-            // only the owner can transfer all other tokens
-            require(msg.sender == Ownable.owner(), "Vault: only owner can transfer");
-        }
-
-        // validate recipient
-        require(to != address(this), "Vault: invalid address");
-        require(to != address(0), "Vault: invalid address");
-        require(to != token, "Vault: invalid address");
-        require(to != _geyser, "Vault: invalid address");
-
-        // transfer tokens
-        require(IERC20(token).transfer(to, value), "Vault: token transfer failed");
     }
 
     /// @notice Perform an external call from the vault
@@ -142,7 +98,70 @@ contract Vault is IVault, ERC1271, Powered, ExternalCall {
         bytes calldata data,
         uint256 gas
     ) external payable onlyOwner returns (bool success) {
-        require(to != _stakingToken, "Vault: cannot call staking token");
+        checkBalances();
         return _externalCall(to, value, data, gas);
+    }
+
+    function checkBalances() private view {
+        for (uint256 index; index < lockSet.length(); index++) {
+            LockData storage lockData = locks[lockSet.at(index)];
+            require(
+                IERC20(lockData.token).balanceOf(address(this)) >= lockData.balance,
+                "Vault: balance locked"
+            );
+        }
+    }
+
+    // vault:ExternalCall -> geyser:Deposit() -> vault:Lock()
+    function lock(
+        address token,
+        uint256 amount,
+        bytes calldata permission
+    )
+        external
+        override
+        onlyValidSignature(
+            keccak256(abi.encodePacked("lock", msg.sender, token, amount, lockNonce)),
+            permission
+        )
+    {
+        // validate sufficient balance
+        require(IERC20(token).balanceOf(address(this)) >= amount, "Vault: insufficient balance");
+
+        // store lock data
+        bytes32 lockID = calculateLockID(msg.sender, token);
+        if (lockSet.contains(lockID)) {
+            locks[lockID].balance += amount;
+        } else {
+            assert(lockSet.add(lockID));
+            locks[lockID] = LockData(msg.sender, token, amount);
+        }
+    }
+
+    // vault:ExternalCall -> geyser:Withdraw() -> vault:Unlock()
+    function unlock(
+        address token,
+        uint256 amount,
+        bytes calldata permission
+    )
+        external
+        override
+        onlyValidSignature(
+            keccak256(abi.encodePacked("unlock", msg.sender, token, amount, lockNonce)),
+            permission
+        )
+    {
+        // validate sufficient balance
+        require(IERC20(token).balanceOf(address(this)) >= amount, "Vault: insufficient balance");
+
+        // validate existing lock
+        bytes32 lockID = keccak256(abi.encodePacked(msg.sender, token));
+        require(lockSet.contains(lockID), "Vault: invalid lock");
+
+        // validate sufficient lock amount
+        require(locks[lockID].balance >= amount, "Vault: insufficient lock amount");
+
+        // update lock data
+        locks[lockID].balance -= amount;
     }
 }

@@ -23,6 +23,14 @@ contract ERC1271 is IERC1271, Ownable {
     // Invalid magic value
     bytes4 private constant INVALID_SIG = 0xffffffff;
 
+    modifier onlyValidSignature(bytes32 messageHash, bytes memory signature) {
+        require(
+            isValidSignature(messageHash, signature) == VALID_SIG,
+            "ERC1271: Invalid signature"
+        );
+        _;
+    }
+
     function isValidSignature(bytes32 messageHash, bytes memory signature)
         public
         view

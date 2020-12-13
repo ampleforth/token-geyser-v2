@@ -13,7 +13,7 @@ contract PowerSwitchFactory is IFactory {
         return address(powerSwitch);
     }
 
-    function create2(bytes calldata) external pure override returns (address) {
+    function create2(bytes calldata, bytes32) external pure override returns (address) {
         revert("PowerSwitchFactory: unused function");
     }
 }

@@ -2460,6 +2460,103 @@ describe('Geyser', function () {
           })
         })
       })
+      describe('with multiple vaults', function () {
+        const depositAmount = ethers.utils.parseEther('1')
+        const rewardAmount = ethers.utils.parseUnits('1000', 9)
+        const quantity = 10
+        let MockStakeHelper: Contract
+        let vaults: string[]
+        beforeEach(async function () {
+          await rewardToken.connect(admin).approve(geyser.address, rewardAmount)
+          await geyser
+            .connect(admin)
+            .fundGeyser(rewardAmount, rewardScaling.time)
+
+          await increaseTime(rewardScaling.time)
+
+          MockStakeHelper = await (
+            await (
+              await ethers.getContractFactory('MockStakeHelper', user)
+            ).deploy()
+          ).deployed()
+
+          await stakingToken
+            .connect(admin)
+            .transfer(user.address, depositAmount.mul(quantity))
+          await stakingToken
+            .connect(user)
+            .approve(MockStakeHelper.address, depositAmount.mul(quantity))
+
+          vaults = await MockStakeHelper.connect(
+            user,
+          ).callStatic.multiCreateAndDeposit(geyser.address, depositAmount)
+          await MockStakeHelper.connect(user).multiCreateAndDeposit(
+            geyser.address,
+            depositAmount,
+          )
+
+          await increaseTime(rewardScaling.time)
+        })
+        it('should succeed', async function () {
+          for (let index = 0; index < vaults.length; index++) {
+            const vault = vaults[index]
+            await geyser
+              .connect(user)
+              .withdraw(vault, user.address, depositAmount)
+          }
+        })
+        it('should update state', async function () {
+          for (let index = 0; index < vaults.length; index++) {
+            const vault = vaults[index]
+            await geyser
+              .connect(user)
+              .withdraw(vault, user.address, depositAmount)
+          }
+
+          const geyserData = await geyser.getGeyserData()
+
+          expect(await geyser.getVaultSetLength()).to.eq(quantity)
+          expect(geyserData.rewardSharesOutstanding).to.eq(0)
+          expect(geyserData.totalStake).to.eq(0)
+          expect(geyserData.totalStakeUnits).to.eq(0)
+          expect(geyserData.lastUpdate).to.eq(await getTimestamp())
+        })
+        it('should emit event', async function () {
+          for (let index = 0; index < vaults.length; index++) {
+            const vault = vaults[index]
+            const txPromise = geyser
+              .connect(user)
+              .withdraw(vault, user.address, depositAmount)
+            await expect(txPromise)
+              .to.emit(geyser, 'Withdraw')
+              .withArgs(
+                vault,
+                user.address,
+                depositAmount,
+                rewardAmount.div(quantity),
+              )
+          }
+        })
+        it('should transfer tokens', async function () {
+          let txPromise = geyser.connect(user).withdrawMulti(
+            vaults,
+            vaults.map(() => user.address),
+            vaults.map(() => depositAmount),
+          )
+          for (let index = 0; index < vaults.length; index++) {
+            await expect(txPromise)
+              .to.emit(rewardToken, 'Transfer')
+              .withArgs(
+                rewardPool.address,
+                user.address,
+                rewardAmount.div(quantity),
+              )
+            await expect(txPromise)
+              .to.emit(stakingToken, 'Transfer')
+              .withArgs(vaults[index], user.address, depositAmount)
+          }
+        })
+      })
     })
 
     describe('withdrawMulti', function () {

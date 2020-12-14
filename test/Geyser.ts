@@ -1727,6 +1727,111 @@ describe('Geyser', function () {
             .withArgs(vault.address, user.address, depositAmount)
         })
       })
+      describe('with floor and ceiling scaled up', function () {
+        const stakeDuration = rewardScaling.time / 2
+        const expectedReward = calculateExpectedReward(
+          depositAmount,
+          stakeDuration,
+          rewardAmount,
+          0,
+        )
+
+        let vault: Contract
+        beforeEach(async function () {
+          const args = [
+            admin.address,
+            rewardPoolFactory.address,
+            powerSwitchFactory.address,
+            stakingToken.address,
+            rewardToken.address,
+            vaultTemplate.address,
+            [
+              rewardScaling.floor * 2,
+              rewardScaling.ceiling * 2,
+              rewardScaling.time,
+            ],
+          ]
+          geyser = await deployGeyser(args)
+          powerSwitch = await ethers.getContractAt(
+            'PowerSwitch',
+            await geyser.getPowerSwitch(),
+          )
+          rewardPool = await ethers.getContractAt(
+            'RewardPool',
+            (await geyser.getGeyserData()).rewardPool,
+          )
+
+          await rewardToken.connect(admin).approve(geyser.address, rewardAmount)
+          await geyser
+            .connect(admin)
+            .fundGeyser(rewardAmount, rewardScaling.time)
+
+          await increaseTime(rewardScaling.time)
+
+          await stakingToken
+            .connect(admin)
+            .transfer(user.address, depositAmount)
+          await stakingToken
+            .connect(user)
+            .approve(geyser.address, depositAmount)
+          await geyser.connect(user).createVaultAndDeposit(depositAmount)
+
+          expect(await geyser.getVaultSetLength()).to.eq(1)
+          vault = await ethers.getContractAt(
+            'Vault',
+            await geyser.getVaultAtIndex(0),
+          )
+
+          await increaseTime(stakeDuration)
+        })
+        it('should succeed', async function () {
+          await geyser
+            .connect(user)
+            .withdraw(vault.address, user.address, depositAmount)
+        })
+        it('should update state', async function () {
+          await geyser
+            .connect(user)
+            .withdraw(vault.address, user.address, depositAmount)
+
+          const geyserData = await geyser.getGeyserData()
+          const vaultData = await geyser.getVaultData(vault.address)
+
+          expect(geyserData.rewardSharesOutstanding).to.eq(
+            rewardAmount.sub(expectedReward).mul(BASE_SHARES_PER_WEI),
+          )
+          expect(geyserData.totalStake).to.eq(0)
+          expect(geyserData.totalStakeUnits).to.eq(0)
+          expect(geyserData.lastUpdate).to.eq(await getTimestamp())
+          expect(vaultData.totalStake).to.eq(0)
+          expect(vaultData.stakes.length).to.eq(0)
+        })
+        it('should emit event', async function () {
+          await expect(
+            geyser
+              .connect(user)
+              .withdraw(vault.address, user.address, depositAmount),
+          )
+            .to.emit(geyser, 'Withdraw')
+            .withArgs(
+              vault.address,
+              user.address,
+              depositAmount,
+              expectedReward,
+            )
+        })
+        it('should transfer tokens', async function () {
+          const txPromise = geyser
+            .connect(user)
+            .withdraw(vault.address, user.address, depositAmount)
+          await expect(txPromise)
+            .to.emit(rewardToken, 'Transfer')
+            .withArgs(rewardPool.address, user.address, expectedReward)
+          await expect(txPromise)
+            .to.emit(stakingToken, 'Transfer')
+            .withArgs(vault.address, user.address, depositAmount)
+        })
+      })
       describe('with no reward', function () {
         const expectedReward = 0
 

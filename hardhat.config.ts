@@ -28,5 +28,6 @@ export default {
   gasReporter: {
     currency: 'USD',
     enabled: process.env.REPORT_GAS ? true : false,
+    excludeContracts: ['Mock/'],
   },
 } as HardhatUserConfig

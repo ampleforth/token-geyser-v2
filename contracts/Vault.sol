@@ -87,7 +87,7 @@ contract Vault is IVault, ERC1271, Initializable, ExternalCall {
     /// access control: only owner
     /// state machine: anytime
     /// state scope: none
-    /// token transfer: restricted from calling staking token
+    /// token transfer: transfer out amount limited by largest lock for given token
     /// @param to Destination address of transaction.
     /// @param value Ether value of transaction
     /// @param data Data payload of transaction
@@ -98,21 +98,27 @@ contract Vault is IVault, ERC1271, Initializable, ExternalCall {
         bytes calldata data,
         uint256 gas
     ) external payable onlyOwner returns (bool success) {
-        checkBalances();
-        return _externalCall(to, value, data, gas);
+        // perform external call
+        success = _externalCall(to, value, data, gas);
+        // verify suficient token balance remaining
+        require(checkBalances(), "Vault: insufficient balance locked");
+        // explicit return
+        return success;
     }
 
-    function checkBalances() private view {
+    function checkBalances() private view returns (bool validity) {
+        // iterate over all token locks and validate sufficient balance
         for (uint256 index; index < lockSet.length(); index++) {
+            // fetch storage lock reference
             LockData storage lockData = locks[lockSet.at(index)];
-            require(
-                IERC20(lockData.token).balanceOf(address(this)) >= lockData.balance,
-                "Vault: balance locked"
-            );
+            // if insufficient balance, return false
+            if (IERC20(lockData.token).balanceOf(address(this)) < lockData.balance) return false;
         }
+        // if sufficient balance, return true
+        return true;
     }
 
-    // vault:ExternalCall -> geyser:Deposit() -> vault:Lock()
+    // EOA -> geyser:Deposit() -> vault:Lock()
     function lock(
         address token,
         uint256 amount,
@@ -138,7 +144,7 @@ contract Vault is IVault, ERC1271, Initializable, ExternalCall {
         }
     }
 
-    // vault:ExternalCall -> geyser:Withdraw() -> vault:Unlock()
+    // EOA -> geyser:Withdraw() -> vault:Unlock()
     function unlock(
         address token,
         uint256 amount,

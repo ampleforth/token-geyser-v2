@@ -7,6 +7,8 @@ import {EnumerableSet} from "@openzeppelin/contracts/utils/EnumerableSet.sol";
 
 import {ERC1271, Ownable} from "./Access/ERC1271.sol";
 import {ExternalCall} from "./ExternalCall/ExternalCall.sol";
+import {IPowerSwitch} from "./PowerSwitch/PowerSwitch.sol";
+import {IPowered} from "./PowerSwitch/Powered.sol";
 
 interface IUniversalVault {
     function initialize(address ownerAddress) external;
@@ -38,13 +40,14 @@ contract UniversalVault is IUniversalVault, ERC1271, Initializable, ExternalCall
 
     struct LockData {
         address geyser;
+        address powerSwitch;
         address token;
         uint256 balance;
     }
 
-    uint256 lockNonce;
-    mapping(bytes32 => LockData) public locks;
-    EnumerableSet.Bytes32Set private lockSet;
+    uint256 private _lockNonce;
+    mapping(bytes32 => LockData) private _locks;
+    EnumerableSet.Bytes32Set private _lockSet;
 
     /* initializer */
 
@@ -65,16 +68,35 @@ contract UniversalVault is IUniversalVault, ERC1271, Initializable, ExternalCall
         return Ownable.owner();
     }
 
-    function getLockBalance(address geyser, address token) external view returns (uint256 balance) {
-        return locks[calculateLockID(geyser, token)].balance;
+    function getGeyserLock(address geyser, address token) external view returns (uint256 balance) {
+        return _locks[calculateLockID(geyser, token)].balance;
     }
 
-    function getTokensLocked(address token) external view returns (uint256 balance) {
-        for (uint256 index; index < lockSet.length(); index++) {
-            LockData storage lockData = locks[lockSet.at(index)];
+    function getTokenLock(address token) external view returns (uint256 balance) {
+        for (uint256 index; index < _lockSet.length(); index++) {
+            LockData storage lockData = _locks[_lockSet.at(index)];
             if (lockData.token == token && lockData.balance > balance) balance = lockData.balance;
         }
         return balance;
+    }
+
+    function getLockNonce() external view returns (uint256 nonce) {
+        return _lockNonce;
+    }
+
+    function checkBalances() public view returns (bool validity) {
+        // iterate over all token locks and validate sufficient balance
+        for (uint256 index; index < _lockSet.length(); index++) {
+            // fetch storage lock reference
+            LockData storage lockData = _locks[_lockSet.at(index)];
+            // if insufficient balance and not shutdown, return false
+            if (
+                !IPowerSwitch(lockData.powerSwitch).isShutdown() &&
+                IERC20(lockData.token).balanceOf(address(this)) < lockData.balance
+            ) return false;
+        }
+        // if sufficient balance or shutdown, return true
+        return true;
     }
 
     /* user functions */
@@ -106,18 +128,6 @@ contract UniversalVault is IUniversalVault, ERC1271, Initializable, ExternalCall
         return success;
     }
 
-    function checkBalances() private view returns (bool validity) {
-        // iterate over all token locks and validate sufficient balance
-        for (uint256 index; index < lockSet.length(); index++) {
-            // fetch storage lock reference
-            LockData storage lockData = locks[lockSet.at(index)];
-            // if insufficient balance, return false
-            if (IERC20(lockData.token).balanceOf(address(this)) < lockData.balance) return false;
-        }
-        // if sufficient balance, return true
-        return true;
-    }
-
     // EOA -> geyser:Deposit() -> vault:Lock()
     function lock(
         address token,
@@ -127,20 +137,28 @@ contract UniversalVault is IUniversalVault, ERC1271, Initializable, ExternalCall
         external
         override
         onlyValidSignature(
-            keccak256(abi.encodePacked("lock", msg.sender, token, amount, lockNonce)),
+            keccak256(abi.encodePacked("lock", msg.sender, token, amount, _lockNonce)),
             permission
         )
     {
         // validate sufficient balance
         require(IERC20(token).balanceOf(address(this)) >= amount, "Vault: insufficient balance");
 
-        // store lock data
+        // get lock id
         bytes32 lockID = calculateLockID(msg.sender, token);
-        if (lockSet.contains(lockID)) {
-            locks[lockID].balance += amount;
+
+        // add lock to storage
+        if (_lockSet.contains(lockID)) {
+            // if lock already exists, increase amount
+            _locks[lockID].balance += amount;
         } else {
-            assert(lockSet.add(lockID));
-            locks[lockID] = LockData(msg.sender, token, amount);
+            // if does not exist, create new lock
+            // fetch power switch address
+            address powerSwitch = IPowered(msg.sender).getPowerSwitch();
+            // add lock to set
+            assert(_lockSet.add(lockID));
+            // add lock data to storage
+            _locks[lockID] = LockData(msg.sender, token, powerSwitch, amount);
         }
     }
 
@@ -153,21 +171,23 @@ contract UniversalVault is IUniversalVault, ERC1271, Initializable, ExternalCall
         external
         override
         onlyValidSignature(
-            keccak256(abi.encodePacked("unlock", msg.sender, token, amount, lockNonce)),
+            keccak256(abi.encodePacked("unlock", msg.sender, token, amount, _lockNonce)),
             permission
         )
     {
         // validate sufficient balance
         require(IERC20(token).balanceOf(address(this)) >= amount, "Vault: insufficient balance");
 
-        // validate existing lock
+        // get lock id
         bytes32 lockID = keccak256(abi.encodePacked(msg.sender, token));
-        require(lockSet.contains(lockID), "Vault: invalid lock");
+
+        // validate existing lock
+        require(_lockSet.contains(lockID), "Vault: invalid lock");
 
         // validate sufficient lock amount
-        require(locks[lockID].balance >= amount, "Vault: insufficient lock amount");
+        require(_locks[lockID].balance >= amount, "Vault: insufficient lock amount");
 
         // update lock data
-        locks[lockID].balance -= amount;
+        _locks[lockID].balance -= amount;
     }
 }

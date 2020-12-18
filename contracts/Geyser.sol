@@ -792,16 +792,15 @@ contract Geyser is IGeyser, Powered, Ownable {
                 // fetch bonus token address reference
                 address bonusToken = _bonusTokenSet.at(index);
 
-                // calculate bonus token amount
+                // calculate bonus token amount and transfer
                 // bonusAmount = bonusRemaining * reward / rewardRemaining
-                // uint256 bonusRemaining = IERC20(bonusToken).balanceOf(_geyser.rewardPool);
-                uint256 bonusAmount = IERC20(bonusToken)
-                    .balanceOf(_geyser.rewardPool)
-                    .mul(reward)
-                    .div(rewardRemaining);
-
-                // transfer bonus tokens
-                IRewardPool(_geyser.rewardPool).sendERC20(bonusToken, recipient, bonusAmount);
+                IRewardPool(_geyser.rewardPool).sendERC20(
+                    bonusToken,
+                    recipient,
+                    IERC20(bonusToken).balanceOf(_geyser.rewardPool).mul(reward).div(
+                        rewardRemaining
+                    )
+                );
             }
         }
 

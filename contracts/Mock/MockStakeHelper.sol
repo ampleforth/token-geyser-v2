@@ -4,7 +4,7 @@ pragma abicoder v2;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IGeyser} from "../Geyser.sol";
-import {IVault} from "../Vault.sol";
+import {IUniversalVault} from "../UniversalVault.sol";
 
 contract MockStakeHelper {
     function flashStake(
@@ -45,7 +45,7 @@ contract MockStakeHelper {
     //         vaults[index] = IGeyser(geyser).createVaultAndDeposit(amount);
 
     //         // transfer ownership
-    //         IVault(vaults[index]).transferOwnership(msg.sender);
+    //         IUniversalVault(vaults[index]).transferOwnership(msg.sender);
     //     }
     // }
 

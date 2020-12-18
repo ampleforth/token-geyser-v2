@@ -3,7 +3,7 @@ pragma solidity 0.7.5;
 
 import {IFactory} from "./IFactory.sol";
 import {CloneFactory} from "./CloneFactory.sol";
-import {Vault} from "../Vault.sol";
+import {UniversalVault} from "../UniversalVault.sol";
 
 /// @title Vault Factory
 /// @dev Security contact: dev-support@ampleforth.org
@@ -11,7 +11,7 @@ contract VaultFactory is IFactory, CloneFactory {
     address public template;
 
     constructor() {
-        template = address(new Vault());
+        template = address(new UniversalVault());
     }
 
     function create(bytes calldata args) external override returns (address vault) {

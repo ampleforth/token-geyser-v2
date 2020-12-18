@@ -6,7 +6,7 @@ import {SafeMath} from "@openzeppelin/contracts/math/SafeMath.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/EnumerableSet.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import {IVault} from "./Vault.sol";
+import {IUniversalVault} from "./UniversalVault.sol";
 import {IRewardPool} from "./RewardPool.sol";
 import {IFactory} from "./Factory/IFactory.sol";
 
@@ -650,7 +650,7 @@ contract Geyser is IGeyser, Powered, Ownable {
         _geyser.totalStake = _geyser.totalStake.add(amount);
 
         // call lock on vault
-        IVault(vault).lock(_geyser.stakingToken, amount, permission);
+        IUniversalVault(vault).lock(_geyser.stakingToken, amount, permission);
 
         // emit event
         emit Deposit(vault, amount);
@@ -718,7 +718,7 @@ contract Geyser is IGeyser, Powered, Ownable {
         require(_vaultSet.contains(vault), "Geyser: invalid vault");
 
         // require msg.sender is vault owner
-        require(IVault(vault).owner() == msg.sender, "Geyser: only vault owner");
+        require(IUniversalVault(vault).owner() == msg.sender, "Geyser: only vault owner");
 
         // validate recipient
         _validateAddress(recipient);
@@ -809,7 +809,7 @@ contract Geyser is IGeyser, Powered, Ownable {
         IRewardPool(_geyser.rewardPool).sendERC20(_geyser.rewardToken, recipient, reward);
 
         // unlock staking tokens from vault
-        IVault(vault).unlock(_geyser.stakingToken, amount, permission);
+        IUniversalVault(vault).unlock(_geyser.stakingToken, amount, permission);
 
         // emit event
         emit Withdraw(vault, recipient, amount, reward);

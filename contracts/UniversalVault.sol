@@ -8,7 +8,7 @@ import {EnumerableSet} from "@openzeppelin/contracts/utils/EnumerableSet.sol";
 import {ERC1271, Ownable} from "./Access/ERC1271.sol";
 import {ExternalCall} from "./ExternalCall/ExternalCall.sol";
 
-interface IVault {
+interface IUniversalVault {
     function initialize(address ownerAddress) external;
 
     function transferOwnership(address newOwner) external;
@@ -28,10 +28,10 @@ interface IVault {
     ) external;
 }
 
-/// @title Vault
+/// @title UniversalVault
 /// @notice Vault for isolated storage of staking tokens
 /// @dev Security contact: dev-support@ampleforth.org
-contract Vault is IVault, ERC1271, Initializable, ExternalCall {
+contract UniversalVault is IUniversalVault, ERC1271, Initializable, ExternalCall {
     using EnumerableSet for EnumerableSet.Bytes32Set;
 
     /* storage */
@@ -61,7 +61,7 @@ contract Vault is IVault, ERC1271, Initializable, ExternalCall {
 
     /* getter functions */
 
-    function owner() public view override(IVault, Ownable) returns (address ownerAddress) {
+    function owner() public view override(IUniversalVault, Ownable) returns (address ownerAddress) {
         return Ownable.owner();
     }
 
@@ -79,7 +79,7 @@ contract Vault is IVault, ERC1271, Initializable, ExternalCall {
 
     /* user functions */
 
-    function transferOwnership(address newOwner) public override(IVault, Ownable) {
+    function transferOwnership(address newOwner) public override(IUniversalVault, Ownable) {
         Ownable.transferOwnership(newOwner);
     }
 

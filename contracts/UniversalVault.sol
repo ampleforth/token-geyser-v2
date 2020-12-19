@@ -5,7 +5,8 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Initializable} from "@openzeppelin/contracts/proxy/Initializable.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/EnumerableSet.sol";
 
-import {ERC1271, Ownable} from "./Access/ERC1271.sol";
+import {ERC1271} from "./Access/ERC1271.sol";
+import {ERC721Owner} from "./Access/ERC721Owner.sol";
 import {ExternalCall} from "./ExternalCall/ExternalCall.sol";
 
 interface IRageQuit {
@@ -13,11 +14,7 @@ interface IRageQuit {
 }
 
 interface IUniversalVault {
-    function initialize(address ownerAddress) external;
-
-    function transferOwnership(address newOwner) external;
-
-    function owner() external view returns (address ownerAddress);
+    function getOwner() external view returns (address owner);
 
     function lock(
         address token,
@@ -30,12 +27,16 @@ interface IUniversalVault {
         uint256 amount,
         bytes calldata permission
     ) external;
+
+    function rageQuit(address geyser, address token)
+        external
+        returns (bool notified, string memory reason);
 }
 
 /// @title UniversalVault
 /// @notice Vault for isolated storage of staking tokens
 /// @dev Security contact: dev-support@ampleforth.org
-contract UniversalVault is IUniversalVault, ERC1271, Initializable, ExternalCall {
+contract UniversalVault is IUniversalVault, ERC1271, ERC721Owner, ExternalCall {
     using EnumerableSet for EnumerableSet.Bytes32Set;
 
     /* storage */
@@ -56,11 +57,10 @@ contract UniversalVault is IUniversalVault, ERC1271, Initializable, ExternalCall
     event Unlocked(address geyser, address token, uint256 amount);
     event RageQuit(address geyser, address token, bool notified, string reason);
 
-    /* initializer */
+    /* internal overrides */
 
-    function initialize(address ownerAddress) external override initializer {
-        // set initialization data
-        Ownable._setOwnership(ownerAddress);
+    function _getOwner() internal view override(ERC1271) returns (address owner) {
+        return ERC721Owner.getOwner();
     }
 
     /* pure functions */
@@ -71,8 +71,8 @@ contract UniversalVault is IUniversalVault, ERC1271, Initializable, ExternalCall
 
     /* getter functions */
 
-    function owner() public view override(IUniversalVault, Ownable) returns (address ownerAddress) {
-        return Ownable.owner();
+    function getOwner() public view override(IUniversalVault, ERC721Owner) returns (address owner) {
+        return ERC721Owner.getOwner();
     }
 
     function getGeyserLock(address geyser, address token) external view returns (uint256 balance) {
@@ -105,10 +105,6 @@ contract UniversalVault is IUniversalVault, ERC1271, Initializable, ExternalCall
     }
 
     /* user functions */
-
-    function transferOwnership(address newOwner) public override(IUniversalVault, Ownable) {
-        Ownable.transferOwnership(newOwner);
-    }
 
     /// @notice Perform an external call from the vault
     /// access control: only owner
@@ -202,6 +198,7 @@ contract UniversalVault is IUniversalVault, ERC1271, Initializable, ExternalCall
 
     function rageQuit(address geyser, address token)
         external
+        override
         returns (bool notified, string memory reason)
     {
         // get lock id

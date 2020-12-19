@@ -736,7 +736,7 @@ contract Geyser is IGeyser, Powered, Ownable {
         require(_vaultSet.contains(vault), "Geyser: invalid vault");
 
         // require msg.sender is vault owner
-        require(IUniversalVault(vault).owner() == msg.sender, "Geyser: only vault owner");
+        require(IUniversalVault(vault).getOwner() == msg.sender, "Geyser: only vault owner");
 
         // validate recipient
         _validateAddress(recipient);

@@ -7,9 +7,10 @@ import {EnumerableSet} from "@openzeppelin/contracts/utils/EnumerableSet.sol";
 
 import {ERC1271, Ownable} from "./Access/ERC1271.sol";
 import {ExternalCall} from "./ExternalCall/ExternalCall.sol";
-import {IPowerSwitch} from "./PowerSwitch/PowerSwitch.sol";
-import {IPowered} from "./PowerSwitch/Powered.sol";
-import {IRageQuit} from "./Geyser.sol";
+
+interface IRageQuit {
+    function rageQuit() external;
+}
 
 interface IUniversalVault {
     function initialize(address ownerAddress) external;
@@ -41,7 +42,6 @@ contract UniversalVault is IUniversalVault, ERC1271, Initializable, ExternalCall
 
     struct LockData {
         address geyser;
-        address powerSwitch;
         address token;
         uint256 balance;
     }
@@ -97,10 +97,7 @@ contract UniversalVault is IUniversalVault, ERC1271, Initializable, ExternalCall
             // fetch storage lock reference
             LockData storage lockData = _locks[_lockSet.at(index)];
             // if insufficient balance and not shutdown, return false
-            if (
-                !IPowerSwitch(lockData.powerSwitch).isShutdown() &&
-                IERC20(lockData.token).balanceOf(address(this)) < lockData.balance
-            ) return false;
+            if (IERC20(lockData.token).balanceOf(address(this)) < lockData.balance) return false;
         }
         // if sufficient balance or shutdown, return true
         return true;
@@ -160,12 +157,10 @@ contract UniversalVault is IUniversalVault, ERC1271, Initializable, ExternalCall
             _locks[lockID].balance += amount;
         } else {
             // if does not exist, create new lock
-            // fetch power switch address
-            address powerSwitch = IPowered(msg.sender).getPowerSwitch();
             // add lock to set
             assert(_lockSet.add(lockID));
             // add lock data to storage
-            _locks[lockID] = LockData(msg.sender, token, powerSwitch, amount);
+            _locks[lockID] = LockData(msg.sender, token, amount);
         }
 
         // emit event

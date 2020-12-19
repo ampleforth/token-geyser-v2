@@ -9,13 +9,10 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IUniversalVault} from "./UniversalVault.sol";
 import {IRewardPool} from "./RewardPool.sol";
 import {IFactory} from "./Factory/IFactory.sol";
+import {IRageQuit} from "./UniversalVault.sol";
 
 import {Powered} from "./PowerSwitch/Powered.sol";
 import {Ownable} from "./Access/Ownable.sol";
-
-interface IRageQuit {
-    function rageQuit() external;
-}
 
 interface IGeyser is IRageQuit {
     struct GeyserData {

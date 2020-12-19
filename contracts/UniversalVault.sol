@@ -81,8 +81,9 @@ contract UniversalVault is IUniversalVault, ERC1271, Initializable, ExternalCall
 
     function getTokenLock(address token) external view returns (uint256 balance) {
         for (uint256 index; index < _lockSet.length(); index++) {
-            LockData storage lockData = _locks[_lockSet.at(index)];
-            if (lockData.token == token && lockData.balance > balance) balance = lockData.balance;
+            LockData storage _lockData = _locks[_lockSet.at(index)];
+            if (_lockData.token == token && _lockData.balance > balance)
+                balance = _lockData.balance;
         }
         return balance;
     }
@@ -95,9 +96,9 @@ contract UniversalVault is IUniversalVault, ERC1271, Initializable, ExternalCall
         // iterate over all token locks and validate sufficient balance
         for (uint256 index; index < _lockSet.length(); index++) {
             // fetch storage lock reference
-            LockData storage lockData = _locks[_lockSet.at(index)];
+            LockData storage _lockData = _locks[_lockSet.at(index)];
             // if insufficient balance and not shutdown, return false
-            if (IERC20(lockData.token).balanceOf(address(this)) < lockData.balance) return false;
+            if (IERC20(_lockData.token).balanceOf(address(this)) < _lockData.balance) return false;
         }
         // if sufficient balance or shutdown, return true
         return true;
@@ -126,7 +127,7 @@ contract UniversalVault is IUniversalVault, ERC1271, Initializable, ExternalCall
     ) external payable onlyOwner returns (bool success) {
         // perform external call
         success = _externalCall(to, value, data, gas);
-        // verify suficient token balance remaining
+        // verify sufficient token balance remaining
         require(checkBalances(), "Vault: insufficient balance locked");
         // explicit return
         return success;
@@ -209,7 +210,7 @@ contract UniversalVault is IUniversalVault, ERC1271, Initializable, ExternalCall
         // validate existing lock
         require(_lockSet.contains(lockID), "Vault: invalid lock");
 
-        // notify geyser
+        // attempt to notify geyser
         try IRageQuit(geyser).rageQuit()  {
             notified = true;
         } catch Error(string memory res) {

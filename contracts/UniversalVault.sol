@@ -9,6 +9,7 @@ import {ERC1271, Ownable} from "./Access/ERC1271.sol";
 import {ExternalCall} from "./ExternalCall/ExternalCall.sol";
 import {IPowerSwitch} from "./PowerSwitch/PowerSwitch.sol";
 import {IPowered} from "./PowerSwitch/Powered.sol";
+import {IRageQuit} from "./Geyser.sol";
 
 interface IUniversalVault {
     function initialize(address ownerAddress) external;
@@ -48,6 +49,12 @@ contract UniversalVault is IUniversalVault, ERC1271, Initializable, ExternalCall
     uint256 private _lockNonce;
     mapping(bytes32 => LockData) private _locks;
     EnumerableSet.Bytes32Set private _lockSet;
+
+    /* events */
+
+    event Locked(address geyser, address token, uint256 amount);
+    event Unlocked(address geyser, address token, uint256 amount);
+    event RageQuit(address geyser, address token, bool notified, string reason);
 
     /* initializer */
 
@@ -160,6 +167,9 @@ contract UniversalVault is IUniversalVault, ERC1271, Initializable, ExternalCall
             // add lock data to storage
             _locks[lockID] = LockData(msg.sender, token, powerSwitch, amount);
         }
+
+        // emit event
+        emit Locked(msg.sender, token, amount);
     }
 
     // EOA -> geyser:Withdraw() -> vault:Unlock()
@@ -189,5 +199,36 @@ contract UniversalVault is IUniversalVault, ERC1271, Initializable, ExternalCall
 
         // update lock data
         _locks[lockID].balance -= amount;
+
+        // emit event
+        emit Unlocked(msg.sender, token, amount);
+    }
+
+    function rageQuit(address geyser, address token)
+        external
+        returns (bool notified, string memory reason)
+    {
+        // get lock id
+        bytes32 lockID = calculateLockID(geyser, token);
+
+        // validate existing lock
+        require(_lockSet.contains(lockID), "Vault: invalid lock");
+
+        // notify geyser
+        try IRageQuit(geyser).rageQuit()  {
+            notified = true;
+        } catch Error(string memory res) {
+            notified = false;
+            reason = res;
+        } catch (bytes memory) {
+            notified = false;
+        }
+
+        // update lock storage
+        assert(_lockSet.remove(lockID));
+        delete _locks[lockID];
+
+        // emit event
+        emit RageQuit(geyser, token, notified, reason);
     }
 }

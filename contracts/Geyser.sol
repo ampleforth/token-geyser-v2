@@ -13,7 +13,11 @@ import {IFactory} from "./Factory/IFactory.sol";
 import {Powered} from "./PowerSwitch/Powered.sol";
 import {Ownable} from "./Access/Ownable.sol";
 
-interface IGeyser {
+interface IRageQuit {
+    function rageQuit() external;
+}
+
+interface IGeyser is IRageQuit {
     struct GeyserData {
         address stakingToken;
         address rewardToken;
@@ -276,6 +280,23 @@ contract Geyser is IGeyser, Powered, Ownable {
     }
 
     /* pure functions */
+
+    function calculateTotalStakeUnits(StakeData[] memory stakes, uint256 timestamp)
+        public
+        pure
+        returns (uint256 totalStakeUnits)
+    {
+        for (uint256 index; index < stakes.length; index++) {
+            // reference stake
+            StakeData memory stake = stakes[index];
+
+            // calculate stake units
+            uint256 stakeUnits = calculateStakeUnits(stake.amount, stake.timestamp, timestamp);
+
+            // add to running total
+            totalStakeUnits = totalStakeUnits.add(stakeUnits);
+        }
+    }
 
     function calculateStakeUnits(
         uint256 amount,
@@ -731,7 +752,7 @@ contract Geyser is IGeyser, Powered, Ownable {
         assert(_geyser.totalStake >= amount);
 
         // update cached sum of stake units across all vaults
-        uint256 totalStakeUnits = _updateTotalStakeUnits();
+        _updateTotalStakeUnits();
 
         // get reward amount remaining
         uint256 rewardRemaining = IERC20(_geyser.rewardToken).balanceOf(_geyser.rewardPool);
@@ -753,7 +774,7 @@ contract Geyser is IGeyser, Powered, Ownable {
             vaultData.stakes,
             amount,
             rewardAvailable,
-            totalStakeUnits,
+            _geyser.totalStakeUnits,
             block.timestamp,
             _geyser.rewardScaling
         );
@@ -814,13 +835,29 @@ contract Geyser is IGeyser, Powered, Ownable {
         emit Withdraw(vault, recipient, amount, reward);
     }
 
+    function rageQuit() external override {
+        // fetch vault storage reference
+        VaultData storage _vaultData = _vaults[msg.sender];
+
+        // update cached sum of stake units across all vaults
+        _updateTotalStakeUnits();
+
+        // update cached totals
+        _geyser.totalStake = _geyser.totalStake.sub(_vaultData.totalStake);
+        _geyser.totalStakeUnits = _geyser.totalStakeUnits.sub(
+            calculateTotalStakeUnits(_vaultData.stakes, block.timestamp)
+        );
+
+        // delete stake data
+        delete _vaultData.totalStake;
+        delete _vaultData.stakes;
+    }
+
     /* convenience functions */
 
-    function _updateTotalStakeUnits() private returns (uint256 totalStakeUnits) {
-        // get totalStakeUnits
-        totalStakeUnits = getTotalStakeUnits();
+    function _updateTotalStakeUnits() private {
         // update cached totalStakeUnits
-        _geyser.totalStakeUnits = totalStakeUnits;
+        _geyser.totalStakeUnits = getTotalStakeUnits();
         // update cached lastUpdate
         _geyser.lastUpdate = block.timestamp;
     }

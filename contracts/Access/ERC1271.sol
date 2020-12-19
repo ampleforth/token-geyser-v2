@@ -3,8 +3,6 @@ pragma solidity 0.7.5;
 
 import {ECDSA} from "@openzeppelin/contracts/cryptography/ECDSA.sol";
 
-import {Ownable} from "./Ownable.sol";
-
 interface IERC1271 {
     function isValidSignature(bytes32 _messageHash, bytes memory _signature)
         external
@@ -13,9 +11,9 @@ interface IERC1271 {
 }
 
 /// @title ERC1271
-/// @notice Ownable wrapper for ERC1271 compatibility
+/// @notice Wrapper for ERC1271 compatibility
 /// @dev Security contact: dev-support@ampleforth.org
-contract ERC1271 is IERC1271, Ownable {
+abstract contract ERC1271 is IERC1271 {
     using ECDSA for bytes32;
 
     // Valid magic value bytes4(keccak256("isValidSignature(bytes32,bytes)")
@@ -39,6 +37,8 @@ contract ERC1271 is IERC1271, Ownable {
     {
         require(signature.length == 65, "ERC1271: Invalid signature length");
         address signer = messageHash.recover(signature);
-        return signer == Ownable.owner() ? VALID_SIG : INVALID_SIG;
+        return signer == _getOwner() ? VALID_SIG : INVALID_SIG;
     }
+
+    function _getOwner() internal view virtual returns (address owner);
 }

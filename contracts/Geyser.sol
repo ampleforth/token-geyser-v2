@@ -114,6 +114,14 @@ contract Geyser is IGeyser, Powered, Ownable {
         return _bonusTokenSet.at(index);
     }
 
+    function getVaultFactorySetLength() external view returns (uint256 length) {
+        return _vaultFactorySet.length();
+    }
+
+    function getVaultFactoryAtIndex(uint256 index) external view returns (address factory) {
+        return _vaultFactorySet.at(index);
+    }
+
     function getVaultData(address vault)
         external
         view

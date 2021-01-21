@@ -22,10 +22,9 @@ upgrades.silenceWarnings()
   If you are encountering tests which fail unexpectedly, make sure increaseTime() is 
   correctly setting the timestamp of the next block.
 
-*/
+  Issue is being tracked here: https://github.com/nomiclabs/hardhat/issues/1079
 
-// todo: add ragequit tests
-// todo: fix evm_increaseTime failed error
+*/
 
 describe('Geyser', function () {
   let accounts: SignerWithAddress[],
@@ -2917,12 +2916,12 @@ describe('Geyser', function () {
           })
         })
       })
-      describe.only('with multiple vaults', function () {
+      describe('with multiple vaults', function () {
         const depositAmount = ethers.utils.parseEther('1')
         const rewardAmount = ethers.utils.parseUnits('1000', 9)
         const quantity = 10
 
-        let vaults = [] as Array<Contract>
+        let vaults: Array<Contract>
         beforeEach(async function () {
           // fund geyser
           await rewardToken.connect(admin).approve(geyser.address, rewardAmount)
@@ -2933,6 +2932,7 @@ describe('Geyser', function () {
           await increaseTime(rewardScaling.time)
 
           // create vaults
+          vaults = []
           const permissions = []
           for (let index = 0; index < quantity; index++) {
             const vault = await createInstance(
@@ -3015,7 +3015,7 @@ describe('Geyser', function () {
             )
               .to.emit(geyser, 'Withdraw')
               .withArgs(
-                vault,
+                vault.address,
                 user.address,
                 depositAmount,
                 rewardAmount.div(quantity),

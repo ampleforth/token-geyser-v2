@@ -723,9 +723,6 @@ describe('UniversalVault', function () {
       })
       it('should fail', async function () {
         // todo
-        await expect(
-          vault.connect(owner).rageQuit(MockDelegate.address, ERC20.address),
-        ).to.be.reverted
       })
     })
     describe('delegate is EOA', function () {

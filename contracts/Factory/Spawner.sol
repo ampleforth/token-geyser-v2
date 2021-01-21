@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.7.5;
+pragma solidity 0.7.6;
 
 /// @title Spawn
 /// @author 0age (@0age) for Numerai Inc

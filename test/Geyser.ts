@@ -489,7 +489,9 @@ describe('Geyser', function () {
 
           let vault: Contract
           beforeEach(async function () {
-            await geyser.registerVaultFactory(vaultFactory.address)
+            await geyser
+              .connect(admin)
+              .registerVaultFactory(vaultFactory.address)
             vault = await createInstance('UniversalVault', vaultFactory, user)
 
             await stakingToken

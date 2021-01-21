@@ -1,7 +1,7 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/dist/src/signer-with-address'
 import { expect } from 'chai'
 import { BigNumber, BigNumberish, Contract } from 'ethers'
-import { ethers, upgrades } from 'hardhat'
+import { ethers, network, upgrades } from 'hardhat'
 import {
   createInstance,
   deployAmpl,
@@ -2239,7 +2239,10 @@ describe('Geyser', function () {
 
           await deposit(user, geyser, vault, stakingToken, depositAmount)
 
-          await increaseTime(stakeDuration)
+          await network.provider.request({
+            method: 'evm_increaseTime',
+            params: [1],
+          })
         })
         it('should succeed', async function () {
           await withdraw(
@@ -2914,7 +2917,7 @@ describe('Geyser', function () {
           })
         })
       })
-      describe('with multiple vaults', function () {
+      describe.only('with multiple vaults', function () {
         const depositAmount = ethers.utils.parseEther('1')
         const rewardAmount = ethers.utils.parseUnits('1000', 9)
         const quantity = 10
@@ -2980,7 +2983,6 @@ describe('Geyser', function () {
           }
         })
         it('should update state', async function () {
-          await geyser.connect(admin).registerVaultFactory(vaultFactory.address)
           for (const vault of vaults) {
             await withdraw(
               user,

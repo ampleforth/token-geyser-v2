@@ -6,21 +6,19 @@ import {SafeMath} from "@openzeppelin/contracts/math/SafeMath.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/EnumerableSet.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import {IVault} from "./Vault.sol";
+import {IUniversalVault} from "./UniversalVault.sol";
 import {IRewardPool} from "./RewardPool.sol";
-
 import {IFactory} from "./Factory/IFactory.sol";
-import {CloneFactory} from "./Factory/CloneFactory.sol";
+import {IRageQuit} from "./UniversalVault.sol";
 
 import {Powered} from "./PowerSwitch/Powered.sol";
 import {Ownable} from "./Access/Ownable.sol";
 
-interface IGeyser {
+interface IGeyser is IRageQuit {
     struct GeyserData {
         address stakingToken;
         address rewardToken;
         address rewardPool;
-        address vaultTemplate;
         RewardScaling rewardScaling;
         uint256 rewardSharesOutstanding;
         uint256 totalStake;
@@ -55,23 +53,24 @@ interface IGeyser {
 
     function getVaultData(address vault) external view returns (VaultData memory vaultData);
 
-    function createVault() external returns (address vault);
-
-    function deposit(address vault, uint256 amount) external;
-
-    function createVaultAndDeposit(uint256 amount) external returns (address vault);
+    function deposit(
+        address vault,
+        uint256 amount,
+        bytes calldata permission
+    ) external;
 
     function withdraw(
         address vault,
         address recipient,
-        uint256 amount
+        uint256 amount,
+        bytes calldata permission
     ) external;
 }
 
 /// @title Geyser
 /// @notice Reward distribution contract with time multiplier
 /// @dev Security contact: dev-support@ampleforth.org
-contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
+contract Geyser is IGeyser, Powered, Ownable {
     using SafeMath for uint256;
     using EnumerableSet for EnumerableSet.AddressSet;
 
@@ -81,16 +80,19 @@ contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
 
     /* storage */
 
+    address private _vaultFactory;
     GeyserData private _geyser;
     mapping(address => VaultData) private _vaults;
-    EnumerableSet.AddressSet private _vaultSet;
     EnumerableSet.AddressSet private _bonusTokenSet;
+    EnumerableSet.AddressSet private _vaultFactorySet;
 
     /* admin events */
 
     event GeyserCreated(address rewardPool, address powerSwitch);
     event GeyserFunded(uint256 amount, uint256 duration);
     event BonusTokenRegistered(address token);
+    event VaultFactoryRegistered(address factory);
+    event VaultFactoryRemoved(address factory);
 
     /* user events */
 
@@ -112,12 +114,12 @@ contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
         return _bonusTokenSet.at(index);
     }
 
-    function getVaultSetLength() external view returns (uint256 length) {
-        return _vaultSet.length();
+    function getVaultFactorySetLength() external view returns (uint256 length) {
+        return _vaultFactorySet.length();
     }
 
-    function getVaultAtIndex(uint256 index) external view returns (address vault) {
-        return _vaultSet.at(index);
+    function getVaultFactoryAtIndex(uint256 index) external view returns (address factory) {
+        return _vaultFactorySet.at(index);
     }
 
     function getVaultData(address vault)
@@ -137,8 +139,18 @@ contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
             target != _geyser.stakingToken &&
             target != _geyser.rewardToken &&
             target != _geyser.rewardPool &&
-            !_bonusTokenSet.contains(target) &&
-            !_vaultSet.contains(target);
+            !_bonusTokenSet.contains(target);
+    }
+
+    function isValidVault(address target) public view returns (bool validity) {
+        // validate target is created from whitelisted vault factory
+        for (uint256 index = 0; index < _vaultFactorySet.length(); index++) {
+            if (IFactory(_vaultFactorySet.at(index)).created(target)) {
+                return true;
+            }
+        }
+        // explicit return
+        return false;
     }
 
     function getRewardAvailable() public view returns (uint256 rewardAvailable) {
@@ -247,11 +259,8 @@ contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
 
     function getTotalStakeUnits() public view returns (uint256 totalStakeUnits) {
         // calculate new stake units
-        uint256 newStakeUnits = calculateStakeUnits(
-            _geyser.totalStake,
-            _geyser.lastUpdate,
-            block.timestamp
-        );
+        uint256 newStakeUnits =
+            calculateStakeUnits(_geyser.totalStake, _geyser.lastUpdate, block.timestamp);
         // add to cached total
         totalStakeUnits = _geyser.totalStakeUnits.add(newStakeUnits);
         // explicit return
@@ -264,11 +273,8 @@ contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
         returns (uint256 totalStakeUnits)
     {
         // calculate new stake units
-        uint256 newStakeUnits = calculateStakeUnits(
-            _geyser.totalStake,
-            _geyser.lastUpdate,
-            timestamp
-        );
+        uint256 newStakeUnits =
+            calculateStakeUnits(_geyser.totalStake, _geyser.lastUpdate, timestamp);
         // add to cached total
         totalStakeUnits = _geyser.totalStakeUnits.add(newStakeUnits);
         // explicit return
@@ -276,6 +282,23 @@ contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
     }
 
     /* pure functions */
+
+    function calculateTotalStakeUnits(StakeData[] memory stakes, uint256 timestamp)
+        public
+        pure
+        returns (uint256 totalStakeUnits)
+    {
+        for (uint256 index; index < stakes.length; index++) {
+            // reference stake
+            StakeData memory stake = stakes[index];
+
+            // calculate stake units
+            uint256 stakeUnits = calculateStakeUnits(stake.amount, stake.timestamp, timestamp);
+
+            // add to running total
+            totalStakeUnits = totalStakeUnits.add(stakeUnits);
+        }
+    }
 
     function calculateStakeUnits(
         uint256 amount,
@@ -380,13 +403,14 @@ contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
             amountToWithdraw = amountToWithdraw.sub(currentAmount);
 
             // calculate reward amount
-            uint256 currentReward = calculateReward(
-                rewardAvailable,
-                currentAmount,
-                stakeDuration,
-                totalStakeUnits,
-                rewardScaling
-            );
+            uint256 currentReward =
+                calculateReward(
+                    rewardAvailable,
+                    currentAmount,
+                    stakeDuration,
+                    totalStakeUnits,
+                    rewardScaling
+                );
 
             // update cumulative reward
             reward = reward.add(currentReward);
@@ -443,11 +467,12 @@ contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
             uint256 minReward = baseReward.mul(rewardScaling.floor).div(rewardScaling.ceiling);
 
             // calculate bonus reward with vested portion of scaling factor
-            uint256 bonusReward = baseReward
-                .mul(stakeDuration)
-                .mul(rewardScaling.ceiling.sub(rewardScaling.floor))
-                .div(rewardScaling.ceiling)
-                .div(rewardScaling.time);
+            uint256 bonusReward =
+                baseReward
+                    .mul(stakeDuration)
+                    .mul(rewardScaling.ceiling.sub(rewardScaling.floor))
+                    .div(rewardScaling.ceiling)
+                    .div(rewardScaling.time);
 
             // add minimum reward and bonus reward
             reward = minReward.add(bonusReward);
@@ -469,7 +494,6 @@ contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
     /// @param powerSwitchFactory address The factory to use for deploying the PowerSwitch
     /// @param stakingToken address The address of the staking token for this geyser
     /// @param rewardToken address The address of the reward token for this geyser
-    /// @param vaultTemplate address The address of the template to use for deploying vaults
     /// @param rewardScaling RewardScaling The config for reward scaling floor, ceiling, and time
     function initialize(
         address owner,
@@ -477,7 +501,6 @@ contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
         address powerSwitchFactory,
         address stakingToken,
         address rewardToken,
-        address vaultTemplate,
         RewardScaling calldata rewardScaling
     ) external initializer {
         // the scaling floor must be smaller than ceiling
@@ -501,7 +524,6 @@ contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
         _geyser.stakingToken = stakingToken;
         _geyser.rewardToken = rewardToken;
         _geyser.rewardPool = rewardPool;
-        _geyser.vaultTemplate = vaultTemplate;
         _geyser.rewardScaling = rewardScaling;
 
         // emit event
@@ -531,7 +553,7 @@ contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
         //   newShares = remainingShares * newReward / rewardRemaining
         // else
         //   mint new shares with BASE_SHARES_PER_WEI initial conversion rate
-        //   store as fixed point number with same number of decimals as reward token
+        //   store as fixed point number with same  of decimals as reward token
         uint256 newRewardShares;
         if (_geyser.rewardSharesOutstanding > 0) {
             uint256 rewardRemaining = IERC20(_geyser.rewardToken).balanceOf(_geyser.rewardPool);
@@ -554,6 +576,45 @@ contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
 
         // emit event
         emit GeyserFunded(amount, duration);
+    }
+
+    /// @notice Add vault factory to whitelist
+    /// @dev use this function to enable deposits to vaults coming from the specified
+    ///      factory contract
+    /// access control: only admin
+    /// state machine:
+    ///   - can be called multiple times
+    ///   - not shutdown
+    /// state scope:
+    ///   - append to _vaultFactorySet
+    /// token transfer: none
+    /// @param factory address The address of the vault factory
+    function registerVaultFactory(address factory) external onlyOwner notShutdown {
+        // add factory to set
+        require(_vaultFactorySet.add(factory), "Geyser: vault factory already registered");
+
+        // emit event
+        emit VaultFactoryRegistered(factory);
+    }
+
+    /// @notice Remove vault factory from whitelist
+    /// @dev use this function to disable new deposits to vaults coming from the specified
+    ///      factory contract.
+    ///      note: vaults with existing deposits from this factory are sill able to withdraw
+    /// access control: only admin
+    /// state machine:
+    ///   - can be called multiple times
+    ///   - not shutdown
+    /// state scope:
+    ///   - remove from _vaultFactorySet
+    /// token transfer: none
+    /// @param factory address The address of the vault factory
+    function removeVaultFactory(address factory) external onlyOwner notShutdown {
+        // remove factory from set
+        require(_vaultFactorySet.remove(factory), "Geyser: vault factory not registered");
+
+        // emit event
+        emit VaultFactoryRemoved(factory);
     }
 
     /// @notice Register bonus token for distribution
@@ -609,66 +670,6 @@ contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
 
     /* user functions */
 
-    /// @notice Create vault and deposit staking tokens
-    /// access control: anyone
-    /// state machine:
-    ///   - can be called multiple times
-    ///   - only online
-    /// state scope:
-    ///   - extend scope from createVault()
-    ///   - extend scope from deposit(address,uint256)
-    /// token transfer: same as deposit(address,uint256)
-    /// @param amount uint256 The amount of staking tokens to deposit
-    /// @return vault address The address of the vault created
-    function createVaultAndDeposit(uint256 amount)
-        external
-        override
-        onlyOnline
-        returns (address vault)
-    {
-        // create vault
-        vault = createVault();
-
-        // deposit stake
-        deposit(vault, amount);
-
-        // explicit return
-        return vault;
-    }
-
-    /// @notice Create a new vault
-    /// @dev vaults are used to store a user's stake
-    /// access control: anyone
-    /// state machine:
-    ///   - can be called multiple times
-    ///   - only online
-    /// state scope:
-    ///   - append to _vaultSet
-    /// token transfer: none
-    /// @return vault address The address of the vault created
-    function createVault() public override onlyOnline returns (address vault) {
-        // craft initialization calldata
-        bytes memory args = abi.encodeWithSelector(
-            IVault.initialize.selector,
-            _geyser.stakingToken,
-            msg.sender,
-            Powered.getPowerSwitch()
-        );
-
-        // create vault clone
-        vault = CloneFactory._create(_geyser.vaultTemplate, args);
-
-        // add vault to vault set
-        // should never fail given fresh vault deployment
-        assert(_vaultSet.add(vault));
-
-        // emit event
-        emit VaultCreated(vault);
-
-        // explicit return
-        return vault;
-    }
-
     /// @notice Deposit staking tokens
     /// @dev anyone can deposit to any vault
     /// access control: anyone
@@ -685,15 +686,19 @@ contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
     /// token transfer: transfer staking tokens from msg.sender to vault
     /// @param vault address The address of the vault to deposit to
     /// @param amount uint256 The amount of staking tokens to deposit
-    function deposit(address vault, uint256 amount) public override onlyOnline {
+    function deposit(
+        address vault,
+        uint256 amount,
+        bytes calldata permission
+    ) public override onlyOnline {
+        // verify vault is valid
+        require(isValidVault(vault), "Geyser: vault is not registered");
+
         // fetch vault storage reference
         VaultData storage vaultData = _vaults[vault];
 
         // verify non-zero amount
         require(amount != 0, "Geyser: no amount deposited");
-
-        // verify vault at this address for this geyser
-        require(_vaultSet.contains(vault), "Geyser: invalid vault");
 
         // update cached sum of stake units across all vaults
         _updateTotalStakeUnits();
@@ -705,37 +710,11 @@ contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
         vaultData.totalStake = vaultData.totalStake.add(amount);
         _geyser.totalStake = _geyser.totalStake.add(amount);
 
-        // transfer staking tokens to vault
-        require(
-            IERC20(_geyser.stakingToken).transferFrom(msg.sender, vault, amount),
-            "Geyser: transfer to vault failed"
-        );
+        // call lock on vault
+        IUniversalVault(vault).lock(_geyser.stakingToken, amount, permission);
 
         // emit event
         emit Deposit(vault, amount);
-    }
-
-    /// @notice Withdraw staking tokens from multiple vaults
-    /// access control: only owner of vault
-    /// state machine: same as withdraw(address,uint256,address)
-    /// state scope: same as withdraw(address,uint256,address)
-    /// token transfer: same as withdraw(address,uint256,address)
-    /// @param vaults address[] The vaults to withdraw from
-    /// @param recipients address[] The recipients to withdraw to
-    /// @param amounts uint256[] The amounts of staking tokens to withdraw
-    function withdrawMulti(
-        address[] calldata vaults,
-        address[] calldata recipients,
-        uint256[] calldata amounts
-    ) external onlyOnline {
-        // verify input array lengths
-        require(vaults.length == amounts.length, "Geyser: wrong input array length");
-        require(vaults.length == recipients.length, "Geyser: wrong input array length");
-
-        // withdraw from each vault
-        for (uint256 index = 0; index < vaults.length; index++) {
-            withdraw(vaults[index], recipients[index], amounts[index]);
-        }
     }
 
     /// @notice Withdraw staking tokens and claim reward
@@ -763,19 +742,14 @@ contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
     function withdraw(
         address vault,
         address recipient,
-        uint256 amount
+        uint256 amount,
+        bytes calldata permission
     ) public override onlyOnline {
         // fetch vault storage reference
         VaultData storage vaultData = _vaults[vault];
 
         // verify non-zero amount
         require(amount != 0, "Geyser: no amount withdrawn");
-
-        // verify vault at this address for this geyser
-        require(_vaultSet.contains(vault), "Geyser: invalid vault");
-
-        // require msg.sender is vault owner
-        require(IVault(vault).owner() == msg.sender, "Geyser: only vault owner");
 
         // validate recipient
         _validateAddress(recipient);
@@ -788,32 +762,30 @@ contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
         assert(_geyser.totalStake >= amount);
 
         // update cached sum of stake units across all vaults
-        uint256 totalStakeUnits = _updateTotalStakeUnits();
+        _updateTotalStakeUnits();
 
         // get reward amount remaining
         uint256 rewardRemaining = IERC20(_geyser.rewardToken).balanceOf(_geyser.rewardPool);
 
         // calculate vested portion of reward pool
-        uint256 rewardAvailable = calculateRewardAvailable(
-            _geyser.rewardSchedules,
-            rewardRemaining,
-            _geyser.rewardSharesOutstanding,
-            block.timestamp
-        );
+        uint256 rewardAvailable =
+            calculateRewardAvailable(
+                _geyser.rewardSchedules,
+                rewardRemaining,
+                _geyser.rewardSharesOutstanding,
+                block.timestamp
+            );
 
         // calculate vault time weighted reward with scaling
-        (
-            StakeData[] memory newStakes,
-            uint256 reward,
-            uint256 newTotalStakeUnits
-        ) = calculateRewardMulti(
-            vaultData.stakes,
-            amount,
-            rewardAvailable,
-            totalStakeUnits,
-            block.timestamp,
-            _geyser.rewardScaling
-        );
+        (StakeData[] memory newStakes, uint256 reward, uint256 newTotalStakeUnits) =
+            calculateRewardMulti(
+                vaultData.stakes,
+                amount,
+                rewardAvailable,
+                _geyser.totalStakeUnits,
+                block.timestamp,
+                _geyser.rewardScaling
+            );
 
         // update stake data in storage
         if (newStakes.length == 0) {
@@ -849,69 +821,51 @@ contract Geyser is IGeyser, Powered, Ownable, CloneFactory {
                 // fetch bonus token address reference
                 address bonusToken = _bonusTokenSet.at(index);
 
-                // calculate bonus token amount
+                // calculate bonus token amount and transfer
                 // bonusAmount = bonusRemaining * reward / rewardRemaining
-                // uint256 bonusRemaining = IERC20(bonusToken).balanceOf(_geyser.rewardPool);
-                uint256 bonusAmount = IERC20(bonusToken)
-                    .balanceOf(_geyser.rewardPool)
-                    .mul(reward)
-                    .div(rewardRemaining);
-
-                // transfer bonus tokens
-                IRewardPool(_geyser.rewardPool).sendERC20(bonusToken, recipient, bonusAmount);
+                IRewardPool(_geyser.rewardPool).sendERC20(
+                    bonusToken,
+                    recipient,
+                    IERC20(bonusToken).balanceOf(_geyser.rewardPool).mul(reward).div(
+                        rewardRemaining
+                    )
+                );
             }
         }
 
-        // transfer staking tokens from vault to recipient
-        IVault(vault).sendERC20(_geyser.stakingToken, recipient, amount);
-
         // transfer reward tokens from reward pool to recipient
         IRewardPool(_geyser.rewardPool).sendERC20(_geyser.rewardToken, recipient, reward);
+
+        // unlock staking tokens from vault
+        IUniversalVault(vault).unlock(_geyser.stakingToken, amount, permission);
 
         // emit event
         emit Withdraw(vault, recipient, amount, reward);
     }
 
-    /// @notice Rescue unaccounted staking tokens from Vault
-    /// @dev all other tokens can be rescued from the vault directly
-    /// access control: only vault owner
-    /// state machine:
-    ///   - can be called multiple times if outstanding balance
-    ///   - only online
-    /// state scope: none
-    /// token transfer: transfer staking token from Vault to recipient
-    /// @param vault address The vault to rescue from
-    /// @param recipient address The recipient to rescue to
-    function rescueStakingTokensFromVault(address vault, address recipient) external onlyOnline {
+    function rageQuit() external override {
         // fetch vault storage reference
-        VaultData storage vaultData = _vaults[vault];
+        VaultData storage _vaultData = _vaults[msg.sender];
 
-        // verify vault at this address for this geyser
-        require(_vaultSet.contains(vault), "Geyser: invalid vault");
+        // update cached sum of stake units across all vaults
+        _updateTotalStakeUnits();
 
-        // require msg.sender is vault owner
-        require(IVault(vault).owner() == msg.sender, "Geyser: only vault owner");
+        // update cached totals
+        _geyser.totalStake = _geyser.totalStake.sub(_vaultData.totalStake);
+        _geyser.totalStakeUnits = _geyser.totalStakeUnits.sub(
+            calculateTotalStakeUnits(_vaultData.stakes, block.timestamp)
+        );
 
-        // validate recipient
-        _validateAddress(recipient);
-
-        // calculate amount of staking tokens to rescue
-        uint256 amount = IERC20(_geyser.stakingToken).balanceOf(vault).sub(vaultData.totalStake);
-
-        // require non-zero amount
-        require(amount > 0, "Geyser: no tokens to rescue");
-
-        // transfer tokens to recipient
-        IVault(vault).sendERC20(_geyser.stakingToken, recipient, amount);
+        // delete stake data
+        delete _vaultData.totalStake;
+        delete _vaultData.stakes;
     }
 
     /* convenience functions */
 
-    function _updateTotalStakeUnits() private returns (uint256 totalStakeUnits) {
-        // get totalStakeUnits
-        totalStakeUnits = getTotalStakeUnits();
+    function _updateTotalStakeUnits() private {
         // update cached totalStakeUnits
-        _geyser.totalStakeUnits = totalStakeUnits;
+        _geyser.totalStakeUnits = getTotalStakeUnits();
         // update cached lastUpdate
         _geyser.lastUpdate = block.timestamp;
     }

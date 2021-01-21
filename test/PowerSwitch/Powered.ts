@@ -1,11 +1,11 @@
-import { ethers } from 'hardhat'
-import { Contract } from 'ethers'
-import { deployContract, HardHatSigner } from '../utils'
-
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/dist/src/signer-with-address'
 import { expect } from 'chai'
+import { Contract } from 'ethers'
+import { ethers } from 'hardhat'
+import { deployContract } from '../utils'
 
 describe('Powered', function () {
-  let accounts: HardHatSigner[]
+  let accounts: SignerWithAddress[]
   let PowerSwitch: Contract
   let Mock: Contract
 

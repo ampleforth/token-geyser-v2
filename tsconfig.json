@@ -1,4 +1,3 @@
-  
 {
   "compilerOptions": {
     "target": "es5",
@@ -10,9 +9,5 @@
     "outDir": "dist"
   },
   "include": ["./scripts", "./test"],
-  "files": [
-    "hardhat.config.ts",
-    "./node_modules/@nomiclabs/hardhat-ethers/src/type-extensions.ts",
-    "./node_modules/@nomiclabs/hardhat-waffle/src/type-extensions.ts"
-  ]
+  "files": ["hardhat.config.ts"]
 }

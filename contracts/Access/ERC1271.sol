@@ -35,8 +35,7 @@ abstract contract ERC1271 is IERC1271 {
         override
         returns (bytes4)
     {
-        require(signature.length == 65, "ERC1271: Invalid signature length");
-        address signer = messageHash.recover(signature);
+        address signer = messageHash.toEthSignedMessageHash().recover(signature);
         return signer == _getOwner() ? VALID_SIG : INVALID_SIG;
     }
 

@@ -1,20 +1,27 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity 0.7.5;
+pragma abicoder v2;
 
+import {SafeMath} from "@openzeppelin/contracts/math/SafeMath.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Initializable} from "@openzeppelin/contracts/proxy/Initializable.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/EnumerableSet.sol";
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 import {ERC1271} from "./Access/ERC1271.sol";
-import {ERC721Owner} from "./Access/ERC721Owner.sol";
-import {ExternalCall} from "./ExternalCall/ExternalCall.sol";
+import {OwnableERC721} from "./Access/OwnableERC721.sol";
 
 interface IRageQuit {
     function rageQuit() external;
 }
 
 interface IUniversalVault {
-    function getOwner() external view returns (address owner);
+    event Locked(address delegate, address token, uint256 amount);
+    event Unlocked(address delegate, address token, uint256 amount);
+
+    function initialize() external;
+
+    function owner() external view returns (address ownerAddress);
 
     function lock(
         address token,
@@ -28,68 +35,114 @@ interface IUniversalVault {
         bytes calldata permission
     ) external;
 
-    function rageQuit(address geyser, address token)
+    function rageQuit(address delegate, address token)
         external
-        returns (bool notified, string memory reason);
+        returns (bool notified, string memory error);
 }
 
 /// @title UniversalVault
 /// @notice Vault for isolated storage of staking tokens
+/// @dev Warning: not compatible with rebasing tokens
 /// @dev Security contact: dev-support@ampleforth.org
-contract UniversalVault is IUniversalVault, ERC1271, ERC721Owner, ExternalCall {
+contract UniversalVault is IUniversalVault, ERC1271, OwnableERC721, Initializable {
+    using SafeMath for uint256;
+    using Address for address;
     using EnumerableSet for EnumerableSet.Bytes32Set;
 
     /* storage */
 
     struct LockData {
-        address geyser;
+        address delegate;
         address token;
         uint256 balance;
     }
 
-    uint256 private _lockNonce;
+    uint256 private _nonce;
     mapping(bytes32 => LockData) private _locks;
     EnumerableSet.Bytes32Set private _lockSet;
 
     /* events */
+    event RageQuit(address delegate, address token, bool notified, string reason);
 
-    event Locked(address geyser, address token, uint256 amount);
-    event Unlocked(address geyser, address token, uint256 amount);
-    event RageQuit(address geyser, address token, bool notified, string reason);
+    /* initialization function */
+
+    function initialize() external override initializer {
+        OwnableERC721._setNFT(msg.sender);
+    }
+
+    /* ether receive */
+
+    receive() external payable {}
 
     /* internal overrides */
 
-    function _getOwner() internal view override(ERC1271) returns (address owner) {
-        return ERC721Owner.getOwner();
+    function _getOwner() internal view override(ERC1271) returns (address ownerAddress) {
+        return OwnableERC721.owner();
     }
 
     /* pure functions */
 
-    function calculateLockID(address geyser, address token) public pure returns (bytes32 lockID) {
-        return keccak256(abi.encodePacked(geyser, token));
+    function calculateLockID(address delegate, address token) public pure returns (bytes32 lockID) {
+        return keccak256(abi.encodePacked(delegate, token));
+    }
+
+    function calculatePermissionHash(
+        string memory method,
+        address vault,
+        address delegate,
+        address token,
+        uint256 amount,
+        uint256 nonce
+    ) public pure returns (bytes32 hash) {
+        return keccak256(abi.encodePacked(method, vault, delegate, token, amount, nonce));
+    }
+
+    /* private functions */
+
+    function trimSelector(bytes memory data) private pure returns (bytes4 selector) {
+        // manually unpack first 4 bytes
+        // see: https://docs.soliditylang.org/en/v0.7.6/types.html#array-slices
+        return data[0] | (bytes4(data[1]) >> 8) | (bytes4(data[2]) >> 16) | (bytes4(data[3]) >> 24);
     }
 
     /* getter functions */
 
-    function getOwner() public view override(IUniversalVault, ERC721Owner) returns (address owner) {
-        return ERC721Owner.getOwner();
+    function getNonce() external view returns (uint256 nonce) {
+        return _nonce;
     }
 
-    function getGeyserLock(address geyser, address token) external view returns (uint256 balance) {
-        return _locks[calculateLockID(geyser, token)].balance;
+    function owner()
+        public
+        view
+        override(IUniversalVault, OwnableERC721)
+        returns (address ownerAddress)
+    {
+        return OwnableERC721.owner();
     }
 
-    function getTokenLock(address token) external view returns (uint256 balance) {
+    function getLockSetCount() external view returns (uint256 count) {
+        return _lockSet.length();
+    }
+
+    function getLockAt(uint256 index) external view returns (LockData memory lockData) {
+        return _locks[_lockSet.at(index)];
+    }
+
+    function getBalanceDelegated(address token, address delegate)
+        external
+        view
+        returns (uint256 balance)
+    {
+        return _locks[calculateLockID(delegate, token)].balance;
+    }
+
+    function getBalanceLocked(address token) external view returns (uint256 balance) {
         for (uint256 index; index < _lockSet.length(); index++) {
             LockData storage _lockData = _locks[_lockSet.at(index)];
             if (_lockData.token == token && _lockData.balance > balance)
                 balance = _lockData.balance;
         }
         return balance;
-    }
-
-    function getLockNonce() external view returns (uint256 nonce) {
-        return _lockNonce;
     }
 
     function checkBalances() public view returns (bool validity) {
@@ -114,22 +167,31 @@ contract UniversalVault is IUniversalVault, ERC1271, ERC721Owner, ExternalCall {
     /// @param to Destination address of transaction.
     /// @param value Ether value of transaction
     /// @param data Data payload of transaction
-    /// @param gas Gas that should be used for the transaction
     function externalCall(
         address to,
         uint256 value,
-        bytes calldata data,
-        uint256 gas
-    ) external payable onlyOwner returns (bool success) {
-        // perform external call
-        success = _externalCall(to, value, data, gas);
+        bytes calldata data
+    ) external payable onlyOwner returns (bytes memory returnData) {
+        // blacklist ERC20 approval
+        if (data.length > 0) {
+            require(data.length >= 4, "UniversalVault: calldata too short");
+            require(
+                trimSelector(data) != IERC20.approve.selector,
+                "UniversalVault: cannot make ERC20 approval"
+            );
+            // perform external call
+            returnData = to.functionCallWithValue(data, value);
+        } else {
+            // perform external call
+            Address.sendValue(payable(to), value);
+        }
         // verify sufficient token balance remaining
-        require(checkBalances(), "Vault: insufficient balance locked");
+        require(checkBalances(), "UniversalVault: insufficient balance locked");
         // explicit return
-        return success;
+        return returnData;
     }
 
-    // EOA -> geyser:Deposit() -> vault:Lock()
+    // EOA -> delegate:Deposit() -> vault:Lock()
     function lock(
         address token,
         uint256 amount,
@@ -138,20 +200,17 @@ contract UniversalVault is IUniversalVault, ERC1271, ERC721Owner, ExternalCall {
         external
         override
         onlyValidSignature(
-            keccak256(abi.encodePacked("lock", msg.sender, token, amount, _lockNonce)),
+            calculatePermissionHash("lock", address(this), msg.sender, token, amount, _nonce),
             permission
         )
     {
-        // validate sufficient balance
-        require(IERC20(token).balanceOf(address(this)) >= amount, "Vault: insufficient balance");
-
         // get lock id
         bytes32 lockID = calculateLockID(msg.sender, token);
 
         // add lock to storage
         if (_lockSet.contains(lockID)) {
             // if lock already exists, increase amount
-            _locks[lockID].balance += amount;
+            _locks[lockID].balance = _locks[lockID].balance.add(amount);
         } else {
             // if does not exist, create new lock
             // add lock to set
@@ -160,11 +219,20 @@ contract UniversalVault is IUniversalVault, ERC1271, ERC721Owner, ExternalCall {
             _locks[lockID] = LockData(msg.sender, token, amount);
         }
 
+        // validate sufficient balance
+        require(
+            IERC20(token).balanceOf(address(this)) >= _locks[lockID].balance,
+            "UniversalVault: insufficient balance"
+        );
+
+        // increase nonce
+        _nonce += 1;
+
         // emit event
         emit Locked(msg.sender, token, amount);
     }
 
-    // EOA -> geyser:Withdraw() -> vault:Unlock()
+    // EOA -> delegate:Withdraw() -> vault:Unlock()
     function unlock(
         address token,
         uint256 amount,
@@ -173,48 +241,55 @@ contract UniversalVault is IUniversalVault, ERC1271, ERC721Owner, ExternalCall {
         external
         override
         onlyValidSignature(
-            keccak256(abi.encodePacked("unlock", msg.sender, token, amount, _lockNonce)),
+            calculatePermissionHash("unlock", address(this), msg.sender, token, amount, _nonce),
             permission
         )
     {
-        // validate sufficient balance
-        require(IERC20(token).balanceOf(address(this)) >= amount, "Vault: insufficient balance");
-
         // get lock id
-        bytes32 lockID = keccak256(abi.encodePacked(msg.sender, token));
+        bytes32 lockID = calculateLockID(msg.sender, token);
 
         // validate existing lock
-        require(_lockSet.contains(lockID), "Vault: invalid lock");
-
-        // validate sufficient lock amount
-        require(_locks[lockID].balance >= amount, "Vault: insufficient lock amount");
+        require(_lockSet.contains(lockID), "UniversalVault: missing lock");
 
         // update lock data
-        _locks[lockID].balance -= amount;
+        if (_locks[lockID].balance > amount) {
+            // substract amount from lock balance
+            _locks[lockID].balance = _locks[lockID].balance.sub(amount);
+        } else {
+            // delete lock data
+            delete _locks[lockID];
+            assert(_lockSet.remove(lockID));
+        }
+
+        // increase nonce
+        _nonce += 1;
 
         // emit event
         emit Unlocked(msg.sender, token, amount);
     }
 
-    function rageQuit(address geyser, address token)
+    function rageQuit(address delegate, address token)
         external
         override
-        returns (bool notified, string memory reason)
+        onlyOwner
+        returns (bool notified, string memory error)
     {
         // get lock id
-        bytes32 lockID = calculateLockID(geyser, token);
+        bytes32 lockID = calculateLockID(delegate, token);
 
         // validate existing lock
-        require(_lockSet.contains(lockID), "Vault: invalid lock");
+        require(_lockSet.contains(lockID), "UniversalVault: missing lock");
 
-        // attempt to notify geyser
-        try IRageQuit(geyser).rageQuit()  {
-            notified = true;
-        } catch Error(string memory res) {
-            notified = false;
-            reason = res;
-        } catch (bytes memory) {
-            notified = false;
+        // attempt to notify delegate
+        if (delegate.isContract()) {
+            try IRageQuit(delegate).rageQuit() {
+                notified = true;
+            } catch Error(string memory res) {
+                notified = false;
+                error = res;
+            } catch (bytes memory) {
+                notified = false;
+            }
         }
 
         // update lock storage
@@ -222,6 +297,6 @@ contract UniversalVault is IUniversalVault, ERC1271, ERC721Owner, ExternalCall {
         delete _locks[lockID];
 
         // emit event
-        emit RageQuit(geyser, token, notified, reason);
+        emit RageQuit(delegate, token, notified, error);
     }
 }

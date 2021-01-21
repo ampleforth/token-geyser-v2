@@ -20,11 +20,12 @@ contract Spawn {
         }
 
         // place eip-1167 runtime code in memory.
-        bytes memory runtimeCode = abi.encodePacked(
-            bytes10(0x363d3d373d3d3d363d73),
-            logicContract,
-            bytes15(0x5af43d82803e903d91602b57fd5bf3)
-        );
+        bytes memory runtimeCode =
+            abi.encodePacked(
+                bytes10(0x363d3d373d3d3d363d73),
+                logicContract,
+                bytes15(0x5af43d82803e903d91602b57fd5bf3)
+            );
 
         // return eip-1167 code to write it to spawned contract runtime.
         assembly {
@@ -62,10 +63,8 @@ contract Spawner {
 
         // get valid create2 target
 
-        (address target, bytes32 safeSalt) = _getNextNonceTargetWithInitCodeHash(
-            creator,
-            initCodeHash
-        );
+        (address target, bytes32 safeSalt) =
+            _getNextNonceTargetWithInitCodeHash(creator, initCodeHash);
 
         // spawn create2 instance and validate
 
@@ -94,11 +93,8 @@ contract Spawner {
 
         // get valid create2 target
 
-        (address target, bytes32 safeSalt, bool validity) = _getSaltyTargetWithInitCodeHash(
-            creator,
-            initCodeHash,
-            salt
-        );
+        (address target, bytes32 safeSalt, bool validity) =
+            _getSaltyTargetWithInitCodeHash(creator, initCodeHash, salt);
         require(validity, "contract already deployed with supplied salt");
 
         // spawn create2 instance and validate

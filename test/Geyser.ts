@@ -33,6 +33,7 @@ describe('Geyser', function () {
 
   let powerSwitchFactory: Contract,
     rewardPoolFactory: Contract,
+    vaultTemplate: Contract,
     vaultFactory: Contract,
     stakingToken: Contract,
     rewardToken: Contract,
@@ -121,7 +122,7 @@ describe('Geyser', function () {
     // deploy dependencies
     powerSwitchFactory = await deployContract('PowerSwitchFactory')
     rewardPoolFactory = await deployContract('RewardPoolFactory')
-    const vaultTemplate = await deployContract('UniversalVault')
+    vaultTemplate = await deployContract('UniversalVault')
     vaultFactory = await deployContract('VaultFactory', [vaultTemplate.address])
 
     // deploy mock tokens
@@ -634,11 +635,277 @@ describe('Geyser', function () {
       })
     })
 
+    describe('isValidVault', function () {
+      let vault: Contract
+      beforeEach(async function () {
+        vault = await createInstance('UniversalVault', vaultFactory, user)
+      })
+      describe('when no factory registered', function () {
+        it('should be false', async function () {
+          expect(await geyser.isValidVault(vault.address)).to.be.false
+        })
+      })
+      describe('when vault from factory registered', function () {
+        beforeEach(async function () {
+          await geyser.connect(admin).registerVaultFactory(vaultFactory.address)
+        })
+        it('should be true', async function () {
+          expect(await geyser.isValidVault(vault.address)).to.be.true
+        })
+      })
+      describe('when vault from factory removed', function () {
+        beforeEach(async function () {
+          await geyser.connect(admin).registerVaultFactory(vaultFactory.address)
+          await geyser.connect(admin).removeVaultFactory(vaultFactory.address)
+        })
+        it('should be false', async function () {
+          expect(await geyser.isValidVault(vault.address)).to.be.false
+        })
+      })
+      describe('when vault not from factory registered', function () {
+        let secondFactory: Contract
+        let secondVault: Contract
+        beforeEach(async function () {
+          await geyser.connect(admin).registerVaultFactory(vaultFactory.address)
+          secondFactory = await deployContract('VaultFactory', [
+            vaultTemplate.address,
+          ])
+          secondVault = await createInstance(
+            'UniversalVault',
+            secondFactory,
+            user,
+          )
+        })
+        it('should be false', async function () {
+          expect(await geyser.isValidVault(secondVault.address)).to.be.false
+        })
+      })
+      describe('when vaults from multiple factory registered', function () {
+        let secondFactory: Contract
+        let secondVault: Contract
+        beforeEach(async function () {
+          secondFactory = await deployContract('VaultFactory', [
+            vaultTemplate.address,
+          ])
+          secondVault = await createInstance(
+            'UniversalVault',
+            secondFactory,
+            user,
+          )
+          await geyser.connect(admin).registerVaultFactory(vaultFactory.address)
+          await geyser
+            .connect(admin)
+            .registerVaultFactory(secondFactory.address)
+        })
+        it('should be true', async function () {
+          expect(await geyser.isValidVault(vault.address)).to.be.true
+          expect(await geyser.isValidVault(secondVault.address)).to.be.true
+        })
+      })
+    })
+
     describe('registerVaultFactory', function () {
-      // todo
+      describe('as user', function () {
+        it('should fail', async function () {
+          await expect(
+            geyser.connect(user).registerVaultFactory(vaultFactory.address),
+          ).to.be.revertedWith('Ownable: caller is not the owner')
+        })
+      })
+      describe('when online', function () {
+        it('should succeed', async function () {
+          await geyser.connect(admin).registerVaultFactory(vaultFactory.address)
+        })
+        it('should update state', async function () {
+          await geyser.connect(admin).registerVaultFactory(vaultFactory.address)
+
+          expect(await geyser.getVaultFactorySetLength()).to.be.eq(1)
+          expect(await geyser.getVaultFactoryAtIndex(0)).to.be.eq(
+            vaultFactory.address,
+          )
+        })
+        it('should emit event', async function () {
+          await expect(
+            geyser.connect(admin).registerVaultFactory(vaultFactory.address),
+          )
+            .to.emit(geyser, 'VaultFactoryRegistered')
+            .withArgs(vaultFactory.address)
+        })
+      })
+      describe('when offline', function () {
+        beforeEach(async function () {
+          await powerSwitch.connect(admin).powerOff()
+        })
+        it('should succeed', async function () {
+          await geyser.connect(admin).registerVaultFactory(vaultFactory.address)
+        })
+        it('should update state', async function () {
+          await geyser.connect(admin).registerVaultFactory(vaultFactory.address)
+
+          expect(await geyser.getVaultFactorySetLength()).to.be.eq(1)
+          expect(await geyser.getVaultFactoryAtIndex(0)).to.be.eq(
+            vaultFactory.address,
+          )
+        })
+        it('should emit event', async function () {
+          await expect(
+            geyser.connect(admin).registerVaultFactory(vaultFactory.address),
+          )
+            .to.emit(geyser, 'VaultFactoryRegistered')
+            .withArgs(vaultFactory.address)
+        })
+      })
+      describe('when shutdown', function () {
+        beforeEach(async function () {
+          await powerSwitch.connect(admin).emergencyShutdown()
+        })
+        it('should fail', async function () {
+          await expect(
+            geyser.connect(admin).registerVaultFactory(vaultFactory.address),
+          ).to.be.revertedWith('Powered: is shutdown')
+        })
+      })
+      describe('when already added', function () {
+        beforeEach(async function () {
+          await geyser.connect(admin).registerVaultFactory(vaultFactory.address)
+        })
+        it('should fail', async function () {
+          await expect(
+            geyser.connect(admin).registerVaultFactory(vaultFactory.address),
+          ).to.be.revertedWith('Geyser: vault factory already registered')
+        })
+      })
+      describe('when removed', function () {
+        beforeEach(async function () {
+          await geyser.connect(admin).registerVaultFactory(vaultFactory.address)
+          await geyser.connect(admin).removeVaultFactory(vaultFactory.address)
+        })
+        it('should succeed', async function () {
+          await geyser.connect(admin).registerVaultFactory(vaultFactory.address)
+        })
+        it('should update state', async function () {
+          await geyser.connect(admin).registerVaultFactory(vaultFactory.address)
+
+          expect(await geyser.getVaultFactorySetLength()).to.be.eq(1)
+          expect(await geyser.getVaultFactoryAtIndex(0)).to.be.eq(
+            vaultFactory.address,
+          )
+        })
+        it('should emit event', async function () {
+          await expect(
+            geyser.connect(admin).registerVaultFactory(vaultFactory.address),
+          )
+            .to.emit(geyser, 'VaultFactoryRegistered')
+            .withArgs(vaultFactory.address)
+        })
+      })
+      describe('with second factory', function () {
+        beforeEach(async function () {
+          await geyser.connect(admin).registerVaultFactory(admin.address)
+        })
+        it('should succeed', async function () {
+          await geyser.connect(admin).registerVaultFactory(vaultFactory.address)
+        })
+        it('should update state', async function () {
+          await geyser.connect(admin).registerVaultFactory(vaultFactory.address)
+
+          expect(await geyser.getVaultFactorySetLength()).to.be.eq(2)
+          expect(await geyser.getVaultFactoryAtIndex(1)).to.be.eq(
+            vaultFactory.address,
+          )
+        })
+        it('should emit event', async function () {
+          await expect(
+            geyser.connect(admin).registerVaultFactory(vaultFactory.address),
+          )
+            .to.emit(geyser, 'VaultFactoryRegistered')
+            .withArgs(vaultFactory.address)
+        })
+      })
     })
     describe('removeVaultFactory', function () {
-      // todo
+      describe('as user', function () {
+        beforeEach(async function () {
+          await geyser.connect(admin).registerVaultFactory(vaultFactory.address)
+        })
+        it('should fail', async function () {
+          await expect(
+            geyser.connect(user).removeVaultFactory(vaultFactory.address),
+          ).to.be.revertedWith('Ownable: caller is not the owner')
+        })
+      })
+      describe('when online', function () {
+        beforeEach(async function () {
+          await geyser.connect(admin).registerVaultFactory(vaultFactory.address)
+        })
+        it('should succeed', async function () {
+          await geyser.connect(admin).removeVaultFactory(vaultFactory.address)
+        })
+        it('should update state', async function () {
+          await geyser.connect(admin).removeVaultFactory(vaultFactory.address)
+
+          expect(await geyser.getVaultFactorySetLength()).to.be.eq(0)
+          await expect(geyser.getVaultFactoryAtIndex(0)).to.be.reverted
+        })
+        it('should emit event', async function () {
+          await expect(
+            geyser.connect(admin).removeVaultFactory(vaultFactory.address),
+          )
+            .to.emit(geyser, 'VaultFactoryRemoved')
+            .withArgs(vaultFactory.address)
+        })
+      })
+      describe('when offline', function () {
+        beforeEach(async function () {
+          await geyser.connect(admin).registerVaultFactory(vaultFactory.address)
+          await powerSwitch.connect(admin).powerOff()
+        })
+        it('should succeed', async function () {
+          await geyser.connect(admin).removeVaultFactory(vaultFactory.address)
+        })
+        it('should update state', async function () {
+          await geyser.connect(admin).removeVaultFactory(vaultFactory.address)
+
+          expect(await geyser.getVaultFactorySetLength()).to.be.eq(0)
+          await expect(geyser.getVaultFactoryAtIndex(0)).to.be.reverted
+        })
+        it('should emit event', async function () {
+          await expect(
+            geyser.connect(admin).removeVaultFactory(vaultFactory.address),
+          )
+            .to.emit(geyser, 'VaultFactoryRemoved')
+            .withArgs(vaultFactory.address)
+        })
+      })
+      describe('when shutdown', function () {
+        beforeEach(async function () {
+          await geyser.connect(admin).registerVaultFactory(vaultFactory.address)
+          await powerSwitch.connect(admin).emergencyShutdown()
+        })
+        it('should fail', async function () {
+          await expect(
+            geyser.connect(admin).removeVaultFactory(vaultFactory.address),
+          ).to.be.revertedWith('Powered: is shutdown')
+        })
+      })
+      describe('when never added', function () {
+        it('should fail', async function () {
+          await expect(
+            geyser.connect(admin).removeVaultFactory(vaultFactory.address),
+          ).to.be.revertedWith('Geyser: vault factory not registered')
+        })
+      })
+      describe('when already removed', function () {
+        beforeEach(async function () {
+          await geyser.connect(admin).registerVaultFactory(vaultFactory.address)
+          await geyser.connect(admin).removeVaultFactory(vaultFactory.address)
+        })
+        it('should fail', async function () {
+          await expect(
+            geyser.connect(admin).removeVaultFactory(vaultFactory.address),
+          ).to.be.revertedWith('Geyser: vault factory not registered')
+        })
+      })
     })
 
     describe('registerBonusToken', function () {

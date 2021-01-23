@@ -77,6 +77,8 @@ contract Geyser is IGeyser, Powered, Ownable {
     /* constants */
 
     uint256 public constant BASE_SHARES_PER_WEI = 1000000;
+    // With 30 deposits, ragequit costs 432811 gas
+    uint256 public constant MAX_STAKES_PER_VAULT = 30;
 
     /* storage */
 
@@ -694,11 +696,17 @@ contract Geyser is IGeyser, Powered, Ownable {
         // verify vault is valid
         require(isValidVault(vault), "Geyser: vault is not registered");
 
+        // verify non-zero amount
+        require(amount != 0, "Geyser: no amount deposited");
+
         // fetch vault storage reference
         VaultData storage vaultData = _vaults[vault];
 
-        // verify non-zero amount
-        require(amount != 0, "Geyser: no amount deposited");
+        // verify stakes boundary not reached
+        require(
+            vaultData.stakes.length < MAX_STAKES_PER_VAULT,
+            "Geyser: MAX_STAKES_PER_VAULT reached"
+        );
 
         // update cached sum of stake units across all vaults
         _updateTotalStakeUnits();
@@ -847,6 +855,9 @@ contract Geyser is IGeyser, Powered, Ownable {
         // fetch vault storage reference
         VaultData storage _vaultData = _vaults[msg.sender];
 
+        // revert if no active stakes
+        require(_vaultData.stakes.length != 0, "Geyser: no deposits");
+
         // update cached sum of stake units across all vaults
         _updateTotalStakeUnits();
 
@@ -857,8 +868,7 @@ contract Geyser is IGeyser, Powered, Ownable {
         );
 
         // delete stake data
-        delete _vaultData.totalStake;
-        delete _vaultData.stakes;
+        delete _vaults[msg.sender];
     }
 
     /* convenience functions */

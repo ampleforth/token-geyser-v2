@@ -1526,6 +1526,32 @@ describe('Geyser', function () {
               )
           })
         })
+        describe('when MAX_STAKES_PER_VAULT reached', function () {
+          let quantity: number
+          beforeEach(async function () {
+            quantity = (await geyser.MAX_STAKES_PER_VAULT()).toNumber()
+            for (let index = 0; index < quantity; index++) {
+              await deposit(
+                user,
+                geyser,
+                vault,
+                stakingToken,
+                depositAmount.div(quantity),
+              )
+            }
+          })
+          it('should fail', async function () {
+            await expect(
+              deposit(
+                user,
+                geyser,
+                vault,
+                stakingToken,
+                depositAmount.div(quantity),
+              ),
+            ).to.be.revertedWith('Geyser: MAX_STAKES_PER_VAULT reached')
+          })
+        })
       })
       describe('when deposits reset', function () {
         beforeEach(async function () {
@@ -3331,6 +3357,7 @@ describe('Geyser', function () {
     describe('rageQuit', function () {
       const depositAmount = ethers.utils.parseEther('100')
       const rewardAmount = ethers.utils.parseUnits('1000', 9)
+      const gasLimit = 600_000
 
       let vault: Contract
       beforeEach(async function () {
@@ -3345,54 +3372,226 @@ describe('Geyser', function () {
         await stakingToken.connect(admin).transfer(vault.address, depositAmount)
         await deposit(user, geyser, vault, stakingToken, depositAmount)
       })
-      describe('when offline', function () {
+      describe('when online', function () {
         it('should succeed', async function () {
+          await vault
+            .connect(user)
+            .rageQuit(geyser.address, stakingToken.address, {
+              gasLimit,
+            })
+        })
+        it('should update state', async function () {
+          await vault
+            .connect(user)
+            .rageQuit(geyser.address, stakingToken.address, {
+              gasLimit,
+            })
+
+          const geyserData = await geyser.getGeyserData()
+          const vaultData = await geyser.getVaultData(vault.address)
+
+          expect(geyserData.rewardSharesOutstanding).to.eq(
+            rewardAmount.mul(BASE_SHARES_PER_WEI),
+          )
+          expect(geyserData.totalStake).to.eq(0)
+          expect(geyserData.totalStakeUnits).to.eq(0)
+          expect(geyserData.lastUpdate).to.eq(await getTimestamp())
+          expect(vaultData.totalStake).to.eq(0)
+          expect(vaultData.stakes.length).to.eq(0)
+        })
+      })
+      describe('when offline', function () {
+        beforeEach(async function () {
           await powerSwitch.connect(admin).powerOff()
-          // todo
+        })
+        it('should succeed', async function () {
+          await vault
+            .connect(user)
+            .rageQuit(geyser.address, stakingToken.address, {
+              gasLimit,
+            })
+        })
+        it('should update state', async function () {
+          await vault
+            .connect(user)
+            .rageQuit(geyser.address, stakingToken.address, {
+              gasLimit,
+            })
+
+          const geyserData = await geyser.getGeyserData()
+          const vaultData = await geyser.getVaultData(vault.address)
+
+          expect(geyserData.rewardSharesOutstanding).to.eq(
+            rewardAmount.mul(BASE_SHARES_PER_WEI),
+          )
+          expect(geyserData.totalStake).to.eq(0)
+          expect(geyserData.totalStakeUnits).to.eq(0)
+          expect(geyserData.lastUpdate).to.eq(await getTimestamp())
+          expect(vaultData.totalStake).to.eq(0)
+          expect(vaultData.stakes.length).to.eq(0)
         })
       })
       describe('when shutdown', function () {
-        it('should fail', async function () {
+        beforeEach(async function () {
           await powerSwitch.connect(admin).emergencyShutdown()
-          // todo
         })
-      })
-      describe('with invalid vault', function () {
-        it('should fail', async function () {
-          // todo
-        })
-      })
-      describe('as not vault owner', function () {
-        it('should fail', async function () {
-          // todo
-        })
-      })
-      describe('with amount of zero', function () {
-        it('should fail', async function () {
-          // todo
-        })
-      })
-      describe('with invalid recipient', function () {
-        describe('of address zero', function () {
-          it('should fail', async function () {
-            // todo
-          })
-        })
-        describe('of vault address', function () {
-          it('should fail', async function () {
-            // todo
-          })
-        })
-      })
-      describe('when online', function () {
         it('should succeed', async function () {
-          // todo
+          await vault
+            .connect(user)
+            .rageQuit(geyser.address, stakingToken.address, {
+              gasLimit,
+            })
         })
-        it('should not update state', async function () {
-          // todo
+        it('should update state', async function () {
+          await vault
+            .connect(user)
+            .rageQuit(geyser.address, stakingToken.address, {
+              gasLimit,
+            })
+
+          const geyserData = await geyser.getGeyserData()
+          const vaultData = await geyser.getVaultData(vault.address)
+
+          expect(geyserData.rewardSharesOutstanding).to.eq(
+            rewardAmount.mul(BASE_SHARES_PER_WEI),
+          )
+          expect(geyserData.totalStake).to.eq(0)
+          expect(geyserData.totalStakeUnits).to.eq(0)
+          expect(geyserData.lastUpdate).to.eq(await getTimestamp())
+          expect(vaultData.totalStake).to.eq(0)
+          expect(vaultData.stakes.length).to.eq(0)
         })
-        it('should transfer tokens', async function () {
-          // todo
+      })
+      describe('with unknown vault', function () {
+        it('should fail', async function () {
+          await expect(
+            geyser.connect(user).rageQuit({
+              gasLimit,
+            }),
+          ).to.be.revertedWith('Geyser: no deposits')
+        })
+      })
+      describe('when no deposit', function () {
+        it('should fail', async function () {
+          const secondVault = await createInstance(
+            'UniversalVault',
+            vaultFactory,
+            user,
+          )
+          await expect(
+            secondVault
+              .connect(user)
+              .rageQuit(geyser.address, stakingToken.address, {
+                gasLimit,
+              }),
+          ).to.be.revertedWith('UniversalVault: missing lock')
+        })
+      })
+      describe('when insufficient gas', function () {
+        it('should fail', async function () {
+          await expect(
+            vault.connect(user).rageQuit(geyser.address, stakingToken.address, {
+              gasLimit: await vault.RAGEQUIT_GAS(),
+            }),
+          ).to.be.revertedWith('UniversalVault: insufficient gas')
+        })
+      })
+      describe('when insufficient gas with multiple deposits', function () {
+        let quantity: number
+        beforeEach(async function () {
+          quantity = (await geyser.MAX_STAKES_PER_VAULT()).toNumber() - 1
+          await stakingToken
+            .connect(admin)
+            .transfer(vault.address, depositAmount)
+          for (let index = 0; index < quantity; index++) {
+            await deposit(
+              user,
+              geyser,
+              vault,
+              stakingToken,
+              depositAmount.div(quantity),
+            )
+          }
+        })
+        it('should fail', async function () {
+          await expect(
+            vault.connect(user).rageQuit(geyser.address, stakingToken.address, {
+              gasLimit: await vault.RAGEQUIT_GAS(),
+            }),
+          ).to.be.revertedWith('UniversalVault: insufficient gas')
+        })
+      })
+      describe('when single deposit', function () {
+        it('should succeed', async function () {
+          await vault
+            .connect(user)
+            .rageQuit(geyser.address, stakingToken.address, {
+              gasLimit,
+            })
+        })
+        it('should update state', async function () {
+          await vault
+            .connect(user)
+            .rageQuit(geyser.address, stakingToken.address, {
+              gasLimit,
+            })
+
+          const geyserData = await geyser.getGeyserData()
+          const vaultData = await geyser.getVaultData(vault.address)
+
+          expect(geyserData.rewardSharesOutstanding).to.eq(
+            rewardAmount.mul(BASE_SHARES_PER_WEI),
+          )
+          expect(geyserData.totalStake).to.eq(0)
+          expect(geyserData.totalStakeUnits).to.eq(0)
+          expect(geyserData.lastUpdate).to.eq(await getTimestamp())
+          expect(vaultData.totalStake).to.eq(0)
+          expect(vaultData.stakes.length).to.eq(0)
+        })
+      })
+      describe('when multiple deposits', function () {
+        let quantity: number
+
+        beforeEach(async function () {
+          quantity = (await geyser.MAX_STAKES_PER_VAULT()).toNumber() - 1
+          await stakingToken
+            .connect(admin)
+            .transfer(vault.address, depositAmount)
+          for (let index = 0; index < quantity; index++) {
+            await deposit(
+              user,
+              geyser,
+              vault,
+              stakingToken,
+              depositAmount.div(quantity),
+            )
+          }
+        })
+        it('should succeed', async function () {
+          await vault
+            .connect(user)
+            .rageQuit(geyser.address, stakingToken.address, {
+              gasLimit,
+            })
+        })
+        it('should update state', async function () {
+          await vault
+            .connect(user)
+            .rageQuit(geyser.address, stakingToken.address, {
+              gasLimit,
+            })
+
+          const geyserData = await geyser.getGeyserData()
+          const vaultData = await geyser.getVaultData(vault.address)
+
+          expect(geyserData.rewardSharesOutstanding).to.eq(
+            rewardAmount.mul(BASE_SHARES_PER_WEI),
+          )
+          expect(geyserData.totalStake).to.eq(0)
+          expect(geyserData.totalStakeUnits).to.eq(0)
+          expect(geyserData.lastUpdate).to.eq(await getTimestamp())
+          expect(vaultData.totalStake).to.eq(0)
+          expect(vaultData.stakes.length).to.eq(0)
         })
       })
     })

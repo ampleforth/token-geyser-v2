@@ -49,6 +49,10 @@ contract UniversalVault is IUniversalVault, ERC1271, OwnableERC721, Initializabl
     using Address for address;
     using EnumerableSet for EnumerableSet.Bytes32Set;
 
+    /* constant */
+
+    uint256 public constant RAGEQUIT_GAS = 500000;
+
     /* storage */
 
     struct LockData {
@@ -282,7 +286,11 @@ contract UniversalVault is IUniversalVault, ERC1271, OwnableERC721, Initializabl
 
         // attempt to notify delegate
         if (delegate.isContract()) {
-            try IRageQuit(delegate).rageQuit() {
+            // check for sufficient gas
+            require(gasleft() >= RAGEQUIT_GAS, "UniversalVault: insufficient gas");
+
+            // attempt rageQuit notification
+            try IRageQuit(delegate).rageQuit{gas: RAGEQUIT_GAS}() {
                 notified = true;
             } catch Error(string memory res) {
                 notified = false;

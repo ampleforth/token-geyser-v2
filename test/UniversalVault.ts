@@ -602,6 +602,20 @@ describe('UniversalVault', function () {
         ).to.be.revertedWith('OwnableERC721: caller is not the owner')
       })
     })
+    describe('with insufficient gas forwarded', function () {
+      let gasLimit: number
+      beforeEach(async function () {
+        gasLimit = (await vault.RAGEQUIT_GAS()).toNumber()
+        await MockDelegate.setDelegateType(DelegateType.Succeed)
+      })
+      it('should fail', async function () {
+        await expect(
+          vault
+            .connect(owner)
+            .rageQuit(MockDelegate.address, ERC20.address, { gasLimit }),
+        ).to.be.revertedWith('UniversalVault: insufficient gas')
+      })
+    })
     describe('delegate with success', function () {
       beforeEach(async function () {
         await MockDelegate.setDelegateType(DelegateType.Succeed)
@@ -721,8 +735,35 @@ describe('UniversalVault', function () {
       beforeEach(async function () {
         await MockDelegate.setDelegateType(DelegateType.OOG)
       })
-      it('should fail', async function () {
-        // todo
+      it('should succeed', async function () {
+        await vault.connect(owner).rageQuit(MockDelegate.address, ERC20.address)
+      })
+      it('should delete lock data', async function () {
+        await vault.connect(owner).rageQuit(MockDelegate.address, ERC20.address)
+
+        expect(await vault.getLockSetCount()).to.be.eq(0)
+        await expect(vault.getLockAt(0)).to.be.revertedWith(
+          'EnumerableSet: index out of bounds',
+        )
+        expect(
+          await vault.getBalanceDelegated(ERC20.address, MockDelegate.address),
+        ).to.be.eq(0)
+        expect(await vault.getBalanceLocked(ERC20.address)).to.be.eq(0)
+      })
+      it('should emit event', async function () {
+        await expect(
+          vault.connect(owner).rageQuit(MockDelegate.address, ERC20.address),
+        )
+          .to.emit(vault, 'RageQuit')
+          .withArgs(MockDelegate.address, ERC20.address, false, '')
+      })
+      it('should return data', async function () {
+        const returnData = await vault
+          .connect(owner)
+          .callStatic.rageQuit(MockDelegate.address, ERC20.address)
+
+        expect(returnData.notified).to.be.false
+        expect(returnData.error).to.be.eq('')
       })
     })
     describe('delegate is EOA', function () {

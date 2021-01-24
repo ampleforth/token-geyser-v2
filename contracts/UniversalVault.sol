@@ -8,7 +8,7 @@ import {Initializable} from "@openzeppelin/contracts/proxy/Initializable.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/EnumerableSet.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
-import {ERC1271} from "./Access/ERC1271.sol";
+import {ERC1271Bytes} from "./Access/ERC1271Bytes.sol";
 import {OwnableERC721} from "./Access/OwnableERC721.sol";
 
 interface IRageQuit {
@@ -44,7 +44,7 @@ interface IUniversalVault {
 /// @notice Vault for isolated storage of staking tokens
 /// @dev Warning: not compatible with rebasing tokens
 /// @dev Security contact: dev-support@ampleforth.org
-contract UniversalVault is IUniversalVault, ERC1271, OwnableERC721, Initializable {
+contract UniversalVault is IUniversalVault, ERC1271Bytes, OwnableERC721, Initializable {
     using SafeMath for uint256;
     using Address for address;
     using EnumerableSet for EnumerableSet.Bytes32Set;
@@ -80,7 +80,7 @@ contract UniversalVault is IUniversalVault, ERC1271, OwnableERC721, Initializabl
 
     /* internal overrides */
 
-    function _getOwner() internal view override(ERC1271) returns (address ownerAddress) {
+    function _getOwner() internal view override(ERC1271Bytes) returns (address ownerAddress) {
         return OwnableERC721.owner();
     }
 
@@ -88,6 +88,17 @@ contract UniversalVault is IUniversalVault, ERC1271, OwnableERC721, Initializabl
 
     function calculateLockID(address delegate, address token) public pure returns (bytes32 lockID) {
         return keccak256(abi.encodePacked(delegate, token));
+    }
+
+    function calculatePermissionBytes(
+        string memory method,
+        address vault,
+        address delegate,
+        address token,
+        uint256 amount,
+        uint256 nonce
+    ) public pure returns (bytes memory permission) {
+        return abi.encodePacked(method, vault, delegate, token, amount, nonce);
     }
 
     function calculatePermissionHash(
@@ -98,7 +109,7 @@ contract UniversalVault is IUniversalVault, ERC1271, OwnableERC721, Initializabl
         uint256 amount,
         uint256 nonce
     ) public pure returns (bytes32 hash) {
-        return keccak256(abi.encodePacked(method, vault, delegate, token, amount, nonce));
+        return keccak256(calculatePermissionBytes(method, vault, delegate, token, amount, nonce));
     }
 
     /* private functions */
@@ -203,8 +214,8 @@ contract UniversalVault is IUniversalVault, ERC1271, OwnableERC721, Initializabl
     )
         external
         override
-        onlyValidSignature(
-            calculatePermissionHash("lock", address(this), msg.sender, token, amount, _nonce),
+        onlyValidSignatureBytes(
+            calculatePermissionBytes("lock", address(this), msg.sender, token, amount, _nonce),
             permission
         )
     {
@@ -244,8 +255,8 @@ contract UniversalVault is IUniversalVault, ERC1271, OwnableERC721, Initializabl
     )
         external
         override
-        onlyValidSignature(
-            calculatePermissionHash("unlock", address(this), msg.sender, token, amount, _nonce),
+        onlyValidSignatureBytes(
+            calculatePermissionBytes("unlock", address(this), msg.sender, token, amount, _nonce),
             permission
         )
     {

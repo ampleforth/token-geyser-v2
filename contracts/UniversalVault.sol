@@ -206,7 +206,16 @@ contract UniversalVault is IUniversalVault, ERC1271Bytes, OwnableERC721, Initial
         return returnData;
     }
 
-    // EOA -> delegate:Deposit() -> vault:Lock()
+    /// @notice Lock ERC20 tokens in the vault
+    /// access control: called by delegate with signed permission from owner
+    /// state machine: anytime
+    /// state scope:
+    /// - insert or update _locks
+    /// - increase _nonce
+    /// token transfer: none
+    /// @param token Address of token being locked
+    /// @param amount Amount of tokens being locked
+    /// @param permission Permission signature payload
     function lock(
         address token,
         uint256 amount,
@@ -247,7 +256,16 @@ contract UniversalVault is IUniversalVault, ERC1271Bytes, OwnableERC721, Initial
         emit Locked(msg.sender, token, amount);
     }
 
-    // EOA -> delegate:Withdraw() -> vault:Unlock()
+    /// @notice Unlock ERC20 tokens in the vault
+    /// access control: called by delegate with signed permission from owner
+    /// state machine: after valid lock from delegate
+    /// state scope:
+    /// - remove or update _locks
+    /// - increase _nonce
+    /// token transfer: none
+    /// @param token Address of token being unlocked
+    /// @param amount Amount of tokens being unlocked
+    /// @param permission Permission signature payload
     function unlock(
         address token,
         uint256 amount,
@@ -283,6 +301,16 @@ contract UniversalVault is IUniversalVault, ERC1271Bytes, OwnableERC721, Initial
         emit Unlocked(msg.sender, token, amount);
     }
 
+    /// @notice Forcibly cancel delegate lock
+    /// @dev This function will attempt to notify the delegate of the rage quit using
+    ///      a fixed amount of gas.
+    /// access control: only owner
+    /// state machine: after valid lock from delegate
+    /// state scope:
+    /// - remove item from _locks
+    /// token transfer: none
+    /// @param delegate Address of delegate
+    /// @param token Address of token being unlocked
     function rageQuit(address delegate, address token)
         external
         override

@@ -102,6 +102,54 @@ contract Geyser is IGeyser, Powered, Ownable {
     event Deposit(address vault, uint256 amount);
     event Withdraw(address vault, address recipient, uint256 amount, uint256 reward);
 
+    /* initializer */
+
+    /// @notice Initizalize geyser
+    /// access control: only proxy constructor
+    /// state machine: can only be called once
+    /// state scope: set initialization variables
+    /// token transfer: none
+    /// @param owner address The admin address
+    /// @param rewardPoolFactory address The factory to use for deploying the RewardPool
+    /// @param powerSwitchFactory address The factory to use for deploying the PowerSwitch
+    /// @param stakingToken address The address of the staking token for this geyser
+    /// @param rewardToken address The address of the reward token for this geyser
+    /// @param rewardScaling RewardScaling The config for reward scaling floor, ceiling, and time
+    function initialize(
+        address owner,
+        address rewardPoolFactory,
+        address powerSwitchFactory,
+        address stakingToken,
+        address rewardToken,
+        RewardScaling calldata rewardScaling
+    ) external initializer {
+        // the scaling floor must be smaller than ceiling
+        require(rewardScaling.floor <= rewardScaling.ceiling, "Geyser: floor above ceiling");
+
+        // setting rewardScalingTime to 0 would cause divide by zero error
+        // to disable reward scaling, use rewardScalingFloor == rewardScalingCeiling
+        require(rewardScaling.time != 0, "Geyser: scaling time cannot be zero");
+
+        // deploy power switch
+        address powerSwitch = IFactory(powerSwitchFactory).create(abi.encode(owner));
+
+        // deploy reward pool
+        address rewardPool = IFactory(rewardPoolFactory).create(abi.encode(powerSwitch));
+
+        // set internal configs
+        Ownable._setOwnership(owner);
+        Powered._setPowerSwitch(powerSwitch);
+
+        // commit to storage
+        _geyser.stakingToken = stakingToken;
+        _geyser.rewardToken = rewardToken;
+        _geyser.rewardPool = rewardPool;
+        _geyser.rewardScaling = rewardScaling;
+
+        // emit event
+        emit GeyserCreated(rewardPool, powerSwitch);
+    }
+
     /* getter functions */
 
     function getGeyserData() external view override returns (GeyserData memory geyser) {
@@ -482,54 +530,6 @@ contract Geyser is IGeyser, Powered, Ownable {
 
         // explicit return
         return reward;
-    }
-
-    /* initializer */
-
-    /// @notice Initizalize geyser
-    /// access control: only proxy constructor
-    /// state machine: can only be called once
-    /// state scope: set initialization variables
-    /// token transfer: none
-    /// @param owner address The admin address
-    /// @param rewardPoolFactory address The factory to use for deploying the RewardPool
-    /// @param powerSwitchFactory address The factory to use for deploying the PowerSwitch
-    /// @param stakingToken address The address of the staking token for this geyser
-    /// @param rewardToken address The address of the reward token for this geyser
-    /// @param rewardScaling RewardScaling The config for reward scaling floor, ceiling, and time
-    function initialize(
-        address owner,
-        address rewardPoolFactory,
-        address powerSwitchFactory,
-        address stakingToken,
-        address rewardToken,
-        RewardScaling calldata rewardScaling
-    ) external initializer {
-        // the scaling floor must be smaller than ceiling
-        require(rewardScaling.floor <= rewardScaling.ceiling, "Geyser: floor above ceiling");
-
-        // setting rewardScalingTime to 0 would cause divide by zero error
-        // to disable reward scaling, use rewardScalingFloor == rewardScalingCeiling
-        require(rewardScaling.time != 0, "Geyser: scaling time cannot be zero");
-
-        // deploy power switch
-        address powerSwitch = IFactory(powerSwitchFactory).create(abi.encode(owner));
-
-        // deploy reward pool
-        address rewardPool = IFactory(rewardPoolFactory).create(abi.encode(powerSwitch));
-
-        // set internal configs
-        Ownable._setOwnership(owner);
-        Powered._setPowerSwitch(powerSwitch);
-
-        // commit to storage
-        _geyser.stakingToken = stakingToken;
-        _geyser.rewardToken = rewardToken;
-        _geyser.rewardPool = rewardPool;
-        _geyser.rewardScaling = rewardScaling;
-
-        // emit event
-        emit GeyserCreated(rewardPool, powerSwitch);
     }
 
     /* admin functions */

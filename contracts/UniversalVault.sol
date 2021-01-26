@@ -110,50 +110,8 @@ contract UniversalVault is IUniversalVault, EIP712, ERC1271, OwnableERC721, Init
         uint256 nonce
     ) public view returns (bytes32 permissionHash) {
         return
-            _hashTypedDataV4(keccak256(abi.encode(eip712TypeHash, delegate, token, amount, nonce)));
-    }
-
-    function getLockPermissionHash(
-        address delegate,
-        address token,
-        uint256 amount,
-        uint256 nonce
-    ) public view returns (bytes32 permissionHash) {
-        return
-            _hashTypedDataV4(
-                keccak256(
-                    abi.encode(
-                        keccak256(
-                            "Lock(address delegate,address token,uint256 amount,uint256 nonce)"
-                        ),
-                        delegate,
-                        token,
-                        amount,
-                        nonce
-                    )
-                )
-            );
-    }
-
-    function getUnlockPermissionHash(
-        address delegate,
-        address token,
-        uint256 amount,
-        uint256 nonce
-    ) public view returns (bytes32 permissionHash) {
-        return
-            _hashTypedDataV4(
-                keccak256(
-                    abi.encode(
-                        keccak256(
-                            "Unlock(address delegate,address token,uint256 amount,uint256 nonce)"
-                        ),
-                        delegate,
-                        token,
-                        amount,
-                        nonce
-                    )
-                )
+            EIP712._hashTypedDataV4(
+                keccak256(abi.encode(eip712TypeHash, delegate, token, amount, nonce))
             );
     }
 
@@ -258,7 +216,16 @@ contract UniversalVault is IUniversalVault, EIP712, ERC1271, OwnableERC721, Init
     )
         external
         override
-        onlyValidSignature(getLockPermissionHash(msg.sender, token, amount, _nonce), permission)
+        onlyValidSignature(
+            getPermissionHash(
+                keccak256("Lock(address delegate,address token,uint256 amount,uint256 nonce)"),
+                msg.sender,
+                token,
+                amount,
+                _nonce
+            ),
+            permission
+        )
     {
         // get lock id
         bytes32 lockID = calculateLockID(msg.sender, token);
@@ -305,7 +272,16 @@ contract UniversalVault is IUniversalVault, EIP712, ERC1271, OwnableERC721, Init
     )
         external
         override
-        onlyValidSignature(getUnlockPermissionHash(msg.sender, token, amount, _nonce), permission)
+        onlyValidSignature(
+            getPermissionHash(
+                keccak256("Unlock(address delegate,address token,uint256 amount,uint256 nonce)"),
+                msg.sender,
+                token,
+                amount,
+                _nonce
+            ),
+            permission
+        )
     {
         // get lock id
         bytes32 lockID = calculateLockID(msg.sender, token);

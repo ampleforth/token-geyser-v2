@@ -41,13 +41,39 @@ interface IUniversalVault {
         returns (bool notified, string memory error);
 }
 
+interface IExternalCall {
+    struct CallParams {
+        address to;
+        uint256 value;
+        bytes data;
+    }
+
+    function externalCall(CallParams calldata call)
+        external
+        payable
+        returns (bytes memory returnData);
+
+    function externalCallMulti(CallParams[] calldata calls)
+        external
+        payable
+        returns (bytes[] memory returnData);
+}
+
 /// @title UniversalVault
 /// @notice Vault for isolated storage of staking tokens
 /// @dev Warning: not compatible with rebasing tokens
 /// @dev Security contact: dev-support@ampleforth.org
-contract UniversalVault is IUniversalVault, EIP712, ERC1271, OwnableERC721, Initializable {
+contract UniversalVault is
+    IUniversalVault,
+    IExternalCall,
+    EIP712,
+    ERC1271,
+    OwnableERC721,
+    Initializable
+{
     using SafeMath for uint256;
     using Address for address;
+    using Address for address payable;
     using EnumerableSet for EnumerableSet.Bytes32Set;
 
     /* constant */
@@ -172,26 +198,38 @@ contract UniversalVault is IUniversalVault, EIP712, ERC1271, OwnableERC721, Init
     /// state machine: anytime
     /// state scope: none
     /// token transfer: transfer out amount limited by largest lock for given token
-    /// @param to Destination address of transaction.
-    /// @param value Ether value of transaction
-    /// @param data Data payload of transaction
-    function externalCall(
-        address to,
-        uint256 value,
-        bytes calldata data
-    ) external payable onlyOwner returns (bytes memory returnData) {
-        // blacklist ERC20 approval
-        if (data.length > 0) {
-            require(data.length >= 4, "UniversalVault: calldata too short");
-            require(
-                trimSelector(data) != IERC20.approve.selector,
-                "UniversalVault: cannot make ERC20 approval"
-            );
-            // perform external call
-            returnData = to.functionCallWithValue(data, value);
-        } else {
-            // perform external call
-            Address.sendValue(payable(to), value);
+    /// @param call Struct with call parameters (address to, uint256 value, bytes data)
+    function externalCall(CallParams calldata call)
+        external
+        payable
+        override
+        onlyOwner
+        returns (bytes memory returnData)
+    {
+        // perform external call
+        returnData = _externalCall(call);
+        // verify sufficient token balance remaining
+        require(checkBalances(), "UniversalVault: insufficient balance locked");
+        // explicit return
+        return returnData;
+    }
+
+    /// @notice Perform multiple external calls from the vault
+    /// access control: only owner
+    /// state machine: anytime
+    /// state scope: none
+    /// token transfer: transfer out amount limited by largest lock for given token
+    /// @param calls Array of Struct with call parameters (address to, uint256 value, bytes data)
+    function externalCallMulti(CallParams[] calldata calls)
+        external
+        payable
+        override
+        onlyOwner
+        returns (bytes[] memory returnData)
+    {
+        // perform external call
+        for (uint256 index = 0; index < calls.length; index++) {
+            returnData[index] = _externalCall(calls[index]);
         }
         // verify sufficient token balance remaining
         require(checkBalances(), "UniversalVault: insufficient balance locked");
@@ -350,5 +388,24 @@ contract UniversalVault is IUniversalVault, EIP712, ERC1271, OwnableERC721, Init
 
         // emit event
         emit RageQuit(delegate, token, notified, error);
+    }
+
+    /* convenience functions */
+
+    function _externalCall(CallParams calldata call) private returns (bytes memory returnData) {
+        if (call.data.length > 0) {
+            // sanity check calldata
+            require(call.data.length >= 4, "UniversalVault: calldata too short");
+            // blacklist ERC20 approval
+            require(
+                trimSelector(call.data) != IERC20.approve.selector,
+                "UniversalVault: cannot make ERC20 approval"
+            );
+            // perform external call
+            returnData = call.to.functionCallWithValue(call.data, call.value);
+        } else {
+            // perform external call
+            payable(call.to).sendValue(call.value);
+        }
     }
 }

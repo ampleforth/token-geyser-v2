@@ -1,6 +1,6 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/dist/src/signer-with-address'
 import { expect } from 'chai'
-import { BigNumber, BigNumberish, Contract } from 'ethers'
+import { BigNumber, BigNumberish, Contract, Wallet } from 'ethers'
 import { ethers, network, upgrades } from 'hardhat'
 import {
   createInstance,
@@ -27,9 +27,8 @@ upgrades.silenceWarnings()
 */
 
 describe('Geyser', function () {
-  let accounts: SignerWithAddress[],
-    admin: SignerWithAddress,
-    user: SignerWithAddress
+  let accounts: SignerWithAddress[], admin: SignerWithAddress
+  let user: Wallet
 
   let powerSwitchFactory: Contract,
     rewardPoolFactory: Contract,
@@ -48,7 +47,7 @@ describe('Geyser', function () {
   let amplInitialSupply: BigNumber
 
   const deposit = async (
-    user: SignerWithAddress,
+    user: Wallet,
     geyser: Contract,
     vault: Contract,
     stakingToken: Contract,
@@ -57,9 +56,9 @@ describe('Geyser', function () {
   ) => {
     // sign permission
     const signedPermission = await signPermission(
-      'lock',
-      user,
+      'Lock',
       vault,
+      user,
       geyser.address,
       stakingToken.address,
       amount,
@@ -70,7 +69,7 @@ describe('Geyser', function () {
   }
 
   const withdraw = async (
-    vaultOwner: SignerWithAddress,
+    user: Wallet,
     recipient: string,
     geyser: Contract,
     vault: Contract,
@@ -80,9 +79,9 @@ describe('Geyser', function () {
   ) => {
     // sign permission
     const signedPermission = await signPermission(
-      'unlock',
-      vaultOwner,
+      'Unlock',
       vault,
+      user,
       geyser.address,
       stakingToken.address,
       amount,
@@ -113,12 +112,18 @@ describe('Geyser', function () {
       : minReward.add(bonusReward)
   }
 
-  beforeEach(async function () {
+  before(async function () {
     // prepare signers
     accounts = await ethers.getSigners()
     admin = accounts[1]
-    user = accounts[2]
+    user = Wallet.createRandom().connect(ethers.provider)
+    await accounts[2].sendTransaction({
+      to: user.address,
+      value: (await accounts[2].getBalance()).mul(9).div(10),
+    })
+  })
 
+  beforeEach(async function () {
     // deploy dependencies
     powerSwitchFactory = await deployContract('PowerSwitchFactory')
     rewardPoolFactory = await deployContract('RewardPoolFactory')
@@ -1670,7 +1675,7 @@ describe('Geyser', function () {
           it('should fail', async function () {
             await expect(
               withdraw(
-                admin,
+                Wallet.createRandom(),
                 user.address,
                 geyser,
                 vault,
@@ -2333,17 +2338,17 @@ describe('Geyser', function () {
             user.address,
             depositAmount,
             await signPermission(
-              'lock',
-              user,
+              'Lock',
               vault,
+              user,
               geyser.address,
               stakingToken.address,
               depositAmount,
             ),
             await signPermission(
-              'unlock',
-              user,
+              'Unlock',
               vault,
+              user,
               geyser.address,
               stakingToken.address,
               depositAmount,
@@ -2358,17 +2363,17 @@ describe('Geyser', function () {
             user.address,
             depositAmount,
             await signPermission(
-              'lock',
-              user,
+              'Lock',
               vault,
+              user,
               geyser.address,
               stakingToken.address,
               depositAmount,
             ),
             await signPermission(
-              'unlock',
-              user,
+              'Unlock',
               vault,
+              user,
               geyser.address,
               stakingToken.address,
               depositAmount,
@@ -2396,17 +2401,17 @@ describe('Geyser', function () {
               user.address,
               depositAmount,
               await signPermission(
-                'lock',
-                user,
+                'Lock',
                 vault,
+                user,
                 geyser.address,
                 stakingToken.address,
                 depositAmount,
               ),
               await signPermission(
-                'unlock',
-                user,
+                'Unlock',
                 vault,
+                user,
                 geyser.address,
                 stakingToken.address,
                 depositAmount,
@@ -2425,17 +2430,17 @@ describe('Geyser', function () {
               user.address,
               depositAmount,
               await signPermission(
-                'lock',
-                user,
+                'Lock',
                 vault,
+                user,
                 geyser.address,
                 stakingToken.address,
                 depositAmount,
               ),
               await signPermission(
-                'unlock',
-                user,
+                'Unlock',
                 vault,
+                user,
                 geyser.address,
                 stakingToken.address,
                 depositAmount,
@@ -2454,17 +2459,17 @@ describe('Geyser', function () {
               user.address,
               depositAmount,
               await signPermission(
-                'lock',
-                user,
+                'Lock',
                 vault,
+                user,
                 geyser.address,
                 stakingToken.address,
                 depositAmount,
               ),
               await signPermission(
-                'unlock',
-                user,
+                'Unlock',
                 vault,
+                user,
                 geyser.address,
                 stakingToken.address,
                 depositAmount,
@@ -2483,17 +2488,17 @@ describe('Geyser', function () {
               user.address,
               depositAmount,
               await signPermission(
-                'lock',
-                user,
+                'Lock',
                 vault,
+                user,
                 geyser.address,
                 stakingToken.address,
                 depositAmount,
               ),
               await signPermission(
-                'unlock',
-                user,
+                'Unlock',
                 vault,
+                user,
                 geyser.address,
                 stakingToken.address,
                 depositAmount,
@@ -2762,9 +2767,9 @@ describe('Geyser', function () {
           for (let index = 0; index < quantity; index++) {
             permissions.push(
               await signPermission(
-                'lock',
-                user,
+                'Lock',
                 vault,
+                user,
                 geyser.address,
                 stakingToken.address,
                 currentDeposit.div(quantity),
@@ -2903,9 +2908,9 @@ describe('Geyser', function () {
           for (let index = 0; index < quantity; index++) {
             permissions.push(
               await signPermission(
-                'lock',
-                user,
+                'Lock',
                 vault,
+                user,
                 geyser.address,
                 stakingToken.address,
                 currentDeposit.div(quantity),
@@ -3241,9 +3246,9 @@ describe('Geyser', function () {
 
             permissions.push(
               await signPermission(
-                'lock',
-                user,
+                'Lock',
                 vault,
+                user,
                 geyser.address,
                 stakingToken.address,
                 depositAmount,

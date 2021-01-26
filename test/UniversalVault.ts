@@ -1,6 +1,6 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/dist/src/signer-with-address'
 import { expect } from 'chai'
-import { Contract } from 'ethers'
+import { Contract, Wallet } from 'ethers'
 import { ethers } from 'hardhat'
 import {
   createInstance,
@@ -19,18 +19,26 @@ enum DelegateType {
 
 describe('UniversalVault', function () {
   let accounts: SignerWithAddress[],
-    owner: SignerWithAddress,
+    admin: SignerWithAddress,
     recipient: SignerWithAddress,
     delegate: SignerWithAddress
+  let owner: Wallet
   let factory: Contract, vault: Contract
 
-  beforeEach(async function () {
+  before(async function () {
     // prepare signers
     accounts = await ethers.getSigners()
-    owner = accounts[0]
+    admin = accounts[0]
     recipient = accounts[1]
     delegate = accounts[2]
+    owner = Wallet.createRandom().connect(ethers.provider)
+    await delegate.sendTransaction({
+      to: owner.address,
+      value: (await delegate.getBalance()).mul(9).div(10),
+    })
+  })
 
+  beforeEach(async function () {
     // deploy template
     const template = await deployContract('UniversalVault')
 
@@ -107,110 +115,91 @@ describe('UniversalVault', function () {
     })
     describe('with incorrect permission', function () {
       it('should fail when wrong signer', async function () {
-        // get nonce
-        const vaultNonce = await vault.getNonce()
-        // craft permission
-        const permission = ethers.utils.solidityKeccak256(
-          ['string', 'address', 'address', 'address', 'uint256', 'uint256'],
-          [
-            'lock',
-            vault.address,
-            delegate.address,
-            ERC20.address,
-            ETHER,
-            vaultNonce,
-          ],
-        )
-        // sign permission
-        const signedPermission = await recipient.signMessage(
-          ethers.utils.arrayify(permission),
+        const permission = await signPermission(
+          'Lock',
+          vault,
+          Wallet.createRandom(),
+          delegate.address,
+          ERC20.address,
+          ETHER,
         )
         await expect(
-          vault.connect(delegate).lock(ERC20.address, ETHER, signedPermission),
-        ).to.be.revertedWith('ERC1271Bytes: Invalid signature')
+          vault.connect(delegate).lock(ERC20.address, ETHER, permission),
+        ).to.be.revertedWith('ERC1271: Invalid signature')
       })
       it('should fail when wrong function signature', async function () {
         const permission = await signPermission(
-          'unlock',
-          owner,
+          'Unlock',
           vault,
+          owner,
           delegate.address,
           ERC20.address,
           ETHER,
         )
         await expect(
           vault.connect(delegate).lock(ERC20.address, ETHER, permission),
-        ).to.be.revertedWith('ERC1271Bytes: Invalid signature')
+        ).to.be.revertedWith('ERC1271: Invalid signature')
       })
       it('should fail when wrong delegate', async function () {
         const permission = await signPermission(
-          'lock',
-          owner,
+          'Lock',
           vault,
+          owner,
           recipient.address,
           ERC20.address,
           ETHER,
         )
         await expect(
           vault.connect(delegate).lock(ERC20.address, ETHER, permission),
-        ).to.be.revertedWith('ERC1271Bytes: Invalid signature')
+        ).to.be.revertedWith('ERC1271: Invalid signature')
       })
       it('should fail when wrong token', async function () {
         const permission = await signPermission(
-          'lock',
-          owner,
+          'Lock',
           vault,
+          owner,
           delegate.address,
           recipient.address,
           ETHER,
         )
         await expect(
           vault.connect(delegate).lock(ERC20.address, ETHER, permission),
-        ).to.be.revertedWith('ERC1271Bytes: Invalid signature')
+        ).to.be.revertedWith('ERC1271: Invalid signature')
       })
       it('should fail when wrong amount', async function () {
         const permission = await signPermission(
-          'lock',
-          owner,
+          'Lock',
           vault,
+          owner,
           delegate.address,
           ERC20.address,
           ETHER.div(2),
         )
         await expect(
           vault.connect(delegate).lock(ERC20.address, ETHER, permission),
-        ).to.be.revertedWith('ERC1271Bytes: Invalid signature')
+        ).to.be.revertedWith('ERC1271: Invalid signature')
       })
       it('should fail when wrong nonce', async function () {
-        // get nonce
-        const vaultNonce = await vault.getNonce()
-        // craft permission
-        const permission = ethers.utils.solidityKeccak256(
-          ['string', 'address', 'address', 'address', 'uint256', 'uint256'],
-          [
-            'lock',
-            vault.address,
-            delegate.address,
-            ERC20.address,
-            ETHER,
-            vaultNonce.add(1),
-          ],
-        )
-        // sign permission
-        const signedPermission = await owner.signMessage(
-          ethers.utils.arrayify(permission),
+        const permission = await signPermission(
+          'Lock',
+          vault,
+          owner,
+          delegate.address,
+          ERC20.address,
+          ETHER,
+          10,
         )
         await expect(
-          vault.connect(delegate).lock(ERC20.address, ETHER, signedPermission),
-        ).to.be.revertedWith('ERC1271Bytes: Invalid signature')
+          vault.connect(delegate).lock(ERC20.address, ETHER, permission),
+        ).to.be.revertedWith('ERC1271: Invalid signature')
       })
     })
     describe('with correct permission', function () {
       it('should succeed', async function () {
         const permission = await signPermission(
-          'lock',
-          owner,
+          'Lock',
           vault,
+          owner,
           delegate.address,
           ERC20.address,
           ETHER,
@@ -219,9 +208,9 @@ describe('UniversalVault', function () {
       })
       it('should create lock if new delegate-token pair', async function () {
         const permission = await signPermission(
-          'lock',
-          owner,
+          'Lock',
           vault,
+          owner,
           delegate.address,
           ERC20.address,
           ETHER,
@@ -240,9 +229,9 @@ describe('UniversalVault', function () {
       })
       it('should update lock if existing delegate-token pair', async function () {
         const permission1 = await signPermission(
-          'lock',
-          owner,
+          'Lock',
           vault,
+          owner,
           delegate.address,
           ERC20.address,
           ETHER.div(2),
@@ -252,9 +241,9 @@ describe('UniversalVault', function () {
           .lock(ERC20.address, ETHER.div(2), permission1)
 
         const permission2 = await signPermission(
-          'lock',
-          owner,
+          'Lock',
           vault,
+          owner,
           delegate.address,
           ERC20.address,
           ETHER.div(2),
@@ -275,9 +264,9 @@ describe('UniversalVault', function () {
       })
       it('should fail if insufficient vault balance on new lock', async function () {
         const permission1 = await signPermission(
-          'lock',
-          owner,
+          'Lock',
           vault,
+          owner,
           delegate.address,
           ERC20.address,
           ETHER,
@@ -285,9 +274,9 @@ describe('UniversalVault', function () {
         await vault.connect(delegate).lock(ERC20.address, ETHER, permission1)
 
         const permission2 = await signPermission(
-          'lock',
-          owner,
+          'Lock',
           vault,
+          owner,
           delegate.address,
           ERC20.address,
           ETHER.div(2),
@@ -300,9 +289,9 @@ describe('UniversalVault', function () {
       })
       it('should fail if insufficient vault balance on existing lock', async function () {
         const permission = await signPermission(
-          'lock',
-          owner,
+          'Lock',
           vault,
+          owner,
           delegate.address,
           ERC20.address,
           ETHER.mul(2),
@@ -313,9 +302,9 @@ describe('UniversalVault', function () {
       })
       it('should bump nonce', async function () {
         const permission = await signPermission(
-          'lock',
-          owner,
+          'Lock',
           vault,
+          owner,
           delegate.address,
           ERC20.address,
           ETHER,
@@ -326,9 +315,9 @@ describe('UniversalVault', function () {
       })
       it('should emit event', async function () {
         const permission = await signPermission(
-          'lock',
-          owner,
+          'Lock',
           vault,
+          owner,
           delegate.address,
           ERC20.address,
           ETHER,
@@ -353,9 +342,9 @@ describe('UniversalVault', function () {
       describe('with valid wallet', function () {
         it('should succeed', async function () {
           const permission = await signPermission(
-            'lock',
-            owner,
+            'Lock',
             vault,
+            owner,
             delegate.address,
             ERC20.address,
             ETHER,
@@ -364,9 +353,9 @@ describe('UniversalVault', function () {
         })
         it('should emit event', async function () {
           const permission = await signPermission(
-            'lock',
-            owner,
+            'Lock',
             vault,
+            owner,
             delegate.address,
             ERC20.address,
             ETHER,
@@ -381,68 +370,16 @@ describe('UniversalVault', function () {
       describe('with invalid wallet', function () {
         it('should fail', async function () {
           const permission = await signPermission(
-            'lock',
-            delegate,
+            'Lock',
             vault,
+            Wallet.createRandom(),
             delegate.address,
             ERC20.address,
             ETHER,
           )
           await expect(
             vault.connect(delegate).lock(ERC20.address, ETHER, permission),
-          ).to.be.revertedWith('ERC1271Bytes: Invalid signature')
-        })
-      })
-    })
-    describe('when owner is ERC1271Bytes compatible smart contract', function () {
-      let MockSmartWallet: Contract
-      beforeEach(async function () {
-        MockSmartWallet = await deployContract('MockSmartWalletBytes', [
-          owner.address,
-        ])
-        await factory
-          .connect(owner)
-          .transferFrom(owner.address, MockSmartWallet.address, vault.address)
-      })
-      it('should succeed', async function () {
-        const permission = await signPermission(
-          'lock',
-          owner,
-          vault,
-          delegate.address,
-          ERC20.address,
-          ETHER,
-        )
-        await vault.connect(delegate).lock(ERC20.address, ETHER, permission)
-      })
-      it('should emit event', async function () {
-        const permission = await signPermission(
-          'lock',
-          owner,
-          vault,
-          delegate.address,
-          ERC20.address,
-          ETHER,
-        )
-        await expect(
-          vault.connect(delegate).lock(ERC20.address, ETHER, permission),
-        )
-          .to.emit(vault, 'Locked')
-          .withArgs(delegate.address, ERC20.address, ETHER)
-      })
-      describe('with invalid wallet', function () {
-        it('should fail', async function () {
-          const permission = await signPermission(
-            'lock',
-            delegate,
-            vault,
-            delegate.address,
-            ERC20.address,
-            ETHER,
-          )
-          await expect(
-            vault.connect(delegate).lock(ERC20.address, ETHER, permission),
-          ).to.be.revertedWith('ERC1271Bytes: Invalid signature')
+          ).to.be.revertedWith('ERC1271: Invalid signature')
         })
       })
     })
@@ -455,9 +392,9 @@ describe('UniversalVault', function () {
       ERC20 = await deployContract('MockERC20', [owner.address, totalSupply])
       await ERC20.connect(owner).transfer(vault.address, ETHER)
       const permission = await signPermission(
-        'lock',
-        owner,
+        'Lock',
         vault,
+        owner,
         delegate.address,
         ERC20.address,
         ETHER,
@@ -466,114 +403,91 @@ describe('UniversalVault', function () {
     })
     describe('with incorrect permission', function () {
       it('should fail when wrong signer', async function () {
-        // get nonce
-        const vaultNonce = await vault.getNonce()
-        // craft permission
-        const permission = ethers.utils.solidityKeccak256(
-          ['string', 'address', 'address', 'address', 'uint256', 'uint256'],
-          [
-            'unlock',
-            vault.address,
-            delegate.address,
-            ERC20.address,
-            ETHER,
-            vaultNonce,
-          ],
-        )
-        // sign permission
-        const signedPermission = await recipient.signMessage(
-          ethers.utils.arrayify(permission),
+        const permission = await signPermission(
+          'Unlock',
+          vault,
+          Wallet.createRandom(),
+          delegate.address,
+          ERC20.address,
+          ETHER,
         )
         await expect(
-          vault
-            .connect(delegate)
-            .unlock(ERC20.address, ETHER, signedPermission),
-        ).to.be.revertedWith('ERC1271Bytes: Invalid signature')
+          vault.connect(delegate).unlock(ERC20.address, ETHER, permission),
+        ).to.be.revertedWith('ERC1271: Invalid signature')
       })
       it('should fail when wrong function signature', async function () {
         const permission = await signPermission(
-          'lock',
-          owner,
+          'Lock',
           vault,
+          owner,
           delegate.address,
           ERC20.address,
           ETHER,
         )
         await expect(
           vault.connect(delegate).unlock(ERC20.address, ETHER, permission),
-        ).to.be.revertedWith('ERC1271Bytes: Invalid signature')
+        ).to.be.revertedWith('ERC1271: Invalid signature')
       })
       it('should fail when wrong delegate', async function () {
         const permission = await signPermission(
-          'unlock',
-          owner,
+          'Unlock',
           vault,
+          owner,
           recipient.address,
           ERC20.address,
           ETHER,
         )
         await expect(
           vault.connect(delegate).unlock(ERC20.address, ETHER, permission),
-        ).to.be.revertedWith('ERC1271Bytes: Invalid signature')
+        ).to.be.revertedWith('ERC1271: Invalid signature')
       })
       it('should fail when wrong token', async function () {
         const permission = await signPermission(
-          'unlock',
-          owner,
+          'Unlock',
           vault,
+          owner,
           delegate.address,
           recipient.address,
           ETHER,
         )
         await expect(
           vault.connect(delegate).unlock(ERC20.address, ETHER, permission),
-        ).to.be.revertedWith('ERC1271Bytes: Invalid signature')
+        ).to.be.revertedWith('ERC1271: Invalid signature')
       })
       it('should fail when wrong amount', async function () {
         const permission = await signPermission(
-          'unlock',
-          owner,
+          'Unlock',
           vault,
+          owner,
           delegate.address,
           ERC20.address,
           ETHER.div(2),
         )
         await expect(
           vault.connect(delegate).unlock(ERC20.address, ETHER, permission),
-        ).to.be.revertedWith('ERC1271Bytes: Invalid signature')
+        ).to.be.revertedWith('ERC1271: Invalid signature')
       })
       it('should fail when wrong nonce', async function () {
-        // get nonce
-        const vaultNonce = await vault.getNonce()
-        // craft permission
-        const permission = ethers.utils.solidityKeccak256(
-          ['string', 'address', 'address', 'address', 'uint256', 'uint256'],
-          [
-            'unlock',
-            vault.address,
-            delegate.address,
-            ERC20.address,
-            ETHER,
-            vaultNonce.add(1),
-          ],
-        )
-        // sign permission
-        const signedPermission = await owner.signMessage(
-          ethers.utils.arrayify(permission),
+        const permission = await signPermission(
+          'Unlock',
+          vault,
+          owner,
+          delegate.address,
+          ERC20.address,
+          ETHER,
+          10,
         )
         await expect(
-          vault
-            .connect(delegate)
-            .unlock(ERC20.address, ETHER, signedPermission),
-        ).to.be.revertedWith('ERC1271Bytes: Invalid signature')
+          vault.connect(delegate).unlock(ERC20.address, ETHER, permission),
+        ).to.be.revertedWith('ERC1271: Invalid signature')
       })
     })
     describe('with correct permission', function () {
       it('should succeed', async function () {
         const permission = await signPermission(
-          'unlock',
-          owner,
+          'Unlock',
           vault,
+          owner,
           delegate.address,
           ERC20.address,
           ETHER,
@@ -582,9 +496,9 @@ describe('UniversalVault', function () {
       })
       it('should fail if lock does not exist', async function () {
         const permission = await signPermission(
-          'unlock',
-          owner,
+          'Unlock',
           vault,
+          owner,
           recipient.address,
           ERC20.address,
           ETHER,
@@ -595,9 +509,9 @@ describe('UniversalVault', function () {
       })
       it('should update lock balance if amount < balance', async function () {
         const permission = await signPermission(
-          'unlock',
-          owner,
+          'Unlock',
           vault,
+          owner,
           delegate.address,
           ERC20.address,
           ETHER.div(2),
@@ -620,9 +534,9 @@ describe('UniversalVault', function () {
       })
       it('should delete lock if amount >= balance', async function () {
         const permission = await signPermission(
-          'unlock',
-          owner,
+          'Unlock',
           vault,
+          owner,
           delegate.address,
           ERC20.address,
           ETHER.mul(2),
@@ -642,9 +556,9 @@ describe('UniversalVault', function () {
       })
       it('should bump nonce', async function () {
         const permission = await signPermission(
-          'unlock',
-          owner,
+          'Unlock',
           vault,
+          owner,
           delegate.address,
           ERC20.address,
           ETHER,
@@ -655,9 +569,9 @@ describe('UniversalVault', function () {
       })
       it('should emit event', async function () {
         const permission = await signPermission(
-          'unlock',
-          owner,
+          'Unlock',
           vault,
+          owner,
           delegate.address,
           ERC20.address,
           ETHER,
@@ -682,9 +596,9 @@ describe('UniversalVault', function () {
       describe('with valid wallet', function () {
         it('should succeed', async function () {
           const permission = await signPermission(
-            'unlock',
-            owner,
+            'Unlock',
             vault,
+            owner,
             delegate.address,
             ERC20.address,
             ETHER,
@@ -693,9 +607,9 @@ describe('UniversalVault', function () {
         })
         it('should emit event', async function () {
           const permission = await signPermission(
-            'unlock',
-            owner,
+            'Unlock',
             vault,
+            owner,
             delegate.address,
             ERC20.address,
             ETHER,
@@ -707,71 +621,19 @@ describe('UniversalVault', function () {
             .withArgs(delegate.address, ERC20.address, ETHER)
         })
       })
-      describe('with invalid wallet', function () {
+      describe('with invalid signature', function () {
         it('should fail', async function () {
           const permission = await signPermission(
-            'unlock',
-            delegate,
+            'Unlock',
             vault,
+            Wallet.createRandom(),
             delegate.address,
             ERC20.address,
             ETHER,
           )
           await expect(
             vault.connect(delegate).unlock(ERC20.address, ETHER, permission),
-          ).to.be.revertedWith('ERC1271Bytes: Invalid signature')
-        })
-      })
-    })
-    describe('when owner is ERC1271Bytes compatible smart contract', function () {
-      let MockSmartWallet: Contract
-      beforeEach(async function () {
-        MockSmartWallet = await deployContract('MockSmartWalletBytes', [
-          owner.address,
-        ])
-        await factory
-          .connect(owner)
-          .transferFrom(owner.address, MockSmartWallet.address, vault.address)
-      })
-      it('should succeed', async function () {
-        const permission = await signPermission(
-          'unlock',
-          owner,
-          vault,
-          delegate.address,
-          ERC20.address,
-          ETHER,
-        )
-        await vault.connect(delegate).unlock(ERC20.address, ETHER, permission)
-      })
-      it('should emit event', async function () {
-        const permission = await signPermission(
-          'unlock',
-          owner,
-          vault,
-          delegate.address,
-          ERC20.address,
-          ETHER,
-        )
-        await expect(
-          vault.connect(delegate).unlock(ERC20.address, ETHER, permission),
-        )
-          .to.emit(vault, 'Unlocked')
-          .withArgs(delegate.address, ERC20.address, ETHER)
-      })
-      describe('with invalid wallet', function () {
-        it('should fail', async function () {
-          const permission = await signPermission(
-            'unlock',
-            delegate,
-            vault,
-            delegate.address,
-            ERC20.address,
-            ETHER,
-          )
-          await expect(
-            vault.connect(delegate).unlock(ERC20.address, ETHER, permission),
-          ).to.be.revertedWith('ERC1271Bytes: Invalid signature')
+          ).to.be.revertedWith('ERC1271: Invalid signature')
         })
       })
     })
@@ -785,9 +647,9 @@ describe('UniversalVault', function () {
       await ERC20.connect(owner).transfer(vault.address, ETHER)
       MockDelegate = await deployContract('MockDelegate')
       const permission = await signPermission(
-        'lock',
-        owner,
+        'Lock',
         vault,
+        owner,
         MockDelegate.address,
         ERC20.address,
         ETHER,
@@ -975,18 +837,18 @@ describe('UniversalVault', function () {
           ERC20.address,
           ETHER,
           await signPermission(
-            'unlock',
-            owner,
+            'Unlock',
             vault,
+            owner,
             MockDelegate.address,
             ERC20.address,
             ETHER,
           ),
         )
         const permission = await signPermission(
-          'lock',
-          owner,
+          'Lock',
           vault,
+          owner,
           delegate.address,
           ERC20.address,
           ETHER,
@@ -1110,9 +972,9 @@ describe('UniversalVault', function () {
       })
       it('should fail if insufficient unlocked balance', async function () {
         const permission = await signPermission(
-          'lock',
-          owner,
+          'Lock',
           vault,
+          owner,
           delegate.address,
           ERC20.address,
           ETHER.div(2),

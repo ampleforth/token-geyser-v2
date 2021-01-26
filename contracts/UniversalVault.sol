@@ -8,7 +8,8 @@ import {Initializable} from "@openzeppelin/contracts/proxy/Initializable.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/EnumerableSet.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
-import {ERC1271Bytes} from "./Access/ERC1271Bytes.sol";
+import {ERC1271} from "./Access/ERC1271.sol";
+import {EIP712} from "./Access/EIP712.sol";
 import {OwnableERC721} from "./Access/OwnableERC721.sol";
 
 interface IRageQuit {
@@ -44,7 +45,7 @@ interface IUniversalVault {
 /// @notice Vault for isolated storage of staking tokens
 /// @dev Warning: not compatible with rebasing tokens
 /// @dev Security contact: dev-support@ampleforth.org
-contract UniversalVault is IUniversalVault, ERC1271Bytes, OwnableERC721, Initializable {
+contract UniversalVault is IUniversalVault, EIP712, ERC1271, OwnableERC721, Initializable {
     using SafeMath for uint256;
     using Address for address;
     using EnumerableSet for EnumerableSet.Bytes32Set;
@@ -71,6 +72,7 @@ contract UniversalVault is IUniversalVault, ERC1271Bytes, OwnableERC721, Initial
     /* initialization function */
 
     function initialize() external override initializer {
+        EIP712._setDomain("UniversalVault", "1.0.0");
         OwnableERC721._setNFT(msg.sender);
     }
 
@@ -80,7 +82,7 @@ contract UniversalVault is IUniversalVault, ERC1271Bytes, OwnableERC721, Initial
 
     /* internal overrides */
 
-    function _getOwner() internal view override(ERC1271Bytes) returns (address ownerAddress) {
+    function _getOwner() internal view override(ERC1271) returns (address ownerAddress) {
         return OwnableERC721.owner();
     }
 
@@ -88,28 +90,6 @@ contract UniversalVault is IUniversalVault, ERC1271Bytes, OwnableERC721, Initial
 
     function calculateLockID(address delegate, address token) public pure returns (bytes32 lockID) {
         return keccak256(abi.encodePacked(delegate, token));
-    }
-
-    function calculatePermissionBytes(
-        string memory method,
-        address vault,
-        address delegate,
-        address token,
-        uint256 amount,
-        uint256 nonce
-    ) public pure returns (bytes memory permission) {
-        return abi.encodePacked(method, vault, delegate, token, amount, nonce);
-    }
-
-    function calculatePermissionHash(
-        string memory method,
-        address vault,
-        address delegate,
-        address token,
-        uint256 amount,
-        uint256 nonce
-    ) public pure returns (bytes32 hash) {
-        return keccak256(calculatePermissionBytes(method, vault, delegate, token, amount, nonce));
     }
 
     /* private functions */
@@ -121,6 +101,61 @@ contract UniversalVault is IUniversalVault, ERC1271Bytes, OwnableERC721, Initial
     }
 
     /* getter functions */
+
+    function getPermissionHash(
+        bytes32 eip712TypeHash,
+        address delegate,
+        address token,
+        uint256 amount,
+        uint256 nonce
+    ) public view returns (bytes32 permissionHash) {
+        return
+            _hashTypedDataV4(keccak256(abi.encode(eip712TypeHash, delegate, token, amount, nonce)));
+    }
+
+    function getLockPermissionHash(
+        address delegate,
+        address token,
+        uint256 amount,
+        uint256 nonce
+    ) public view returns (bytes32 permissionHash) {
+        return
+            _hashTypedDataV4(
+                keccak256(
+                    abi.encode(
+                        keccak256(
+                            "Lock(address delegate,address token,uint256 amount,uint256 nonce)"
+                        ),
+                        delegate,
+                        token,
+                        amount,
+                        nonce
+                    )
+                )
+            );
+    }
+
+    function getUnlockPermissionHash(
+        address delegate,
+        address token,
+        uint256 amount,
+        uint256 nonce
+    ) public view returns (bytes32 permissionHash) {
+        return
+            _hashTypedDataV4(
+                keccak256(
+                    abi.encode(
+                        keccak256(
+                            "Unlock(address delegate,address token,uint256 amount,uint256 nonce)"
+                        ),
+                        delegate,
+                        token,
+                        amount,
+                        nonce
+                    )
+                )
+            );
+    }
 
     function getNonce() external view returns (uint256 nonce) {
         return _nonce;
@@ -223,10 +258,7 @@ contract UniversalVault is IUniversalVault, ERC1271Bytes, OwnableERC721, Initial
     )
         external
         override
-        onlyValidSignatureBytes(
-            calculatePermissionBytes("lock", address(this), msg.sender, token, amount, _nonce),
-            permission
-        )
+        onlyValidSignature(getLockPermissionHash(msg.sender, token, amount, _nonce), permission)
     {
         // get lock id
         bytes32 lockID = calculateLockID(msg.sender, token);
@@ -273,10 +305,7 @@ contract UniversalVault is IUniversalVault, ERC1271Bytes, OwnableERC721, Initial
     )
         external
         override
-        onlyValidSignatureBytes(
-            calculatePermissionBytes("unlock", address(this), msg.sender, token, amount, _nonce),
-            permission
-        )
+        onlyValidSignature(getUnlockPermissionHash(msg.sender, token, amount, _nonce), permission)
     {
         // get lock id
         bytes32 lockID = calculateLockID(msg.sender, token);

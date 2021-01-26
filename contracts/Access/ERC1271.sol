@@ -49,7 +49,7 @@ abstract contract ERC1271 is IERC1271 {
                 return INVALID_SIG;
             }
         } else {
-            address signer = permissionHash.toEthSignedMessageHash().recover(signature);
+            address signer = permissionHash.recover(signature);
             return signer == owner ? VALID_SIG : INVALID_SIG;
         }
     }

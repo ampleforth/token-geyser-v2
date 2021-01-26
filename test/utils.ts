@@ -1,5 +1,16 @@
+import { TypedDataField } from '@ethersproject/abstract-signer'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/dist/src/signer-with-address'
-import { BigNumberish, BytesLike, Contract, Signer } from 'ethers'
+import { BigNumberish, BytesLike, Contract, Signer, Wallet } from 'ethers'
+import {
+  arrayify,
+  defaultAbiCoder,
+  keccak256,
+  solidityPack,
+  toUtf8Bytes,
+  verifyMessage,
+  verifyTypedData,
+  _TypedDataEncoder,
+} from 'ethers/lib/utils'
 import { ethers, network, upgrades } from 'hardhat'
 
 export async function getTimestamp() {
@@ -94,31 +105,47 @@ export async function create2Instance(
 
 export const signPermission = async (
   method: string,
-  signer: SignerWithAddress,
   vault: Contract,
+  owner: Wallet,
   delegateAddress: string,
   tokenAddress: string,
   amount: BigNumberish,
   vaultNonce?: BigNumberish,
+  chainId?: BigNumberish,
 ) => {
   // get nonce
   vaultNonce = vaultNonce || (await vault.getNonce())
+  // get chainId
+  chainId = chainId || (await vault.provider.getNetwork()).chainId
   // craft permission
-  const permission = ethers.utils.solidityKeccak256(
-    ['string', 'address', 'address', 'address', 'uint256', 'uint256'],
-    [method, vault.address, delegateAddress, tokenAddress, amount, vaultNonce],
-  )
+  const domain = {
+    name: 'UniversalVault',
+    version: '1.0.0',
+    chainId,
+    verifyingContract: vault.address,
+  }
+  const types = {} as Record<string, TypedDataField[]>
+  types[method] = [
+    { name: 'delegate', type: 'address' },
+    { name: 'token', type: 'address' },
+    { name: 'amount', type: 'uint256' },
+    { name: 'nonce', type: 'uint256' },
+  ]
+  const value = {
+    delegate: delegateAddress,
+    token: tokenAddress,
+    amount: amount,
+    nonce: vaultNonce,
+  }
   // sign permission
-  const signedPermission = await signer.signMessage(
-    ethers.utils.arrayify(permission),
-  )
+  const signedPermission = await owner._signTypedData(domain, types, value)
   // return
   return signedPermission
 }
 
 export const transferNFT = async (
   nft: Contract,
-  signer: SignerWithAddress,
+  signer: Signer,
   owner: string,
   recipient: string,
   tokenId: string,

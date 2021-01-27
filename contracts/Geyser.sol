@@ -209,19 +209,8 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
     }
 
     function getRewardAvailable() public view returns (uint256 rewardAvailable) {
-        // get reward amount remaining
-        uint256 rewardRemaining = IERC20(_geyser.rewardToken).balanceOf(_geyser.rewardPool);
-
         // calculate reward available based on state
-        rewardAvailable = calculateRewardAvailable(
-            _geyser.rewardSchedules,
-            rewardRemaining,
-            _geyser.rewardSharesOutstanding,
-            block.timestamp
-        );
-
-        // explicit return
-        return rewardAvailable;
+        return getFutureRewardAvailable(block.timestamp);
     }
 
     function getFutureRewardAvailable(uint256 timestamp)
@@ -231,7 +220,6 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
     {
         // get reward amount remaining
         uint256 rewardRemaining = IERC20(_geyser.rewardToken).balanceOf(_geyser.rewardPool);
-
         // calculate reward available based on state
         rewardAvailable = calculateRewardAvailable(
             _geyser.rewardSchedules,
@@ -239,7 +227,6 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
             _geyser.rewardSharesOutstanding,
             timestamp
         );
-
         // explicit return
         return rewardAvailable;
     }
@@ -346,10 +333,8 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         for (uint256 index; index < stakes.length; index++) {
             // reference stake
             StakeData memory stake = stakes[index];
-
             // calculate stake units
             uint256 stakeUnits = calculateStakeUnits(stake.amount, stake.timestamp, timestamp);
-
             // add to running total
             totalStakeUnits = totalStakeUnits.add(stakeUnits);
         }

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity 0.7.6;
 
-import {Ownable} from "../Access/Ownable.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 interface IPowerSwitch {
     enum State {Online, Offline, Shutdown}
@@ -40,7 +40,7 @@ contract PowerSwitch is IPowerSwitch, Ownable {
     /* initializer */
 
     constructor(address owner) {
-        Ownable._setOwnership(owner);
+        Ownable.transferOwnership(owner);
     }
 
     /* admin functions */

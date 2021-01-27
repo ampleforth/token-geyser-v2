@@ -2,9 +2,9 @@
 pragma solidity 0.7.6;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 import {Powered} from "./PowerSwitch/Powered.sol";
-import {Ownable} from "./Access/Ownable.sol";
 
 interface IRewardPool {
     function sendERC20(
@@ -23,7 +23,6 @@ contract RewardPool is IRewardPool, Powered, Ownable {
     /* initializer */
 
     constructor(address powerSwitch) {
-        Ownable._setOwnership(msg.sender);
         Powered._setPowerSwitch(powerSwitch);
     }
 

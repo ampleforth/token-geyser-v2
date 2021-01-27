@@ -5,6 +5,9 @@ pragma abicoder v2;
 import {SafeMath} from "@openzeppelin/contracts/math/SafeMath.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/EnumerableSet.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {
+    OwnableUpgradeable
+} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 import {IUniversalVault} from "./UniversalVault.sol";
 import {IRewardPool} from "./RewardPool.sol";
@@ -12,7 +15,6 @@ import {IFactory} from "./Factory/IFactory.sol";
 import {IRageQuit} from "./UniversalVault.sol";
 
 import {Powered} from "./PowerSwitch/Powered.sol";
-import {Ownable} from "./Access/Ownable.sol";
 
 interface IGeyser is IRageQuit {
     struct GeyserData {
@@ -70,7 +72,7 @@ interface IGeyser is IRageQuit {
 /// @title Geyser
 /// @notice Reward distribution contract with time multiplier
 /// @dev Security contact: dev-support@ampleforth.org
-contract Geyser is IGeyser, Powered, Ownable {
+contract Geyser is IGeyser, Powered, OwnableUpgradeable {
     using SafeMath for uint256;
     using EnumerableSet for EnumerableSet.AddressSet;
 
@@ -137,7 +139,8 @@ contract Geyser is IGeyser, Powered, Ownable {
         address rewardPool = IFactory(rewardPoolFactory).create(abi.encode(powerSwitch));
 
         // set internal configs
-        Ownable._setOwnership(owner);
+        OwnableUpgradeable.__Ownable_init();
+        OwnableUpgradeable.transferOwnership(owner);
         Powered._setPowerSwitch(powerSwitch);
 
         // commit to storage

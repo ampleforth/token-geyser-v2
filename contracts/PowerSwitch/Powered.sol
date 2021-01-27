@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity 0.7.6;
 
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 import {IPowerSwitch} from "./PowerSwitch.sol";
-import {Initializable} from "@openzeppelin/contracts/proxy/Initializable.sol";
 
 interface IPowered {
     function isOnline() external view returns (bool status);

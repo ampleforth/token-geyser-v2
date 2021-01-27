@@ -1,12 +1,12 @@
 import '@nomiclabs/hardhat-ethers'
-import '@nomiclabs/hardhat-waffle'
 import '@nomiclabs/hardhat-etherscan'
+import '@nomiclabs/hardhat-waffle'
 import '@openzeppelin/hardhat-upgrades'
 import 'hardhat-gas-reporter'
 import 'solidity-coverage'
 
-import { Contract, Signer, Wallet } from 'ethers'
-import { readFileSync, writeFileSync } from 'fs'
+import { Contract, Signer } from 'ethers'
+import { mkdirSync, readFileSync, writeFileSync } from 'fs'
 import { HardhatUserConfig, task } from 'hardhat/config'
 
 async function deployContract(
@@ -48,9 +48,7 @@ task('deploy', 'deploy full set of factory contracts').setAction(
   async ({}, { ethers, run, network }) => {
     await run('compile')
 
-    const signer = Wallet.fromMnemonic(
-      process.env.DEV_MNEMONIC as string,
-    ).connect(ethers.provider)
+    const signer = (await ethers.getSigners())[0]
 
     console.log('Signer', signer.address)
 
@@ -78,9 +76,15 @@ task('deploy', 'deploy full set of factory contracts').setAction(
       [UniversalVault.address],
     )
 
-    const path = `./deployments/${network.name}/factories-${timestamp}.json`
-    const latest = `./deployments/${network.name}/factories-latest.json`
-    console.log('Saving config to', path)
+    console.log('Locking template')
+
+    await UniversalVault.initializeLock()
+
+    const path = `./deployments/${network.name}/`
+    const file = `factories-${timestamp}.json`
+    const latest = `factories-latest.json`
+
+    console.log('Saving config to', path + file)
 
     const blob = JSON.stringify({
       PowerSwitchFactory: PowerSwitchFactory.address,
@@ -89,8 +93,9 @@ task('deploy', 'deploy full set of factory contracts').setAction(
       VaultFactory: VaultFactory.address,
     })
 
-    writeFileSync(path, blob)
-    writeFileSync(latest, blob)
+    mkdirSync(path, { recursive: true })
+    writeFileSync(path + file, blob)
+    writeFileSync(path + latest, blob)
 
     console.log('Verifying source on etherscan')
 
@@ -115,9 +120,7 @@ task('create-vault', 'deploy an instance of UniversalVault')
   .setAction(async ({ factoryVersion }, { ethers, run, network }) => {
     await run('compile')
 
-    const signer = Wallet.fromMnemonic(
-      process.env.DEV_MNEMONIC as string,
-    ).connect(ethers.provider)
+    const signer = (await ethers.getSigners())[0]
 
     console.log('Signer', signer.address)
 
@@ -155,9 +158,7 @@ task('create-geyser', 'deploy an instance of Geyser')
     ) => {
       await run('compile')
 
-      const signer = Wallet.fromMnemonic(
-        process.env.DEV_MNEMONIC as string,
-      ).connect(ethers.provider)
+      const signer = (await ethers.getSigners())[0]
 
       console.log('Signer', signer.address)
 
@@ -189,11 +190,36 @@ task('create-geyser', 'deploy an instance of Geyser')
       console.log('  reward floor', floor)
       console.log('  reward ceiling', ceiling)
       console.log('  reward time', stakingToken)
-
-      // currently need to manually run verify command
-      // can automate after this issue is closed: https://github.com/OpenZeppelin/openzeppelin-upgrades/issues/290
     },
   )
+
+// currently need to manually run verify command
+// can automate after this issue is closed: https://github.com/OpenZeppelin/openzeppelin-upgrades/issues/290
+task('verify-geyser', 'verify and lock the Geyser template')
+  .addPositionalParam('geyserTemplate', 'the geyser template address')
+  .setAction(async ({ geyserTemplate }, { ethers, run, upgrades, network }) => {
+    await run('compile')
+
+    const signer = (await ethers.getSigners())[0]
+
+    console.log('Signer', signer.address)
+
+    const contract = await ethers.getContractAt(
+      'Geyser',
+      geyserTemplate,
+      signer,
+    )
+
+    console.log('Locking template')
+
+    await contract.initializeLock()
+
+    console.log('Verifying source on etherscan')
+
+    await run('verify', {
+      address: contract.address,
+    })
+  })
 
 export default {
   networks: {

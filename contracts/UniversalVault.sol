@@ -97,6 +97,8 @@ contract UniversalVault is
 
     /* initialization function */
 
+    function initializeLock() external initializer {}
+
     function initialize() external override initializer {
         EIP712._setDomain("UniversalVault", "1.0.0");
         OwnableERC721._setNFT(msg.sender);

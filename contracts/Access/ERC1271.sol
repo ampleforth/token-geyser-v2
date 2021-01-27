@@ -11,13 +11,27 @@ interface IERC1271 {
         returns (bytes4 magicValue);
 }
 
+library SignatureChecker {
+    function isValidSignature(
+        address signer,
+        bytes32 hash,
+        bytes memory signature
+    ) internal view returns (bool) {
+        if (Address.isContract(signer)) {
+            bytes4 selector = IERC1271.isValidSignature.selector;
+            (bool success, bytes memory returndata) =
+                signer.staticcall(abi.encodeWithSelector(selector, hash, signature));
+            return success && abi.decode(returndata, (bytes4)) == selector;
+        } else {
+            return ECDSA.recover(hash, signature) == signer;
+        }
+    }
+}
+
 /// @title ERC1271
 /// @notice Module for ERC1271 compatibility
 /// @dev Security contact: dev-support@ampleforth.org
 abstract contract ERC1271 is IERC1271 {
-    using ECDSA for bytes32;
-    using Address for address;
-
     // Valid magic value bytes4(keccak256("isValidSignature(bytes32,bytes)")
     bytes4 internal constant VALID_SIG = IERC1271.isValidSignature.selector;
     // Invalid magic value
@@ -39,18 +53,9 @@ abstract contract ERC1271 is IERC1271 {
         override
         returns (bytes4)
     {
-        address owner = _getOwner();
-        if (owner.isContract()) {
-            try IERC1271(owner).isValidSignature(permissionHash, signature) returns (
-                bytes4 returnVal
-            ) {
-                return returnVal;
-            } catch {
-                return INVALID_SIG;
-            }
-        } else {
-            address signer = permissionHash.recover(signature);
-            return signer == owner ? VALID_SIG : INVALID_SIG;
-        }
+        return
+            SignatureChecker.isValidSignature(_getOwner(), permissionHash, signature)
+                ? VALID_SIG
+                : INVALID_SIG;
     }
 }

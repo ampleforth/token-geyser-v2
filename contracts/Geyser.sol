@@ -106,6 +106,8 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
 
     /* initializer */
 
+    function initializeLock() external initializer {}
+
     /// @notice Initizalize geyser
     /// access control: only proxy constructor
     /// state machine: can only be called once

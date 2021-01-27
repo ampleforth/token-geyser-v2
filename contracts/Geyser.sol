@@ -208,7 +208,7 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         return false;
     }
 
-    function getRewardAvailable() public view returns (uint256 rewardAvailable) {
+    function getCurrentRewardAvailable() public view returns (uint256 rewardAvailable) {
         // calculate reward available based on state
         return getFutureRewardAvailable(block.timestamp);
     }
@@ -231,13 +231,13 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         return rewardAvailable;
     }
 
-    function getVaultReward(address vault) external view returns (uint256 reward) {
+    function getCurrentVaultReward(address vault) external view returns (uint256 reward) {
         // calculate rewards
         (, reward, ) = calculateRewardMulti(
             _vaults[vault].stakes,
             _vaults[vault].totalStake,
-            getRewardAvailable(),
-            getTotalStakeUnits(),
+            getCurrentRewardAvailable(),
+            getCurrentTotalStakeUnits(),
             block.timestamp,
             _geyser.rewardScaling
         );
@@ -245,7 +245,7 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         return reward;
     }
 
-    function getStakeReward(address vault, uint256 stakeAmount)
+    function getCurrentStakeReward(address vault, uint256 stakeAmount)
         external
         view
         returns (uint256 reward)
@@ -254,8 +254,8 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         (, reward, ) = calculateRewardMulti(
             _vaults[vault].stakes,
             stakeAmount,
-            getRewardAvailable(),
-            getTotalStakeUnits(),
+            getCurrentRewardAvailable(),
+            getCurrentTotalStakeUnits(),
             block.timestamp,
             _geyser.rewardScaling
         );
@@ -299,7 +299,7 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         return reward;
     }
 
-    function getTotalStakeUnits() public view returns (uint256 totalStakeUnits) {
+    function getCurrentTotalStakeUnits() public view returns (uint256 totalStakeUnits) {
         // calculate new stake units
         uint256 newStakeUnits =
             calculateStakeUnits(_geyser.totalStake, _geyser.lastUpdate, block.timestamp);
@@ -865,7 +865,7 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
 
     function _updateTotalStakeUnits() private {
         // update cached totalStakeUnits
-        _geyser.totalStakeUnits = getTotalStakeUnits();
+        _geyser.totalStakeUnits = getCurrentTotalStakeUnits();
         // update cached lastUpdate
         _geyser.lastUpdate = block.timestamp;
     }

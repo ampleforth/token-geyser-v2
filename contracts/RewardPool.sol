@@ -3,6 +3,7 @@ pragma solidity 0.7.6;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {TransferHelper} from "@uniswap/lib/contracts/libraries/TransferHelper.sol";
 
 import {Powered} from "./PowerSwitch/Powered.sol";
 
@@ -43,7 +44,7 @@ contract RewardPool is IRewardPool, Powered, Ownable {
         address to,
         uint256 value
     ) external override onlyOwner onlyOnline {
-        require(IERC20(token).transfer(to, value), "RewardPool: token transfer failed");
+        TransferHelper.safeTransfer(token, to, value);
     }
 
     /* emergency functions */
@@ -78,10 +79,7 @@ contract RewardPool is IRewardPool, Powered, Ownable {
             // get balance
             uint256 balance = IERC20(token).balanceOf(address(this));
             // transfer token
-            require(
-                IERC20(token).transfer(recipient, balance),
-                "RewardPool: token transfer failed"
-            );
+            TransferHelper.safeTransfer(token, recipient, balance);
         }
     }
 }

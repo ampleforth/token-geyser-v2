@@ -8,6 +8,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {
     OwnableUpgradeable
 } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {TransferHelper} from "@uniswap/lib/contracts/libraries/TransferHelper.sol";
 
 import {IUniversalVault} from "./UniversalVault.sol";
 import {IRewardPool} from "./RewardPool.sol";
@@ -561,9 +562,11 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         _geyser.rewardSchedules.push(RewardSchedule(duration, block.timestamp, newRewardShares));
 
         // transfer reward tokens to reward pool
-        require(
-            IERC20(_geyser.rewardToken).transferFrom(msg.sender, _geyser.rewardPool, amount),
-            "Geyser: transfer to reward pool failed"
+        TransferHelper.safeTransferFrom(
+            _geyser.rewardToken,
+            msg.sender,
+            _geyser.rewardPool,
+            amount
         );
 
         // emit event

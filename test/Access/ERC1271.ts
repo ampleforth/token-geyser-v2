@@ -1,7 +1,7 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/dist/src/signer-with-address'
 import { expect } from 'chai'
 import { Contract } from 'ethers'
-import { arrayify, hashMessage, keccak256 } from 'ethers/lib/utils'
+import { hashMessage, keccak256 } from 'ethers/lib/utils'
 import { ethers } from 'hardhat'
 import { deployContract } from '../utils'
 
@@ -32,7 +32,7 @@ describe('ERC1271', function () {
 
   describe('isValidSignature', function () {
     it('should return error value if signed by account other than owner', async function () {
-      const sig = await accounts[1].signMessage(arrayify(message))
+      const sig = await accounts[1].signMessage(message)
       expect(
         await MockERC1271.isValidSignature(
           toEthSignedMessageHash(message),
@@ -42,7 +42,7 @@ describe('ERC1271', function () {
     })
 
     it('should revert if signature has incorrect length', async function () {
-      const sig = await accounts[0].signMessage(arrayify(message))
+      const sig = await accounts[0].signMessage(message)
       expect(
         MockERC1271.isValidSignature(
           toEthSignedMessageHash(message),
@@ -52,7 +52,7 @@ describe('ERC1271', function () {
     })
 
     it('should return success value if signed by owner', async function () {
-      const sig = await accounts[0].signMessage(arrayify(message))
+      const sig = await accounts[0].signMessage(message)
       expect(
         await MockERC1271.isValidSignature(hashMessage(message), sig),
       ).to.eq(VALID_SIG)

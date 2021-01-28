@@ -56,13 +56,13 @@ interface IGeyser is IRageQuit {
 
     function getVaultData(address vault) external view returns (VaultData memory vaultData);
 
-    function deposit(
+    function stake(
         address vault,
         uint256 amount,
         bytes calldata permission
     ) external;
 
-    function withdraw(
+    function unstakeAndClaim(
         address vault,
         address recipient,
         uint256 amount,
@@ -80,7 +80,7 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
     /* constants */
 
     uint256 public constant BASE_SHARES_PER_WEI = 1000000;
-    // With 30 deposits, ragequit costs 432811 gas
+    // With 30 stakes in a vault, ragequit costs 432811 gas
     uint256 public constant MAX_STAKES_PER_VAULT = 30;
 
     /* storage */
@@ -102,8 +102,8 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
     /* user events */
 
     event VaultCreated(address vault);
-    event Deposit(address vault, uint256 amount);
-    event Withdraw(address vault, address recipient, uint256 amount, uint256 reward);
+    event Staked(address vault, uint256 amount);
+    event Unstaked(address vault, address recipient, uint256 amount, uint256 reward);
 
     /* initializer */
 
@@ -333,9 +333,10 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
     {
         for (uint256 index; index < stakes.length; index++) {
             // reference stake
-            StakeData memory stake = stakes[index];
+            StakeData memory stakeData = stakes[index];
             // calculate stake units
-            uint256 stakeUnits = calculateStakeUnits(stake.amount, stake.timestamp, timestamp);
+            uint256 stakeUnits =
+                calculateStakeUnits(stakeData.amount, stakeData.timestamp, timestamp);
             // add to running total
             totalStakeUnits = totalStakeUnits.add(stakeUnits);
         }
@@ -403,7 +404,7 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
 
     function calculateRewardFromStakes(
         StakeData[] memory stakes,
-        uint256 amountToWithdraw,
+        uint256 unstakeAmount,
         uint256 unlockedRewards,
         uint256 totalStakeUnits,
         uint256 timestamp,
@@ -417,7 +418,7 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
             uint256 newTotalStakeUnits
         )
     {
-        while (amountToWithdraw > 0) {
+        while (unstakeAmount > 0) {
             // validate array length
             require(stakes.length > 0, "Geyser: no stakes in array");
 
@@ -428,11 +429,11 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
             uint256 stakeDuration = timestamp.sub(lastStake.timestamp);
 
             uint256 currentAmount;
-            if (lastStake.amount > amountToWithdraw) {
-                // set current amount to remaining withdrawl amount
-                currentAmount = amountToWithdraw;
+            if (lastStake.amount > unstakeAmount) {
+                // set current amount to remaining unstake amount
+                currentAmount = unstakeAmount;
                 // amount of last stake is reduced
-                lastStake.amount = lastStake.amount.sub(amountToWithdraw);
+                lastStake.amount = lastStake.amount.sub(unstakeAmount);
             } else {
                 // set current amount to amount of last stake
                 currentAmount = lastStake.amount;
@@ -440,8 +441,8 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
                 stakes = _truncateStakesArray(stakes, stakes.length - 1);
             }
 
-            // update remaining amountToWithdraw
-            amountToWithdraw = amountToWithdraw.sub(currentAmount);
+            // update remaining unstakeAmount
+            unstakeAmount = unstakeAmount.sub(currentAmount);
 
             // calculate reward amount
             uint256 currentReward =
@@ -534,7 +535,7 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
     ///   - increase _geyser.rewardSharesOutstanding
     ///   - append to _geyser.rewardSchedules
     /// token transfer: transfer staking tokens from msg.sender to reward pool
-    /// @param amount uint256 Amount of reward tokens to deposit in geyser
+    /// @param amount uint256 Amount of reward tokens to deposit
     /// @param duration uint256 Duration over which to linearly unlock rewards
     function fundGeyser(uint256 amount, uint256 duration) external onlyOwner onlyOnline {
         // validate duration
@@ -574,7 +575,7 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
     }
 
     /// @notice Add vault factory to whitelist
-    /// @dev use this function to enable deposits to vaults coming from the specified
+    /// @dev use this function to enable stakes to vaults coming from the specified
     ///      factory contract
     /// access control: only admin
     /// state machine:
@@ -593,9 +594,9 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
     }
 
     /// @notice Remove vault factory from whitelist
-    /// @dev use this function to disable new deposits to vaults coming from the specified
+    /// @dev use this function to disable new stakes to vaults coming from the specified
     ///      factory contract.
-    ///      note: vaults with existing deposits from this factory are sill able to withdraw
+    ///      note: vaults with existing stakes from this factory are sill able to unstake
     /// access control: only admin
     /// state machine:
     ///   - can be called multiple times
@@ -653,7 +654,7 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         // verify recipient
         _validateAddress(recipient);
 
-        // check not attempting to withdraw reward token
+        // check not attempting to unstake reward token
         require(token != _geyser.rewardToken, "Geyser: invalid address");
 
         // check not attempting to wthdraw bonus token
@@ -665,8 +666,8 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
 
     /* user functions */
 
-    /// @notice Deposit staking tokens
-    /// @dev anyone can deposit to any vault
+    /// @notice Stake tokens
+    /// @dev anyone can stake to any vault if they have valid permission
     /// access control: anyone
     /// state machine:
     ///   - can be called multiple times
@@ -679,9 +680,9 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
     ///   - increase _geyser.totalStakeUnits
     ///   - increase _geyser.lastUpdate
     /// token transfer: transfer staking tokens from msg.sender to vault
-    /// @param vault address The address of the vault to deposit to
-    /// @param amount uint256 The amount of staking tokens to deposit
-    function deposit(
+    /// @param vault address The address of the vault to stake from
+    /// @param amount uint256 The amount of staking tokens to stake
+    function stake(
         address vault,
         uint256 amount,
         bytes calldata permission
@@ -690,7 +691,7 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         require(isValidVault(vault), "Geyser: vault is not registered");
 
         // verify non-zero amount
-        require(amount != 0, "Geyser: no amount deposited");
+        require(amount != 0, "Geyser: no amount staked");
 
         // fetch vault storage reference
         VaultData storage vaultData = _vaults[vault];
@@ -704,10 +705,10 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         // update cached sum of stake units across all vaults
         _updateTotalStakeUnits();
 
-        // store deposit amount and timestamp
+        // store amount and timestamp
         vaultData.stakes.push(StakeData(amount, block.timestamp));
 
-        // update cached total vault and geyser deposits
+        // update cached total vault and geyser amounts
         vaultData.totalStake = vaultData.totalStake.add(amount);
         _geyser.totalStake = _geyser.totalStake.add(amount);
 
@@ -715,16 +716,16 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         IUniversalVault(vault).lock(_geyser.stakingToken, amount, permission);
 
         // emit event
-        emit Deposit(vault, amount);
+        emit Staked(vault, amount);
     }
 
-    /// @notice Withdraw staking tokens and claim reward
-    /// @dev rewards can only be claimed when withdrawing the stake
+    /// @notice Unstake staking tokens and claim reward
+    /// @dev rewards can only be claimed when unstaking
     /// access control: only owner of vault
     /// state machine:
     ///   - when vault exists on this geyser
-    ///   - after deposit to vault
-    ///   - can be called multiple times while sufficient deposit remains
+    ///   - after stake from vault
+    ///   - can be called multiple times while sufficient stake remains
     ///   - only online
     /// state scope:
     ///   - decrease _geyser.rewardSharesOutstanding
@@ -737,10 +738,10 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
     ///   - transfer staking tokens from vault to recipient
     ///   - transfer reward tokens from reward pool to recipient
     ///   - transfer bonus tokens from reward pool to recipient
-    /// @param vault address The vault to withdraw from
-    /// @param recipient address The recipient to withdraw to
-    /// @param amount uint256 The amount of staking tokens to withdraw
-    function withdraw(
+    /// @param vault address The vault to unstake from
+    /// @param recipient address The recipient to send reward to
+    /// @param amount uint256 The amount of staking tokens to unstake
+    function unstakeAndClaim(
         address vault,
         address recipient,
         uint256 amount,
@@ -750,7 +751,7 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         VaultData storage vaultData = _vaults[vault];
 
         // verify non-zero amount
-        require(amount != 0, "Geyser: no amount withdrawn");
+        require(amount != 0, "Geyser: no amount unstaked");
 
         // validate recipient
         _validateAddress(recipient);
@@ -790,13 +791,13 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
 
         // update stake data in storage
         if (newStakes.length == 0) {
-            // all stakes have been withdrawn
+            // all stakes have been unstaked
             delete vaultData.stakes;
         } else {
-            // some stakes have been completely or partially withdrawn
-            // delete fully withdrawn stakes
+            // some stakes have been completely or partially unstaked
+            // delete fully unstaked stakes
             while (vaultData.stakes.length > newStakes.length) vaultData.stakes.pop();
-            // update partially withdrawn stake
+            // update partially unstaked stake
             uint256 lastIndex = vaultData.stakes.length.sub(1);
             vaultData.stakes[lastIndex].amount = newStakes[lastIndex].amount;
         }
@@ -842,7 +843,7 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         IUniversalVault(vault).unlock(_geyser.stakingToken, amount, permission);
 
         // emit event
-        emit Withdraw(vault, recipient, amount, reward);
+        emit Unstaked(vault, recipient, amount, reward);
     }
 
     function rageQuit() external override {
@@ -850,7 +851,7 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         VaultData storage _vaultData = _vaults[msg.sender];
 
         // revert if no active stakes
-        require(_vaultData.stakes.length != 0, "Geyser: no deposits");
+        require(_vaultData.stakes.length != 0, "Geyser: no stake");
 
         // update cached sum of stake units across all vaults
         _updateTotalStakeUnits();

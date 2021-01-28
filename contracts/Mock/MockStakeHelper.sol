@@ -14,21 +14,21 @@ contract MockStakeHelper {
         address vault,
         address recipient,
         uint256 amount,
-        bytes calldata depositPermission,
-        bytes calldata withdrawPermission
+        bytes calldata lockPermission,
+        bytes calldata unstakePermission
     ) external {
-        IGeyser(geyser).deposit(vault, amount, depositPermission);
-        IGeyser(geyser).withdraw(vault, recipient, amount, withdrawPermission);
+        IGeyser(geyser).stake(vault, amount, lockPermission);
+        IGeyser(geyser).unstakeAndClaim(vault, recipient, amount, unstakePermission);
     }
 
-    function depositBatch(
+    function stakeBatch(
         address[] calldata geysers,
         address[] calldata vaults,
         uint256[] calldata amounts,
         bytes[] calldata permissions
     ) external {
         for (uint256 index = 0; index < vaults.length; index++) {
-            IGeyser(geysers[index]).deposit(vaults[index], amounts[index], permissions[index]);
+            IGeyser(geysers[index]).stake(vaults[index], amounts[index], permissions[index]);
         }
     }
 }

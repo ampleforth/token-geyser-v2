@@ -11,10 +11,7 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {ERC1271} from "./Access/ERC1271.sol";
 import {EIP712} from "./Access/EIP712.sol";
 import {OwnableERC721} from "./Access/OwnableERC721.sol";
-
-interface IRageQuit {
-    function rageQuit() external;
-}
+import {IRageQuit} from "./Geyser.sol";
 
 interface IUniversalVault {
     event Locked(address delegate, address token, uint256 amount);
@@ -78,6 +75,14 @@ contract UniversalVault is
 
     /* constant */
 
+    // Hardcoding a gas limit for rageQuit() is required to prevent gas DOS attacks
+    // the gas requirement cannot be determined at runtime by querying the delegate
+    // as it could potentially be manipulated by a malicious delegate who could force
+    // the calls to revert.
+    // The gas limit could alternatively be set upon vault initialization or creation
+    // of a lock, but the gas consumption trade-offs are not favorable.
+    // Ultimately, to avoid a need for fixed gas limits, the EVM would need to provide
+    // an error code that allows for reliably catching out-of-gas errors on remote calls.
     uint256 public constant RAGEQUIT_GAS = 500000;
 
     /* storage */

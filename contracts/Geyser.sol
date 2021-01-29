@@ -13,6 +13,7 @@ import {TransferHelper} from "@uniswap/lib/contracts/libraries/TransferHelper.so
 import {IUniversalVault} from "./UniversalVault.sol";
 import {IRewardPool} from "./RewardPool.sol";
 import {IFactory} from "./Factory/IFactory.sol";
+import {IInstanceRegistry} from "./Factory/InstanceRegistry.sol";
 import {Powered} from "./PowerSwitch/Powered.sol";
 
 interface IRageQuit {
@@ -209,7 +210,7 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
     function isValidVault(address target) public view returns (bool validity) {
         // validate target is created from whitelisted vault factory
         for (uint256 index = 0; index < _vaultFactorySet.length(); index++) {
-            if (IFactory(_vaultFactorySet.at(index)).created(target)) {
+            if (IInstanceRegistry(_vaultFactorySet.at(index)).isInstance(target)) {
                 return true;
             }
         }

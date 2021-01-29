@@ -75,7 +75,7 @@ interface IGeyser is IRageQuit {
 /// @title Geyser
 /// @notice Reward distribution contract with time multiplier
 /// @dev Security contact: dev-support@ampleforth.org
-contract Geyser is IGeyser, IRageQuit, Powered, OwnableUpgradeable {
+contract Geyser is IGeyser, Powered, OwnableUpgradeable {
     using SafeMath for uint256;
     using EnumerableSet for EnumerableSet.AddressSet;
 

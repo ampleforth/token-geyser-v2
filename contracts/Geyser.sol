@@ -13,9 +13,11 @@ import {TransferHelper} from "@uniswap/lib/contracts/libraries/TransferHelper.so
 import {IUniversalVault} from "./UniversalVault.sol";
 import {IRewardPool} from "./RewardPool.sol";
 import {IFactory} from "./Factory/IFactory.sol";
-import {IRageQuit} from "./UniversalVault.sol";
-
 import {Powered} from "./PowerSwitch/Powered.sol";
+
+interface IRageQuit {
+    function rageQuit() external;
+}
 
 interface IGeyser is IRageQuit {
     struct GeyserData {
@@ -73,15 +75,21 @@ interface IGeyser is IRageQuit {
 /// @title Geyser
 /// @notice Reward distribution contract with time multiplier
 /// @dev Security contact: dev-support@ampleforth.org
-contract Geyser is IGeyser, Powered, OwnableUpgradeable {
+contract Geyser is IGeyser, IRageQuit, Powered, OwnableUpgradeable {
     using SafeMath for uint256;
     using EnumerableSet for EnumerableSet.AddressSet;
 
     /* constants */
 
-    uint256 public constant BASE_SHARES_PER_WEI = 1000000;
-    // With 30 stakes in a vault, ragequit costs 432811 gas
+    // An upper bound on the number of active stakes per vault is required to prevent
+    // calls to rageQuit() from reverting.
+    // With 30 stakes in a vault, ragequit costs 432811 gas which is conservatively lower
+    // than the hardcoded limit of 500k gas on the vault.
+    // This limit is configurable and could be increased in a future deployment.
+    // Ultimately, to avoid a need for fixed upper bounds, the EVM would need to provide
+    // an error code that allows for reliably catching out-of-gas errors on remote calls.
     uint256 public constant MAX_STAKES_PER_VAULT = 30;
+    uint256 public constant BASE_SHARES_PER_WEI = 1000000;
 
     /* storage */
 
@@ -735,7 +743,6 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
     ///   - modify _vaults[vault].stakes
     ///   - decrease _vaults[vault].totalStake
     /// token transfer:
-    ///   - transfer staking tokens from vault to recipient
     ///   - transfer reward tokens from reward pool to recipient
     ///   - transfer bonus tokens from reward pool to recipient
     /// @param vault address The vault to unstake from
@@ -846,6 +853,21 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         emit Unstaked(vault, recipient, amount, reward);
     }
 
+    /// @notice Exit geyser without claiming reward
+    /// @dev This function should never revert when correctly called by the vault.
+    ///      A max number of stakes per vault is set with MAX_STAKES_PER_VAULT to
+    ///      place an upper bound on the for loop in calculateTotalStakeUnits().
+    /// access control: only callable by the vault directly
+    /// state machine:
+    ///   - when vault exists on this geyser
+    ///   - when active stake from this vault
+    ///   - any power state
+    /// state scope:
+    ///   - decrease _geyser.totalStake
+    ///   - increase _geyser.lastUpdate
+    ///   - modify _geyser.totalStakeUnits
+    ///   - delete _vaults[vault]
+    /// token transfer: none
     function rageQuit() external override {
         // fetch vault storage reference
         VaultData storage _vaultData = _vaults[msg.sender];

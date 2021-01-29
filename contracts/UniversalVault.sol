@@ -16,6 +16,7 @@ import {IRageQuit} from "./Geyser.sol";
 interface IUniversalVault {
     event Locked(address delegate, address token, uint256 amount);
     event Unlocked(address delegate, address token, uint256 amount);
+    event RageQuit(address delegate, address token, bool notified, string reason);
 
     function initialize() external;
 
@@ -96,9 +97,6 @@ contract UniversalVault is
     uint256 private _nonce;
     mapping(bytes32 => LockData) private _locks;
     EnumerableSet.Bytes32Set private _lockSet;
-
-    /* events */
-    event RageQuit(address delegate, address token, bool notified, string reason);
 
     /* initialization function */
 

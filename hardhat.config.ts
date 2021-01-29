@@ -75,6 +75,11 @@ task('deploy', 'deploy full set of factory contracts').setAction(
       signer,
       [UniversalVault.address],
     )
+    const GeyserRegistry = await deployContract(
+      'GeyserRegistry',
+      ethers.getContractFactory,
+      signer,
+    )
 
     console.log('Locking template')
 
@@ -91,6 +96,7 @@ task('deploy', 'deploy full set of factory contracts').setAction(
       RewardPoolFactory: RewardPoolFactory.address,
       UniversalVault: UniversalVault.address,
       VaultFactory: VaultFactory.address,
+      GeyserRegistry: GeyserRegistry.address,
     })
 
     mkdirSync(path, { recursive: true })
@@ -111,6 +117,9 @@ task('deploy', 'deploy full set of factory contracts').setAction(
     await run('verify', {
       address: VaultFactory.address,
       constructorArguments: [UniversalVault.address],
+    })
+    await run('verify', {
+      address: GeyserRegistry.address,
     })
   },
 )
@@ -162,7 +171,12 @@ task('create-geyser', 'deploy an instance of Geyser')
 
       console.log('Signer', signer.address)
 
-      const { PowerSwitchFactory, RewardPoolFactory } = JSON.parse(
+      const {
+        PowerSwitchFactory,
+        RewardPoolFactory,
+        VaultFactory,
+        GeyserRegistry,
+      } = JSON.parse(
         readFileSync(
           `./deployments/${network.name}/factories-${factoryVersion}.json`,
         ).toString(),
@@ -190,6 +204,20 @@ task('create-geyser', 'deploy an instance of Geyser')
       console.log('  reward floor', floor)
       console.log('  reward ceiling', ceiling)
       console.log('  reward time', stakingToken)
+
+      console.log('Register Vault Factory')
+
+      await geyser.registerVaultFactory(VaultFactory)
+
+      console.log('Register Geyser Instance')
+
+      const geyserRegistry = await ethers.getContractAt(
+        'GeyserRegistry',
+        GeyserRegistry,
+        signer,
+      )
+
+      await geyserRegistry.register(geyser.address)
     },
   )
 

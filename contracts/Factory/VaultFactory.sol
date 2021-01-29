@@ -3,12 +3,13 @@ pragma solidity 0.7.6;
 
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {IFactory} from "./IFactory.sol";
+import {IInstanceRegistry} from "./InstanceRegistry.sol";
 import {Spawner} from "./Spawner.sol";
 import {IUniversalVault} from "../UniversalVault.sol";
 
 /// @title Vault Factory
 /// @dev Security contact: dev-support@ampleforth.org
-contract VaultFactory is IFactory, ERC721, Spawner {
+contract VaultFactory is IFactory, IInstanceRegistry, ERC721, Spawner {
     event VaultCreated(address vault);
 
     address private _template;
@@ -17,9 +18,9 @@ contract VaultFactory is IFactory, ERC721, Spawner {
         _template = template;
     }
 
-    /* view functions */
+    /* registry functions */
 
-    function created(address instance) external view override returns (bool validity) {
+    function isInstance(address instance) external view override returns (bool validity) {
         return ERC721._exists(uint256(instance));
     }
 
@@ -31,7 +32,7 @@ contract VaultFactory is IFactory, ERC721, Spawner {
         return address(ERC721.tokenByIndex(index));
     }
 
-    /* user functions */
+    /* factory functions */
 
     function create(bytes calldata) external override returns (address vault) {
         return _create();
@@ -47,6 +48,12 @@ contract VaultFactory is IFactory, ERC721, Spawner {
 
     function create2(bytes32 salt) external returns (address vault) {
         return _create2(salt);
+    }
+
+    /* getter functions */
+
+    function getTemplate() external view returns (address template) {
+        return _template;
     }
 
     /* internal functions */
@@ -70,11 +77,5 @@ contract VaultFactory is IFactory, ERC721, Spawner {
         );
         ERC721._safeMint(msg.sender, uint256(instance));
         emit VaultCreated(instance);
-    }
-
-    /* getter functions */
-
-    function getTemplate() external view returns (address template) {
-        return _template;
     }
 }

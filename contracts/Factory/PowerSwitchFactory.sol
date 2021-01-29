@@ -2,38 +2,18 @@
 pragma solidity 0.7.6;
 
 import {EnumerableSet} from "@openzeppelin/contracts/utils/EnumerableSet.sol";
+
 import {IFactory} from "./IFactory.sol";
+import {InstanceRegistry} from "./InstanceRegistry.sol";
 import {PowerSwitch} from "../PowerSwitch/PowerSwitch.sol";
 
 /// @title Power Switch Factory
 /// @dev Security contact: dev-support@ampleforth.org
-contract PowerSwitchFactory is IFactory {
-    using EnumerableSet for EnumerableSet.AddressSet;
-
-    /* storage */
-
-    EnumerableSet.AddressSet private _instanceSet;
-
-    /* view functions */
-
-    function created(address instance) external view override returns (bool validity) {
-        return _instanceSet.contains(instance);
-    }
-
-    function instanceCount() external view override returns (uint256 count) {
-        return _instanceSet.length();
-    }
-
-    function instanceAt(uint256 index) external view override returns (address instance) {
-        return _instanceSet.at(index);
-    }
-
-    /* user functions */
-
+contract PowerSwitchFactory is IFactory, InstanceRegistry {
     function create(bytes calldata args) external override returns (address) {
         address owner = abi.decode(args, (address));
         PowerSwitch powerSwitch = new PowerSwitch(owner);
-        assert(_instanceSet.add(address(powerSwitch)));
+        InstanceRegistry._register(address(powerSwitch));
         return address(powerSwitch);
     }
 

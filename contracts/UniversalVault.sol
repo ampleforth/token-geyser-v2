@@ -14,13 +14,25 @@ import {OwnableERC721} from "./Access/OwnableERC721.sol";
 import {IRageQuit} from "./Geyser.sol";
 
 interface IUniversalVault {
+    /* user events */
+
     event Locked(address delegate, address token, uint256 amount);
     event Unlocked(address delegate, address token, uint256 amount);
     event RageQuit(address delegate, address token, bool notified, string reason);
 
+    /* data types */
+
+    struct LockData {
+        address delegate;
+        address token;
+        uint256 balance;
+    }
+
+    /* initialize function */
+
     function initialize() external;
 
-    function owner() external view returns (address ownerAddress);
+    /* user functions */
 
     function lock(
         address token,
@@ -37,14 +49,52 @@ interface IUniversalVault {
     function rageQuit(address delegate, address token)
         external
         returns (bool notified, string memory error);
+
+    /* pure functions */
+
+    function calculateLockID(address delegate, address token)
+        external
+        pure
+        returns (bytes32 lockID);
+
+    /* getter functions */
+
+    function getPermissionHash(
+        bytes32 eip712TypeHash,
+        address delegate,
+        address token,
+        uint256 amount,
+        uint256 nonce
+    ) external view returns (bytes32 permissionHash);
+
+    function getNonce() external view returns (uint256 nonce);
+
+    function owner() external view returns (address ownerAddress);
+
+    function getLockSetCount() external view returns (uint256 count);
+
+    function getLockAt(uint256 index) external view returns (LockData memory lockData);
+
+    function getBalanceDelegated(address token, address delegate)
+        external
+        view
+        returns (uint256 balance);
+
+    function getBalanceLocked(address token) external view returns (uint256 balance);
+
+    function checkBalances() external view returns (bool validity);
 }
 
 interface IExternalCall {
+    /* data types */
+
     struct CallParams {
         address to;
         uint256 value;
         bytes data;
     }
+
+    /* user functions */
 
     function externalCall(CallParams calldata call)
         external
@@ -88,12 +138,6 @@ contract UniversalVault is
 
     /* storage */
 
-    struct LockData {
-        address delegate;
-        address token;
-        uint256 balance;
-    }
-
     uint256 private _nonce;
     mapping(bytes32 => LockData) private _locks;
     EnumerableSet.Bytes32Set private _lockSet;
@@ -119,7 +163,12 @@ contract UniversalVault is
 
     /* pure functions */
 
-    function calculateLockID(address delegate, address token) public pure returns (bytes32 lockID) {
+    function calculateLockID(address delegate, address token)
+        public
+        pure
+        override
+        returns (bytes32 lockID)
+    {
         return keccak256(abi.encodePacked(delegate, token));
     }
 
@@ -139,14 +188,14 @@ contract UniversalVault is
         address token,
         uint256 amount,
         uint256 nonce
-    ) public view returns (bytes32 permissionHash) {
+    ) public view override returns (bytes32 permissionHash) {
         return
             EIP712._hashTypedDataV4(
                 keccak256(abi.encode(eip712TypeHash, delegate, token, amount, nonce))
             );
     }
 
-    function getNonce() external view returns (uint256 nonce) {
+    function getNonce() external view override returns (uint256 nonce) {
         return _nonce;
     }
 
@@ -159,23 +208,24 @@ contract UniversalVault is
         return OwnableERC721.owner();
     }
 
-    function getLockSetCount() external view returns (uint256 count) {
+    function getLockSetCount() external view override returns (uint256 count) {
         return _lockSet.length();
     }
 
-    function getLockAt(uint256 index) external view returns (LockData memory lockData) {
+    function getLockAt(uint256 index) external view override returns (LockData memory lockData) {
         return _locks[_lockSet.at(index)];
     }
 
     function getBalanceDelegated(address token, address delegate)
         external
         view
+        override
         returns (uint256 balance)
     {
         return _locks[calculateLockID(delegate, token)].balance;
     }
 
-    function getBalanceLocked(address token) external view returns (uint256 balance) {
+    function getBalanceLocked(address token) external view override returns (uint256 balance) {
         for (uint256 index; index < _lockSet.length(); index++) {
             LockData storage _lockData = _locks[_lockSet.at(index)];
             if (_lockData.token == token && _lockData.balance > balance)
@@ -184,7 +234,7 @@ contract UniversalVault is
         return balance;
     }
 
-    function checkBalances() public view returns (bool validity) {
+    function checkBalances() public view override returns (bool validity) {
         // iterate over all token locks and validate sufficient balance
         for (uint256 index; index < _lockSet.length(); index++) {
             // fetch storage lock reference

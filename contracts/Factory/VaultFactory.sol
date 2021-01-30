@@ -10,8 +10,6 @@ import {IUniversalVault} from "../UniversalVault.sol";
 /// @title Vault Factory
 /// @dev Security contact: dev-support@ampleforth.org
 contract VaultFactory is IFactory, IInstanceRegistry, ERC721, Spawner {
-    event VaultCreated(address vault);
-
     address private _template;
 
     constructor(address template) ERC721("Universal Vault v1", "VAULT-v1") {
@@ -65,7 +63,7 @@ contract VaultFactory is IFactory, IInstanceRegistry, ERC721, Spawner {
             abi.encodeWithSelector(IUniversalVault.initialize.selector)
         );
         ERC721._safeMint(msg.sender, uint256(instance));
-        emit VaultCreated(instance);
+        emit InstanceAdded(instance);
     }
 
     function _create2(bytes32 salt) internal returns (address instance) {
@@ -76,6 +74,6 @@ contract VaultFactory is IFactory, IInstanceRegistry, ERC721, Spawner {
             salt
         );
         ERC721._safeMint(msg.sender, uint256(instance));
-        emit VaultCreated(instance);
+        emit InstanceAdded(instance);
     }
 }

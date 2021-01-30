@@ -4,13 +4,25 @@ pragma solidity 0.7.6;
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 interface IPowerSwitch {
+    /* admin events */
+
+    event PowerOn();
+    event PowerOff();
+    event EmergencyShutdown();
+
+    /* data types */
+
     enum State {Online, Offline, Shutdown}
+
+    /* admin functions */
 
     function powerOn() external;
 
     function powerOff() external;
 
     function emergencyShutdown() external;
+
+    /* view functions */
 
     function isOnline() external view returns (bool status);
 
@@ -30,12 +42,6 @@ contract PowerSwitch is IPowerSwitch, Ownable {
     /* storage */
 
     IPowerSwitch.State private _status;
-
-    /* events */
-
-    event PowerOn();
-    event PowerOff();
-    event EmergencyShutdown();
 
     /* initializer */
 

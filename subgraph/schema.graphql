@@ -1,0 +1,82 @@
+enum GeyserStatus {
+  Online
+  Offline
+  Shutdown
+}
+
+type Geyser @entity {
+  id: ID! # ${geyser.address}
+  powerSwitch: Bytes!
+  rewardPool: Bytes!
+  rewardPoolBalances: [RewardPoolBalance]!
+  unlockedReward: BigInt!
+  stakingToken: Bytes!
+  rewardToken: Bytes!
+  scalingFloor: BigInt!
+  scalingCeiling: BigInt!
+  scalingTime: BigInt!
+  totalStake: BigInt!
+  totalStakeUnits: BigInt!
+  bonusTokens: [Bytes!]!
+  status: GeyserStatus!
+  lastUpdate: BigInt!
+  rewardSchedules: [RewardSchedule]! @derivedFrom(field: "geyser")
+  locks: [Lock]! @derivedFrom(field: "geyser")
+}
+
+type User @entity {
+  id: ID! # ${account.address}
+  vaults: [Vault]! @derivedFrom(field: "owner")
+}
+
+type Vault @entity {
+  id: ID! # ${vault.address}
+  owner: User!
+  nonce: BigInt!
+  claimedReward: [ClaimedReward]! @derivedFrom(field: "vault")
+  locks: [Lock]! @derivedFrom(field: "vault")
+}
+
+type Lock @entity {
+  id: ID! # ${vault.id}-${geyser.id}-${token.address}
+  vault: Vault!
+  geyser: Geyser!
+  token: Bytes!
+  amount: BigInt!
+  stakeUnits: BigInt
+  lastUpdate: BigInt!
+}
+
+type LockedBalance @entity {
+  id: ID! #  ${vault.id}-${token.address}
+  vault: Vault!
+  token: Bytes!
+  amount: BigInt!
+  lastUpdate: BigInt!
+}
+
+type RewardSchedule @entity {
+  id: ID! # ${geyser.id}-${index}
+  geyser: Geyser!
+  rewardAmount: BigInt!
+  duration: BigInt!
+  start: BigInt!
+  shares: BigInt!
+}
+
+type ClaimedReward @entity {
+  id: ID! # ${vault.id-token.address}
+  vault: Vault!
+  token: Bytes!
+  amount: BigInt!
+  lastUpdate: BigInt!
+}
+
+type RewardPoolBalance @entity {
+  id: ID! # ${rewardPool.address}-${token.address}
+  geyser: Geyser!
+  pool: Bytes!
+  token: Bytes!
+  balance: BigInt!
+  lastUpdate: BigInt!
+}

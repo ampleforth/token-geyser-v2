@@ -118,8 +118,9 @@ describe('RewardPool', function () {
         accounts[0].address,
       )
     })
-    it('should fail if online', async function () {
+    it.only('should fail if online', async function () {
       expect(await Mock.isOnline()).to.eq(true)
+      expect(await PowerSwitch.isOnline()).to.eq(true)
       await expect(
         Mock.connect(accounts[1]).rescueERC20(
           [ERC20.address],
@@ -127,7 +128,7 @@ describe('RewardPool', function () {
         ),
       ).to.be.revertedWith('Powered: is not shutdown')
     })
-    it('should fail if offline', async function () {
+    it.only('should fail if offline', async function () {
       await PowerSwitch.connect(accounts[1]).powerOff()
       expect(await Mock.isOffline()).to.eq(true)
       await expect(

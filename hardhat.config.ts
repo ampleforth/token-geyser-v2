@@ -5,7 +5,7 @@ import '@openzeppelin/hardhat-upgrades'
 import 'hardhat-gas-reporter'
 import 'solidity-coverage'
 
-import { Contract, Signer } from 'ethers'
+import { Contract, Signer, Wallet } from 'ethers'
 import { mkdirSync, readFileSync, writeFileSync } from 'fs'
 import { HardhatUserConfig, task } from 'hardhat/config'
 
@@ -257,7 +257,8 @@ export default {
     goerli: {
       url: 'https://goerli.infura.io/v3/' + process.env.INFURA_ID,
       accounts: {
-        mnemonic: process.env.DEV_MNEMONIC,
+        mnemonic:
+          process.env.DEV_MNEMONIC || Wallet.createRandom().mnemonic.phrase,
       },
     },
   },

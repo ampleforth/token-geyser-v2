@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity 0.7.6;
 
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 import {IPowerSwitch} from "./PowerSwitch.sol";
 
 interface IPowered {
@@ -19,7 +18,7 @@ interface IPowered {
 /// @title Powered
 /// @notice Helper for calling external PowerSwitch
 /// @dev Security contact: dev-support@ampleforth.org
-contract Powered is IPowered, Initializable {
+contract Powered is IPowered {
     /* storage */
 
     address private _powerSwitch;
@@ -48,7 +47,7 @@ contract Powered is IPowered, Initializable {
 
     /* initializer */
 
-    function _setPowerSwitch(address powerSwitch) internal initializer {
+    function _setPowerSwitch(address powerSwitch) internal {
         _powerSwitch = powerSwitch;
     }
 

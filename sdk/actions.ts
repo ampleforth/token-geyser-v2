@@ -289,5 +289,5 @@ export const permitDepositStake = async (
     vault.address,
     permit,
     lockPermission,
-  )
+  ) as Promise<TransactionResponse>
 }

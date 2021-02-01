@@ -191,6 +191,33 @@ interface IGeyser is IRageQuit {
 /// @title Geyser
 /// @notice Reward distribution contract with time multiplier
 /// @dev Security contact: dev-support@ampleforth.org
+/// Access Control
+/// - Power controller:
+///     Can power off / shutdown the geyser
+///     Can withdraw rewards from reward pool once shutdown
+/// - Proxy owner:
+///     Can change arbitrary logic / state by upgrading the geyser
+///     Is unable to operate on user funds due to UniversalVault
+///     Is unable to operate on reward pool funds when reward pool is offline / shutdown
+/// - Geyser admin:
+///     Can add funds to the geyser, register bonus tokens, and whitelist new vault factories
+///     Is a subset of proxy owner permissions
+/// - User:
+///     Can deposit / withdraw / ragequit
+/// Geyser State Machine
+/// - Online:
+///     Geyser is operating normally, all functions are enabled
+/// - Offline:
+///     Geyser is temporarely disabled for maintenance
+///     User deposits and withdrawls are disabled, ragequit remains enabled
+///     Users can withdraw their stake through rageQuit() but forego their pending reward
+///     Should only be used when downtime required for an upgrade
+/// - Shutdown:
+///     Geyser is permanently disabled
+///     All functions are disabled with the exception of ragequit
+///     Users can withdraw their stake through rageQuit()
+///     Power controller can withdraw from the reward pool
+///     Should only be used if Proxy Owner role is compromized
 contract Geyser is IGeyser, Powered, OwnableUpgradeable {
     using SafeMath for uint256;
     using EnumerableSet for EnumerableSet.AddressSet;

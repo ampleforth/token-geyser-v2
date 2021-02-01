@@ -8,6 +8,5 @@
     "downlevelIteration": true,
     "outDir": "dist"
   },
-  "include": ["test"],
-  "files": ["hardhat.config.ts"]
+  "include": ["sdk"]
 }

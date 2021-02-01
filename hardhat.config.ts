@@ -80,23 +80,52 @@ task('deploy', 'deploy full set of factory contracts').setAction(
       ethers.getContractFactory,
       signer,
     )
+    const RouterV1 = await deployContract(
+      'RouterV1',
+      ethers.getContractFactory,
+      signer,
+    )
 
     console.log('Locking template')
 
     await UniversalVault.initializeLock()
 
-    const path = `./deployments/${network.name}/`
+    const path = `./sdk/deployments/${network.name}/`
     const file = `factories-${timestamp}.json`
     const latest = `factories-latest.json`
 
     console.log('Saving config to', path + file)
 
     const blob = JSON.stringify({
-      PowerSwitchFactory: PowerSwitchFactory.address,
-      RewardPoolFactory: RewardPoolFactory.address,
-      UniversalVault: UniversalVault.address,
-      VaultFactory: VaultFactory.address,
-      GeyserRegistry: GeyserRegistry.address,
+      PowerSwitchFactory: {
+        address: PowerSwitchFactory.address,
+        abi: PowerSwitchFactory.interface.format(),
+      },
+      RewardPoolFactory: {
+        address: RewardPoolFactory.address,
+        abi: RewardPoolFactory.interface.format(),
+      },
+      VaultTemplate: {
+        address: UniversalVault.address,
+        abi: UniversalVault.interface.format(),
+      },
+      VaultFactory: {
+        address: VaultFactory.address,
+        abi: VaultFactory.interface.format(),
+      },
+      GeyserRegistry: {
+        address: GeyserRegistry.address,
+        abi: GeyserRegistry.interface.format(),
+      },
+      GeyserTemplate: {
+        abi: (
+          await ethers.getContractAt('Geyser', ethers.constants.AddressZero)
+        ).interface.format(),
+      },
+      RouterV1: {
+        address: RouterV1.address,
+        abi: RouterV1.interface.format(),
+      },
     })
 
     mkdirSync(path, { recursive: true })
@@ -135,7 +164,7 @@ task('create-vault', 'deploy an instance of UniversalVault')
 
     const { VaultFactory } = JSON.parse(
       readFileSync(
-        `./deployments/${network.name}/factories-${factoryVersion}.json`,
+        `./sdk/deployments/${network.name}/factories-${factoryVersion}.json`,
       ).toString(),
     )
 
@@ -178,7 +207,7 @@ task('create-geyser', 'deploy an instance of Geyser')
         GeyserRegistry,
       } = JSON.parse(
         readFileSync(
-          `./deployments/${network.name}/factories-${factoryVersion}.json`,
+          `./sdk/deployments/${network.name}/factories-${factoryVersion}.json`,
         ).toString(),
       )
 

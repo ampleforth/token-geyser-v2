@@ -11,24 +11,32 @@ import {IGeyser} from "./Geyser.sol";
 import {IUniversalVault} from "./UniversalVault.sol";
 import {IFactory} from "./Factory/IFactory.sol";
 
-/// @title Router
+/// @title RouterV1
 /// @notice Convenience contract for ampleforth geyser
 /// @dev Security contact: dev-support@ampleforth.org
-contract Router {
+contract RouterV1 {
+    function createVault(address vaultFactory) public returns (address vault) {
+        return IFactory(vaultFactory).create("");
+    }
+
+    function create2Vault(address vaultFactory, bytes32 salt) public returns (address vault) {
+        return IFactory(vaultFactory).create2("", salt);
+    }
+
     function create2VaultAndStake(
         address geyser,
         address vaultFactory,
-        address owner,
+        address vaultOwner,
         uint256 amount,
         bytes32 salt,
         bytes calldata permission
-    ) external returns (address vault) {
+    ) public returns (address vault) {
         // create vault
-        vault = IFactory(vaultFactory).create2("", salt);
+        vault = create2Vault(vaultFactory, salt);
         // get staking token
         address stakingToken = IGeyser(geyser).getGeyserData().stakingToken;
         // transfer ownership
-        IERC721(vaultFactory).safeTransferFrom(address(this), owner, uint256(vault));
+        IERC721(vaultFactory).safeTransferFrom(address(this), vaultOwner, uint256(vault));
         // transfer tokens
         TransferHelper.safeTransferFrom(stakingToken, msg.sender, vault, amount);
         // stake
@@ -45,12 +53,30 @@ contract Router {
         bytes32 s;
     }
 
+    function create2VaultPermitAndStake(
+        address geyser,
+        address vaultFactory,
+        address vaultOwner,
+        bytes32 salt,
+        Permit calldata permit,
+        bytes calldata permission
+    ) public returns (address vault) {
+        // create vault
+        vault = create2Vault(vaultFactory, salt);
+        // transfer ownership
+        IERC721(vaultFactory).safeTransferFrom(address(this), vaultOwner, uint256(vault));
+        // permit and stake
+        permitAndStake(geyser, vault, permit, permission);
+        // return vault
+        return vault;
+    }
+
     function permitAndStake(
         address geyser,
         address vault,
         Permit calldata permit,
         bytes calldata permission
-    ) external {
+    ) public {
         // get staking token
         address stakingToken = IGeyser(geyser).getGeyserData().stakingToken;
         // permit transfer
@@ -76,7 +102,7 @@ contract Router {
         bytes permission;
     }
 
-    function stakeMulti(StakeRequest[] calldata requests) external {
+    function stakeMulti(StakeRequest[] calldata requests) public {
         for (uint256 index = 0; index < requests.length; index++) {
             StakeRequest calldata request = requests[index];
             IGeyser(request.geyser).stake(request.vault, request.amount, request.permission);
@@ -91,7 +117,7 @@ contract Router {
         bytes permission;
     }
 
-    function unstakeMulti(UnstakeRequest[] calldata requests) external {
+    function unstakeMulti(UnstakeRequest[] calldata requests) public {
         for (uint256 index = 0; index < requests.length; index++) {
             UnstakeRequest calldata request = requests[index];
             IGeyser(request.geyser).unstakeAndClaim(

@@ -1,14 +1,18 @@
 {
-  "name": "token-geyser-v2",
+  "name": "@ampleforth/token-geyser-v2",
+  "description": "reward distribution protocol",
+  "version": "0.1.0",
   "license": "GPL-3.0",
   "author": "dev-support@ampleforth.org",
+  "main": "dist/index.js",
   "scripts": {
     "compile": "yarn hardhat compile",
     "test": "yarn hardhat test",
     "profile": "REPORT_GAS=true yarn hardhat test",
     "coverage": "yarn hardhat coverage",
     "format": "yarn prettier --config .prettierrc --write '**/*.ts' 'contracts/**/*.sol'",
-    "lint": "yarn solhint 'contracts/**/*.sol'"
+    "lint": "yarn solhint 'contracts/**/*.sol'",
+    "build": "yarn tsc --project tsconfig.build.json"
   },
   "pre-commit": [
     "format",

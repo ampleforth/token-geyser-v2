@@ -1,16 +1,6 @@
 import { TypedDataField } from '@ethersproject/abstract-signer'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/dist/src/signer-with-address'
 import { BigNumberish, BytesLike, Contract, Signer, Wallet } from 'ethers'
-import {
-  arrayify,
-  defaultAbiCoder,
-  keccak256,
-  solidityPack,
-  toUtf8Bytes,
-  verifyMessage,
-  verifyTypedData,
-  _TypedDataEncoder,
-} from 'ethers/lib/utils'
 import { ethers, network, upgrades } from 'hardhat'
 
 export async function getTimestamp() {

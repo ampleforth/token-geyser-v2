@@ -26,22 +26,22 @@ contract Powered is IPowered {
     /* modifiers */
 
     modifier onlyOnline() {
-        require(isOnline(), "Powered: is not online");
+        _onlyOnline();
         _;
     }
 
     modifier onlyOffline() {
-        require(isOffline(), "Powered: is not offline");
+        _onlyOffline();
         _;
     }
 
     modifier notShutdown() {
-        require(!isShutdown(), "Powered: is shutdown");
+        _notShutdown();
         _;
     }
 
     modifier onlyShutdown() {
-        require(isShutdown(), "Powered: is not shutdown");
+        _onlyShutdown();
         _;
     }
 
@@ -71,5 +71,23 @@ contract Powered is IPowered {
 
     function getPowerController() public view override returns (address controller) {
         return IPowerSwitch(_powerSwitch).getPowerController();
+    }
+
+    /* convenience functions */
+
+    function _onlyOnline() private view {
+        require(isOnline(), "Powered: is not online");
+    }
+
+    function _onlyOffline() private view {
+        require(isOffline(), "Powered: is not offline");
+    }
+
+    function _notShutdown() private view {
+        require(!isShutdown(), "Powered: is shutdown");
+    }
+
+    function _onlyShutdown() private view {
+        require(isShutdown(), "Powered: is not shutdown");
     }
 }

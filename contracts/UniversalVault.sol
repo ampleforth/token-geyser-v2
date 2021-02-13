@@ -114,7 +114,7 @@ interface IExternalCall {
 contract UniversalVault is
     IUniversalVault,
     IExternalCall,
-    EIP712,
+    EIP712("UniversalVault", "1.0.0"),
     ERC1271,
     OwnableERC721,
     Initializable
@@ -147,7 +147,6 @@ contract UniversalVault is
     function initializeLock() external initializer {}
 
     function initialize() external override initializer {
-        EIP712._setDomain("UniversalVault", "1.0.0");
         OwnableERC721._setNFT(msg.sender);
     }
 

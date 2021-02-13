@@ -13,6 +13,7 @@ contract VaultFactory is IFactory, IInstanceRegistry, ERC721 {
     address private immutable _template;
 
     constructor(address template) ERC721("Universal Vault v1", "VAULT-v1") {
+        require(template != address(0), "VaultFactory: invalid template");
         _template = template;
     }
 

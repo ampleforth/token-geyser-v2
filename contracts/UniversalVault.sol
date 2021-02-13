@@ -135,6 +135,10 @@ contract UniversalVault is
     // Ultimately, to avoid a need for fixed gas limits, the EVM would need to provide
     // an error code that allows for reliably catching out-of-gas errors on remote calls.
     uint256 public constant RAGEQUIT_GAS = 500000;
+    bytes32 public constant LOCK_TYPEHASH =
+        keccak256("Lock(address delegate,address token,uint256 amount,uint256 nonce)");
+    bytes32 public constant UNLOCK_TYPEHASH =
+        keccak256("Unlock(address delegate,address token,uint256 amount,uint256 nonce)");
 
     /* storage */
 
@@ -315,13 +319,7 @@ contract UniversalVault is
         external
         override
         onlyValidSignature(
-            getPermissionHash(
-                keccak256("Lock(address delegate,address token,uint256 amount,uint256 nonce)"),
-                msg.sender,
-                token,
-                amount,
-                _nonce
-            ),
+            getPermissionHash(LOCK_TYPEHASH, msg.sender, token, amount, _nonce),
             permission
         )
     {
@@ -371,13 +369,7 @@ contract UniversalVault is
         external
         override
         onlyValidSignature(
-            getPermissionHash(
-                keccak256("Unlock(address delegate,address token,uint256 amount,uint256 nonce)"),
-                msg.sender,
-                token,
-                amount,
-                _nonce
-            ),
+            getPermissionHash(UNLOCK_TYPEHASH, msg.sender, token, amount, _nonce),
             permission
         )
     {

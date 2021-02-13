@@ -225,7 +225,8 @@ contract UniversalVault is
     }
 
     function getBalanceLocked(address token) external view override returns (uint256 balance) {
-        for (uint256 index; index < _lockSet.length(); index++) {
+        uint256 count = _lockSet.length();
+        for (uint256 index; index < count; index++) {
             LockData storage _lockData = _locks[_lockSet.at(index)];
             if (_lockData.token == token && _lockData.balance > balance)
                 balance = _lockData.balance;
@@ -235,7 +236,8 @@ contract UniversalVault is
 
     function checkBalances() public view override returns (bool validity) {
         // iterate over all token locks and validate sufficient balance
-        for (uint256 index; index < _lockSet.length(); index++) {
+        uint256 count = _lockSet.length();
+        for (uint256 index; index < count; index++) {
             // fetch storage lock reference
             LockData storage _lockData = _locks[_lockSet.at(index)];
             // if insufficient balance and not shutdown, return false

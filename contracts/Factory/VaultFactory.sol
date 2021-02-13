@@ -10,7 +10,7 @@ import {ProxyFactory} from "./ProxyFactory.sol";
 /// @title Vault Factory
 /// @dev Security contact: dev-support@ampleforth.org
 contract VaultFactory is IFactory, IInstanceRegistry, ERC721 {
-    address private _template;
+    address private immutable _template;
 
     constructor(address template) ERC721("Universal Vault v1", "VAULT-v1") {
         _template = template;

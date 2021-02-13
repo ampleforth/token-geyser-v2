@@ -250,6 +250,8 @@ contract UniversalVault is
     /* user functions */
 
     /// @notice Perform an external call from the vault
+    /// @dev The user can transfer out locked tokens from their vault so long as
+    ///      they are returned by the end of the transaction.
     /// access control: only owner
     /// state machine: anytime
     /// state scope: none
@@ -271,6 +273,8 @@ contract UniversalVault is
     }
 
     /// @notice Perform multiple external calls from the vault
+    /// @dev The user can transfer out locked tokens from their vault so long as
+    ///      they are returned by the end of the transaction.
     /// access control: only owner
     /// state machine: anytime
     /// state scope: none

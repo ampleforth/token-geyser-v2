@@ -46,6 +46,9 @@ contract PowerSwitch is IPowerSwitch, Ownable {
     /* initializer */
 
     constructor(address owner) {
+        // sanity check owner
+        require(owner != address(0), "PowerSwitch: invalid owner");
+        // transfer ownership
         Ownable.transferOwnership(owner);
     }
 

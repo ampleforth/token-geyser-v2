@@ -383,6 +383,8 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         override
         returns (uint256 totalStakeUnits)
     {
+        // return early if no change
+        if (timestamp == _geyser.lastUpdate) return _geyser.totalStakeUnits;
         // calculate new stake units
         uint256 newStakeUnits =
             calculateStakeUnits(_geyser.totalStake, _geyser.lastUpdate, timestamp);

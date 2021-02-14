@@ -71,6 +71,13 @@ interface IGeyser is IRageQuit {
         uint256 time;
     }
 
+    struct RewardOutput {
+        uint256 lastStakeAmount;
+        uint256 newStakesCount;
+        uint256 reward;
+        uint256 newTotalStakeUnits;
+    }
+
     /* user functions */
 
     function stake(
@@ -170,14 +177,7 @@ interface IGeyser is IRageQuit {
         uint256 totalStakeUnits,
         uint256 timestamp,
         RewardScaling memory rewardScaling
-    )
-        external
-        pure
-        returns (
-            StakeData[] memory newStakes,
-            uint256 reward,
-            uint256 newTotalStakeUnits
-        );
+    ) external pure returns (RewardOutput memory out);
 
     function calculateReward(
         uint256 unlockedRewards,
@@ -407,16 +407,20 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
 
     function getCurrentVaultReward(address vault) external view override returns (uint256 reward) {
         // calculate rewards
-        (, reward, ) = calculateRewardFromStakes(
-            _vaults[vault].stakes,
-            _vaults[vault].totalStake,
-            getCurrentUnlockedRewards(),
-            getCurrentTotalStakeUnits(),
-            block.timestamp,
-            _geyser.rewardScaling
-        );
-        // explicit return
-        return reward;
+        return
+            calculateRewardFromStakes(
+                _vaults[vault]
+                    .stakes,
+                _vaults[vault]
+                    .totalStake,
+                getCurrentUnlockedRewards(),
+                getCurrentTotalStakeUnits(),
+                block
+                    .timestamp,
+                _geyser
+                    .rewardScaling
+            )
+                .reward;
     }
 
     function getFutureVaultReward(address vault, uint256 timestamp)
@@ -426,16 +430,19 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         returns (uint256 reward)
     {
         // calculate rewards
-        (, reward, ) = calculateRewardFromStakes(
-            _vaults[vault].stakes,
-            _vaults[vault].totalStake,
-            getFutureUnlockedRewards(timestamp),
-            getFutureTotalStakeUnits(timestamp),
-            timestamp,
-            _geyser.rewardScaling
-        );
-        // explicit return
-        return reward;
+        return
+            calculateRewardFromStakes(
+                _vaults[vault]
+                    .stakes,
+                _vaults[vault]
+                    .totalStake,
+                getFutureUnlockedRewards(timestamp),
+                getFutureTotalStakeUnits(timestamp),
+                timestamp,
+                _geyser
+                    .rewardScaling
+            )
+                .reward;
     }
 
     function getCurrentStakeReward(address vault, uint256 stakeAmount)
@@ -445,16 +452,19 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         returns (uint256 reward)
     {
         // calculate rewards
-        (, reward, ) = calculateRewardFromStakes(
-            _vaults[vault].stakes,
-            stakeAmount,
-            getCurrentUnlockedRewards(),
-            getCurrentTotalStakeUnits(),
-            block.timestamp,
-            _geyser.rewardScaling
-        );
-        // explicit return
-        return reward;
+        return
+            calculateRewardFromStakes(
+                _vaults[vault]
+                    .stakes,
+                stakeAmount,
+                getCurrentUnlockedRewards(),
+                getCurrentTotalStakeUnits(),
+                block
+                    .timestamp,
+                _geyser
+                    .rewardScaling
+            )
+                .reward;
     }
 
     function getFutureStakeReward(
@@ -463,16 +473,18 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         uint256 timestamp
     ) external view override returns (uint256 reward) {
         // calculate rewards
-        (, reward, ) = calculateRewardFromStakes(
-            _vaults[vault].stakes,
-            stakeAmount,
-            getFutureUnlockedRewards(timestamp),
-            getFutureTotalStakeUnits(timestamp),
-            timestamp,
-            _geyser.rewardScaling
-        );
-        // explicit return
-        return reward;
+        return
+            calculateRewardFromStakes(
+                _vaults[vault]
+                    .stakes,
+                stakeAmount,
+                getFutureUnlockedRewards(timestamp),
+                getFutureTotalStakeUnits(timestamp),
+                timestamp,
+                _geyser
+                    .rewardScaling
+            )
+                .reward;
     }
 
     function getCurrentVaultStakeUnits(address vault)
@@ -579,16 +591,7 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         uint256 totalStakeUnits,
         uint256 timestamp,
         RewardScaling memory rewardScaling
-    )
-        public
-        pure
-        override
-        returns (
-            StakeData[] memory newStakes,
-            uint256 reward,
-            uint256 newTotalStakeUnits
-        )
-    {
+    ) public pure override returns (RewardOutput memory out) {
         uint256 stakesToDrop = 0;
         while (unstakeAmount > 0) {
             // fetch vault stake storage reference
@@ -602,7 +605,7 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
                 // set current amount to remaining unstake amount
                 currentAmount = unstakeAmount;
                 // amount of last stake is reduced
-                lastStake.amount = lastStake.amount.sub(unstakeAmount);
+                out.lastStakeAmount = lastStake.amount.sub(unstakeAmount);
             } else {
                 // set current amount to amount of last stake
                 currentAmount = lastStake.amount;
@@ -624,7 +627,7 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
                 );
 
             // update cumulative reward
-            reward = reward.add(currentReward);
+            out.reward = out.reward.add(currentReward);
 
             // update cached unlockedRewards
             unlockedRewards = unlockedRewards.sub(currentReward);
@@ -637,11 +640,13 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         }
 
         // explicit return
-        return (
-            _truncateStakesArray(stakes, stakes.length.sub(stakesToDrop)),
-            reward,
-            totalStakeUnits
-        );
+        return
+            RewardOutput(
+                out.lastStakeAmount,
+                stakes.length.sub(stakesToDrop),
+                out.reward,
+                totalStakeUnits
+            );
     }
 
     function calculateReward(
@@ -948,7 +953,7 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
             );
 
         // calculate vault time weighted reward with scaling
-        (StakeData[] memory newStakes, uint256 reward, uint256 newTotalStakeUnits) =
+        RewardOutput memory out =
             calculateRewardFromStakes(
                 vaultData.stakes,
                 amount,
@@ -959,22 +964,21 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
             );
 
         // update stake data in storage
-        if (newStakes.length == 0) {
+        if (out.newStakesCount == 0) {
             // all stakes have been unstaked
             delete vaultData.stakes;
         } else {
             // some stakes have been completely or partially unstaked
             // delete fully unstaked stakes
-            while (vaultData.stakes.length > newStakes.length) vaultData.stakes.pop();
+            while (vaultData.stakes.length > out.newStakesCount) vaultData.stakes.pop();
             // update partially unstaked stake
-            uint256 lastIndex = vaultData.stakes.length.sub(1);
-            vaultData.stakes[lastIndex].amount = newStakes[lastIndex].amount;
+            vaultData.stakes[out.newStakesCount.sub(1)].amount = out.lastStakeAmount;
         }
 
         // update cached stake totals
         vaultData.totalStake = vaultData.totalStake.sub(amount);
         _geyser.totalStake = _geyser.totalStake.sub(amount);
-        _geyser.totalStakeUnits = newTotalStakeUnits;
+        _geyser.totalStakeUnits = out.newTotalStakeUnits;
 
         // unlock staking tokens from vault
         IUniversalVault(vault).unlock(_geyser.stakingToken, amount, permission);
@@ -983,11 +987,11 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         emit Unstaked(vault, amount);
 
         // only perform on non-zero reward
-        if (reward > 0) {
+        if (out.reward > 0) {
             // calculate shares to burn
             // sharesToBurn = sharesOutstanding * reward / remainingRewards
             uint256 sharesToBurn =
-                _geyser.rewardSharesOutstanding.mul(reward).div(remainingRewards);
+                _geyser.rewardSharesOutstanding.mul(out.reward).div(remainingRewards);
 
             // burn claimed shares
             _geyser.rewardSharesOutstanding = _geyser.rewardSharesOutstanding.sub(sharesToBurn);
@@ -1001,7 +1005,7 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
                     // calculate bonus token amount
                     // bonusAmount = bonusRemaining * reward / remainingRewards
                     uint256 bonusAmount =
-                        IERC20(bonusToken).balanceOf(_geyser.rewardPool).mul(reward).div(
+                        IERC20(bonusToken).balanceOf(_geyser.rewardPool).mul(out.reward).div(
                             remainingRewards
                         );
 
@@ -1014,10 +1018,10 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
             }
 
             // transfer reward tokens from reward pool to recipient
-            IRewardPool(_geyser.rewardPool).sendERC20(_geyser.rewardToken, recipient, reward);
+            IRewardPool(_geyser.rewardPool).sendERC20(_geyser.rewardToken, recipient, out.reward);
 
             // emit event
-            emit RewardClaimed(vault, recipient, _geyser.rewardToken, reward);
+            emit RewardClaimed(vault, recipient, _geyser.rewardToken, out.reward);
         }
     }
 

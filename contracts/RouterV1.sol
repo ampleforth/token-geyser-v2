@@ -15,14 +15,6 @@ import {IFactory} from "./Factory/IFactory.sol";
 /// @notice Convenience contract for ampleforth geyser
 /// @dev Security contact: dev-support@ampleforth.org
 contract RouterV1 {
-    function createVault(address vaultFactory) public returns (address vault) {
-        return IFactory(vaultFactory).create("");
-    }
-
-    function create2Vault(address vaultFactory, bytes32 salt) public returns (address vault) {
-        return IFactory(vaultFactory).create2("", salt);
-    }
-
     function create2VaultAndStake(
         address geyser,
         address vaultFactory,
@@ -30,9 +22,9 @@ contract RouterV1 {
         uint256 amount,
         bytes32 salt,
         bytes calldata permission
-    ) public returns (address vault) {
+    ) external returns (address vault) {
         // create vault
-        vault = create2Vault(vaultFactory, salt);
+        vault = IFactory(vaultFactory).create2("", salt);
         // get staking token
         address stakingToken = IGeyser(geyser).getGeyserData().stakingToken;
         // transfer ownership
@@ -60,9 +52,9 @@ contract RouterV1 {
         bytes32 salt,
         Permit calldata permit,
         bytes calldata permission
-    ) public returns (address vault) {
+    ) external returns (address vault) {
         // create vault
-        vault = create2Vault(vaultFactory, salt);
+        vault = IFactory(vaultFactory).create2("", salt);
         // transfer ownership
         IERC721(vaultFactory).safeTransferFrom(address(this), vaultOwner, uint256(vault));
         // permit and stake
@@ -102,7 +94,7 @@ contract RouterV1 {
         bytes permission;
     }
 
-    function stakeMulti(StakeRequest[] calldata requests) public {
+    function stakeMulti(StakeRequest[] calldata requests) external {
         for (uint256 index = 0; index < requests.length; index++) {
             StakeRequest calldata request = requests[index];
             IGeyser(request.geyser).stake(request.vault, request.amount, request.permission);
@@ -117,7 +109,7 @@ contract RouterV1 {
         bytes permission;
     }
 
-    function unstakeMulti(UnstakeRequest[] calldata requests) public {
+    function unstakeMulti(UnstakeRequest[] calldata requests) external {
         for (uint256 index = 0; index < requests.length; index++) {
             UnstakeRequest calldata request = requests[index];
             IGeyser(request.geyser).unstakeAndClaim(

@@ -250,14 +250,14 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
     /// state machine: can only be called once
     /// state scope: set initialization variables
     /// token transfer: none
-    /// @param owner address The admin address
+    /// @param ownerAddress address The admin address
     /// @param rewardPoolFactory address The factory to use for deploying the RewardPool
     /// @param powerSwitchFactory address The factory to use for deploying the PowerSwitch
     /// @param stakingToken address The address of the staking token for this geyser
     /// @param rewardToken address The address of the reward token for this geyser
     /// @param rewardScaling RewardScaling The config for reward scaling floor, ceiling, and time
     function initialize(
-        address owner,
+        address ownerAddress,
         address rewardPoolFactory,
         address powerSwitchFactory,
         address stakingToken,
@@ -272,14 +272,14 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         require(rewardScaling.time != 0, "Geyser: scaling time cannot be zero");
 
         // deploy power switch
-        address powerSwitch = IFactory(powerSwitchFactory).create(abi.encode(owner));
+        address powerSwitch = IFactory(powerSwitchFactory).create(abi.encode(ownerAddress));
 
         // deploy reward pool
         address rewardPool = IFactory(rewardPoolFactory).create(abi.encode(powerSwitch));
 
         // set internal configs
         OwnableUpgradeable.__Ownable_init();
-        OwnableUpgradeable.transferOwnership(owner);
+        OwnableUpgradeable.transferOwnership(ownerAddress);
         Powered._setPowerSwitch(powerSwitch);
 
         // commit to storage

@@ -987,32 +987,35 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         _geyser.totalStake = _geyser.totalStake.sub(amount);
         _geyser.totalStakeUnits = newTotalStakeUnits;
 
-        // transfer bonus tokens from reward pool to recipient
-        if (_bonusTokenSet.length() > 0) {
-            for (uint256 index = 0; index < _bonusTokenSet.length(); index++) {
-                // fetch bonus token address reference
-                address bonusToken = _bonusTokenSet.at(index);
+        // only transfer non-zero reward
+        if (reward > 0) {
+            // transfer bonus tokens from reward pool to recipient
+            if (_bonusTokenSet.length() > 0) {
+                for (uint256 index = 0; index < _bonusTokenSet.length(); index++) {
+                    // fetch bonus token address reference
+                    address bonusToken = _bonusTokenSet.at(index);
 
-                // calculate bonus token amount
-                // bonusAmount = bonusRemaining * reward / remainingRewards
-                uint256 bonusAmount =
-                    IERC20(bonusToken).balanceOf(_geyser.rewardPool).mul(reward).div(
-                        remainingRewards
-                    );
+                    // calculate bonus token amount
+                    // bonusAmount = bonusRemaining * reward / remainingRewards
+                    uint256 bonusAmount =
+                        IERC20(bonusToken).balanceOf(_geyser.rewardPool).mul(reward).div(
+                            remainingRewards
+                        );
 
-                // transfer bonus token
-                IRewardPool(_geyser.rewardPool).sendERC20(bonusToken, recipient, bonusAmount);
+                    // transfer bonus token
+                    IRewardPool(_geyser.rewardPool).sendERC20(bonusToken, recipient, bonusAmount);
 
-                // emit event
-                emit RewardClaimed(vault, recipient, bonusToken, bonusAmount);
+                    // emit event
+                    emit RewardClaimed(vault, recipient, bonusToken, bonusAmount);
+                }
             }
+
+            // transfer reward tokens from reward pool to recipient
+            IRewardPool(_geyser.rewardPool).sendERC20(_geyser.rewardToken, recipient, reward);
+
+            // emit event
+            emit RewardClaimed(vault, recipient, _geyser.rewardToken, reward);
         }
-
-        // transfer reward tokens from reward pool to recipient
-        IRewardPool(_geyser.rewardPool).sendERC20(_geyser.rewardToken, recipient, reward);
-
-        // emit event
-        emit RewardClaimed(vault, recipient, _geyser.rewardToken, reward);
 
         // unlock staking tokens from vault
         IUniversalVault(vault).unlock(_geyser.stakingToken, amount, permission);

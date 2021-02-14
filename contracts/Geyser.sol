@@ -589,12 +589,10 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
             uint256 newTotalStakeUnits
         )
     {
+        uint256 stakesToDrop = 0;
         while (unstakeAmount > 0) {
-            // validate array length
-            require(stakes.length > 0, "Geyser: no stakes in array");
-
             // fetch vault stake storage reference
-            StakeData memory lastStake = stakes[stakes.length.sub(1)];
+            StakeData memory lastStake = stakes[stakes.length.sub(stakesToDrop).sub(1)];
 
             // calculate stake duration
             uint256 stakeDuration = timestamp.sub(lastStake.timestamp);
@@ -608,8 +606,8 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
             } else {
                 // set current amount to amount of last stake
                 currentAmount = lastStake.amount;
-                // last stake is removed
-                stakes = _truncateStakesArray(stakes, stakes.length - 1);
+                // add to stakes to drop
+                stakesToDrop += 1;
             }
 
             // update remaining unstakeAmount
@@ -639,7 +637,11 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         }
 
         // explicit return
-        return (stakes, reward, totalStakeUnits);
+        return (
+            _truncateStakesArray(stakes, stakes.length.sub(stakesToDrop)),
+            reward,
+            totalStakeUnits
+        );
     }
 
     function calculateReward(

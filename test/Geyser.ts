@@ -2106,8 +2106,6 @@ describe('Geyser', function () {
         })
       })
       describe('with no reward', function () {
-        const expectedReward = 0
-
         let vault: Contract
         beforeEach(async function () {
           vault = await createInstance('UniversalVault', vaultFactory, user)
@@ -2160,28 +2158,6 @@ describe('Geyser', function () {
           await expect(tx)
             .to.emit(geyser, 'Unstaked')
             .withArgs(vault.address, stakeAmount)
-          await expect(tx)
-            .to.emit(geyser, 'RewardClaimed')
-            .withArgs(
-              vault.address,
-              user.address,
-              rewardToken.address,
-              expectedReward,
-            )
-        })
-        it('should transfer tokens', async function () {
-          await expect(
-            unstakeAndClaim(
-              user,
-              user.address,
-              geyser,
-              vault,
-              stakingToken,
-              stakeAmount,
-            ),
-          )
-            .to.emit(rewardToken, 'Transfer')
-            .withArgs(rewardPool.address, user.address, 0)
         })
         it('should unlock tokens', async function () {
           await expect(
@@ -2411,38 +2387,6 @@ describe('Geyser', function () {
           await expect(tx)
             .to.emit(geyser, 'Unstaked')
             .withArgs(vault.address, stakeAmount)
-          await expect(tx)
-            .to.emit(geyser, 'RewardClaimed')
-            .withArgs(vault.address, user.address, rewardToken.address, 0)
-        })
-        it('should transfer tokens', async function () {
-          await expect(
-            MockStakeHelper.flashStake(
-              geyser.address,
-              vault.address,
-              user.address,
-              stakeAmount,
-              await signPermission(
-                'Lock',
-                vault,
-                user,
-                geyser.address,
-                stakingToken.address,
-                stakeAmount,
-              ),
-              await signPermission(
-                'Unlock',
-                vault,
-                user,
-                geyser.address,
-                stakingToken.address,
-                stakeAmount,
-                (await vault.getNonce()).add(1),
-              ),
-            ),
-          )
-            .to.emit(rewardToken, 'Transfer')
-            .withArgs(rewardPool.address, user.address, 0)
         })
         it('should lock tokens', async function () {
           await expect(

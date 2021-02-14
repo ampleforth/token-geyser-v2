@@ -545,14 +545,12 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
             RewardSchedule memory schedule = rewardSchedules[index];
 
             // caculate amount of shares available on this schedule
-            // if (now - start) >= duration
-            //   sharesLocked = 0
-            // else
+            // if (now - start) < duration
             //   sharesLocked = shares - (shares * (now - start) / duration)
-            uint256 currentSharesLocked;
-            if (timestamp.sub(schedule.start) >= schedule.duration) {
-                currentSharesLocked = 0;
-            } else {
+            // else
+            //   sharesLocked = 0
+            uint256 currentSharesLocked = 0;
+            if (timestamp.sub(schedule.start) < schedule.duration) {
                 currentSharesLocked = schedule.shares.sub(
                     schedule.shares.mul(timestamp.sub(schedule.start)).div(schedule.duration)
                 );
@@ -656,11 +654,8 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
 
         // calculate base reward
         // baseReward = unlockedRewards * stakeUnits / totalStakeUnits
-        uint256 baseReward;
-        if (totalStakeUnits == 0) {
-            // handle edge case where flash stake on first stake
-            baseReward = 0;
-        } else {
+        uint256 baseReward = 0;
+        if (totalStakeUnits != 0) {
             // scale reward according to proportional weight
             baseReward = unlockedRewards.mul(stakeUnits).div(totalStakeUnits);
         }

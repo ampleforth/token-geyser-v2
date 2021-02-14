@@ -861,7 +861,7 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         address vault,
         uint256 amount,
         bytes calldata permission
-    ) public override onlyOnline {
+    ) external override onlyOnline {
         // verify vault is valid
         require(isValidVault(vault), "Geyser: vault is not registered");
 
@@ -920,7 +920,7 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         address recipient,
         uint256 amount,
         bytes calldata permission
-    ) public override onlyOnline {
+    ) external override onlyOnline {
         // fetch vault storage reference
         VaultData storage vaultData = _vaults[vault];
 

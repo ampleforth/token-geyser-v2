@@ -374,12 +374,7 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
 
     function getCurrentTotalStakeUnits() public view override returns (uint256 totalStakeUnits) {
         // calculate new stake units
-        uint256 newStakeUnits =
-            calculateStakeUnits(_geyser.totalStake, _geyser.lastUpdate, block.timestamp);
-        // add to cached total
-        totalStakeUnits = _geyser.totalStakeUnits.add(newStakeUnits);
-        // explicit return
-        return totalStakeUnits;
+        return getFutureTotalStakeUnits(block.timestamp);
     }
 
     function getFutureTotalStakeUnits(uint256 timestamp)

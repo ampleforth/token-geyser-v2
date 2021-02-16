@@ -232,6 +232,7 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
     // Ultimately, to avoid a need for fixed upper bounds, the EVM would need to provide
     // an error code that allows for reliably catching out-of-gas errors on remote calls.
     uint256 public constant MAX_STAKES_PER_VAULT = 30;
+    uint256 public constant MAX_REWARD_TOKENS = 50;
     uint256 public constant BASE_SHARES_PER_WEI = 1000000;
 
     /* storage */
@@ -794,6 +795,9 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
     function registerBonusToken(address bonusToken) external onlyOwner onlyOnline {
         // verify valid bonus token
         _validateAddress(bonusToken);
+
+        // verify bonus token count
+        require(_bonusTokenSet.length() < MAX_REWARD_TOKENS, "Geyser: max bonus tokens reached ");
 
         // add token to set
         assert(_bonusTokenSet.add(bonusToken));

@@ -7,6 +7,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Initializable} from "@openzeppelin/contracts/proxy/Initializable.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/EnumerableSet.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+import {TransferHelper} from "@uniswap/lib/contracts/libraries/TransferHelper.sol";
 
 import {ERC1271} from "./Access/ERC1271.sol";
 import {EIP712} from "./Access/EIP712.sol";
@@ -50,6 +51,14 @@ interface IUniversalVault {
         external
         returns (bool notified, string memory error);
 
+    function transferERC20(
+        address token,
+        address to,
+        uint256 amount
+    ) external;
+
+    function transferETH(address to, uint256 amount) external payable;
+
     /* pure functions */
 
     function calculateLockID(address delegate, address token)
@@ -85,35 +94,12 @@ interface IUniversalVault {
     function checkBalances() external view returns (bool validity);
 }
 
-interface IExternalCall {
-    /* data types */
-
-    struct CallParams {
-        address to;
-        uint256 value;
-        bytes data;
-    }
-
-    /* user functions */
-
-    function externalCall(CallParams calldata call)
-        external
-        payable
-        returns (bytes memory returnData);
-
-    function externalCallMulti(CallParams[] calldata calls)
-        external
-        payable
-        returns (bytes[] memory returnData);
-}
-
 /// @title UniversalVault
 /// @notice Vault for isolated storage of staking tokens
 /// @dev Warning: not compatible with rebasing tokens
 /// @dev Security contact: dev-support@ampleforth.org
 contract UniversalVault is
     IUniversalVault,
-    IExternalCall,
     EIP712("UniversalVault", "1.0.0"),
     ERC1271,
     OwnableERC721,
@@ -175,14 +161,6 @@ contract UniversalVault is
         return keccak256(abi.encodePacked(delegate, token));
     }
 
-    /* private functions */
-
-    function trimSelector(bytes memory data) private pure returns (bytes4 selector) {
-        // manually unpack first 4 bytes
-        // see: https://docs.soliditylang.org/en/v0.7.6/types.html#array-slices
-        return data[0] | (bytes4(data[1]) >> 8) | (bytes4(data[2]) >> 16) | (bytes4(data[3]) >> 24);
-    }
-
     /* getter functions */
 
     function getPermissionHash(
@@ -228,7 +206,7 @@ contract UniversalVault is
         return _locks[calculateLockID(delegate, token)].balance;
     }
 
-    function getBalanceLocked(address token) external view override returns (uint256 balance) {
+    function getBalanceLocked(address token) public view override returns (uint256 balance) {
         uint256 count = _lockSet.length();
         for (uint256 index; index < count; index++) {
             LockData storage _lockData = _locks[_lockSet.at(index)];
@@ -238,13 +216,13 @@ contract UniversalVault is
         return balance;
     }
 
-    function checkBalances() public view override returns (bool validity) {
+    function checkBalances() external view override returns (bool validity) {
         // iterate over all token locks and validate sufficient balance
         uint256 count = _lockSet.length();
         for (uint256 index; index < count; index++) {
             // fetch storage lock reference
             LockData storage _lockData = _locks[_lockSet.at(index)];
-            // if insufficient balance and not shutdown, return false
+            // if insufficient balance and no∏t shutdown, return false
             if (IERC20(_lockData.token).balanceOf(address(this)) < _lockData.balance) return false;
         }
         // if sufficient balance or shutdown, return true
@@ -252,54 +230,6 @@ contract UniversalVault is
     }
 
     /* user functions */
-
-    /// @notice Perform an external call from the vault
-    /// @dev The user can transfer out locked tokens from their vault so long as
-    ///      they are returned by the end of the transaction.
-    /// access control: only owner
-    /// state machine: anytime
-    /// state scope: none
-    /// token transfer: transfer out amount limited by largest lock for given token
-    /// @param call Struct with call parameters (address to, uint256 value, bytes data)
-    function externalCall(CallParams calldata call)
-        external
-        payable
-        override
-        onlyOwner
-        returns (bytes memory returnData)
-    {
-        // perform external call
-        returnData = _externalCall(call);
-        // verify sufficient token balance remaining
-        require(checkBalances(), "UniversalVault: insufficient balance locked");
-        // explicit return
-        return returnData;
-    }
-
-    /// @notice Perform multiple external calls from the vault
-    /// @dev The user can transfer out locked tokens from their vault so long as
-    ///      they are returned by the end of the transaction.
-    /// access control: only owner
-    /// state machine: anytime
-    /// state scope: none
-    /// token transfer: transfer out amount limited by largest lock for given token
-    /// @param calls Array of Struct with call parameters (address to, uint256 value, bytes data)
-    function externalCallMulti(CallParams[] calldata calls)
-        external
-        payable
-        override
-        onlyOwner
-        returns (bytes[] memory returnData)
-    {
-        // perform external call
-        for (uint256 index = 0; index < calls.length; index++) {
-            returnData[index] = _externalCall(calls[index]);
-        }
-        // verify sufficient token balance remaining
-        require(checkBalances(), "UniversalVault: insufficient balance locked");
-        // explicit return
-        return returnData;
-    }
 
     /// @notice Lock ERC20 tokens in the vault
     /// access control: called by delegate with signed permission from owner
@@ -442,22 +372,37 @@ contract UniversalVault is
         emit RageQuit(delegate, token, notified, error);
     }
 
-    /* convenience functions */
+    /// @notice Transfer ERC20 tokens out of vault
+    /// access control: only owner
+    /// state machine: when balance >= max(lock) + amount
+    /// state scope: none
+    /// token transfer: transfer any token
+    /// @param token Address of token being transferred
+    /// @param to Address of the recipient
+    /// @param amount Amount of tokens to transfer
+    function transferERC20(
+        address token,
+        address to,
+        uint256 amount
+    ) external override onlyOwner {
+        // check for sufficient balance
+        require(
+            IERC20(token).balanceOf(address(this)) >= getBalanceLocked(token).add(amount),
+            "UniversalVault: insufficient balance"
+        );
+        // perform transfer
+        TransferHelper.safeTransfer(token, to, amount);
+    }
 
-    function _externalCall(CallParams calldata call) private returns (bytes memory returnData) {
-        if (call.data.length > 0) {
-            // sanity check calldata
-            require(call.data.length >= 4, "UniversalVault: calldata too short");
-            // blacklist ERC20 approval
-            require(
-                trimSelector(call.data) != IERC20.approve.selector,
-                "UniversalVault: cannot make ERC20 approval"
-            );
-            // perform external call
-            returnData = call.to.functionCallWithValue(call.data, call.value);
-        } else {
-            // perform external call
-            payable(call.to).sendValue(call.value);
-        }
+    /// @notice Transfer ERC20 tokens out of vault
+    /// access control: only owner
+    /// state machine: when balance >= amount
+    /// state scope: none
+    /// token transfer: transfer any token
+    /// @param to Address of the recipient
+    /// @param amount Amount of ETH to transfer
+    function transferETH(address to, uint256 amount) external payable override onlyOwner {
+        // perform transfer
+        TransferHelper.safeTransferETH(to, amount);
     }
 }

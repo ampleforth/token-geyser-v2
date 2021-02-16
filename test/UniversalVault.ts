@@ -2,13 +2,7 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/dist/src/signer-wit
 import { expect } from 'chai'
 import { Contract, Wallet } from 'ethers'
 import { ethers } from 'hardhat'
-import {
-  createInstance,
-  deployContract,
-  ETHER,
-  signPermission,
-  transferNFT,
-} from './utils'
+import { createInstance, deployContract, ETHER, signPermission } from './utils'
 
 enum DelegateType {
   Succeed,
@@ -887,69 +881,6 @@ describe('UniversalVault', function () {
       })
     })
   })
-
-  describe('externalCall', function () {
-    describe('as non-owner', function () {
-      it('should fail', async function () {
-        await expect(
-          vault.connect(recipient).externalCall([recipient.address, 0, '0x']),
-        ).to.be.revertedWith('OwnableERC721: caller is not the owner')
-      })
-    })
-    describe('as owner', function () {
-      it('should succeed', async function () {
-        await vault.connect(owner).externalCall([recipient.address, 0, '0x'])
-      })
-    })
-    describe('with calldata', function () {
-      it('should succeed', async function () {
-        const calldata = (await vault.populateTransaction.owner()).data
-        await vault.connect(owner).externalCall([vault.address, 0, calldata])
-      })
-      it('should fail if calldata too short', async function () {
-        const calldata = (await vault.populateTransaction.owner()).data
-        await expect(
-          vault
-            .connect(owner)
-            .externalCall([vault.address, 0, calldata?.slice(0, -2)]),
-        ).to.be.revertedWith('UniversalVault: calldata too short')
-      })
-    })
-    describe('with revert', function () {
-      it('should bubble revert message', async function () {
-        const calldata = (
-          await vault.populateTransaction.rageQuit(
-            ethers.constants.AddressZero,
-            ethers.constants.AddressZero,
-          )
-        ).data
-        await expect(
-          vault.connect(owner).externalCall([vault.address, 0, calldata]),
-        ).to.be.revertedWith('OwnableERC721: caller is not the owner')
-      })
-    })
-    describe('after ownership transferred', function () {
-      beforeEach(async function () {
-        await transferNFT(
-          factory,
-          owner,
-          owner.address,
-          recipient.address,
-          vault.address,
-        )
-      })
-      it('should fail for previous owner', async function () {
-        await expect(
-          vault.connect(owner).externalCall([recipient.address, 0, '0x']),
-        ).to.be.revertedWith('OwnableERC721: caller is not the owner')
-      })
-      it('should succeed for new owner', async function () {
-        await vault
-          .connect(recipient)
-          .externalCall([recipient.address, 0, '0x'])
-      })
-    })
-  })
   describe('ERC20', function () {
     let ERC20: Contract
     const totalSupply = ethers.utils.parseEther('10')
@@ -959,16 +890,14 @@ describe('UniversalVault', function () {
     })
     describe('ERC20:transfer', function () {
       it('should succeed', async function () {
-        const calldata = (
-          await ERC20.populateTransaction.transfer(recipient.address, ETHER)
-        ).data
-        await vault.connect(owner).externalCall([ERC20.address, 0, calldata])
+        await vault
+          .connect(owner)
+          .transferERC20(ERC20.address, recipient.address, ETHER)
       })
       it('should transfer tokens', async function () {
-        const calldata = (
-          await ERC20.populateTransaction.transfer(recipient.address, ETHER)
-        ).data
-        await vault.connect(owner).externalCall([ERC20.address, 0, calldata])
+        await vault
+          .connect(owner)
+          .transferERC20(ERC20.address, recipient.address, ETHER)
 
         expect(await ERC20.balanceOf(recipient.address)).to.be.eq(ETHER)
       })
@@ -985,49 +914,11 @@ describe('UniversalVault', function () {
           .connect(delegate)
           .lock(ERC20.address, ETHER.div(2), permission)
 
-        const calldata = (
-          await ERC20.populateTransaction.transfer(recipient.address, ETHER)
-        ).data
         await expect(
-          vault.connect(owner).externalCall([ERC20.address, 0, calldata]),
-        ).to.be.revertedWith('UniversalVault: insufficient balance locked')
-      })
-    })
-    describe('ERC20:approve', function () {
-      it('should fail', async function () {
-        const calldata = (
-          await ERC20.populateTransaction.approve(recipient.address, ETHER)
-        ).data
-        await expect(
-          vault.connect(owner).externalCall([ERC20.address, 0, calldata]),
-        ).to.be.revertedWith('UniversalVault: cannot make ERC20 approval')
-      })
-    })
-    describe('ERC20:transferFrom', function () {
-      beforeEach(async function () {
-        await ERC20.connect(owner).approve(vault.address, ETHER)
-      })
-      it('should succeed', async function () {
-        const calldata = (
-          await ERC20.populateTransaction.transferFrom(
-            owner.address,
-            recipient.address,
-            ETHER,
-          )
-        ).data
-        await vault.connect(owner).externalCall([ERC20.address, 0, calldata])
-      })
-      it('should transfer tokens', async function () {
-        const calldata = (
-          await ERC20.populateTransaction.transferFrom(
-            owner.address,
-            recipient.address,
-            ETHER,
-          )
-        ).data
-        await vault.connect(owner).externalCall([ERC20.address, 0, calldata])
-
-        expect(await ERC20.balanceOf(recipient.address)).to.be.eq(ETHER)
+          vault
+            .connect(owner)
+            .transferERC20(ERC20.address, recipient.address, ETHER),
+        ).to.be.revertedWith('UniversalVault: insufficient balance')
       })
     })
   })
@@ -1051,17 +942,17 @@ describe('UniversalVault', function () {
       it('should succeed', async function () {
         await vault
           .connect(owner)
-          .externalCall([owner.address, ETHER, '0x'], { value: ETHER })
+          .transferETH(recipient.address, ETHER, { value: ETHER })
       })
       it('should send correct amount', async function () {
         await vault
           .connect(owner)
-          .externalCall([owner.address, ETHER, '0x'], { value: ETHER })
+          .transferETH(recipient.address, ETHER, { value: ETHER })
         expect(await ethers.provider.getBalance(vault.address)).to.eq(0)
       })
       it('should fail if insufficient amount', async function () {
         await expect(
-          vault.connect(owner).externalCall([owner.address, ETHER, '0x']),
+          vault.connect(owner).transferETH(recipient.address, ETHER),
         ).to.be.revertedWith('le')
       })
     })

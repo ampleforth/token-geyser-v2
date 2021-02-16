@@ -5,10 +5,7 @@ import {ECDSA} from "@openzeppelin/contracts/cryptography/ECDSA.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 interface IERC1271 {
-    function isValidSignature(bytes32 _messageHash, bytes memory _signature)
-        external
-        view
-        returns (bytes4 magicValue);
+    function isValidSignature(bytes32 _messageHash, bytes memory _signature) external view returns (bytes4 magicValue);
 }
 
 library SignatureChecker {
@@ -38,24 +35,13 @@ abstract contract ERC1271 is IERC1271 {
     bytes4 internal constant INVALID_SIG = bytes4(0);
 
     modifier onlyValidSignature(bytes32 permissionHash, bytes memory signature) {
-        require(
-            isValidSignature(permissionHash, signature) == VALID_SIG,
-            "ERC1271: Invalid signature"
-        );
+        require(isValidSignature(permissionHash, signature) == VALID_SIG, "ERC1271: Invalid signature");
         _;
     }
 
     function _getOwner() internal view virtual returns (address owner);
 
-    function isValidSignature(bytes32 permissionHash, bytes memory signature)
-        public
-        view
-        override
-        returns (bytes4)
-    {
-        return
-            SignatureChecker.isValidSignature(_getOwner(), permissionHash, signature)
-                ? VALID_SIG
-                : INVALID_SIG;
+    function isValidSignature(bytes32 permissionHash, bytes memory signature) public view override returns (bytes4) {
+        return SignatureChecker.isValidSignature(_getOwner(), permissionHash, signature) ? VALID_SIG : INVALID_SIG;
     }
 }

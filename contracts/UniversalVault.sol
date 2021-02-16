@@ -47,9 +47,7 @@ interface IUniversalVault {
         bytes calldata permission
     ) external;
 
-    function rageQuit(address delegate, address token)
-        external
-        returns (bool notified, string memory error);
+    function rageQuit(address delegate, address token) external returns (bool notified, string memory error);
 
     function transferERC20(
         address token,
@@ -61,10 +59,7 @@ interface IUniversalVault {
 
     /* pure functions */
 
-    function calculateLockID(address delegate, address token)
-        external
-        pure
-        returns (bytes32 lockID);
+    function calculateLockID(address delegate, address token) external pure returns (bytes32 lockID);
 
     /* getter functions */
 
@@ -84,10 +79,7 @@ interface IUniversalVault {
 
     function getLockAt(uint256 index) external view returns (LockData memory lockData);
 
-    function getBalanceDelegated(address token, address delegate)
-        external
-        view
-        returns (uint256 balance);
+    function getBalanceDelegated(address token, address delegate) external view returns (uint256 balance);
 
     function getBalanceLocked(address token) external view returns (uint256 balance);
 
@@ -98,13 +90,7 @@ interface IUniversalVault {
 /// @notice Vault for isolated storage of staking tokens
 /// @dev Warning: not compatible with rebasing tokens
 /// @dev Security contact: dev-support@ampleforth.org
-contract UniversalVault is
-    IUniversalVault,
-    EIP712("UniversalVault", "1.0.0"),
-    ERC1271,
-    OwnableERC721,
-    Initializable
-{
+contract UniversalVault is IUniversalVault, EIP712("UniversalVault", "1.0.0"), ERC1271, OwnableERC721, Initializable {
     using SafeMath for uint256;
     using Address for address;
     using Address for address payable;
@@ -152,12 +138,7 @@ contract UniversalVault is
 
     /* pure functions */
 
-    function calculateLockID(address delegate, address token)
-        public
-        pure
-        override
-        returns (bytes32 lockID)
-    {
+    function calculateLockID(address delegate, address token) public pure override returns (bytes32 lockID) {
         return keccak256(abi.encodePacked(delegate, token));
     }
 
@@ -170,22 +151,14 @@ contract UniversalVault is
         uint256 amount,
         uint256 nonce
     ) public view override returns (bytes32 permissionHash) {
-        return
-            EIP712._hashTypedDataV4(
-                keccak256(abi.encode(eip712TypeHash, delegate, token, amount, nonce))
-            );
+        return EIP712._hashTypedDataV4(keccak256(abi.encode(eip712TypeHash, delegate, token, amount, nonce)));
     }
 
     function getNonce() external view override returns (uint256 nonce) {
         return _nonce;
     }
 
-    function owner()
-        public
-        view
-        override(IUniversalVault, OwnableERC721)
-        returns (address ownerAddress)
-    {
+    function owner() public view override(IUniversalVault, OwnableERC721) returns (address ownerAddress) {
         return OwnableERC721.owner();
     }
 
@@ -197,12 +170,7 @@ contract UniversalVault is
         return _locks[_lockSet.at(index)];
     }
 
-    function getBalanceDelegated(address token, address delegate)
-        external
-        view
-        override
-        returns (uint256 balance)
-    {
+    function getBalanceDelegated(address token, address delegate) external view override returns (uint256 balance) {
         return _locks[calculateLockID(delegate, token)].balance;
     }
 
@@ -210,8 +178,7 @@ contract UniversalVault is
         uint256 count = _lockSet.length();
         for (uint256 index; index < count; index++) {
             LockData storage _lockData = _locks[_lockSet.at(index)];
-            if (_lockData.token == token && _lockData.balance > balance)
-                balance = _lockData.balance;
+            if (_lockData.token == token && _lockData.balance > balance) balance = _lockData.balance;
         }
         return balance;
     }
@@ -248,10 +215,7 @@ contract UniversalVault is
     )
         external
         override
-        onlyValidSignature(
-            getPermissionHash(LOCK_TYPEHASH, msg.sender, token, amount, _nonce),
-            permission
-        )
+        onlyValidSignature(getPermissionHash(LOCK_TYPEHASH, msg.sender, token, amount, _nonce), permission)
     {
         // get lock id
         bytes32 lockID = calculateLockID(msg.sender, token);
@@ -298,10 +262,7 @@ contract UniversalVault is
     )
         external
         override
-        onlyValidSignature(
-            getPermissionHash(UNLOCK_TYPEHASH, msg.sender, token, amount, _nonce),
-            permission
-        )
+        onlyValidSignature(getPermissionHash(UNLOCK_TYPEHASH, msg.sender, token, amount, _nonce), permission)
     {
         // get lock id
         bytes32 lockID = calculateLockID(msg.sender, token);

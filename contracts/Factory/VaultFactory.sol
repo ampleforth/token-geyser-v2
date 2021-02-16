@@ -43,10 +43,7 @@ contract VaultFactory is IFactory, IInstanceRegistry, ERC721 {
 
     function create() public returns (address vault) {
         // create clone and initialize
-        vault = ProxyFactory._create(
-            _template,
-            abi.encodeWithSelector(IUniversalVault.initialize.selector)
-        );
+        vault = ProxyFactory._create(_template, abi.encodeWithSelector(IUniversalVault.initialize.selector));
 
         // mint nft to caller
         ERC721._safeMint(msg.sender, uint256(vault));
@@ -60,11 +57,7 @@ contract VaultFactory is IFactory, IInstanceRegistry, ERC721 {
 
     function create2(bytes32 salt) public returns (address vault) {
         // create clone and initialize
-        vault = ProxyFactory._create2(
-            _template,
-            abi.encodeWithSelector(IUniversalVault.initialize.selector),
-            salt
-        );
+        vault = ProxyFactory._create2(_template, abi.encodeWithSelector(IUniversalVault.initialize.selector), salt);
 
         // mint nft to caller
         ERC721._safeMint(msg.sender, uint256(vault));

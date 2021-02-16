@@ -4,7 +4,7 @@ pragma abicoder v2;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import {IERC20Permit} from "./Libraries/IERC20Permit.sol";
+import {IERC20Permit} from "@openzeppelin/contracts/drafts/IERC20Permit.sol";
 import {TransferHelper} from "@uniswap/lib/contracts/libraries/TransferHelper.sol";
 
 import {IGeyser} from "./Geyser.sol";

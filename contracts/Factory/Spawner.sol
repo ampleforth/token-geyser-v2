@@ -21,11 +21,7 @@ contract Spawn {
 
         // place eip-1167 runtime code in memory.
         bytes memory runtimeCode =
-            abi.encodePacked(
-                bytes10(0x363d3d373d3d3d363d73),
-                logicContract,
-                bytes15(0x5af43d82803e903d91602b57fd5bf3)
-            );
+            abi.encodePacked(bytes10(0x363d3d373d3d3d363d73), logicContract, bytes15(0x5af43d82803e903d91602b57fd5bf3));
 
         // return eip-1167 code to write it to spawned contract runtime.
         assembly {
@@ -63,8 +59,7 @@ contract Spawner {
 
         // get valid create2 target
 
-        (address target, bytes32 safeSalt) =
-            _getNextNonceTargetWithInitCodeHash(creator, initCodeHash);
+        (address target, bytes32 safeSalt) = _getNextNonceTargetWithInitCodeHash(creator, initCodeHash);
 
         // spawn create2 instance and validate
 
@@ -275,10 +270,7 @@ contract Spawner {
         returns (bytes memory initCode, bytes32 initCodeHash)
     {
         // place creation code and constructor args of contract to spawn in memory.
-        initCode = abi.encodePacked(
-            type(Spawn).creationCode,
-            abi.encode(logicContract, initializationCalldata)
-        );
+        initCode = abi.encodePacked(type(Spawn).creationCode, abi.encode(logicContract, initializationCalldata));
 
         // get the keccak256 hash of the init code for address derivation.
         initCodeHash = keccak256(initCode);
@@ -293,11 +285,7 @@ contract Spawner {
     /// @param initCodeHash bytes32 The hash of initCode.
     /// @param safeSalt A bytes32 safe salt with msg.sender address for front-running protection.
     /// @return target The address of the proxy contract with the given parameters.
-    function _computeTargetWithCodeHash(bytes32 initCodeHash, bytes32 safeSalt)
-        private
-        view
-        returns (address target)
-    {
+    function _computeTargetWithCodeHash(bytes32 initCodeHash, bytes32 safeSalt) private view returns (address target) {
         return
             address( // derive the target deployment address.
                 uint160( // downcast to match the address type.

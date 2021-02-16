@@ -100,10 +100,7 @@ contract Initializable {
      * @dev Modifier to use in the initializer function of a contract.
      */
     modifier initializer() {
-        require(
-            initializing || isConstructor() || !initialized,
-            "Contract instance has already been initialized"
-        );
+        require(initializing || isConstructor() || !initialized, "Contract instance has already been initialized");
 
         bool isTopLevelCall = !initializing;
         if (isTopLevelCall) {
@@ -466,11 +463,7 @@ contract MockAmpl is ERC20Detailed, Ownable {
      * @param supplyDelta The number of new fragment tokens to add into circulation via expansion.
      * @return The total number of fragments after the supply adjustment.
      */
-    function rebase(uint256 epoch, int256 supplyDelta)
-        external
-        onlyMonetaryPolicy
-        returns (uint256)
-    {
+    function rebase(uint256 epoch, int256 supplyDelta) external onlyMonetaryPolicy returns (uint256) {
         if (supplyDelta == 0) {
             emit LogRebase(epoch, _totalSupply);
             return _totalSupply;
@@ -609,9 +602,7 @@ contract MockAmpl is ERC20Detailed, Ownable {
      * @param addedValue The amount of tokens to increase the allowance by.
      */
     function increaseAllowance(address spender, uint256 addedValue) public returns (bool) {
-        _allowedFragments[msg.sender][spender] = _allowedFragments[msg.sender][spender].add(
-            addedValue
-        );
+        _allowedFragments[msg.sender][spender] = _allowedFragments[msg.sender][spender].add(addedValue);
         emit Approval(msg.sender, spender, _allowedFragments[msg.sender][spender]);
         return true;
     }

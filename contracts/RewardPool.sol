@@ -58,16 +58,9 @@ contract RewardPool is IRewardPool, Powered, Ownable {
     /// token transfer: transfer tokens from self to recipient
     /// @param tokens address[] The tokens to rescue
     /// @param recipient address The recipient to rescue to
-    function rescueERC20(address[] calldata tokens, address recipient)
-        external
-        override
-        onlyShutdown
-    {
+    function rescueERC20(address[] calldata tokens, address recipient) external override onlyShutdown {
         // only callable by controller
-        require(
-            msg.sender == Powered.getPowerController(),
-            "RewardPool: only controller can withdraw after shutdown"
-        );
+        require(msg.sender == Powered.getPowerController(), "RewardPool: only controller can withdraw after shutdown");
 
         // assert recipient is defined
         require(recipient != address(0), "RewardPool: recipient not defined");

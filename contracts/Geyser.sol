@@ -998,16 +998,4 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         // sanity check target for potential input errors
         require(isValidAddress(target), "Geyser: invalid address");
     }
-
-    function _truncateStakesArray(StakeData[] memory array, uint256 newLength)
-        private
-        pure
-        returns (StakeData[] memory newArray)
-    {
-        newArray = new StakeData[](newLength);
-        for (uint256 index = 0; index < newLength; index++) {
-            newArray[index] = array[index];
-        }
-        return newArray;
-    }
 }

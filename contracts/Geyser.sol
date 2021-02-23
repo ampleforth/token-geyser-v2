@@ -931,11 +931,14 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
                     uint256 bonusAmount =
                         IERC20(bonusToken).balanceOf(_geyser.rewardPool).mul(out.reward).div(remainingRewards);
 
-                    // transfer bonus token
-                    IRewardPool(_geyser.rewardPool).sendERC20(bonusToken, recipient, bonusAmount);
+                    // transfer if amount is non-zero
+                    if (bonusAmount > 0) {
+                        // transfer bonus token
+                        IRewardPool(_geyser.rewardPool).sendERC20(bonusToken, recipient, bonusAmount);
 
-                    // emit event
-                    emit RewardClaimed(vault, recipient, bonusToken, bonusAmount);
+                        // emit event
+                        emit RewardClaimed(vault, recipient, bonusToken, bonusAmount);
+                    }
                 }
             }
 

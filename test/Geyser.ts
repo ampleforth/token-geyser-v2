@@ -2952,19 +2952,15 @@ describe('Geyser', function () {
 
           await increaseTime(rewardScaling.time)
 
-          await bonusToken
-            .connect(admin)
-            .transfer(rewardPool.address, mockTokenSupply)
           await geyser.connect(admin).registerBonusToken(bonusToken.address)
 
           vault = await createInstance('UniversalVault', vaultFactory, user)
 
           await stakingToken.connect(admin).transfer(vault.address, stakeAmount)
-
-          await stake(user, geyser, vault, stakingToken, stakeAmount)
         })
-        describe('with fully vested stake', function () {
+        describe('with no bonus token balance', function () {
           beforeEach(async function () {
+            await stake(user, geyser, vault, stakingToken, stakeAmount)
             await increaseTime(rewardScaling.time)
           })
           it('should succeed', async function () {
@@ -3030,6 +3026,103 @@ describe('Geyser', function () {
             await expect(txPromise)
               .to.emit(rewardToken, 'Transfer')
               .withArgs(rewardPool.address, user.address, rewardAmount)
+          })
+          it('should unlock tokens', async function () {
+            await expect(
+              unstakeAndClaim(
+                user,
+                user.address,
+                geyser,
+                vault,
+                stakingToken,
+                stakeAmount,
+              ),
+            )
+              .to.emit(vault, 'Unlocked')
+              .withArgs(geyser.address, stakingToken.address, stakeAmount)
+          })
+        })
+        describe('with fully vested stake', function () {
+          beforeEach(async function () {
+            await bonusToken
+              .connect(admin)
+              .transfer(rewardPool.address, mockTokenSupply)
+
+            await stake(user, geyser, vault, stakingToken, stakeAmount)
+
+            await increaseTime(rewardScaling.time)
+          })
+          it('should succeed', async function () {
+            await unstakeAndClaim(
+              user,
+              user.address,
+              geyser,
+              vault,
+              stakingToken,
+              stakeAmount,
+            )
+          })
+          it('should update state', async function () {
+            await unstakeAndClaim(
+              user,
+              user.address,
+              geyser,
+              vault,
+              stakingToken,
+              stakeAmount,
+            )
+
+            const geyserData = await geyser.getGeyserData()
+            const vaultData = await geyser.getVaultData(vault.address)
+
+            expect(geyserData.rewardSharesOutstanding).to.eq(0)
+            expect(geyserData.totalStake).to.eq(0)
+            expect(geyserData.totalStakeUnits).to.eq(0)
+            expect(geyserData.lastUpdate).to.eq(await getTimestamp())
+            expect(vaultData.totalStake).to.eq(0)
+            expect(vaultData.stakes.length).to.eq(0)
+          })
+          it('should emit event', async function () {
+            const tx = unstakeAndClaim(
+              user,
+              user.address,
+              geyser,
+              vault,
+              stakingToken,
+              stakeAmount,
+            )
+            await expect(tx)
+              .to.emit(geyser, 'Unstaked')
+              .withArgs(vault.address, stakeAmount)
+            await expect(tx)
+              .to.emit(geyser, 'RewardClaimed')
+              .withArgs(
+                vault.address,
+                user.address,
+                rewardToken.address,
+                rewardAmount,
+              )
+            await expect(tx)
+              .to.emit(geyser, 'RewardClaimed')
+              .withArgs(
+                vault.address,
+                user.address,
+                bonusToken.address,
+                mockTokenSupply,
+              )
+          })
+          it('should transfer tokens', async function () {
+            const txPromise = unstakeAndClaim(
+              user,
+              user.address,
+              geyser,
+              vault,
+              stakingToken,
+              stakeAmount,
+            )
+            await expect(txPromise)
+              .to.emit(rewardToken, 'Transfer')
+              .withArgs(rewardPool.address, user.address, rewardAmount)
             await expect(txPromise)
               .to.emit(bonusToken, 'Transfer')
               .withArgs(rewardPool.address, user.address, mockTokenSupply)
@@ -3064,6 +3157,12 @@ describe('Geyser', function () {
             0,
           )
           beforeEach(async function () {
+            await bonusToken
+              .connect(admin)
+              .transfer(rewardPool.address, mockTokenSupply)
+
+            await stake(user, geyser, vault, stakingToken, stakeAmount)
+
             await increaseTime(stakeDuration)
           })
           it('should succeed', async function () {
@@ -3117,6 +3216,14 @@ describe('Geyser', function () {
                 user.address,
                 rewardToken.address,
                 expectedReward,
+              )
+            await expect(tx)
+              .to.emit(geyser, 'RewardClaimed')
+              .withArgs(
+                vault.address,
+                user.address,
+                bonusToken.address,
+                expectedBonus,
               )
           })
           it('should transfer tokens', async function () {

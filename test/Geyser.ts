@@ -1666,6 +1666,30 @@ describe('Geyser', function () {
             ).to.be.revertedWith('ERC1271: Invalid signature')
           })
         })
+        describe('as not vault owner with valid permission', function () {
+          it('should fail', async function () {
+            // sign permission
+            const signedPermission = await signPermission(
+              'Unlock',
+              vault,
+              user,
+              geyser.address,
+              stakingToken.address,
+              stakeAmount,
+            )
+            // unstake on geyser
+            await expect(
+              geyser
+                .connect(accounts[3])
+                .unstakeAndClaim(
+                  vault.address,
+                  user.address,
+                  stakeAmount,
+                  signedPermission,
+                ),
+            ).to.be.revertedWith('Geyser: only vault owner')
+          })
+        })
         describe('with invalid recipient', function () {
           describe('of geyser', function () {
             it('should fail', async function () {

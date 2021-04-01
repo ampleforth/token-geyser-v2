@@ -849,6 +849,9 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         // fetch vault storage reference
         VaultData storage vaultData = _vaults[vault];
 
+        // verify msg.sender is owner
+        require(msg.sender == IUniversalVault(vault).owner(), "Geyser: only vault owner");
+
         // verify non-zero amount
         require(amount != 0, "Geyser: no amount unstaked");
 

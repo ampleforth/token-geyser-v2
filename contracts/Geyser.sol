@@ -31,7 +31,7 @@ interface IGeyser is IRageQuit {
 
     event Staked(address vault, uint256 amount);
     event Unstaked(address vault, uint256 amount);
-    event RewardClaimed(address vault, address recipient, address token, uint256 amount);
+    event RewardClaimed(address vault, address token, uint256 amount);
 
     /* data types */
 
@@ -86,7 +86,6 @@ interface IGeyser is IRageQuit {
 
     function unstakeAndClaim(
         address vault,
-        address recipient,
         uint256 amount,
         bytes calldata permission
     ) external;
@@ -770,8 +769,7 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
     /* user functions */
 
     /// @notice Stake tokens
-    /// @dev anyone can stake to any vault if they have valid permission
-    /// access control: anyone
+    /// access control: anyone with a valid permission
     /// state machine:
     ///   - can be called multiple times
     ///   - only online
@@ -785,6 +783,7 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
     /// token transfer: transfer staking tokens from msg.sender to vault
     /// @param vault address The address of the vault to stake from
     /// @param amount uint256 The amount of staking tokens to stake
+    /// @param permission bytes The signed lock permission for the universal vault
     function stake(
         address vault,
         uint256 amount,
@@ -820,8 +819,8 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
     }
 
     /// @notice Unstake staking tokens and claim reward
-    /// @dev rewards can only be claimed when unstaking
-    /// access control: only owner of vault
+    /// @dev rewards can only be claimed when unstaking, thus reseting the reward multiplier
+    /// access control: anyone with a valid permission
     /// state machine:
     ///   - when vault exists on this geyser
     ///   - after stake from vault
@@ -838,11 +837,10 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
     ///   - transfer reward tokens from reward pool to recipient
     ///   - transfer bonus tokens from reward pool to recipient
     /// @param vault address The vault to unstake from
-    /// @param recipient address The recipient to send reward to
     /// @param amount uint256 The amount of staking tokens to unstake
+    /// @param permission bytes The signed unlock permission for the universal vault
     function unstakeAndClaim(
         address vault,
-        address recipient,
         uint256 amount,
         bytes calldata permission
     ) external override onlyOnline {
@@ -851,9 +849,6 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
 
         // verify non-zero amount
         require(amount != 0, "Geyser: no amount unstaked");
-
-        // validate recipient
-        _validateAddress(recipient);
 
         // check for sufficient vault stake amount
         require(vaultData.totalStake >= amount, "Geyser: insufficient vault stake");
@@ -934,19 +929,19 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
                     // transfer if amount is non-zero
                     if (bonusAmount > 0) {
                         // transfer bonus token
-                        IRewardPool(_geyser.rewardPool).sendERC20(bonusToken, recipient, bonusAmount);
+                        IRewardPool(_geyser.rewardPool).sendERC20(bonusToken, vault, bonusAmount);
 
                         // emit event
-                        emit RewardClaimed(vault, recipient, bonusToken, bonusAmount);
+                        emit RewardClaimed(vault, bonusToken, bonusAmount);
                     }
                 }
             }
 
             // transfer reward tokens from reward pool to recipient
-            IRewardPool(_geyser.rewardPool).sendERC20(_geyser.rewardToken, recipient, out.reward);
+            IRewardPool(_geyser.rewardPool).sendERC20(_geyser.rewardToken, vault, out.reward);
 
             // emit event
-            emit RewardClaimed(vault, recipient, _geyser.rewardToken, out.reward);
+            emit RewardClaimed(vault, _geyser.rewardToken, out.reward);
         }
     }
 

@@ -104,7 +104,6 @@ contract RouterV1 {
     struct UnstakeRequest {
         address geyser;
         address vault;
-        address recipient;
         uint256 amount;
         bytes permission;
     }
@@ -112,12 +111,7 @@ contract RouterV1 {
     function unstakeMulti(UnstakeRequest[] calldata requests) external {
         for (uint256 index = 0; index < requests.length; index++) {
             UnstakeRequest calldata request = requests[index];
-            IGeyser(request.geyser).unstakeAndClaim(
-                request.vault,
-                request.recipient,
-                request.amount,
-                request.permission
-            );
+            IGeyser(request.geyser).unstakeAndClaim(request.vault, request.amount, request.permission);
         }
     }
 }

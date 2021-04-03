@@ -12,13 +12,12 @@ contract MockStakeHelper {
     function flashStake(
         address geyser,
         address vault,
-        address recipient,
         uint256 amount,
         bytes calldata lockPermission,
         bytes calldata unstakePermission
     ) external {
         IGeyser(geyser).stake(vault, amount, lockPermission);
-        IGeyser(geyser).unstakeAndClaim(vault, recipient, amount, unstakePermission);
+        IGeyser(geyser).unstakeAndClaim(vault, amount, unstakePermission);
     }
 
     function stakeBatch(

@@ -1,7 +1,7 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/dist/src/signer-with-address'
 import { expect } from 'chai'
 import { BigNumber, BigNumberish, Contract, Wallet } from 'ethers'
-import { ethers, network, upgrades } from 'hardhat'
+import { ethers, network } from 'hardhat'
 import {
   createInstance,
   deployAmpl,
@@ -12,8 +12,6 @@ import {
   invokeRebase,
   signPermission,
 } from './utils'
-
-upgrades.silenceWarnings()
 
 /* 
 

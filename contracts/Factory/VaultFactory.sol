@@ -2,6 +2,7 @@
 pragma solidity 0.7.6;
 
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 import {IFactory} from "./IFactory.sol";
 import {IInstanceRegistry} from "./InstanceRegistry.sol";
 import {IUniversalVault} from "../UniversalVault.sol";
@@ -73,5 +74,17 @@ contract VaultFactory is IFactory, IInstanceRegistry, ERC721 {
 
     function getTemplate() external view returns (address template) {
         return _template;
+    }
+
+    function predictCreate2Address(bytes32 salt) external view returns (address instance) {
+        return Clones.predictDeterministicAddress(_template, salt, address(this));
+    }
+
+    function addressToUint(address vault) external pure returns (uint256 tokenId) {
+        return uint256(vault);
+    }
+
+    function uint256ToAddress(uint256 tokenId) external pure returns (address vault) {
+        return address(tokenId);
     }
 }

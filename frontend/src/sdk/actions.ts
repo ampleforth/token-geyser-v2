@@ -32,9 +32,9 @@ export const create = async (signer: Signer) => {
     signer,
   )
 
-  const vaultAddress = await vaultFactory.callStatic.create()
+  const vaultAddress = await vaultFactory.callStatic['create()']()
 
-  await vaultFactory.create()
+  await vaultFactory['create()']()
 
   const vault = new Contract(vaultAddress, config.VaultTemplate.abi, signer)
 

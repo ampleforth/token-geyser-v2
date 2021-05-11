@@ -18,6 +18,16 @@ yarn
 yarn test
 ```
 
+## Deploy Local
+1. `yarn hardhat node` -- this spins up a local hardhat network, it is useful to note down the accounts
+2. `yarn hardhat compile`
+3. `yarn hardhat deploy --noverify --network localhost`
+4. `git clone https://github.com/graphprotocol/graph-node/`
+5. `cd graph-node/docker`
+6. If on Linux, `./setup.sh && docker-compose up`, otherwise `docker-compose up`
+7. `cd subgraph`, update the addresses in `subgraph.yaml` with the addresses from step 3 (or from `sdk/deployment/localhost/factories-latest.json`)
+8. `yarn && yarn codegen && yarn create-local && yarn deploy-local`
+
 ## Contribute
 
 To report bugs within this package, create an issue in this repository.

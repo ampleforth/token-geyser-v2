@@ -60,7 +60,7 @@ crashlytics-build.properties
 fabric.properties
 
 # NodeJS dependencies
-node_modules/*
+node_modules/
 
 # ES-Lint
 .eslintcache

@@ -91,7 +91,7 @@ task('deploy', 'deploy full set of factory contracts')
 
     await UniversalVault.initializeLock()
 
-    const path = `./sdk/deployments/${network.name}/`
+    const path = `./frontend/src/sdk/deployments/${network.name}/`
     const file = `factories-${timestamp}.json`
     const latest = `factories-latest.json`
 

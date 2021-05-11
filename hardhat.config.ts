@@ -44,8 +44,9 @@ async function createInstance(
   return instance
 }
 
-task('deploy', 'deploy full set of factory contracts').setAction(
-  async ({}, { ethers, run, network }) => {
+task('deploy', 'deploy full set of factory contracts')
+  .addFlag('noverify')
+  .setAction(async ({ noverify }, { ethers, run, network }) => {
     await run('compile')
 
     const signer = (await ethers.getSigners())[0]
@@ -132,26 +133,27 @@ task('deploy', 'deploy full set of factory contracts').setAction(
     writeFileSync(path + file, blob)
     writeFileSync(path + latest, blob)
 
-    console.log('Verifying source on etherscan')
+    if (!noverify) {
+      console.log('Verifying source on etherscan')
 
-    await run('verify', {
-      address: PowerSwitchFactory.address,
-    })
-    await run('verify', {
-      address: RewardPoolFactory.address,
-    })
-    await run('verify', {
-      address: UniversalVault.address,
-    })
-    await run('verify', {
-      address: VaultFactory.address,
-      constructorArguments: [UniversalVault.address],
-    })
-    await run('verify', {
-      address: GeyserRegistry.address,
-    })
-  },
-)
+      await run('verify', {
+        address: PowerSwitchFactory.address,
+      })
+      await run('verify', {
+        address: RewardPoolFactory.address,
+      })
+      await run('verify', {
+        address: UniversalVault.address,
+      })
+      await run('verify', {
+        address: VaultFactory.address,
+        constructorArguments: [UniversalVault.address],
+      })
+      await run('verify', {
+        address: GeyserRegistry.address,
+      })
+    }
+  })
 
 task('create-vault', 'deploy an instance of UniversalVault')
   .addOptionalPositionalParam('factoryVersion', 'the factory version', 'latest')
@@ -170,7 +172,7 @@ task('create-vault', 'deploy an instance of UniversalVault')
 
     const vaultFactory = await ethers.getContractAt(
       'VaultFactory',
-      VaultFactory,
+      VaultFactory.address,
       signer,
     )
 
@@ -278,10 +280,13 @@ task('verify-geyser', 'verify and lock the Geyser template')
     })
   })
 
+// When using a local network, MetaMask assumes a chainId of 1337, even though the default chainId of HardHat is 31337
+// https://github.com/MetaMask/metamask-extension/issues/10290
 export default {
   networks: {
     hardhat: {
       allowUnlimitedContractSize: true,
+      chainId: 1337,
     },
     goerli: {
       url: 'https://goerli.infura.io/v3/' + process.env.INFURA_ID,

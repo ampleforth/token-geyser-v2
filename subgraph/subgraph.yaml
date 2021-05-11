@@ -37,6 +37,8 @@ dataSources:
       abis:
         - name: InstanceRegistry
           file: ./abis/IInstanceRegistry.json
+        - name: VaultContract
+          file: ./abis/IUniversalVault.json
       eventHandlers:
         - event: InstanceAdded(address)
           handler: handleNewVault

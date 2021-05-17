@@ -118,13 +118,11 @@ export const withdraw = async (
   const vault = new Contract(vaultAddress, config.VaultTemplate.abi, signer)
   const token = new Contract(tokenAddress, ERC20_ABI, signer)
 
-  const calldata = (
-    await token.populateTransaction.transfer(recipientAddress, amount)
-  ).data
-
-  return vault.externalCall([token.address, 0, calldata]) as Promise<
-    TransactionResponse
-  >
+  return vault.transferERC20(
+    token.address,
+    recipientAddress,
+    amount,
+  ) as Promise<TransactionResponse>
 }
 
 /// Combined Actions ///

@@ -101,7 +101,7 @@ export const unstake = async (
     amount,
   )
 
-  return geyser.unstake(vault.address, amount, permission) as Promise<
+  return geyser.unstakeAndClaim(vault.address, amount, permission) as Promise<
     TransactionResponse
   >
 }

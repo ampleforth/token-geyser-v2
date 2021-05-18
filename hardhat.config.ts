@@ -5,9 +5,12 @@ import '@openzeppelin/hardhat-upgrades'
 import 'hardhat-gas-reporter'
 import 'solidity-coverage'
 
-import { Contract, Signer, Wallet } from 'ethers'
+import { Contract, Signer, Wallet, BigNumber } from 'ethers'
 import { mkdirSync, readFileSync, writeFileSync } from 'fs'
 import { HardhatUserConfig, task } from 'hardhat/config'
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/dist/src/signer-with-address'
+
+const SDK_PATH = './frontend/src/sdk'
 
 async function deployContract(
   name: string,
@@ -21,6 +24,24 @@ async function deployContract(
   console.log('  to', contract.address)
   console.log('  in', contract.deployTransaction.hash)
   return contract.deployed()
+}
+
+async function deployMockAmpl(
+  admin: SignerWithAddress,
+  getContractFactory: Function,
+  deployProxy: Function,
+): Promise<Contract> {
+  const factory = await getContractFactory('MockAmpl')
+  const ampl = await deployProxy(factory, [admin.address], {
+    initializer: 'initialize(address)',
+  })
+  await ampl.connect(admin).setMonetaryPolicy(admin.address)
+  const amplInitialSupply = (await ampl.balanceOf(admin.address)) as BigNumber
+  console.log('Deploying MockAmpl')
+  console.log('  to', ampl.address)
+  console.log('  in', ampl.deployTransaction.hash)
+  console.log('Initial Ample Supply: ', amplInitialSupply.toString())
+  return ampl
 }
 
 async function createInstance(
@@ -45,8 +66,9 @@ async function createInstance(
 }
 
 task('deploy', 'deploy full set of factory contracts')
-  .addFlag('noverify')
-  .setAction(async ({ noverify }, { ethers, run, network }) => {
+  .addFlag('noVerify')
+  .addFlag('mock')
+  .setAction(async ({ noVerify, mock }, { ethers, run, network, upgrades }) => {
     await run('compile')
 
     const signer = (await ethers.getSigners())[0]
@@ -87,11 +109,24 @@ task('deploy', 'deploy full set of factory contracts')
       signer,
     )
 
+    if (mock) {
+      const totalSupply = '10'
+      await deployContract('MockERC20', ethers.getContractFactory, signer, [
+        signer.address,
+        totalSupply,
+      ])
+      await deployMockAmpl(
+        signer,
+        ethers.getContractFactory,
+        upgrades.deployProxy,
+      )
+    }
+
     console.log('Locking template')
 
     await UniversalVault.initializeLock()
 
-    const path = `./frontend/src/sdk/deployments/${network.name}/`
+    const path = `${SDK_PATH}/deployments/${network.name}/`
     const file = `factories-${timestamp}.json`
     const latest = `factories-latest.json`
 
@@ -133,7 +168,7 @@ task('deploy', 'deploy full set of factory contracts')
     writeFileSync(path + file, blob)
     writeFileSync(path + latest, blob)
 
-    if (!noverify) {
+    if (!noVerify) {
       console.log('Verifying source on etherscan')
 
       await run('verify', {
@@ -166,7 +201,7 @@ task('create-vault', 'deploy an instance of UniversalVault')
 
     const { VaultFactory } = JSON.parse(
       readFileSync(
-        `./sdk/deployments/${network.name}/factories-${factoryVersion}.json`,
+        `${SDK_PATH}/deployments/${network.name}/factories-${factoryVersion}.json`,
       ).toString(),
     )
 
@@ -209,22 +244,13 @@ task('create-geyser', 'deploy an instance of Geyser')
         GeyserRegistry,
       } = JSON.parse(
         readFileSync(
-          `./sdk/deployments/${network.name}/factories-${factoryVersion}.json`,
+          `${SDK_PATH}/deployments/${network.name}/factories-${factoryVersion}.json`,
         ).toString(),
       )
 
-      const args = [
-        signer.address,
-        RewardPoolFactory,
-        PowerSwitchFactory,
-        stakingToken,
-        rewardToken,
-        [floor, ceiling, time],
-      ] as Array<any>
-
       const factory = await ethers.getContractFactory('Geyser', signer)
-      const geyser = await upgrades.deployProxy(factory, args, {
-        unsafeAllowCustomTypes: true,
+      const geyser = await upgrades.deployProxy(factory, undefined, {
+        initializer: false,
       })
 
       console.log('Deploying Geyser')
@@ -236,19 +262,27 @@ task('create-geyser', 'deploy an instance of Geyser')
       console.log('  reward ceiling', ceiling)
       console.log('  reward time', stakingToken)
 
-      console.log('Register Vault Factory')
-
-      await geyser.registerVaultFactory(VaultFactory)
-
       console.log('Register Geyser Instance')
 
       const geyserRegistry = await ethers.getContractAt(
         'GeyserRegistry',
-        GeyserRegistry,
+        GeyserRegistry.address,
         signer,
       )
 
       await geyserRegistry.register(geyser.address)
+
+      await geyser.initialize(
+        signer.address,
+        RewardPoolFactory.address,
+        PowerSwitchFactory.address,
+        stakingToken,
+        rewardToken,
+        [floor, ceiling, time],
+      )
+      console.log('Register Vault Factory')
+
+      await geyser.registerVaultFactory(VaultFactory.address)
     },
   )
 

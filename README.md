@@ -21,7 +21,7 @@ yarn test
 ## Deploy Local
 1. `yarn hardhat node` -- this spins up a local hardhat network, it is useful to note down the accounts
 2. `yarn hardhat compile`
-3. `yarn hardhat deploy --noverify --network localhost`
+3. `yarn hardhat deploy --mock --no-verify --network localhost`
 4. `git clone https://github.com/graphprotocol/graph-node/`
 5. `cd graph-node/docker`
 6. If on Linux, `./setup.sh && docker-compose up`, otherwise `docker-compose up`

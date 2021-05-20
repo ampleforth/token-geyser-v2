@@ -1,15 +1,15 @@
 import React from 'react';
 import styled from 'styled-components/macro';
-import { VaultMetaData } from '../../utils/types';
-import { displayAddr } from '../../utils/formatDisplayAddress';
-import { stateToColor } from '../../utils/constants';
-import { LeftAlign, RightAlign } from '../styles';
+import { VaultMetaData } from '../utils/types';
+import { displayAddr } from '../utils/formatDisplayAddress';
+import { stateToColor } from '../utils/constants';
+import { LeftAlign, RightAlign } from './styles';
 
 interface VaultRowProps {
   vault: VaultMetaData;
 }
 
-const VaultRow: React.FC<VaultRowProps> = (props) => {
+export const VaultRow: React.FC<VaultRowProps> = (props) => {
   const { vault: { id, state }} = props;
 
   return (
@@ -23,8 +23,6 @@ const VaultRow: React.FC<VaultRowProps> = (props) => {
     </VaultClickable>
   )
 }
-
-export default VaultRow;
 
 const VaultClickable = styled.button`
   width: 100%;

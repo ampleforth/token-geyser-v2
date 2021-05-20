@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components/macro';
-import UserAddress from '../../components/UserAddress';
+import UserAddress from './UserAddress';
 
 interface HeaderContainerProps {}
 
-const HeaderContainer: React.FC<HeaderContainerProps> = () => {
+export const HeaderContainer: React.FC<HeaderContainerProps> = () => {
   return (
     <Container>
       <LogoDiv>Λ</LogoDiv>
@@ -12,8 +12,6 @@ const HeaderContainer: React.FC<HeaderContainerProps> = () => {
     </Container>
   );
 }
-
-export default HeaderContainer;
 
 const Container = styled.div`
   display: grid;

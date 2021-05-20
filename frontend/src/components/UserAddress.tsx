@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components/macro';
-import Web3Context from '../../context/Web3Context';
-import { displayAddr } from '../../utils/formatDisplayAddress';
-import { WhiteText } from '../styles';
+import Web3Context from '../context/Web3Context';
+import { displayAddr } from '../utils/formatDisplayAddress';
+import { WhiteText } from './styles';
 
 interface UserAddressProps {}
 

@@ -1,7 +1,7 @@
 import { ApolloProvider } from '@apollo/client';
 import './App.css';
-import HeaderContainer from './containers/HeaderContainer';
-import SelectVaultContainer from './containers/SelectVaultContainer';
+import { HeaderContainer } from './components/HeaderContainer';
+import { SelectVaultContainer } from './components/SelectVaultContainer';
 import { Web3Provider } from './context/Web3Context';
 import { client } from './queries/client';
 

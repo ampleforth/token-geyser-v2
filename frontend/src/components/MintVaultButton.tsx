@@ -1,12 +1,12 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components/macro';
-import Web3Context from '../../context/Web3Context';
-import { WhiteText } from '../styles';
-import { create } from '../../sdk';
+import Web3Context from '../context/Web3Context';
+import { WhiteText } from './styles';
+import { create } from '../sdk';
 
 interface MintVaultButtonProps {}
 
-const MintVaultButton: React.FC<MintVaultButtonProps> = () => {
+export const MintVaultButton: React.FC<MintVaultButtonProps> = () => {
   const { signer, ready, selectWallet } = useContext(Web3Context);
 
   const mintVault = () => {
@@ -22,8 +22,6 @@ const MintVaultButton: React.FC<MintVaultButtonProps> = () => {
     </ButtonWrapper>
   );
 }
-
-export default MintVaultButton;
 
 const Button = styled.button`
   width: 100%;

@@ -99,7 +99,6 @@ export function handleGeyserCreated(event: GeyserCreated): void {
   entity.scalingTime = geyserData.rewardScaling.time
   entity.status = 'Online'
   entity.bonusTokens = []
-  entity.rewardPoolBalances = []
 
   _updateGeyser(entity, geyserContract, event.block.timestamp)
 }

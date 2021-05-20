@@ -1,16 +1,16 @@
 import { useLazyQuery } from '@apollo/client';
 import React, { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components/macro';
-import MintVaultButton from '../../components/MintVaultButton';
-import SelectVault from '../../components/SelectVault';
-import Web3Context from '../../context/Web3Context';
-import { Vault, VaultMetaData } from '../../utils/types';
-import { GET_USER_VAULTS } from '../../queries/vault';
-import { VaultState } from '../../utils/constants';
+import { MintVaultButton } from './MintVaultButton';
+import { SelectVault } from './SelectVault';
+import Web3Context from '../context/Web3Context';
+import { Vault, VaultMetaData } from '../utils/types';
+import { GET_USER_VAULTS } from '../queries/vault';
+import { VaultState } from '../utils/constants';
 
 interface SelectVaultContainerProps {}
 
-const SelectVaultContainer: React.FC<SelectVaultContainerProps> = () => {
+export const SelectVaultContainer: React.FC<SelectVaultContainerProps> = () => {
 
   const { address } = useContext(Web3Context);
   const [getVaults, { loading, data }] = useLazyQuery(GET_USER_VAULTS, { pollInterval: 5000 });
@@ -41,8 +41,6 @@ const SelectVaultContainer: React.FC<SelectVaultContainerProps> = () => {
     </Container>
   );
 }
-
-export default SelectVaultContainer;
 
 const Container = styled.div`
   width: 640px;

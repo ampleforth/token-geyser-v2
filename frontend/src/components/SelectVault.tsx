@@ -1,14 +1,14 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components/macro';
-import Web3Context from '../../context/Web3Context';
-import { VaultMetaData } from '../../utils/types';
-import VaultRow from '../VaultRow';
+import Web3Context from '../context/Web3Context';
+import { VaultMetaData } from '../utils/types';
+import { VaultRow } from './VaultRow';
 
 interface SelectVaultProps {
   vaults: VaultMetaData[];
 }
 
-const SelectVault: React.FC<SelectVaultProps> = ({ vaults }) => {
+export const SelectVault: React.FC<SelectVaultProps> = ({ vaults }) => {
   const { ready } = useContext(Web3Context);
 
   if (!ready)
@@ -28,8 +28,6 @@ const SelectVault: React.FC<SelectVaultProps> = ({ vaults }) => {
       </TextWrapper>
   );
 }
-
-export default SelectVault;
 
 const SelectWrapper = styled.div`
   padding: 20px;

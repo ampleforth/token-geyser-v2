@@ -8,7 +8,7 @@ type Geyser @entity {
   id: ID! # ${geyser.address}
   powerSwitch: Bytes!
   rewardPool: Bytes!
-  rewardPoolBalances: [RewardPoolBalance]!
+  rewardPoolBalances: [RewardPoolBalance]! @derivedFrom(field: "geyser")
   unlockedReward: BigInt!
   stakingToken: Bytes!
   rewardToken: Bytes!

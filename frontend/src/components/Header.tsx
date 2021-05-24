@@ -1,16 +1,16 @@
-import React from 'react';
-import styled from 'styled-components/macro';
-import UserAddress from './UserAddress';
+import React from 'react'
+import styled from 'styled-components/macro'
+import { HeaderWalletButton } from './HeaderWalletButton'
 
-interface HeaderContainerProps {}
+interface Props {}
 
-export const HeaderContainer: React.FC<HeaderContainerProps> = () => {
+export const Header: React.FC<Props> = () => {
   return (
     <Container>
       <LogoDiv>Λ</LogoDiv>
-      <UserAddress />
+      <HeaderWalletButton />
     </Container>
-  );
+  )
 }
 
 const Container = styled.div`

@@ -18,6 +18,9 @@ yarn
 yarn test
 ```
 
+## Prerequisites:
+1. Get an actual copy of `subgraph.yaml` from one of the team members and place it in the root directory of `/subgraph`
+
 ## Deploy Local
 1. `yarn hardhat node` -- this spins up a local hardhat network, it is useful to note down the accounts
 2. `yarn hardhat compile`

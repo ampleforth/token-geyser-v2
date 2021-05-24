@@ -1,8 +1,7 @@
 import { API, Wallet } from 'bnc-onboard/dist/src/interfaces';
 import Onboard from 'bnc-onboard';
 import React, { createContext, useCallback, useEffect, useState } from 'react';
-import { ethers, Signer } from 'ethers';
-import Web3 from 'web3';
+import { ethers, Signer } from 'ethers'
 
 class Provider extends ethers.providers.Web3Provider {};
 

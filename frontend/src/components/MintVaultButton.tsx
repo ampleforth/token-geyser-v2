@@ -1,41 +1,38 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components/macro';
 import Web3Context from '../context/Web3Context';
-import { WhiteText } from './styles';
+import { Paragraph } from '../styling/styles'
 import { create } from '../sdk';
+import { NamedColors } from '../styling/colors'
 
-interface MintVaultButtonProps {}
+interface Props {}
 
-export const MintVaultButton: React.FC<MintVaultButtonProps> = () => {
-  const { signer, ready, selectWallet } = useContext(Web3Context);
+export const MintVaultButton: React.FC<Props> = () => {
+  const { signer, ready, selectWallet } = useContext(Web3Context)
 
-  const mintVault = () => {
-    if (signer) create(signer);
-  }
+  const mintVault = () => signer && create(signer)
+
+  const handleMintVault = () => ((ready ? mintVault() : selectWallet()))
+
   return (
-    <ButtonWrapper>
-      <Button onClick={ready ? mintVault : selectWallet}>
-        <WhiteText>
-          {ready ? 'Mint a vault' : 'Connect'}
-        </WhiteText>
-      </Button>
-    </ButtonWrapper>
-  );
+    <MintVault onClick={handleMintVault}>
+      <Paragraph color={NamedColors.WHITE}>
+        {ready ? 'Mint a vault' : 'Connect'}
+      </Paragraph>
+    </MintVault>
+  )
 }
 
-const Button = styled.button`
-  width: 100%;
-  height: 60px;
-  font-size: 1.2rem;
-  border-radius: 8px;
+const MintVault = styled.button`
   cursor: pointer;
-  border: 1px solid #ddd;
-  background-color: #912dff;
-  :hover {
-    background-color: #FF2D55;
-  }
-`
-
-const ButtonWrapper = styled.div`
+  width: 90%;
+  height: 60px;
+  border-radius: 8px;
   padding: 20px;
+  margin: auto;
+  border: 1px solid ${NamedColors.WHITE};
+  background-color: ${NamedColors.ELECTRICAL_VIOLET};
+  :hover {
+    background-color: ${NamedColors.RADICAL_RED};
+  }
 `

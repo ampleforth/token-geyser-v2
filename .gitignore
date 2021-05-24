@@ -78,3 +78,6 @@ coverageEnv/
 cache
 artifacts
 generated
+
+# subgraph
+subgraph/subgraph.yaml

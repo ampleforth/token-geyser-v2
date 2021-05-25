@@ -31,6 +31,8 @@ export const DepositWithdrawView: React.FC<DepositWithdrawViewProps> = ({ tokenB
       } else {
         await withdrawRawAmount(vault.id, MOCK_ERC_20_ADDRESS, address, amount, signer)
       }
+      window.location.reload()
+      localStorage.setItem('persistSelectedVault', 'true')
     }
   }
 

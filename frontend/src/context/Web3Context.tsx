@@ -44,6 +44,7 @@ const Web3Provider: React.FC = ({ children }) => {
 
   const updateWallet = useCallback((wallet: Wallet) => {
     setWallet(wallet);
+    if (wallet && wallet.name) localStorage.setItem('selectedWallet', wallet.name)
     const network = process.env.NODE_ENV === 'development' ? { name: 'localhost', chainId: 1337 } : undefined
     const ethersProvider = new Provider(wallet.provider, network);
     const rpcSigner = ethersProvider.getSigner();
@@ -56,15 +57,26 @@ const Web3Provider: React.FC = ({ children }) => {
       address: setAddress,
       wallet: (wallet: Wallet) => {
         if (wallet?.provider?.selectedAddress) {
-          updateWallet(wallet);
+          updateWallet(wallet)
         } else {
-          setProvider(undefined);
-          setWallet(undefined);
+          // TODO: avoid favour using nulls over undefined when explicitly set
+          setProvider(undefined)
+          setWallet(undefined)
         }
       },
     });
     setOnboard(onboard);
   }, [updateWallet]);
+
+  useEffect(() => {
+    ;(async () => {
+      const previouslySelectedWallet = localStorage.getItem('selectedWallet')
+      if (previouslySelectedWallet && onboard) {
+        const walletSelected = await onboard.walletSelect(previouslySelectedWallet)
+        setReady(walletSelected)
+      }
+    })()
+  }, [onboard])
 
   const selectWallet = async (): Promise<boolean> => {
     if (!onboard) return false;

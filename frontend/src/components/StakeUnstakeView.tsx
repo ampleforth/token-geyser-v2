@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react'
 import styled from 'styled-components/macro'
+import { GeyserAction } from '../constants'
 import { GeyserContext } from '../context/GeyserContext'
 import { VaultContext } from '../context/VaultContext'
 import Web3Context from '../context/Web3Context'
@@ -7,21 +8,23 @@ import { stakeRawAmount, unstakeRawAmount } from '../sdk'
 import { NamedColors } from '../styling/colors'
 import { Input, ManageVaultButton, Paragraph, VaultInfoMessage } from '../styling/styles'
 import { StakeListItem } from './StakeListItem'
+import { ToggleView } from './ToggleView'
 
-type Mode = 'Stake' | 'Unstake'
-
-export const StakeUnstakeView: React.FC= () => {
-  // TODO: use better tab system
+export const StakeUnstakeView: React.FC = () => {
   const { selectedVault: vault } = useContext(VaultContext)
   const { geysers } = useContext(GeyserContext)
-  const [mode, setMode] = useState<Mode>('Stake')
+
+  const [mode, setMode] = useState<GeyserAction>(GeyserAction.STAKE)
+  const getToggleOptions = () => Object.values(GeyserAction).map((view) => view.toString())
+  const selectView = (option: string) => setMode(GeyserAction[option as keyof typeof GeyserAction])
+
   const [amount, setAmount] = useState<string>('')
   const [selectedGeyser] = useState<string>(geysers.length > 0 ? geysers[0].id : '')
   const { signer, address } = useContext(Web3Context)
 
   const handleTransaction = async () => {
     if (vault && signer && address && selectedGeyser) {
-      if (mode === 'Stake') {
+      if (mode === GeyserAction.STAKE) {
         await stakeRawAmount(selectedGeyser, vault.id, amount, signer as any)
       } else {
         await unstakeRawAmount(selectedGeyser, vault.id, amount, signer as any)
@@ -41,7 +44,7 @@ export const StakeUnstakeView: React.FC= () => {
         <VaultInfoMessage>No stakes yet</VaultInfoMessage>
       )}
       <div>
-        {/* <TabPane tabs={['Stake', 'Unstake']} onSelect={setMode} /> */}
+        <ToggleView options={getToggleOptions()} toggleOption={selectView} activeOption={mode.toString()} />
         <Input
           type="number"
           placeholder="Enter amount"

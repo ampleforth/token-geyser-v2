@@ -21,3 +21,13 @@ export enum ManageVaultView {
   BALANCE = 'BALANCE',
   STAKE = 'STAKE',
 }
+
+export enum VaultAction {
+  DEPOSIT = 'DEPOSIT',
+  WITHDRAW = 'WITHDRAW',
+}
+
+export enum GeyserAction {
+  STAKE = 'STAKE',
+  UNSTAKE = 'UNSTAKE',
+}

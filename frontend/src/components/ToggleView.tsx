@@ -35,6 +35,7 @@ const Option: React.FC<OptionProps> = ({ children, selected, onClick }) => (
 const ToggleContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
+  justify-items: center;
   margin: auto;
 `
 

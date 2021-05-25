@@ -30,7 +30,7 @@ export const ManageVault: React.FC<Props> = () => {
   // To control the view switch between stake/unstake and deposit/withdraw
   const [view, setView] = useState<ManageVaultView>(ManageVaultView.BALANCE)
   const getToggleOptions = () => Object.values(ManageVaultView).map(view => view.toString())
-  const selectView = (option: string) => { setView(ManageVaultView[option as keyof typeof ManageVaultView]) }
+  const selectView = (option: string) => setView(ManageVaultView[option as keyof typeof ManageVaultView])
 
   const getBalances = useCallback(async () => {
     try {

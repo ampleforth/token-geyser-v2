@@ -74,3 +74,12 @@ export const BigVaultFirstOverlay = styled.div`
 export const VaultFirstTitle = styled.h1`
   font-size: 3rem;
 `
+
+export const LogoDiv = styled.div`
+  font-family: 'Coromont Garamond';
+  text-transform: none;
+  font-size: 1.75rem;
+  padding: 10px;
+  padding-left: 20px;
+  padding-right: 22px;
+`

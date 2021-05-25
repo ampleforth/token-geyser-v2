@@ -44,8 +44,8 @@ const ToggleButton = styled.button`
   width: 140px;
   height: 60px;
   border-radius: 8px;
-  padding: 20px;
   margin: auto;
+  padding: 18px;
   margin-left: 1em;
   margin-right: 1em;
   border: 1px solid ${NamedColors.BLACK};

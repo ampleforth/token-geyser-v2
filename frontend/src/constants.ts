@@ -21,4 +21,3 @@ export enum ManageVaultView {
   BALANCE = 'BALANCE',
   STAKE = 'STAKE',
 }
-

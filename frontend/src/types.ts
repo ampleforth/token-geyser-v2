@@ -24,7 +24,3 @@ export type TokenBalance = {
   balance: BigNumber
   name: string
 }
-
-export type ToggleOption = {
-  displayName: string
-}

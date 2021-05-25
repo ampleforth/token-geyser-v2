@@ -2,6 +2,8 @@
 import styled from 'styled-components/macro'
 import { NamedColors } from './colors'
 
+// TODO: Set up theming, media breakpoints styling, typography
+
 export const Input = styled.input`
   ::-webkit-inner-spin-button {
     -webkit-appearance: none;
@@ -18,7 +20,7 @@ export const Input = styled.input`
   text-indent: 10px;
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
   border-radius: 5px;
-  border: 1px solid #ddd;
+  border: 1px solid ${NamedColors.ALTO};
   font-size: 1.2rem;
   height: 60px;
   margin: 16px;
@@ -65,7 +67,7 @@ export const BigVaultFirstOverlay = styled.div`
   box-shadow: 0px -2px 25px -3px rgb(0 0 0 / 10%);
   border-radius: 10px;
   display: grid;
-  grid-template-rows: 4fr 2fr;
+  grid-template-rows: 0.5fr 2fr;
   height: 90%;
 `
 

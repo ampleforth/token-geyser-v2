@@ -5,20 +5,21 @@ import { displayAddr } from '../utils/formatDisplayAddress'
 import { VaultState, VaultStateColors } from '../constants'
 import { NamedColors } from '../styling/colors'
 import { Aligned } from '../styling/mixins'
-import VaultsContext from '../context/VaultsContext'
+import { VaultContext } from '../context/VaultContext'
 
 interface VaultRowProps {
   vault: Vault
 }
 
 export const VaultListItem: React.FC<VaultRowProps> = ({ vault }) => {
-  const { setSelectedVault } = useContext(VaultsContext)
+  const { selectVault } = useContext(VaultContext)
 
   return (
-    <VaultPreviewButton onClick={() => setSelectedVault(vault)}>
+    <VaultPreviewButton onClick={() => selectVault(vault)}>
       <LeftAlign>{displayAddr(vault.id)}</LeftAlign>
       <RightAlign>
-        <VaultStatusColor color={VaultStateColors[VaultState.ACTIVE]} />
+        {/* TODO: Show correct vault status */}
+        <VaultStatusColor color={VaultStateColors[VaultState.INACTIVE]} />
       </RightAlign>
     </VaultPreviewButton>
   )

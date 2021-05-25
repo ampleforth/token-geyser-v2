@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import styled from 'styled-components/macro'
-import VaultsContext from '../context/VaultsContext'
+import { VaultContext } from '../context/VaultContext'
 import Web3Context from '../context/Web3Context'
 import { VaultInfoMessage } from '../styling/styles'
 import { VaultListItem } from './VaultListItem'
@@ -9,7 +9,7 @@ interface SelectVaultProps {}
 
 export const VaultsListContainer: React.FC<SelectVaultProps> = () => {
   const { ready } = useContext(Web3Context)
-  const { vaults } = useContext(VaultsContext)
+  const { vaults } = useContext(VaultContext)
 
   if (!ready) return <VaultInfoMessage>Connect to your ethereum wallet</VaultInfoMessage>
 

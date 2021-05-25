@@ -5,6 +5,7 @@ export enum NamedColors {
   APPLE = '#2ECC40',
   BLACK = '#000000',
   ELECTRICAL_VIOLET = '#912dff',
+  GRAY = '#808080',
   RADICAL_RED = '#FF2D55',
   RED_ORANGE = '#FF4136',
   SCHOOL_BUS_YELLOW = '#FFDC00',

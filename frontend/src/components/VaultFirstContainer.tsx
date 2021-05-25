@@ -2,12 +2,12 @@ import React, { useContext } from 'react'
 import styled from 'styled-components/macro'
 import { SelectVault } from './SelectVault'
 import { ManageVault } from './ManageVault'
-import VaultsContext from '../context/VaultsContext'
+import { VaultContext } from '../context/VaultContext'
 
 interface Props {}
 
 export const VaultFirstContainer: React.FC<Props> = () => {
-  const { selectedVault } = useContext(VaultsContext)
+  const { selectedVault } = useContext(VaultContext)
   return (
     <Container>
       {!selectedVault ? (

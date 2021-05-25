@@ -1,14 +1,16 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import Web3Context from '../context/Web3Context'
 import styled from 'styled-components/macro'
 import { BigVaultFirstOverlay, VaultFirstTitle } from '../styling/styles'
 import { BigNumber } from 'ethers'
 import { getTokenBalances } from '../sdk/helpers'
-import VaultsContext from '../context/VaultsContext'
+import { VaultContext } from '../context/VaultContext'
 import { DepositWithdrawView } from './DepositWithdrawView'
-import { TokenBalance } from '../types'
-import { TabPane } from './TabPane'
+import { ToggleOption, TokenBalance } from '../types'
+import { ToggleView } from './ToggleView'
 import { StakeUnstakeView } from './StakeUnstakeView'
+import { ManageVaultView, MOCK_ERC_20_ADDRESS } from '../constants'
+import { NamedColors } from '../styling/colors'
 
 interface TokenMetaData {
   address: string
@@ -17,22 +19,20 @@ interface TokenMetaData {
 
 interface Props {}
 
-const MOCK_ERC_20_ADDRESS = '0x0165878A594ca255338adfa4d48449f69242Eb8F'
-
-type View = 'Balance' | 'Stake'
-
 export const ManageVault: React.FC<Props> = () => {
   const { signer } = useContext(Web3Context)
-  const { selectedVault } = useContext(VaultsContext)
+  const { selectedVault } = useContext(VaultContext)
   const vault = selectedVault!
 
   const [tokenBalances, setTokenBalances] = useState<TokenBalance[]>([])
   const [tokenMetaData] = useState<TokenMetaData[]>(Array(5).fill(({ address: MOCK_ERC_20_ADDRESS, name: 'MockERC20' })))
 
   // To control the view switch between stake/unstake and deposit/withdraw
-  const [view, setView] = useState<View>('Balance')
+  const [view, setView] = useState<ManageVaultView>(ManageVaultView.BALANCE)
+  const getToggleOptions = () => Object.values(ManageVaultView).map(view => view.toString())
+  const selectView = (option: string) => { setView(ManageVaultView[option as keyof typeof ManageVaultView]) }
 
-  const getBalances = async () => {
+  const getBalances = useCallback(async () => {
     try {
       if (signer) {
         const balances = await getTokenBalances(tokenMetaData.map(token => token.address), vault.id, signer)
@@ -45,23 +45,23 @@ export const ManageVault: React.FC<Props> = () => {
     } catch (e) {
       console.error(`Error`, e)
     }
-  }
+  }, [tokenMetaData, signer, vault.id]);
 
-  // TODO: Cleanup
   useEffect(() => {
     getBalances()
-  }, [tokenMetaData, signer, vault.id])
+  }, [getBalances])
 
   return (
     <>
-      <VaultFirstTitle>{view === 'Balance' ? 'Balances' : 'Stakes'}</VaultFirstTitle>
+      <VaultFirstTitle>{view === ManageVaultView.BALANCE ? 'Balances' : 'Stakes'}</VaultFirstTitle>
       <Note>ID: {vault.id}</Note>
-      <TabPane tabs={['Balance', 'Stake']} onSelect={setView} />
       <BigVaultFirstOverlay>
-        {/* Toggle buttons go here */}
-        {view === 'Balance'
-          ? <DepositWithdrawView tokenBalances={tokenBalances} />
-          : <StakeUnstakeView />}
+        <ToggleView options={getToggleOptions()} toggleOption={selectView} activeOption={view.toString()} />
+        {view === ManageVaultView.BALANCE ? (
+          <DepositWithdrawView tokenBalances={tokenBalances} />
+        ) : (
+          <StakeUnstakeView />
+        )}
       </BigVaultFirstOverlay>
     </>
   )
@@ -69,5 +69,5 @@ export const ManageVault: React.FC<Props> = () => {
 
 const Note = styled.h3`
   font-size: 1rem;
-  color: grey
+  color: ${NamedColors.GRAY}
 `

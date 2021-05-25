@@ -1,23 +1,24 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import styled from 'styled-components/macro'
-import { VaultMetaData } from '../types'
+import { Vault } from '../types'
 import { displayAddr } from '../utils/formatDisplayAddress'
-import { VaultStateColors } from '../constants'
+import { VaultState, VaultStateColors } from '../constants'
 import { NamedColors } from '../styling/colors'
 import { Aligned } from '../styling/mixins'
+import VaultsContext from '../context/VaultsContext'
 
 interface VaultRowProps {
-  vault: VaultMetaData
-  setSelectedVault: (arg0: string | null) => void
+  vault: Vault
 }
 
-export const VaultListItem: React.FC<VaultRowProps> = ({ vault: { id, state }, setSelectedVault }) => {
-  console.log(setSelectedVault)
+export const VaultListItem: React.FC<VaultRowProps> = ({ vault }) => {
+  const { setSelectedVault } = useContext(VaultsContext)
+
   return (
-    <VaultPreviewButton onClick={() => setSelectedVault(id)}>
-      <LeftAlign>{displayAddr(id)}</LeftAlign>
+    <VaultPreviewButton onClick={() => setSelectedVault(vault)}>
+      <LeftAlign>{displayAddr(vault.id)}</LeftAlign>
       <RightAlign>
-        <VaultStatusColor color={VaultStateColors[state]} />
+        <VaultStatusColor color={VaultStateColors[VaultState.ACTIVE]} />
       </RightAlign>
     </VaultPreviewButton>
   )

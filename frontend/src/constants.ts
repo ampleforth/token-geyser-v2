@@ -11,3 +11,6 @@ export const VaultStateColors: Record<VaultState, string> = {
   [VaultState.STALE]: NamedColors.SCHOOL_BUS_YELLOW,
   [VaultState.INACTIVE]: NamedColors.RED_ORANGE,
 }
+
+const second = 1000
+export const POLL_INTERVAL = 5 * second

@@ -1,16 +1,14 @@
 import React, { useContext } from 'react'
 import styled from 'styled-components/macro'
+import VaultsContext from '../context/VaultsContext'
 import Web3Context from '../context/Web3Context'
-import { VaultMetaData } from '../types'
 import { VaultListItem } from './VaultListItem'
 
-interface SelectVaultProps {
-  vaults: VaultMetaData[]
-  setSelectedVault: (arg0: string | null) => void
-}
+interface SelectVaultProps {}
 
-export const VaultsListContainer: React.FC<SelectVaultProps> = ({ vaults, setSelectedVault }) => {
+export const VaultsListContainer: React.FC<SelectVaultProps> = () => {
   const { ready } = useContext(Web3Context)
+  const { vaults } = useContext(VaultsContext)
 
   if (!ready) return <VaultInfoMessage>Connect to your ethereum wallet</VaultInfoMessage>
 
@@ -19,7 +17,7 @@ export const VaultsListContainer: React.FC<SelectVaultProps> = ({ vaults, setSel
   return (
     <VaultsContainer>
       {vaults.map((vault) => (
-        <VaultListItem vault={vault} key={vault.id} setSelectedVault={setSelectedVault} />
+        <VaultListItem vault={vault} key={vault.id} />
       ))}
     </VaultsContainer>
   )

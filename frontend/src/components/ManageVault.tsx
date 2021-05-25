@@ -1,21 +1,22 @@
 import React, { useContext, useEffect, useState } from 'react'
 import Web3Context from '../context/Web3Context'
 import styled from 'styled-components/macro'
-import { VaultMetaData } from '../types'
 import { Paragraph, VaultFirstOverlay, VaultFirstTitle } from '../styling/styles'
 import { BigNumber, BigNumberish } from 'ethers'
 import { getTokenBalances } from '../sdk/helpers'
 import { deposit } from '../sdk'
 import { NamedColors } from '../styling/colors'
+import VaultsContext from '../context/VaultsContext'
 
-interface Props {
-  vault: VaultMetaData
-}
+interface Props {}
 
 const MOCK_ERC_20_ADDRESS = '0x0165878A594ca255338adfa4d48449f69242Eb8F'
 
-export const ManageVault: React.FC<Props> = ({ vault }) => {
+export const ManageVault: React.FC<Props> = () => {
   const { signer } = useContext(Web3Context)
+  const { selectedVault } = useContext(VaultsContext)
+  const vault = selectedVault!
+
   const [balances, setBalances] = useState<BigNumber[]>([])
   const [tokenAddresses] = useState<string[]>(Array(5).fill(MOCK_ERC_20_ADDRESS))
 

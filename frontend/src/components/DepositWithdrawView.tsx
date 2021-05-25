@@ -9,6 +9,7 @@ import { Input, ManageVaultButton, Paragraph } from '../styling/styles'
 import { TokenBalance } from '../types'
 import { BalanceListItem } from './BalanceListItem'
 import { ToggleView } from './ToggleView'
+import { TransactionResponse } from '@ethersproject/providers'
 
 interface DepositWithdrawViewProps {
   tokenBalances: TokenBalance[]
@@ -24,15 +25,23 @@ export const DepositWithdrawView: React.FC<DepositWithdrawViewProps> = ({ tokenB
   const { selectedVault: vault } = useContext(VaultContext)
   const { signer, address } = useContext(Web3Context)
 
+  const refreshPage = (transactionResponse: TransactionResponse) => {
+    const receipt = transactionResponse.wait()
+    if (receipt) {
+      window.location.reload()
+      localStorage.setItem('persistSelectedVault', 'true')
+    }
+  }
+
   const handleTransaction = async () => {
     if (vault && signer && address) {
       if (mode === VaultAction.DEPOSIT) {
-        await depositRawAmount(vault.id, MOCK_ERC_20_ADDRESS, amount, signer)
+        const depositResponse = await depositRawAmount(vault.id, MOCK_ERC_20_ADDRESS, amount, signer)
+        refreshPage(depositResponse)
       } else {
-        await withdrawRawAmount(vault.id, MOCK_ERC_20_ADDRESS, address, amount, signer)
+        const withdrawResponse = await withdrawRawAmount(vault.id, MOCK_ERC_20_ADDRESS, address, amount, signer)
+        refreshPage(withdrawResponse)
       }
-      window.location.reload()
-      localStorage.setItem('persistSelectedVault', 'true')
     }
   }
 

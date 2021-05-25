@@ -15,21 +15,11 @@ import {
   Staked,
   Unstaked,
 } from '../generated/templates/GeyserTemplate/GeyserContract'
-import {
-  EmergencyShutdown,
-  PowerOff,
-  PowerOn,
-} from '../generated/templates/PowerSwitchTemplate/PowerSwitchContract'
+import { EmergencyShutdown, PowerOff, PowerOn } from '../generated/templates/PowerSwitchTemplate/PowerSwitchContract'
 import { ERC20 } from '../generated/templates/GeyserTemplate/ERC20'
 
 // entity imports
-import {
-  ClaimedReward,
-  Geyser,
-  Lock,
-  RewardPoolBalance,
-  RewardSchedule,
-} from '../generated/schema'
+import { ClaimedReward, Geyser, Lock, RewardPoolBalance, RewardSchedule } from '../generated/schema'
 
 // template instantiation
 export function handleNewGeyser(event: InstanceAdded): void {
@@ -37,14 +27,8 @@ export function handleNewGeyser(event: InstanceAdded): void {
 }
 
 // event handlers
-function updateRewardPoolBalance(
-  poolAddress: Address,
-  geyserAddress: Address,
-  tokenAddress: Address,
-): void {
-  let entity = new RewardPoolBalance(
-    poolAddress.toHex() + '-' + tokenAddress.toHex(),
-  )
+function updateRewardPoolBalance(poolAddress: Address, geyserAddress: Address, tokenAddress: Address): void {
+  let entity = new RewardPoolBalance(poolAddress.toHex() + '-' + tokenAddress.toHex())
 
   entity.geyser = geyserAddress.toHex()
   entity.pool = poolAddress
@@ -54,11 +38,7 @@ function updateRewardPoolBalance(
   entity.save()
 }
 
-function _updateGeyser(
-  geyser: Geyser,
-  geyserContract: GeyserContract,
-  timestamp: BigInt,
-): void {
+function _updateGeyser(geyser: Geyser, geyserContract: GeyserContract, timestamp: BigInt): void {
   let geyserData = geyserContract.getGeyserData()
   let geyserAddress = Address.fromHexString(geyser.id) as Address
 
@@ -108,9 +88,7 @@ export function handleGeyserFunded(event: GeyserFunded): void {
   let geyserData = geyser.getGeyserData()
 
   let entity = new RewardSchedule(
-    event.address.toHex() +
-      '-' +
-      BigInt.fromI32(geyserData.rewardSchedules.length).toString(),
+    event.address.toHex() + '-' + BigInt.fromI32(geyserData.rewardSchedules.length).toString(),
   )
 
   let rewardScheduleData = geyserData.rewardSchedules.pop()
@@ -138,21 +116,13 @@ export function handleBonusTokenRegistered(event: BonusTokenRegistered): void {
   entity.save()
 }
 
-function updateVaultStake(
-  geyserAddress: Address,
-  vaultAddress: Address,
-  timestamp: BigInt,
-): void {
+function updateVaultStake(geyserAddress: Address, vaultAddress: Address, timestamp: BigInt): void {
   let id = geyserAddress.toHex() + '-' + vaultAddress.toHex()
 
   let geyserContract = GeyserContract.bind(geyserAddress)
 
   let lock = new Lock(
-    vaultAddress.toHex() +
-      '-' +
-      geyserAddress.toHex() +
-      '-' +
-      geyserContract.getGeyserData().stakingToken.toHex(),
+    vaultAddress.toHex() + '-' + geyserAddress.toHex() + '-' + geyserContract.getGeyserData().stakingToken.toHex(),
   )
   lock.geyser = geyserAddress.toHex()
   lock.vault = vaultAddress.toHex()

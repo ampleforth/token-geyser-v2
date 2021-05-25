@@ -8,8 +8,7 @@ import localhostConfig from './deployments/localhost/factories-latest.json'
 export const loadNetworkConfig = async (signer: Signer) => {
   const network = await signer.provider?.getNetwork()
 
-  if (network?.name === 'unknown' && process.env.NODE_ENV === 'development')
-    return localhostConfig
+  if (network?.name === 'unknown' && process.env.NODE_ENV === 'development') return localhostConfig
 
   switch (network?.name) {
     case 'mainnet':

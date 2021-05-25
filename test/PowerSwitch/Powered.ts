@@ -37,25 +37,19 @@ describe('Powered', function () {
     it('should fail if offline', async function () {
       await PowerSwitch.connect(accounts[0]).powerOff()
       expect(await Mock.isOffline()).to.eq(true)
-      await expect(Mock.onlyOnlineCall()).to.be.revertedWith(
-        'Powered: is not online',
-      )
+      await expect(Mock.onlyOnlineCall()).to.be.revertedWith('Powered: is not online')
     })
     it('should fail if shutdown', async function () {
       await PowerSwitch.connect(accounts[0]).emergencyShutdown()
       expect(await Mock.isShutdown()).to.eq(true)
-      await expect(Mock.onlyOnlineCall()).to.be.revertedWith(
-        'Powered: is not online',
-      )
+      await expect(Mock.onlyOnlineCall()).to.be.revertedWith('Powered: is not online')
     })
   })
 
   describe('onlyOffline', function () {
     it('should fail if online', async function () {
       expect(await Mock.isOnline()).to.eq(true)
-      await expect(Mock.onlyOfflineCall()).to.be.revertedWith(
-        'Powered: is not offline',
-      )
+      await expect(Mock.onlyOfflineCall()).to.be.revertedWith('Powered: is not offline')
     })
     it('should succeed if offline', async function () {
       await PowerSwitch.connect(accounts[0]).powerOff()
@@ -65,9 +59,7 @@ describe('Powered', function () {
     it('should fail if shutdown', async function () {
       await PowerSwitch.connect(accounts[0]).emergencyShutdown()
       expect(await Mock.isShutdown()).to.eq(true)
-      await expect(Mock.onlyOfflineCall()).to.be.revertedWith(
-        'Powered: is not offline',
-      )
+      await expect(Mock.onlyOfflineCall()).to.be.revertedWith('Powered: is not offline')
     })
   })
 
@@ -84,25 +76,19 @@ describe('Powered', function () {
     it('should fail if shutdown', async function () {
       await PowerSwitch.connect(accounts[0]).emergencyShutdown()
       expect(await Mock.isShutdown()).to.eq(true)
-      await expect(Mock.notShutdownCall()).to.be.revertedWith(
-        'Powered: is shutdown',
-      )
+      await expect(Mock.notShutdownCall()).to.be.revertedWith('Powered: is shutdown')
     })
   })
 
   describe('onlyShutdown', function () {
     it('should fail if online', async function () {
       expect(await Mock.isOnline()).to.eq(true)
-      await expect(Mock.onlyShutdownCall()).to.be.revertedWith(
-        'Powered: is not shutdown',
-      )
+      await expect(Mock.onlyShutdownCall()).to.be.revertedWith('Powered: is not shutdown')
     })
     it('should fail if offline', async function () {
       await PowerSwitch.connect(accounts[0]).powerOff()
       expect(await Mock.isOffline()).to.eq(true)
-      await expect(Mock.onlyShutdownCall()).to.be.revertedWith(
-        'Powered: is not shutdown',
-      )
+      await expect(Mock.onlyShutdownCall()).to.be.revertedWith('Powered: is not shutdown')
     })
     it('should succeed if shutdown', async function () {
       await PowerSwitch.connect(accounts[0]).emergencyShutdown()

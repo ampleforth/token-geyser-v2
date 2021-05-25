@@ -52,10 +52,7 @@ async function createInstance(
   args: string = '0x',
 ) {
   // get contract class
-  const instance = await getContractAt(
-    instanceName,
-    await factory.connect(signer).callStatic['create(bytes)'](args),
-  )
+  const instance = await getContractAt(instanceName, await factory.connect(signer).callStatic['create(bytes)'](args))
   // deploy vault
   const tx = await factory.connect(signer)['create(bytes)'](args)
   // return contract class
@@ -77,49 +74,19 @@ task('deploy', 'deploy full set of factory contracts')
 
     const timestamp = (await signer.provider?.getBlock('latest'))?.timestamp
 
-    const PowerSwitchFactory = await deployContract(
-      'PowerSwitchFactory',
-      ethers.getContractFactory,
-      signer,
-    )
-    const RewardPoolFactory = await deployContract(
-      'RewardPoolFactory',
-      ethers.getContractFactory,
-      signer,
-    )
-    const UniversalVault = await deployContract(
-      'UniversalVault',
-      ethers.getContractFactory,
-      signer,
-    )
-    const VaultFactory = await deployContract(
-      'VaultFactory',
-      ethers.getContractFactory,
-      signer,
-      [UniversalVault.address],
-    )
-    const GeyserRegistry = await deployContract(
-      'GeyserRegistry',
-      ethers.getContractFactory,
-      signer,
-    )
-    const RouterV1 = await deployContract(
-      'RouterV1',
-      ethers.getContractFactory,
-      signer,
-    )
+    const PowerSwitchFactory = await deployContract('PowerSwitchFactory', ethers.getContractFactory, signer)
+    const RewardPoolFactory = await deployContract('RewardPoolFactory', ethers.getContractFactory, signer)
+    const UniversalVault = await deployContract('UniversalVault', ethers.getContractFactory, signer)
+    const VaultFactory = await deployContract('VaultFactory', ethers.getContractFactory, signer, [
+      UniversalVault.address,
+    ])
+    const GeyserRegistry = await deployContract('GeyserRegistry', ethers.getContractFactory, signer)
+    const RouterV1 = await deployContract('RouterV1', ethers.getContractFactory, signer)
 
     if (mock) {
       const totalSupply = '10'
-      await deployContract('MockERC20', ethers.getContractFactory, signer, [
-        signer.address,
-        totalSupply,
-      ])
-      await deployMockAmpl(
-        signer,
-        ethers.getContractFactory,
-        upgrades.deployProxy,
-      )
+      await deployContract('MockERC20', ethers.getContractFactory, signer, [signer.address, totalSupply])
+      await deployMockAmpl(signer, ethers.getContractFactory, upgrades.deployProxy)
     }
 
     console.log('Locking template')
@@ -154,9 +121,7 @@ task('deploy', 'deploy full set of factory contracts')
         abi: GeyserRegistry.interface.format(),
       },
       GeyserTemplate: {
-        abi: (
-          await ethers.getContractAt('Geyser', ethers.constants.AddressZero)
-        ).interface.format(),
+        abi: (await ethers.getContractAt('Geyser', ethers.constants.AddressZero)).interface.format(),
       },
       RouterV1: {
         address: RouterV1.address,
@@ -200,23 +165,12 @@ task('create-vault', 'deploy an instance of UniversalVault')
     console.log('Signer', signer.address)
 
     const { VaultFactory } = JSON.parse(
-      readFileSync(
-        `${SDK_PATH}/deployments/${network.name}/factories-${factoryVersion}.json`,
-      ).toString(),
+      readFileSync(`${SDK_PATH}/deployments/${network.name}/factories-${factoryVersion}.json`).toString(),
     )
 
-    const vaultFactory = await ethers.getContractAt(
-      'VaultFactory',
-      VaultFactory.address,
-      signer,
-    )
+    const vaultFactory = await ethers.getContractAt('VaultFactory', VaultFactory.address, signer)
 
-    await createInstance(
-      'UniversalVault',
-      vaultFactory,
-      ethers.getContractAt,
-      signer,
-    )
+    await createInstance('UniversalVault', vaultFactory, ethers.getContractAt, signer)
   })
 
 task('create-geyser', 'deploy an instance of Geyser')
@@ -227,25 +181,15 @@ task('create-geyser', 'deploy an instance of Geyser')
   .addParam('time', 'the time of reward scaling in seconds')
   .addOptionalParam('factoryVersion', 'the factory version', 'latest')
   .setAction(
-    async (
-      { factoryVersion, stakingToken, rewardToken, floor, ceiling, time },
-      { ethers, run, upgrades, network },
-    ) => {
+    async ({ factoryVersion, stakingToken, rewardToken, floor, ceiling, time }, { ethers, run, upgrades, network }) => {
       await run('compile')
 
       const signer = (await ethers.getSigners())[0]
 
       console.log('Signer', signer.address)
 
-      const {
-        PowerSwitchFactory,
-        RewardPoolFactory,
-        VaultFactory,
-        GeyserRegistry,
-      } = JSON.parse(
-        readFileSync(
-          `${SDK_PATH}/deployments/${network.name}/factories-${factoryVersion}.json`,
-        ).toString(),
+      const { PowerSwitchFactory, RewardPoolFactory, VaultFactory, GeyserRegistry } = JSON.parse(
+        readFileSync(`${SDK_PATH}/deployments/${network.name}/factories-${factoryVersion}.json`).toString(),
       )
 
       const factory = await ethers.getContractFactory('Geyser', signer)
@@ -264,11 +208,7 @@ task('create-geyser', 'deploy an instance of Geyser')
 
       console.log('Register Geyser Instance')
 
-      const geyserRegistry = await ethers.getContractAt(
-        'GeyserRegistry',
-        GeyserRegistry.address,
-        signer,
-      )
+      const geyserRegistry = await ethers.getContractAt('GeyserRegistry', GeyserRegistry.address, signer)
 
       await geyserRegistry.register(geyser.address)
 
@@ -297,11 +237,7 @@ task('verify-geyser', 'verify and lock the Geyser template')
 
     console.log('Signer', signer.address)
 
-    const contract = await ethers.getContractAt(
-      'Geyser',
-      geyserTemplate,
-      signer,
-    )
+    const contract = await ethers.getContractAt('Geyser', geyserTemplate, signer)
 
     console.log('Locking template')
 
@@ -325,8 +261,7 @@ export default {
     goerli: {
       url: 'https://goerli.infura.io/v3/' + process.env.INFURA_ID,
       accounts: {
-        mnemonic:
-          process.env.DEV_MNEMONIC || Wallet.createRandom().mnemonic.phrase,
+        mnemonic: process.env.DEV_MNEMONIC || Wallet.createRandom().mnemonic.phrase,
       },
     },
   },

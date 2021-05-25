@@ -4,11 +4,15 @@ import { splitSignature } from 'ethers/lib/utils'
 import mainnetConfig from './deployments/mainnet/factories-latest.json'
 import goerliConfig from './deployments/goerli/factories-latest.json'
 import localhostConfig from './deployments/localhost/factories-latest.json'
+import { ERC20_ABI } from './abis'
+
+export const ERC20Decimals = async (tokenAddress: string) => {
+  const token = new Contract(tokenAddress, ERC20_ABI)
+  return token.decimals()
+}
 
 export const loadNetworkConfig = async (signer: Signer) => {
   const network = await signer.provider?.getNetwork()
-
-  if (network?.name === 'unknown' && process.env.NODE_ENV === 'development') return localhostConfig
 
   switch (network?.name) {
     case 'mainnet':

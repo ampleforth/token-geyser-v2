@@ -44,7 +44,8 @@ const Web3Provider: React.FC = ({ children }) => {
 
   const updateWallet = useCallback((wallet: Wallet) => {
     setWallet(wallet);
-    const ethersProvider = new Provider(wallet.provider);
+    const network = process.env.NODE_ENV === 'development' ? { name: 'localhost', chainId: 1337 } : undefined
+    const ethersProvider = new Provider(wallet.provider, network);
     const rpcSigner = ethersProvider.getSigner();
     setSigner(rpcSigner);
     setProvider(ethersProvider);

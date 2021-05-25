@@ -1,4 +1,4 @@
-import { VaultState } from './constants'
+import { BigNumber } from 'ethers'
 
 export interface Vault {
   id: string
@@ -10,4 +10,10 @@ export interface Vault {
 
 export interface Geyser {
   id: string
+}
+
+export interface TokenBalance {
+  address: string
+  balance: BigNumber
+  name: string
 }

@@ -1,12 +1,18 @@
 import React, { useContext, useEffect, useState } from 'react'
 import Web3Context from '../context/Web3Context'
 import styled from 'styled-components/macro'
-import { Paragraph, VaultFirstOverlay, VaultFirstTitle } from '../styling/styles'
+import { BigVaultFirstOverlay, VaultFirstTitle } from '../styling/styles'
 import { BigNumber, BigNumberish } from 'ethers'
 import { getTokenBalances } from '../sdk/helpers'
 import { deposit } from '../sdk'
-import { NamedColors } from '../styling/colors'
 import VaultsContext from '../context/VaultsContext'
+import { DepositWithdrawView } from './DepositWithdrawView'
+import { TokenBalance } from '../types'
+
+interface TokenMetaData {
+  address: string
+  name: string
+}
 
 interface Props {}
 
@@ -17,20 +23,23 @@ export const ManageVault: React.FC<Props> = () => {
   const { selectedVault } = useContext(VaultsContext)
   const vault = selectedVault!
 
-  const [balances, setBalances] = useState<BigNumber[]>([])
-  const [tokenAddresses] = useState<string[]>(Array(5).fill(MOCK_ERC_20_ADDRESS))
+  const [tokenBalances, setTokenBalances] = useState<TokenBalance[]>([])
+  const [tokenMetaData] = useState<TokenMetaData[]>(Array(5).fill(({ address: MOCK_ERC_20_ADDRESS, name: 'MockERC20' })))
 
   // To control the view switch between stake/unstake and deposit/withdraw
   const [showStakeView, setShowStakeView] = useState<boolean>(false)
 
   const toggleShowStakeView = () => setShowStakeView(!showStakeView)
 
-  // TODO
-  const handleDeposit = (amount: BigNumberish) => {
+  const getBalances = async () => {
     try {
       if (signer) {
-        const transactionResponse = deposit(vault.id, MOCK_ERC_20_ADDRESS, amount.toString(), signer)
-        console.log(JSON.stringify(transactionResponse))
+        const balances = await getTokenBalances(tokenMetaData.map(token => token.address), vault.id, signer)
+        setTokenBalances(
+          balances.map((balance, index) => ({ balance, metadata: tokenMetaData[index] }))
+            .filter(value => value.balance.status === 'fulfilled')
+            .map(value => ({...value.metadata, balance: (value.balance as PromiseFulfilledResult<BigNumber>).value }))
+        )
       }
     } catch (e) {
       console.error(`Error`, e)
@@ -39,65 +48,22 @@ export const ManageVault: React.FC<Props> = () => {
 
   // TODO: Cleanup
   useEffect(() => {
-    ;(async () => {
-      try {
-        if (signer) {
-          const tokenBalances = await getTokenBalances(tokenAddresses, vault.id, signer)
-          setBalances(tokenBalances.map((balance) => (balance as PromiseFulfilledResult<BigNumber>).value))
-        }
-      } catch (e) {
-        console.error(`Error`, e)
-      }
-    })()
-  }, [tokenAddresses, signer, vault.id])
+    getBalances()
+  }, [tokenMetaData, signer, vault.id])
 
   return (
     <>
-      <VaultFirstTitle>Select a vault</VaultFirstTitle>
-      <VaultFirstOverlay>
+      <VaultFirstTitle>Balances</VaultFirstTitle>
+      <Note>ID: {vault.id}</Note>
+      <BigVaultFirstOverlay>
         {/* Toggle buttons go here */}
-        {showStakeView ? <>In Progress</> : <DepositWithdrawView balances={balances} />}
-      </VaultFirstOverlay>
+        {showStakeView ? <>In Progress</> : <DepositWithdrawView tokenBalances={tokenBalances} />}
+      </BigVaultFirstOverlay>
     </>
   )
 }
 
-interface DepositWithdrawViewProps {
-  balances: BigNumber[]
-}
-
-const DepositWithdrawView: React.FC<DepositWithdrawViewProps> = ({ balances }) => {
-  return (
-    <>
-      {balances.map((balance) => JSON.stringify(balance))}
-      <ButtonsContainer>
-        <ManageVaultButton>
-          <Paragraph color={NamedColors.WHITE}>Deposit</Paragraph>
-        </ManageVaultButton>
-        <ManageVaultButton>
-          <Paragraph color={NamedColors.WHITE}>Withdraw</Paragraph>
-        </ManageVaultButton>
-      </ButtonsContainer>
-    </>
-  )
-}
-
-const ButtonsContainer = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  margin-bottom: auto;
-`
-
-const ManageVaultButton = styled.button`
-  cursor: pointer;
-  width: 90%;
-  height: 60px;
-  border-radius: 8px;
-  padding: 20px;
-  margin: auto;
-  border: 1px solid ${NamedColors.WHITE};
-  background-color: ${NamedColors.ELECTRICAL_VIOLET};
-  :hover {
-    background-color: ${NamedColors.RADICAL_RED};
-  }
+const Note = styled.h3`
+  font-size: 1rem;
+  color: grey
 `

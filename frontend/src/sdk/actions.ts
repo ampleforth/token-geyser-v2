@@ -1,8 +1,8 @@
 import { TransactionResponse } from '@ethersproject/providers'
 import { BigNumberish, Contract, Signer, Wallet } from 'ethers'
-import { randomBytes } from 'ethers/lib/utils'
+import { parseUnits, randomBytes } from 'ethers/lib/utils'
 import { ERC20_ABI } from './abis'
-import { isPermitable, loadNetworkConfig, signPermission, signPermitEIP2612 } from './utils'
+import { ERC20Decimals, isPermitable, loadNetworkConfig, signPermission, signPermitEIP2612 } from './utils'
 
 // End to end user flow
 // 1) Create vault: `create()`
@@ -30,6 +30,10 @@ export const create = async (signer: Signer) => {
   const vault = new Contract(vaultAddress, config.VaultTemplate.abi, signer)
 
   return vault
+}
+
+export const depositRawAmount = async (vaultAddress: string, tokenAddress: string, amount: string, signer: Signer) => {
+  return deposit(vaultAddress, tokenAddress, parseUnits(amount), signer)
 }
 
 export const deposit = async (vaultAddress: string, tokenAddress: string, amount: BigNumberish, signer: Signer) => {
@@ -62,6 +66,16 @@ export const unstake = async (geyserAddress: string, vaultAddress: string, amoun
   const permission = signPermission('Unlock', vault, signer, geyser.address, tokenAddress, amount)
 
   return geyser.unstakeAndClaim(vault.address, amount, permission) as Promise<TransactionResponse>
+}
+
+export const withdrawRawAmount = async (
+  vaultAddress: string,
+  tokenAddress: string,
+  recipientAddress: string,
+  amount: string,
+  signer: Signer,
+) => {
+  return withdraw(vaultAddress, tokenAddress, recipientAddress, parseUnits(amount), signer)
 }
 
 export const withdraw = async (

@@ -16,6 +16,14 @@ export const VaultFirstOverlay = styled.div`
   height: 70%;
 `
 
+export const BigVaultFirstOverlay = styled.div`
+  box-shadow: 0px -2px 25px -3px rgb(0 0 0 / 10%);
+  border-radius: 10px;
+  display: grid;
+  grid-template-rows: 4fr 2fr;
+  height: 90%;
+`
+
 export const VaultFirstTitle = styled.h1`
   font-size: 3rem;
 `

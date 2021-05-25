@@ -42,6 +42,10 @@ export const deposit = async (vaultAddress: string, tokenAddress: string, amount
   return token.transfer(vaultAddress, amount) as Promise<TransactionResponse>
 }
 
+export const stakeRawAmount = async (geyserAddress: string, vaultAddress: string, amount: string, signer: Wallet) => {
+  return stake(geyserAddress, vaultAddress, parseUnits(amount), signer)
+}
+
 export const stake = async (geyserAddress: string, vaultAddress: string, amount: BigNumberish, signer: Wallet) => {
   const config = await loadNetworkConfig(signer)
 
@@ -53,6 +57,10 @@ export const stake = async (geyserAddress: string, vaultAddress: string, amount:
   const permission = signPermission('Lock', vault, signer, geyser.address, tokenAddress, amount)
 
   return geyser.stake(vault.address, amount, permission) as Promise<TransactionResponse>
+}
+
+export const unstakeRawAmount = async (geyserAddress: string, vaultAddress: string, amount: string, signer: Wallet) => {
+  return unstake(geyserAddress, vaultAddress, parseUnits(amount), signer)
 }
 
 export const unstake = async (geyserAddress: string, vaultAddress: string, amount: BigNumberish, signer: Wallet) => {

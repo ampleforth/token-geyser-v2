@@ -3,9 +3,16 @@ import { BigNumber } from 'ethers'
 export interface Vault {
   id: string
   nonce: string
-  // TODO: proper typing for reward and lock
+  // TODO: proper typing for reward
   claimedReward: any[]
-  locks: any[]
+  locks: Lock[]
+}
+
+export interface Lock {
+  id: string
+  geyser: Geyser
+  token: string
+  amount: string
 }
 
 export interface Geyser {

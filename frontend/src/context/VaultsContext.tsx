@@ -5,7 +5,7 @@ import { GET_GEYSERS } from '../queries/geyser'
 import { GET_USER_VAULTS } from '../queries/vault'
 import { POLL_INTERVAL } from '../constants'
 import { Geyser, Vault } from '../types'
-import { getTokenBalances } from '../sdk/tokens'
+import { getTokenBalances } from '../sdk/helpers'
 import Web3Context from './Web3Context'
 import { toChecksumAddress } from 'web3-utils'
 

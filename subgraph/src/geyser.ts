@@ -57,7 +57,7 @@ function _updateGeyser(geyser: Geyser, geyserContract: GeyserContract, timestamp
 }
 
 function updateGeyser(geyserAddress: Address, timestamp: BigInt): void {
-  let geyser = new Geyser(geyserAddress.toHex())
+  let geyser = Geyser.load(geyserAddress.toHex()) as Geyser
   let geyserContract = GeyserContract.bind(geyserAddress)
   _updateGeyser(geyser, geyserContract, timestamp)
 }
@@ -105,15 +105,14 @@ export function handleGeyserFunded(event: GeyserFunded): void {
 }
 
 export function handleBonusTokenRegistered(event: BonusTokenRegistered): void {
-  let entity = Geyser.load(event.address.toHex())
+  let entity = Geyser.load(event.address.toHex()) as Geyser
 
   let bonusTokens = entity.bonusTokens
   bonusTokens.push(event.params.token)
   entity.bonusTokens = bonusTokens
 
-  updateGeyser(event.address, event.block.timestamp)
-
-  entity.save()
+  let geyserContract = GeyserContract.bind(event.address)
+  _updateGeyser(entity, geyserContract, event.block.timestamp)
 }
 
 function updateVaultStake(geyserAddress: Address, vaultAddress: Address, timestamp: BigInt): void {
@@ -162,7 +161,7 @@ export function handleRewardClaimed(event: RewardClaimed): void {
 }
 
 export function handlePowerOn(event: PowerOn): void {
-  let entity = new Geyser(event.address.toHex())
+  let entity = Geyser.load(event.address.toHex())
 
   entity.status = 'Online'
 
@@ -170,7 +169,7 @@ export function handlePowerOn(event: PowerOn): void {
 }
 
 export function handlePowerOff(event: PowerOff): void {
-  let entity = new Geyser(event.address.toHex())
+  let entity = Geyser.load(event.address.toHex())
 
   entity.status = 'Offline'
 
@@ -178,7 +177,7 @@ export function handlePowerOff(event: PowerOff): void {
 }
 
 export function handleEmergencyShutdown(event: EmergencyShutdown): void {
-  let entity = new Geyser(event.address.toHex())
+  let entity = Geyser.load(event.address.toHex())
 
   entity.status = 'Shutdown'
 

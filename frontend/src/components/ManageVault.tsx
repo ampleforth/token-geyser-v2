@@ -2,12 +2,13 @@ import React, { useContext, useEffect, useState } from 'react'
 import Web3Context from '../context/Web3Context'
 import styled from 'styled-components/macro'
 import { BigVaultFirstOverlay, VaultFirstTitle } from '../styling/styles'
-import { BigNumber, BigNumberish } from 'ethers'
+import { BigNumber } from 'ethers'
 import { getTokenBalances } from '../sdk/helpers'
-import { deposit } from '../sdk'
 import VaultsContext from '../context/VaultsContext'
 import { DepositWithdrawView } from './DepositWithdrawView'
 import { TokenBalance } from '../types'
+import { TabPane } from './TabPane'
+import { StakeUnstakeView } from './StakeUnstakeView'
 
 interface TokenMetaData {
   address: string
@@ -18,6 +19,8 @@ interface Props {}
 
 const MOCK_ERC_20_ADDRESS = '0x0165878A594ca255338adfa4d48449f69242Eb8F'
 
+type View = 'Balance' | 'Stake'
+
 export const ManageVault: React.FC<Props> = () => {
   const { signer } = useContext(Web3Context)
   const { selectedVault } = useContext(VaultsContext)
@@ -27,9 +30,7 @@ export const ManageVault: React.FC<Props> = () => {
   const [tokenMetaData] = useState<TokenMetaData[]>(Array(5).fill(({ address: MOCK_ERC_20_ADDRESS, name: 'MockERC20' })))
 
   // To control the view switch between stake/unstake and deposit/withdraw
-  const [showStakeView, setShowStakeView] = useState<boolean>(false)
-
-  const toggleShowStakeView = () => setShowStakeView(!showStakeView)
+  const [view, setView] = useState<View>('Balance')
 
   const getBalances = async () => {
     try {
@@ -53,11 +54,14 @@ export const ManageVault: React.FC<Props> = () => {
 
   return (
     <>
-      <VaultFirstTitle>Balances</VaultFirstTitle>
+      <VaultFirstTitle>{view === 'Balance' ? 'Balances' : 'Stakes'}</VaultFirstTitle>
       <Note>ID: {vault.id}</Note>
+      <TabPane tabs={['Balance', 'Stake']} onSelect={setView} />
       <BigVaultFirstOverlay>
         {/* Toggle buttons go here */}
-        {showStakeView ? <>In Progress</> : <DepositWithdrawView tokenBalances={tokenBalances} />}
+        {view === 'Balance'
+          ? <DepositWithdrawView tokenBalances={tokenBalances} />
+          : <StakeUnstakeView />}
       </BigVaultFirstOverlay>
     </>
   )

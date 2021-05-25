@@ -2,6 +2,7 @@ import React, { useContext } from 'react'
 import styled from 'styled-components/macro'
 import VaultsContext from '../context/VaultsContext'
 import Web3Context from '../context/Web3Context'
+import { VaultInfoMessage } from '../styling/styles'
 import { VaultListItem } from './VaultListItem'
 
 interface SelectVaultProps {}
@@ -29,12 +30,4 @@ const VaultsContainer = styled.div`
   :hover {
     overflow-y: overlay;
   }
-`
-
-const VaultInfoMessage = styled.h1`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
 `

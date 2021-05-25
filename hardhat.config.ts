@@ -9,6 +9,7 @@ import { Contract, Signer, Wallet, BigNumber } from 'ethers'
 import { mkdirSync, readFileSync, writeFileSync } from 'fs'
 import { HardhatUserConfig, task } from 'hardhat/config'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/dist/src/signer-with-address'
+import { parseUnits } from 'ethers/lib/utils'
 
 const SDK_PATH = './frontend/src/sdk'
 
@@ -84,7 +85,7 @@ task('deploy', 'deploy full set of factory contracts')
     const RouterV1 = await deployContract('RouterV1', ethers.getContractFactory, signer)
 
     if (mock) {
-      const totalSupply = '10'
+      const totalSupply = parseUnits('10')
       await deployContract('MockERC20', ethers.getContractFactory, signer, [signer.address, totalSupply])
       await deployMockAmpl(signer, ethers.getContractFactory, upgrades.deployProxy)
     }
@@ -225,6 +226,21 @@ task('create-geyser', 'deploy an instance of Geyser')
       await geyser.registerVaultFactory(VaultFactory.address)
     },
   )
+
+task('fund-geyser', 'fund an instance of Geyser')
+  .addParam('geyser', 'address of geyser')
+  .addParam('amount', 'amount')
+  .addOptionalParam('factoryVersion', 'the factory version', 'latest')
+  .setAction(async ({ geyser, amount }, { ethers }) => {
+    const signer = (await ethers.getSigners())[0]
+    const geyserContract = await ethers.getContractAt('Geyser', geyser, signer)
+    const data = await geyserContract.getGeyserData()
+    const { rewardToken: rewardTokenAddress } = data
+    const rewardToken = await ethers.getContractAt('MockAmpl', rewardTokenAddress, signer)
+    const amt = BigNumber.from(amount)
+    await rewardToken.approve(geyser, amt)
+    await geyserContract.connect(signer).fundGeyser(amt, 10000)
+  })
 
 // currently need to manually run verify command
 // can automate after this issue is closed: https://github.com/OpenZeppelin/openzeppelin-upgrades/issues/290

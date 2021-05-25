@@ -3,20 +3,20 @@ import React from 'react';
 import styled from 'styled-components/macro';
 import { NamedColors } from '../styling/colors';
 import { Aligned } from '../styling/mixins';
-import { TokenBalance } from '../types';
+import { Lock } from '../types';
 
-interface BalanceListItemProps {
-  tokenBalance: TokenBalance
+interface StakeListItemProps {
+  lock: Lock
 }
 
-export const BalanceListItem: React.FC<BalanceListItemProps> = ({ tokenBalance }) => {
+export const StakeListItem: React.FC<StakeListItemProps> = ({ lock }) => {
   return (
     <BalanceItem>
       <LeftAlign>
-        {tokenBalance.name}
+        {lock.geyser.id}
       </LeftAlign>
       <RightAlign>
-        {formatUnits(tokenBalance.balance)}
+        {formatUnits(lock.amount)}
       </RightAlign>
     </BalanceItem>
   );

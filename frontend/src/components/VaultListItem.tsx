@@ -8,13 +8,13 @@ import { Aligned } from '../styling/mixins'
 
 interface VaultRowProps {
   vault: VaultMetaData
+  setSelectedVault: (arg0: string | null) => void
 }
 
-export const VaultFirstListItem: React.FC<VaultRowProps> = ({
-  vault: { id, state },
-}) => {
+export const VaultListItem: React.FC<VaultRowProps> = ({ vault: { id, state }, setSelectedVault }) => {
+  console.log(setSelectedVault)
   return (
-    <VaultPreviewButton>
+    <VaultPreviewButton onClick={() => setSelectedVault(id)}>
       <LeftAlign>{displayAddr(id)}</LeftAlign>
       <RightAlign>
         <VaultStatusColor color={VaultStateColors[state]} />

@@ -1,12 +1,12 @@
 import { useLazyQuery } from '@apollo/client'
 import React, { useContext, useEffect, useState } from 'react'
 import styled from 'styled-components/macro'
-import { MintVaultButton } from './MintVaultButton'
-import { VaultFirstListContainer } from './VaultFirstListContainer'
 import Web3Context from '../context/Web3Context'
 import { Vault, VaultMetaData } from '../types'
 import { GET_USER_VAULTS } from '../queries/vault'
 import { VaultState } from '../constants'
+import { SelectVault } from './SelectVault'
+import { ManageVault } from './ManageVault'
 
 interface Props {}
 
@@ -16,6 +16,12 @@ export const VaultFirstContainer: React.FC<Props> = () => {
     pollInterval: 5000,
   })
   const [vaults, setVaults] = useState<VaultMetaData[]>([])
+
+  const [selectedVault, setSelectedVault] = useState<string | null>(null)
+
+  const handleSelectVault = (vaultId: string | null) => setSelectedVault(vaultId)
+
+  const getSelectedVault = () => vaults.filter((v) => v.id === selectedVault)[0]
 
   useEffect(() => {
     if (address) getVaults({ variables: { id: address } })
@@ -37,11 +43,11 @@ export const VaultFirstContainer: React.FC<Props> = () => {
 
   return (
     <Container>
-      <VaultFirstTitle>Select a vault</VaultFirstTitle>
-      <VaultFirstOverlay>
-        <VaultFirstListContainer vaults={vaults} />
-        <MintVaultButton />
-      </VaultFirstOverlay>
+      {!selectedVault ? (
+        <SelectVault vaults={vaults} setSelectedVault={handleSelectVault} />
+      ) : (
+        <ManageVault vault={getSelectedVault()} />
+      )}
     </Container>
   )
 }
@@ -51,16 +57,4 @@ const Container = styled.div`
   height: 80%;
   text-align: center;
   margin: auto;
-`
-
-const VaultFirstOverlay = styled.div`
-  box-shadow: 0px -2px 25px -3px rgb(0 0 0 / 10%);
-  border-radius: 10px;
-  display: grid;
-  grid-template-rows: 4fr 1fr;
-  height: 70%;
-`
-
-const VaultFirstTitle = styled.h1`
-  font-size: 3rem;
 `

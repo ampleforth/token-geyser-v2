@@ -100,21 +100,9 @@ export const signPermitEIP2612 = async (
   }
   // sign permission
   // todo: add fallback if wallet does not support eip 712 rpc
-  const signedPermission = await owner._signTypedData(
-    domainSeparator,
-    types,
-    values,
-  )
+  const signedPermission = await owner._signTypedData(domainSeparator, types, values)
   // split signature
   const sig = splitSignature(signedPermission)
   // return
-  return [
-    values.owner,
-    values.spender,
-    values.value,
-    values.deadline,
-    sig.v,
-    sig.r,
-    sig.s,
-  ]
+  return [values.owner, values.spender, values.value, values.deadline, sig.v, sig.r, sig.s]
 }

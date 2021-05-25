@@ -33,20 +33,10 @@ describe('VaultFactory', function () {
   })
   describe('create2', function () {
     it('should succeed', async function () {
-      await create2Instance(
-        'UniversalVault',
-        factory,
-        accounts[0],
-        ethers.utils.randomBytes(32),
-      )
+      await create2Instance('UniversalVault', factory, accounts[0], ethers.utils.randomBytes(32))
     })
     it('should successfully call owner', async function () {
-      const vault = await create2Instance(
-        'UniversalVault',
-        factory,
-        accounts[0],
-        ethers.utils.randomBytes(32),
-      )
+      const vault = await create2Instance('UniversalVault', factory, accounts[0], ethers.utils.randomBytes(32))
       expect(await vault.owner()).to.eq(accounts[0].address)
     })
   })

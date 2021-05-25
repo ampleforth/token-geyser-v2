@@ -20,11 +20,7 @@ export async function increaseTime(seconds: number) {
 }
 
 // Perc has to be a whole number
-export async function invokeRebase(
-  ampl: Contract,
-  perc: number,
-  orchestrator: Signer,
-) {
+export async function invokeRebase(ampl: Contract, perc: number, orchestrator: Signer) {
   const PERC_DECIMALS = 2
   const s = await ampl.totalSupply.call()
   const ordinate = 10 ** PERC_DECIMALS
@@ -56,12 +52,7 @@ export async function deployGeyser(args: Array<any>) {
   })
 }
 
-export async function createInstance(
-  instanceName: string,
-  factory: Contract,
-  signer: Signer,
-  args: string = '0x',
-) {
+export async function createInstance(instanceName: string, factory: Contract, signer: Signer, args: string = '0x') {
   // get contract class
   const instance = await ethers.getContractAt(
     instanceName,
@@ -83,9 +74,7 @@ export async function create2Instance(
   // get contract class
   const instance = await ethers.getContractAt(
     instanceName,
-    await factory
-      .connect(signer)
-      .callStatic['create2(bytes,bytes32)'](args, salt),
+    await factory.connect(signer).callStatic['create2(bytes,bytes32)'](args, salt),
   )
   // deploy vault
   await factory.connect(signer)['create2(bytes,bytes32)'](args, salt)
@@ -133,16 +122,8 @@ export const signPermission = async (
   return signedPermission
 }
 
-export const transferNFT = async (
-  nft: Contract,
-  signer: Signer,
-  owner: string,
-  recipient: string,
-  tokenId: string,
-) => {
-  return nft
-    .connect(signer)
-    ['safeTransferFrom(address,address,uint256)'](owner, recipient, tokenId)
+export const transferNFT = async (nft: Contract, signer: Signer, owner: string, recipient: string, tokenId: string) => {
+  return nft.connect(signer)['safeTransferFrom(address,address,uint256)'](owner, recipient, tokenId)
 }
 
 export const ERC1271_VALID_SIG = '0x1626ba7e'

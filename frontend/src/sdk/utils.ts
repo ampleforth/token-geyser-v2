@@ -8,8 +8,7 @@ import localhostConfig from './deployments/localhost/factories-latest.json'
 export const loadNetworkConfig = async (signer: Signer) => {
   const network = await signer.provider?.getNetwork()
 
-  if (network?.name === 'unknown' && process.env.NODE_ENV === 'development')
-    return localhostConfig
+  if (network?.name === 'unknown' && process.env.NODE_ENV === 'development') return localhostConfig
 
   switch (network?.name) {
     case 'mainnet':
@@ -100,21 +99,9 @@ export const signPermitEIP2612 = async (
   }
   // sign permission
   // todo: add fallback if wallet does not support eip 712 rpc
-  const signedPermission = await owner._signTypedData(
-    domainSeparator,
-    types,
-    values,
-  )
+  const signedPermission = await owner._signTypedData(domainSeparator, types, values)
   // split signature
   const sig = splitSignature(signedPermission)
   // return
-  return [
-    values.owner,
-    values.spender,
-    values.value,
-    values.deadline,
-    sig.v,
-    sig.r,
-    sig.s,
-  ]
+  return [values.owner, values.spender, values.value, values.deadline, sig.v, sig.r, sig.s]
 }

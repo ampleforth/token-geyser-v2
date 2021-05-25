@@ -13,10 +13,10 @@ import { TransactionResponse } from '@ethersproject/providers'
 
 interface DepositWithdrawViewProps {
   tokenBalances: TokenBalance[]
+  updateBalances: () => void
 }
 
-export const DepositWithdrawView: React.FC<DepositWithdrawViewProps> = ({ tokenBalances }) => {
-
+export const DepositWithdrawView: React.FC<DepositWithdrawViewProps> = ({ tokenBalances, updateBalances }) => {
   const [mode, setMode] = useState<VaultAction>(VaultAction.DEPOSIT)
   const getToggleOptions = () => Object.values(VaultAction).map((view) => view.toString())
   const selectView = (option: string) => setMode(VaultAction[option as keyof typeof VaultAction])
@@ -25,22 +25,19 @@ export const DepositWithdrawView: React.FC<DepositWithdrawViewProps> = ({ tokenB
   const { selectedVault: vault } = useContext(VaultContext)
   const { signer, address } = useContext(Web3Context)
 
-  const refreshPage = (transactionResponse: TransactionResponse) => {
-    const receipt = transactionResponse.wait()
-    if (receipt) {
-      window.location.reload()
-      localStorage.setItem('persistSelectedVault', 'true')
-    }
+  const updateTokenBalances = async (transactionResponse: TransactionResponse) => {
+    const receipt = await transactionResponse.wait()
+    if (receipt) updateBalances()
   }
 
   const handleTransaction = async () => {
     if (vault && signer && address) {
       if (mode === VaultAction.DEPOSIT) {
         const depositResponse = await depositRawAmount(vault.id, MOCK_ERC_20_ADDRESS, amount, signer)
-        refreshPage(depositResponse)
+        updateTokenBalances(depositResponse)
       } else {
         const withdrawResponse = await withdrawRawAmount(vault.id, MOCK_ERC_20_ADDRESS, address, amount, signer)
-        refreshPage(withdrawResponse)
+        updateTokenBalances(withdrawResponse)
       }
     }
   }

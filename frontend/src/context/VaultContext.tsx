@@ -37,10 +37,7 @@ export const VaultContextProvider: React.FC = ({ children }) => {
   const [selectedVault, setSelectedVault] = useState<Vault | null>(null)
 
   const resetVault = () => setSelectedVault(null)
-  const selectVault = (vault: Vault) => {
-    setSelectedVault(vault)
-    localStorage.setItem('previouslySelectedVault', vault.id)
-  }
+  const selectVault = (vault: Vault) => setSelectedVault(vault)
 
   const getBalances = async (tokenAddresses: string[], vaultAddress: string, signer: Signer) =>
     getTokenBalances(tokenAddresses.map(toChecksumAddress), vaultAddress, signer)
@@ -53,13 +50,6 @@ export const VaultContextProvider: React.FC = ({ children }) => {
     if (vaultData && vaultData.user) {
       const userVaults = vaultData.user.vaults as Vault[]
       setVaults(userVaults)
-      const showPreviouslySelectedVault = localStorage.getItem('persistSelectedVault')
-      if (showPreviouslySelectedVault === 'true') {
-        const previouslySelectedVaultId = localStorage.getItem('previouslySelectedVault')
-        const previouslySelectedVault = userVaults.find((vault) => vault.id === previouslySelectedVaultId)
-        if (previouslySelectedVault) setSelectedVault(previouslySelectedVault)
-        localStorage.setItem('persistSelectedVault', 'false')
-      }
     }
   }, [vaultData, vaults])
 

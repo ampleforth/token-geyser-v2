@@ -58,7 +58,7 @@ export const ManageVault: React.FC<Props> = () => {
       <BigVaultFirstOverlay>
         <ToggleView options={getToggleOptions()} toggleOption={selectView} activeOption={view.toString()} />
         {view === ManageVaultView.BALANCE ? (
-          <DepositWithdrawView tokenBalances={tokenBalances} />
+          <DepositWithdrawView tokenBalances={tokenBalances} updateBalances={getBalances} />
         ) : (
           <StakeUnstakeView />
         )}

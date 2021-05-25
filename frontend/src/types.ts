@@ -1,10 +1,17 @@
 import { BigNumber } from 'ethers'
 
+type ClaimedReward = {
+  id: string
+  token: string
+  amount: string
+  lastUpdate: string
+}
+
 export type Vault = {
   id: string
   nonce: string
   // TODO: proper typing for reward
-  claimedReward: any[]
+  claimedReward: ClaimedReward[]
   locks: Lock[]
 }
 

@@ -1,3 +1,4 @@
+import { Wallet } from '@ethersproject/wallet'
 import React, { useContext, useState } from 'react'
 import styled from 'styled-components/macro'
 import { GeyserAction } from '../constants'
@@ -25,9 +26,9 @@ export const StakeUnstakeView: React.FC = () => {
   const handleTransaction = async () => {
     if (vault && signer && address && selectedGeyser) {
       if (mode === GeyserAction.STAKE) {
-        await stakeRawAmount(selectedGeyser, vault.id, amount, signer as any)
+        await stakeRawAmount(selectedGeyser, vault.id, amount, signer as Wallet)
       } else {
-        await unstakeRawAmount(selectedGeyser, vault.id, amount, signer as any)
+        await unstakeRawAmount(selectedGeyser, vault.id, amount, signer as Wallet)
       }
     }
   }

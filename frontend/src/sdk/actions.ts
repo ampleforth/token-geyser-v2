@@ -2,7 +2,7 @@ import { TransactionResponse } from '@ethersproject/providers'
 import { BigNumberish, Contract, Signer, Wallet } from 'ethers'
 import { parseUnits, randomBytes } from 'ethers/lib/utils'
 import { ERC20_ABI } from './abis'
-import { ERC20Decimals, isPermitable, loadNetworkConfig, signPermission, signPermitEIP2612 } from './utils'
+import { isPermitable, loadNetworkConfig, signPermission, signPermitEIP2612 } from './utils'
 
 // End to end user flow
 // 1) Create vault: `create()`
@@ -114,15 +114,33 @@ export const approveCreateDepositStake = async (geyserAddress: string, amount: B
 
   const salt = randomBytes(32)
   const vaultAddress = await router.callStatic.create2Vault(config.VaultFactory.address, salt)
-  const vault = new Contract(vaultAddress, config.VaultTemplate.address, signer)
-
-  const lockPermission = await signPermission('Lock', vault, signer, geyserAddress, token.address, amount, 0)
-
+  const vault = new Contract(vaultAddress, config.VaultTemplate.abi, signer)
+  const lockPermission = await signPermission('Lock', vault, signer, geyserAddress, token.address, amount, '0')
   const args = [geyserAddress, config.VaultFactory.address, await signer.getAddress(), amount, salt, lockPermission]
 
   await token.approve(router.address, amount)
 
   return router.create2VaultAndStake(...args) as Promise<TransactionResponse>
+}
+
+export const depositStake = async (
+  geyserAddress: string,
+  vaultAddress: string,
+  amount: BigNumberish,
+  signer: Wallet,
+) => {
+  const config = await loadNetworkConfig(signer)
+  const geyser = new Contract(geyserAddress, config.GeyserTemplate.abi, signer)
+  const router = new Contract(config.RouterV1.address, config.RouterV1.abi, signer)
+  const tokenAddress = (await geyser.getGeyserData()).stakingToken
+  const token = new Contract(tokenAddress, ERC20_ABI, signer)
+  const vault = new Contract(vaultAddress, config.VaultTemplate.abi, signer)
+  const lockPermission = await signPermission('Lock', vault, signer, geyserAddress, token.address, amount)
+  const args = [geyserAddress, vaultAddress, amount, lockPermission]
+
+  await token.approve(router.address, amount)
+
+  return router.depositStake(...args) as Promise<TransactionResponse>
 }
 
 export const permitCreateDepositStake = async (geyserAddress: string, amount: BigNumberish, signer: Wallet) => {

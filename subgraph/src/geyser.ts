@@ -128,6 +128,7 @@ function updateVaultStake(geyserAddress: Address, vaultAddress: Address, timesta
   lock.stakeUnits = geyserContract.getCurrentVaultStakeUnits(vaultAddress)
   lock.amount = geyserContract.getVaultData(vaultAddress).totalStake
   lock.lastUpdate = timestamp
+  lock.token = geyserContract.getGeyserData().stakingToken
 
   updateGeyser(geyserAddress, timestamp)
 

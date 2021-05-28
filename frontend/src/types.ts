@@ -10,13 +10,22 @@ type ClaimedReward = {
 export type Vault = {
   id: string
   nonce: string
-  // TODO: proper typing for reward
   claimedReward: ClaimedReward[]
   locks: Lock[]
 }
 
+type GeyserStatus = 'Online' | 'Offline' | 'Shutdown'
+
 export type Geyser = {
   id: string
+  stakingToken: string
+  totalStake: string
+  totalStakeUnits: string
+  status: GeyserStatus
+  scalingFloor: string
+  scalingCeiling: string
+  scalingTime: string
+  unlockedReward: string
 }
 
 export type Lock = {

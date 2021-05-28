@@ -1,14 +1,18 @@
 import { TypedDataField } from '@ethersproject/abstract-signer'
 import { BigNumberish, Contract, Signer, Wallet } from 'ethers'
-import { splitSignature } from 'ethers/lib/utils'
+import { parseUnits, splitSignature } from 'ethers/lib/utils'
 import mainnetConfig from './deployments/mainnet/factories-latest.json'
 import goerliConfig from './deployments/goerli/factories-latest.json'
 import localhostConfig from './deployments/localhost/factories-latest.json'
 import { ERC20_ABI } from './abis'
 
-export const ERC20Decimals = async (tokenAddress: string) => {
-  const token = new Contract(tokenAddress, ERC20_ABI)
+export const ERC20Decimals = async (tokenAddress: string, signer: Signer) => {
+  const token = new Contract(tokenAddress, ERC20_ABI, signer)
   return token.decimals()
+}
+
+export const parseUnitsWithDecimals = async (value: string, tokenAddress: string, signer: Signer) => {
+  return parseUnits(value, await ERC20Decimals(tokenAddress, signer))
 }
 
 export const loadNetworkConfig = async (signer: Signer) => {

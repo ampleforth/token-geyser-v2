@@ -14,10 +14,15 @@ export type Vault = {
   locks: Lock[]
 }
 
-type GeyserStatus = 'Online' | 'Offline' | 'Shutdown'
+export enum GeyserStatus {
+  ONLINE = 'Online',
+  OFFLINE = 'Offline',
+  SHUTDOWN = 'Shutdown'
+}
 
 export type Geyser = {
   id: string
+  rewardToken: string
   stakingToken: string
   totalStake: string
   totalStakeUnits: string

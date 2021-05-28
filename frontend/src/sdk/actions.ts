@@ -123,7 +123,7 @@ export const approveCreateDepositStake = async (geyserAddress: string, amount: B
   return router.create2VaultAndStake(...args) as Promise<TransactionResponse>
 }
 
-export const depositStake = async (
+export const approveDepositStake = async (
   geyserAddress: string,
   vaultAddress: string,
   amount: BigNumberish,

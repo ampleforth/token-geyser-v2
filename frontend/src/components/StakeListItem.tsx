@@ -9,18 +9,12 @@ interface StakeListItemProps {
   lock: Lock
 }
 
-export const StakeListItem: React.FC<StakeListItemProps> = ({ lock }) => {
-  return (
-    <BalanceItem>
-      <LeftAlign>
-        {lock.geyser.id}
-      </LeftAlign>
-      <RightAlign>
-        {formatUnits(lock.amount)}
-      </RightAlign>
-    </BalanceItem>
-  );
-}
+export const StakeListItem: React.FC<StakeListItemProps> = ({ lock }) => (
+  <BalanceItem>
+    <LeftAlign>{lock.geyser.id}</LeftAlign>
+    <RightAlign>{formatUnits(lock.amount)}</RightAlign>
+  </BalanceItem>
+)
 
 const BalanceItem = styled.div`
   font-size: 1rem;

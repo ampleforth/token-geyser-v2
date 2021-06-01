@@ -1,12 +1,12 @@
 import { useLazyQuery } from '@apollo/client'
 import { BigNumber, Signer } from 'ethers'
 import { createContext, useContext, useEffect, useState } from 'react'
+import { toChecksumAddress } from 'web3-utils'
 import { GET_USER_VAULTS } from '../queries/vault'
 import { POLL_INTERVAL } from '../constants'
 import { Vault } from '../types'
 import { getTokenBalances } from '../sdk/helpers'
 import Web3Context from './Web3Context'
-import { toChecksumAddress } from 'web3-utils'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 
 export const VaultContext = createContext<{

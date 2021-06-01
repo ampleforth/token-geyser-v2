@@ -4,14 +4,12 @@ import { HeaderWalletButton } from './HeaderWalletButton'
 
 interface Props {}
 
-export const Header: React.FC<Props> = () => {
-  return (
-    <Container>
-      <LogoDiv>Λ</LogoDiv>
-      <HeaderWalletButton />
-    </Container>
-  )
-}
+export const Header: React.FC<Props> = () => (
+  <Container>
+    <LogoDiv>Λ</LogoDiv>
+    <HeaderWalletButton />
+  </Container>
+)
 
 const Container = styled.div`
   display: grid;

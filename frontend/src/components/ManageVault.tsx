@@ -1,8 +1,8 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react'
-import Web3Context from '../context/Web3Context'
 import styled from 'styled-components/macro'
-import { BigVaultFirstOverlay, VaultFirstTitle } from '../styling/styles'
 import { BigNumber } from 'ethers'
+import Web3Context from '../context/Web3Context'
+import { BigVaultFirstOverlay, VaultFirstTitle } from '../styling/styles'
 import { getTokenBalances } from '../sdk/helpers'
 import { VaultContext } from '../context/VaultContext'
 import { DepositWithdrawView } from './DepositWithdrawView'
@@ -29,7 +29,7 @@ export const ManageVault: React.FC<Props> = () => {
 
   // To control the view switch between stake/unstake and deposit/withdraw
   const [view, setView] = useState<ManageVaultView>(ManageVaultView.BALANCE)
-  const getToggleOptions = () => Object.values(ManageVaultView).map(view => view.toString())
+  const getToggleOptions = () => Object.values(ManageVaultView).map((v) => v.toString())
   const selectView = (option: string) => setView(ManageVaultView[option as keyof typeof ManageVaultView])
 
   const getBalances = useCallback(async () => {

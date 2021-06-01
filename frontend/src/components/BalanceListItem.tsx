@@ -9,18 +9,12 @@ interface BalanceListItemProps {
   tokenBalance: TokenBalance
 }
 
-export const BalanceListItem: React.FC<BalanceListItemProps> = ({ tokenBalance }) => {
-  return (
-    <BalanceItem>
-      <LeftAlign>
-        {tokenBalance.name}
-      </LeftAlign>
-      <RightAlign>
-        {formatUnits(tokenBalance.balance)}
-      </RightAlign>
-    </BalanceItem>
-  );
-}
+export const BalanceListItem: React.FC<BalanceListItemProps> = ({ tokenBalance }) => (
+  <BalanceItem>
+    <LeftAlign>{tokenBalance.name}</LeftAlign>
+    <RightAlign>{formatUnits(tokenBalance.balance)}</RightAlign>
+  </BalanceItem>
+)
 
 const BalanceItem = styled.div`
   font-size: 1rem;

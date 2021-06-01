@@ -5,14 +5,12 @@ import { VaultFirstOverlay, VaultFirstTitle } from '../styling/styles'
 
 interface Props {}
 
-export const SelectVault: React.FC<Props> = () => {
-  return (
-    <>
-      <VaultFirstTitle>Select a vault</VaultFirstTitle>
-      <VaultFirstOverlay>
-        <VaultsListContainer />
-        <MintVaultButton />
-      </VaultFirstOverlay>
-    </>
-  )
-}
+export const SelectVault: React.FC<Props> = () => (
+  <>
+    <VaultFirstTitle>Select a vault</VaultFirstTitle>
+    <VaultFirstOverlay>
+      <VaultsListContainer />
+      <MintVaultButton />
+    </VaultFirstOverlay>
+  </>
+)

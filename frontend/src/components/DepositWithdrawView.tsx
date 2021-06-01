@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react'
 import styled from 'styled-components/macro'
+import { TransactionResponse } from '@ethersproject/providers'
 import { MOCK_ERC_20_ADDRESS, VaultAction } from '../constants'
 import { VaultContext } from '../context/VaultContext'
 import Web3Context from '../context/Web3Context'
@@ -9,7 +10,6 @@ import { Input, ManageVaultButton, Paragraph } from '../styling/styles'
 import { TokenBalance } from '../types'
 import { BalanceListItem } from './BalanceListItem'
 import { ToggleView } from './ToggleView'
-import { TransactionResponse } from '@ethersproject/providers'
 
 interface DepositWithdrawViewProps {
   tokenBalances: TokenBalance[]

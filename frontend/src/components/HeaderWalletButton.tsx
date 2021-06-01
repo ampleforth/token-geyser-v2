@@ -13,7 +13,7 @@ export const HeaderWalletButton: React.FC<Props> = () => {
   return (
     <div>
       <StickyButton onClick={selectWallet}>
-        <Paragraph autoCapitalize={'yes'} color={NamedColors.WHITE}>
+        <Paragraph autoCapitalize="yes" color={NamedColors.WHITE}>
           {address ? displayAddr(address) : 'CONNECT'}
         </Paragraph>
       </StickyButton>

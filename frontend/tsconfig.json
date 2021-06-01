@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "baseUrl": "src",
+    "target": "es6",
     "lib": [
       "dom",
       "dom.iterable",
@@ -22,6 +23,9 @@
   },
   "include": [
     "src",
-    "craco.config.js" 
+    "craco.config.js"
+  ],
+  "exclude": [
+    "src/sdk"
   ]
 }

@@ -42,30 +42,30 @@ const Web3Provider: React.FC = ({ children }) => {
   const [signer, setSigner] = useState<Signer>();
   const [ready, setReady] = useState(false);
 
-  const updateWallet = useCallback((wallet: Wallet) => {
-    setWallet(wallet);
-    if (wallet && wallet.name) localStorage.setItem('selectedWallet', wallet.name)
+  const updateWallet = useCallback((newWallet: Wallet) => {
+    setWallet(newWallet)
+    if (newWallet && newWallet.name) localStorage.setItem('selectedWallet', newWallet.name)
     const network = process.env.NODE_ENV === 'development' ? { name: 'localhost', chainId: 1337 } : undefined
-    const ethersProvider = new Provider(wallet.provider, network);
-    const rpcSigner = ethersProvider.getSigner();
-    setSigner(rpcSigner);
-    setProvider(ethersProvider);
-  }, []);
+    const ethersProvider = new Provider(newWallet.provider, network)
+    const rpcSigner = ethersProvider.getSigner()
+    setSigner(rpcSigner)
+    setProvider(ethersProvider)
+  }, [])
 
   useEffect(() => {
-    const onboard = initOnboard({
+    const onboardAPI = initOnboard({
       address: setAddress,
-      wallet: (wallet: Wallet) => {
-        if (wallet?.provider?.selectedAddress) {
-          updateWallet(wallet)
+      wallet: (w: Wallet) => {
+        if (w?.provider?.selectedAddress) {
+          updateWallet(w)
         } else {
-          // TODO: avoid favour using nulls over undefined when explicitly set
+          // TODO: favour using nulls over undefined when explicitly set
           setProvider(undefined)
           setWallet(undefined)
         }
       },
-    });
-    setOnboard(onboard);
+    })
+    setOnboard(onboardAPI)
   }, [updateWallet]);
 
   useEffect(() => {
@@ -82,12 +82,10 @@ const Web3Provider: React.FC = ({ children }) => {
     if (!onboard) return false;
     const walletSelected = await onboard.walletSelect();
     if (!walletSelected) return false;
-    const ready = await onboard.walletCheck();
-    setReady(ready);
-    if (ready) {
-      updateWallet(onboard.getState().wallet);
-    }
-    return ready;
+    const isReady = await onboard.walletCheck()
+    setReady(isReady)
+    if (isReady) updateWallet(onboard.getState().wallet)
+    return isReady
   }
 
   return (

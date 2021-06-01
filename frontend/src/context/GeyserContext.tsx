@@ -25,6 +25,10 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
     if (geyserData && geyserData.geysers) setGeysers(geyserData.geysers as Geyser[])
   }, [geyserData])
 
+  useEffect(() => {
+    if (geysers.length > 0) selectGeyser(geysers[0])
+  }, [geysers])
+
   if (geyserLoading) return <LoadingSpinner />
 
   return <GeyserContext.Provider value={{ geysers, selectedGeyser, selectGeyser }}>{children}</GeyserContext.Provider>

@@ -1,6 +1,6 @@
 import { TransactionResponse } from '@ethersproject/providers'
 import { BigNumberish, Contract, Signer, Wallet } from 'ethers'
-import { parseUnits, randomBytes } from 'ethers/lib/utils'
+import { randomBytes } from 'ethers/lib/utils'
 import { ERC20_ABI } from './abis'
 import { isPermitable, loadNetworkConfig, signPermission, signPermitEIP2612 } from './utils'
 
@@ -32,18 +32,10 @@ export const create = async (signer: Signer) => {
   return vault
 }
 
-export const depositRawAmount = async (vaultAddress: string, tokenAddress: string, amount: string, signer: Signer) => {
-  return deposit(vaultAddress, tokenAddress, parseUnits(amount), signer)
-}
-
 export const deposit = async (vaultAddress: string, tokenAddress: string, amount: BigNumberish, signer: Signer) => {
   const token = new Contract(tokenAddress, ERC20_ABI, signer)
 
   return token.transfer(vaultAddress, amount) as Promise<TransactionResponse>
-}
-
-export const stakeRawAmount = async (geyserAddress: string, vaultAddress: string, amount: string, signer: Wallet) => {
-  return stake(geyserAddress, vaultAddress, parseUnits(amount), signer)
 }
 
 export const stake = async (geyserAddress: string, vaultAddress: string, amount: BigNumberish, signer: Wallet) => {
@@ -59,10 +51,6 @@ export const stake = async (geyserAddress: string, vaultAddress: string, amount:
   return geyser.stake(vault.address, amount, permission) as Promise<TransactionResponse>
 }
 
-export const unstakeRawAmount = async (geyserAddress: string, vaultAddress: string, amount: string, signer: Wallet) => {
-  return unstake(geyserAddress, vaultAddress, parseUnits(amount), signer)
-}
-
 export const unstake = async (geyserAddress: string, vaultAddress: string, amount: BigNumberish, signer: Wallet) => {
   const config = await loadNetworkConfig(signer)
 
@@ -74,16 +62,6 @@ export const unstake = async (geyserAddress: string, vaultAddress: string, amoun
   const permission = signPermission('Unlock', vault, signer, geyser.address, tokenAddress, amount)
 
   return geyser.unstakeAndClaim(vault.address, amount, permission) as Promise<TransactionResponse>
-}
-
-export const withdrawRawAmount = async (
-  vaultAddress: string,
-  tokenAddress: string,
-  recipientAddress: string,
-  amount: string,
-  signer: Signer,
-) => {
-  return withdraw(vaultAddress, tokenAddress, recipientAddress, parseUnits(amount), signer)
 }
 
 export const withdraw = async (
@@ -141,6 +119,20 @@ export const approveDepositStake = async (
   await token.approve(router.address, amount)
 
   return router.depositStake(...args) as Promise<TransactionResponse>
+}
+
+export const unstakeWithdraw = async (
+  geyserAddress: string,
+  vaultAddress: string,
+  amount: BigNumberish,
+  signer: Wallet,
+) => {
+  // temporary, might want to implement a contract function that combines the two actions into 1
+  const config = await loadNetworkConfig(signer)
+  const geyser = new Contract(geyserAddress, config.GeyserTemplate.abi, signer)
+  const tokenAddress = (await geyser.getGeyserData()).stakingToken
+  await unstake(geyserAddress, vaultAddress, amount, signer)
+  return withdraw(vaultAddress, tokenAddress, await signer.getAddress(), amount, signer)
 }
 
 export const permitCreateDepositStake = async (geyserAddress: string, amount: BigNumberish, signer: Wallet) => {

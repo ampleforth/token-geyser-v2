@@ -1,11 +1,8 @@
 import { useLazyQuery } from '@apollo/client'
-import { BigNumber, Signer } from 'ethers'
 import { createContext, useContext, useEffect, useState } from 'react'
-import { toChecksumAddress } from 'web3-utils'
 import { GET_USER_VAULTS } from '../queries/vault'
 import { POLL_INTERVAL } from '../constants'
 import { Vault } from '../types'
-import { getTokenBalances } from '../sdk/helpers'
 import Web3Context from './Web3Context'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 
@@ -13,18 +10,10 @@ export const VaultContext = createContext<{
   vaults: Vault[]
   selectedVault: Vault | null
   selectVault: (arg0: Vault) => void
-  resetVault: Function
-  getBalances: (
-    tokenAddresses: string[],
-    vaultAddress: string,
-    signer: Signer,
-  ) => Promise<PromiseSettledResult<BigNumber>[]>
 }>({
   vaults: [],
   selectedVault: null,
   selectVault: () => {},
-  resetVault: () => {},
-  getBalances: async () => [],
 })
 
 export const VaultContextProvider: React.FC = ({ children }) => {
@@ -36,11 +25,7 @@ export const VaultContextProvider: React.FC = ({ children }) => {
   const [vaults, setVaults] = useState<Vault[]>([])
   const [selectedVault, setSelectedVault] = useState<Vault | null>(null)
 
-  const resetVault = () => setSelectedVault(null)
   const selectVault = (vault: Vault) => setSelectedVault(vault)
-
-  const getBalances = async (tokenAddresses: string[], vaultAddress: string, signer: Signer) =>
-    getTokenBalances(tokenAddresses.map(toChecksumAddress), vaultAddress, signer)
 
   useEffect(() => {
     if (address) getVaults({ variables: { id: address } })
@@ -50,8 +35,11 @@ export const VaultContextProvider: React.FC = ({ children }) => {
     if (vaultData && vaultData.user) {
       const userVaults = vaultData.user.vaults as Vault[]
       setVaults(userVaults)
+      if (userVaults.length > 0 && selectedVault === null) {
+        selectVault(userVaults[0])
+      }
     }
-  }, [vaultData, vaults])
+  }, [vaultData, selectedVault])
 
   if (vaultLoading) return <LoadingSpinner />
 
@@ -61,8 +49,6 @@ export const VaultContextProvider: React.FC = ({ children }) => {
         vaults,
         selectedVault,
         selectVault,
-        resetVault,
-        getBalances,
       }}
     >
       {children}

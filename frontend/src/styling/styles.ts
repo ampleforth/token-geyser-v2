@@ -13,7 +13,7 @@ export const Input = styled.input`
     -webkit-appearance: none;
     margin: 0;
   }
-  width: 75%;
+  width: 100%;
   box-sizing: border-box;
   padding: 12px 10px;
   font-size: bold;
@@ -23,16 +23,14 @@ export const Input = styled.input`
   border: 1px solid ${NamedColors.ALTO};
   font-size: 1.2rem;
   height: 60px;
-  margin: 16px;
+  margin-bottom: 10px;
 `
 
-export const ManageVaultButton = styled.button`
+export const GeyserInteractionButton = styled.button`
   cursor: pointer;
-  width: 75%;
+  width: 100%;
   height: 60px;
   border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
   border: 1px solid ${NamedColors.WHITE};
   background-color: ${NamedColors.ELECTRICAL_VIOLET};
   :hover {
@@ -55,24 +53,9 @@ export const Paragraph = styled.p`
   margin: auto;
 `
 
-export const VaultFirstOverlay = styled.div`
+export const GeyserFirstOverlay = styled.div`
   box-shadow: 0px -2px 25px -3px rgb(0 0 0 / 10%);
   border-radius: 10px;
-  display: grid;
-  grid-template-rows: 4fr 1fr;
-  height: 70%;
-`
-
-export const BigVaultFirstOverlay = styled.div`
-  box-shadow: 0px -2px 25px -3px rgb(0 0 0 / 10%);
-  border-radius: 10px;
-  display: grid;
-  grid-template-rows: 0.5fr 2fr;
-  height: 90%;
-`
-
-export const VaultFirstTitle = styled.h1`
-  font-size: 3rem;
 `
 
 export const LogoDiv = styled.div`

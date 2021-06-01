@@ -17,7 +17,7 @@ export type Vault = {
 export enum GeyserStatus {
   ONLINE = 'Online',
   OFFLINE = 'Offline',
-  SHUTDOWN = 'Shutdown'
+  SHUTDOWN = 'Shutdown',
 }
 
 export type Geyser = {

@@ -6,19 +6,17 @@ import { GeyserContextProvider } from './context/GeyserContext';
 import { Web3Provider } from './context/Web3Context';
 import { client } from './queries/client';
 
-function App() {
-  return (
-    <ApolloProvider client={client}>
-      <Web3Provider>
-        <VaultContextProvider>
-          <GeyserContextProvider>
-            <Header />
-            <VaultFirstContainer />
-          </GeyserContextProvider>
-        </VaultContextProvider>
-      </Web3Provider>
-    </ApolloProvider>
-  );
-}
+const App = () => (
+  <ApolloProvider client={client}>
+    <Web3Provider>
+      <VaultContextProvider>
+        <GeyserContextProvider>
+          <Header />
+          <VaultFirstContainer />
+        </GeyserContextProvider>
+      </VaultContextProvider>
+    </Web3Provider>
+  </ApolloProvider>
+)
 
-export default App;
+export default App

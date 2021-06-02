@@ -5,7 +5,7 @@ import { GeyserContext } from '../context/GeyserContext'
 import { VaultContext } from '../context/VaultContext'
 import { WalletContext } from '../context/WalletContext'
 import Web3Context from '../context/Web3Context'
-import { approveCreateDepositStake, approveDepositStake } from '../sdk'
+import { unstakeWithdraw } from '../sdk'
 import { NamedColors } from '../styling/colors'
 import { GeyserInteractionButton, Paragraph } from '../styling/styles'
 import { amountOrZero, formatAmount } from '../utils/amount'
@@ -13,7 +13,7 @@ import { PositiveInput } from './PositiveInput'
 
 interface Props {}
 
-export const GeyserStakeView: React.FC<Props> = () => {
+export const GeyserUnstakeView: React.FC<Props> = () => {
   const [amount, setAmount] = useState<string>('')
   const [parsedAmount, setParsedAmount] = useState<BigNumber>(BigNumber.from('0'))
   const { selectedGeyser, stakingTokenDecimals, stakingTokenSymbol } = useContext(GeyserContext)
@@ -29,16 +29,11 @@ export const GeyserStakeView: React.FC<Props> = () => {
     refreshWalletAmount()
   }
 
-  const handleStake = async () => {
-    if (selectedGeyser && signer && !parsedAmount.isZero()) {
+  const handleUnstake = async () => {
+    if (selectedGeyser && selectedVault && signer) {
       const geyserAddress = selectedGeyser.id
-      let tx
-      if (selectedVault) {
-        const vaultAddress = selectedVault.id
-        tx = await approveDepositStake(geyserAddress, vaultAddress, parsedAmount, signer as Wallet)
-      } else {
-        tx = await approveCreateDepositStake(geyserAddress, parsedAmount, signer as Wallet)
-      }
+      const vaultAddress = selectedVault.id
+      const tx = await unstakeWithdraw(geyserAddress, vaultAddress, parsedAmount, signer as Wallet)
       const receipt = await tx.wait()
       if (receipt) refresh()
     }
@@ -56,8 +51,8 @@ export const GeyserStakeView: React.FC<Props> = () => {
             <div>Current stake: {formatDisplayAmount(userStake)}</div>
           </>
         : <>
-            <div>New wallet balance: {formatDisplayAmount(walletAmount.sub(parsedAmount))}</div>
-            <div>New stake: {formatDisplayAmount(userStake.add(parsedAmount))}</div>
+            <div>New wallet balance: {formatDisplayAmount(walletAmount.add(parsedAmount))}</div>
+            <div>New stake: {formatDisplayAmount(userStake.sub(parsedAmount))}</div>
           </>}
       <PositiveInput
         placeholder="Enter amount"
@@ -69,9 +64,9 @@ export const GeyserStakeView: React.FC<Props> = () => {
           }
         }}
       />
-      <GeyserInteractionButton onClick={handleStake}>
-        <Paragraph color={NamedColors.WHITE}> Stake </Paragraph>
+      <GeyserInteractionButton onClick={handleUnstake}>
+        <Paragraph color={NamedColors.WHITE}> Unstake </Paragraph>
       </GeyserInteractionButton>
     </div>
-  )
+  );
 }

@@ -17,17 +17,7 @@ export const POLL_INTERVAL = 5 * second
 
 export const MOCK_ERC_20_ADDRESS = '0x0165878A594ca255338adfa4d48449f69242Eb8F'
 
-export enum ManageVaultView {
-  BALANCE = 'BALANCE',
-  STAKE = 'STAKE',
-}
-
-export enum VaultAction {
-  DEPOSIT = 'DEPOSIT',
-  WITHDRAW = 'WITHDRAW',
-}
-
-export enum GeyserAction {
-  STAKE = 'STAKE',
-  UNSTAKE = 'UNSTAKE',
+export enum GeyserView {
+  STAKE = 'Stake',
+  UNSTAKE = 'Unstake',
 }

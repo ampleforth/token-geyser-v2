@@ -8,12 +8,8 @@ interface Props extends React.InputHTMLAttributes<HTMLInputElement> {
 export const PositiveInput: React.FC<Props> = (props) => {
   const { onChange, precision } = props
 
-  const respectsPrecision = (value: string) => {
-    if (precision !== undefined) {
-      return value.split('.')[1].length <= precision
-    }
-    return true
-  }
+  const respectsPrecision = (value: string) =>
+    precision !== undefined ? value.split('.')[1].length <= precision : true
 
   const positiveOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const pattern = new RegExp(`(^\\d+$|^\\d+\\.\\d+$|^\\d+\\.$|^$)`)
@@ -23,7 +19,5 @@ export const PositiveInput: React.FC<Props> = (props) => {
     }
   }
 
-  return (
-    <Input {...props} onChange={positiveOnChange} />
-  )
+  return <Input {...props} onChange={positiveOnChange} />
 }

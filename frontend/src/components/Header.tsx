@@ -16,18 +16,29 @@ export const Header: React.FC<Props> = () => {
       <LeftContainer className="flex-grow-0">
         <LogoDiv className="float-left">Λ</LogoDiv>
         <div className="float-left">
-          Geyser: 
+          Geyser:
           <Select>
-            {geysers.map(geyser => <option key={geyser.id} value={geyser.id}> {displayAddr(geyser.id)} </option>)}
+            {geysers.map((geyser) => (
+              <option key={geyser.id} value={geyser.id}>
+                {' '}
+                {displayAddr(geyser.id)}{' '}
+              </option>
+            ))}
           </Select>
         </div>
-        {vaults && vaults.length > 0 &&
+        {vaults && vaults.length > 0 && (
           <div className="float-left">
             Vault:
             <Select>
-              {vaults.map(vault => <option key={vault.id} value={vault.id}> {displayAddr(vault.id)} </option>)}
+              {vaults.map((vault) => (
+                <option key={vault.id} value={vault.id}>
+                  {' '}
+                  {displayAddr(vault.id)}{' '}
+                </option>
+              ))}
             </Select>
-          </div>}
+          </div>
+        )}
       </LeftContainer>
       <RightContainer className="flex-grow-0">
         <HeaderWalletButton />
@@ -37,11 +48,7 @@ export const Header: React.FC<Props> = () => {
 }
 
 const Select: React.FC = ({ children }) => {
-  return (
-    <DropDownSelect className="rounded-2xl">
-      {children}
-    </DropDownSelect>
-  )
+  return <DropDownSelect className="rounded-2xl">{children}</DropDownSelect>
 }
 
 const Container = styled.div`
@@ -71,5 +78,5 @@ const LeftContainer = styled.div`
 
 const RightContainer = styled.div`
   flex-basis: 33.333333%;
-  max-width: 33.333333%
+  max-width: 33.333333%;
 `

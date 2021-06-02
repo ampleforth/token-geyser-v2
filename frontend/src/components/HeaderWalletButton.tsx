@@ -1,7 +1,7 @@
-import React, { useContext } from 'react';
-import styled from 'styled-components/macro';
-import Web3Context from '../context/Web3Context';
-import { displayAddr } from '../utils/formatDisplayAddress';
+import React, { useContext } from 'react'
+import styled from 'styled-components/macro'
+import Web3Context from '../context/Web3Context'
+import { displayAddr } from '../utils/formatDisplayAddress'
 import { Paragraph } from '../styling/styles'
 import { NamedColors } from '../styling/colors'
 

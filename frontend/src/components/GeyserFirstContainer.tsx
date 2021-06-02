@@ -10,7 +10,7 @@ interface Props {}
 
 export const GeyserFirstContainer: React.FC<Props> = () => {
   const [view, setView] = useState<GeyserView>(GeyserView.STAKE)
-  const getToggleOptions = () => Object.values(GeyserView).map(view => view.toString())
+  const getToggleOptions = () => Object.values(GeyserView).map((view) => view.toString())
   const selectView = (option: string) => setView(option as GeyserView)
 
   return (
@@ -18,11 +18,9 @@ export const GeyserFirstContainer: React.FC<Props> = () => {
       <Container>
         <GeyserFirstOverlay>
           <div className="py-4">
-            <ToggleView options={getToggleOptions()} toggleOption={selectView} activeOption={view}/>
+            <ToggleView options={getToggleOptions()} toggleOption={selectView} activeOption={view} />
           </div>
-          {view === GeyserView.STAKE
-            ? <GeyserStakeView />
-            : <GeyserUnstakeView />}
+          {view === GeyserView.STAKE ? <GeyserStakeView /> : <GeyserUnstakeView />}
         </GeyserFirstOverlay>
       </Container>
     </div>

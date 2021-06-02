@@ -1,6 +1,7 @@
 import { BigNumber, BigNumberish, Wallet } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
+import { TransactionReceipt } from '@ethersproject/providers'
 import { GeyserContext } from '../context/GeyserContext'
 import { VaultContext } from '../context/VaultContext'
 import { WalletContext } from '../context/WalletContext'
@@ -16,6 +17,7 @@ interface Props {}
 export const GeyserStakeView: React.FC<Props> = () => {
   const [amount, setAmount] = useState<string>('')
   const [parsedAmount, setParsedAmount] = useState<BigNumber>(BigNumber.from('0'))
+  const [receipt, setReceipt] = useState<TransactionReceipt>()
   const { selectedGeyser, stakingTokenDecimals, stakingTokenSymbol } = useContext(GeyserContext)
   const { signer } = useContext(Web3Context)
   const { selectedVault, currentLock } = useContext(VaultContext)
@@ -29,6 +31,10 @@ export const GeyserStakeView: React.FC<Props> = () => {
     refreshWalletAmount()
   }
 
+  useEffect(() => {
+    refresh()
+  }, [receipt])
+
   const handleStake = async () => {
     if (selectedGeyser && signer && !parsedAmount.isZero()) {
       const geyserAddress = selectedGeyser.id
@@ -39,36 +45,33 @@ export const GeyserStakeView: React.FC<Props> = () => {
       } else {
         tx = await approveCreateDepositStake(geyserAddress, parsedAmount, signer as Wallet)
       }
-      const receipt = await tx.wait()
-      if (receipt) refresh()
+      setReceipt(await tx.wait())
     }
   }
 
-  const formatDisplayAmount = (amount: BigNumberish) => (
-    formatAmount(amount, stakingTokenDecimals, stakingTokenSymbol)
-  )
+  const formatDisplayAmount = (amount: BigNumberish) => formatAmount(amount, stakingTokenDecimals, stakingTokenSymbol)
+
+  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAmount(e.currentTarget.value)
+    if (selectedGeyser && signer) {
+      setParsedAmount(parseUnits(amountOrZero(e.currentTarget.value).toString(), stakingTokenDecimals))
+    }
+  }
 
   return (
     <div className="p-4 flex flex-col">
-      {parsedAmount.isZero()
-        ? <>
-            <div>Wallet balance: {formatDisplayAmount(walletAmount)}</div>
-            <div>Current stake: {formatDisplayAmount(userStake)}</div>
-          </>
-        : <>
-            <div>New wallet balance: {formatDisplayAmount(walletAmount.sub(parsedAmount))}</div>
-            <div>New stake: {formatDisplayAmount(userStake.add(parsedAmount))}</div>
-          </>}
-      <PositiveInput
-        placeholder="Enter amount"
-        value={amount}
-        onChange={(e) => {
-          setAmount(e.currentTarget.value)
-          if (selectedGeyser && signer) {
-            setParsedAmount(parseUnits(amountOrZero(e.currentTarget.value).toString(), stakingTokenDecimals))
-          }
-        }}
-      />
+      {parsedAmount.isZero() ? (
+        <>
+          <div>Wallet balance: {formatDisplayAmount(walletAmount)}</div>
+          <div>Current stake: {formatDisplayAmount(userStake)}</div>
+        </>
+      ) : (
+        <>
+          <div>New wallet balance: {formatDisplayAmount(walletAmount.sub(parsedAmount))}</div>
+          <div>New stake: {formatDisplayAmount(userStake.add(parsedAmount))}</div>
+        </>
+      )}
+      <PositiveInput placeholder="Enter amount" value={amount} onChange={handleOnChange} />
       <GeyserInteractionButton onClick={handleStake}>
         <Paragraph color={NamedColors.WHITE}> Stake </Paragraph>
       </GeyserInteractionButton>

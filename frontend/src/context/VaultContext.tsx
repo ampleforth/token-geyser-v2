@@ -40,10 +40,10 @@ export const VaultContextProvider: React.FC = ({ children }) => {
     if (vaultData && vaultData.user) {
       const userVaults = vaultData.user.vaults as Vault[]
       setVaults(userVaults)
-      if (userVaults.length > 0 && selectedVault === null) {
+      if (userVaults.length > 0 && !selectedVault) {
         selectVault(userVaults[0])
       } else if (userVaults.length > 0) {
-        setSelectedVault(userVaults.find(vault => vault.id === selectedVault?.id) || userVaults[0])
+        setSelectedVault(userVaults.find((vault) => vault.id === selectedVault?.id) || userVaults[0])
       }
     }
   }, [vaultData, selectedVault])
@@ -52,7 +52,7 @@ export const VaultContextProvider: React.FC = ({ children }) => {
     if (selectedVault && selectedGeyser) {
       const { stakingToken } = selectedGeyser
       const lockId = `${selectedVault.id}-${selectedGeyser.id}-${stakingToken}`
-      const lock = selectedVault.locks.find(lock => lock.id === lockId) || null
+      const lock = selectedVault.locks.find((lock) => lock.id === lockId) || null
       setCurrentLock(lock)
     }
   }, [selectedVault, selectedGeyser])

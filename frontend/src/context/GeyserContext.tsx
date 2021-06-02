@@ -9,12 +9,12 @@ import { toChecksumAddress } from 'web3-utils'
 import { POLL_INTERVAL } from '../constants'
 
 export const GeyserContext = createContext<{
-  geysers: Geyser[],
-  selectedGeyser: Geyser | null,
-  selectGeyser: (geyser: Geyser) => void,
-  stakingTokenDecimals: number,
-  stakingTokenSymbol: string,
-  stakingTokenName: string,
+  geysers: Geyser[]
+  selectedGeyser: Geyser | null
+  selectGeyser: (geyser: Geyser) => void
+  stakingTokenDecimals: number
+  stakingTokenSymbol: string
+  stakingTokenName: string
 }>({
   geysers: [],
   selectedGeyser: null,
@@ -48,28 +48,26 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     let mounted = true
-    if (signer && selectedGeyser) {
-      const tokenAddress = toChecksumAddress(selectedGeyser.stakingToken)
-      ERC20Decimals(tokenAddress, signer)
-        .then(d => {
-          if (mounted)
-            setStakingTokenDecimals(d)
-        })
-        .catch(console.error)
-      ERC20Name(tokenAddress, signer)
-        .then(n => {
-          if (mounted)
-            setStakingTokenName(n)
-        })
-        .catch(console.error)
-      ERC20Symbol(tokenAddress, signer)
-        .then(s => {
-          if (mounted)
-            setStakingTokenSymbol(s)
-        })
-        .catch(console.error)
+    ;(async () => {
+      if (signer && selectedGeyser) {
+        const tokenAddress = toChecksumAddress(selectedGeyser.stakingToken)
+        try {
+          const tokenDecimals = await ERC20Decimals(tokenAddress, signer)
+          const tokenName = await ERC20Name(tokenAddress, signer)
+          const tokenSymbol = await ERC20Symbol(tokenAddress, signer)
+          if (mounted) {
+            setStakingTokenDecimals(tokenDecimals)
+            setStakingTokenName(tokenName)
+            setStakingTokenSymbol(tokenSymbol)
+          }
+        } catch (e) {
+          console.error(e)
+        }
+      }
+    })()
+    return () => {
+      mounted = false
     }
-    return () => { mounted = false }
   }, [signer, selectedGeyser])
 
   useEffect(() => {
@@ -87,7 +85,8 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
         stakingTokenDecimals,
         stakingTokenSymbol,
         stakingTokenName,
-      }}>
+      }}
+    >
       {children}
     </GeyserContext.Provider>
   )

@@ -11,11 +11,13 @@ export const VaultContext = createContext<{
   vaults: Vault[]
   selectedVault: Vault | null
   selectVault: (arg0: Vault) => void
+  selectVaultById: (id: string) => void
   currentLock: Lock | null
 }>({
   vaults: [],
   selectedVault: null,
   selectVault: () => {},
+  selectVaultById: () => {},
   currentLock: null,
 })
 
@@ -31,6 +33,7 @@ export const VaultContextProvider: React.FC = ({ children }) => {
   const [currentLock, setCurrentLock] = useState<Lock | null>(null)
 
   const selectVault = (vault: Vault) => setSelectedVault(vault)
+  const selectVaultById = (id: string) => setSelectedVault(vaults.find(vault => vault.id === id) || selectedVault)
 
   useEffect(() => {
     if (address) getVaults({ variables: { id: address } })
@@ -52,8 +55,7 @@ export const VaultContextProvider: React.FC = ({ children }) => {
     if (selectedVault && selectedGeyser) {
       const { stakingToken } = selectedGeyser
       const lockId = `${selectedVault.id}-${selectedGeyser.id}-${stakingToken}`
-      const lock = selectedVault.locks.find((lock) => lock.id === lockId) || null
-      setCurrentLock(lock)
+      setCurrentLock(selectedVault.locks.find((lock) => lock.id === lockId) || null)
     }
   }, [selectedVault, selectedGeyser])
 
@@ -65,6 +67,7 @@ export const VaultContextProvider: React.FC = ({ children }) => {
         vaults,
         selectedVault,
         selectVault,
+        selectVaultById,
         currentLock,
       }}
     >

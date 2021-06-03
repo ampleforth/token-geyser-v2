@@ -1,5 +1,6 @@
 import React, { useContext } from 'react'
 import styled from 'styled-components/macro'
+import { toChecksumAddress } from 'web3-utils'
 import { GeyserContext } from '../context/GeyserContext'
 import { VaultContext } from '../context/VaultContext'
 import { displayAddr } from '../utils/formatDisplayAddress'
@@ -8,8 +9,16 @@ import { HeaderWalletButton } from './HeaderWalletButton'
 interface Props {}
 
 export const Header: React.FC<Props> = () => {
-  const { geysers } = useContext(GeyserContext)
-  const { vaults } = useContext(VaultContext)
+  const { geysers, selectGeyserById, geyserAddressToName } = useContext(GeyserContext)
+  const { vaults, selectVaultById } = useContext(VaultContext)
+
+  const handleSelectGeyser = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    selectGeyserById(e.currentTarget.value)
+  }
+
+  const handleSelectVault = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    selectVaultById(e.currentTarget.value)
+  }
 
   return (
     <Container className="flex flex-wrap">
@@ -17,11 +26,11 @@ export const Header: React.FC<Props> = () => {
         <LogoDiv className="float-left">Λ</LogoDiv>
         <div className="float-left">
           Geyser:
-          <Select>
+          <Select onChange={handleSelectGeyser}>
             {geysers.map((geyser) => (
               <option key={geyser.id} value={geyser.id}>
                 {' '}
-                {displayAddr(geyser.id)}{' '}
+                {geyserAddressToName.get(toChecksumAddress(geyser.id))}{' '}
               </option>
             ))}
           </Select>
@@ -29,7 +38,7 @@ export const Header: React.FC<Props> = () => {
         {vaults && vaults.length > 0 && (
           <div className="float-left">
             Vault:
-            <Select>
+            <Select onChange={handleSelectVault}>
               {vaults.map((vault) => (
                 <option key={vault.id} value={vault.id}>
                   {' '}
@@ -47,8 +56,15 @@ export const Header: React.FC<Props> = () => {
   )
 }
 
-const Select: React.FC = ({ children }) => {
-  return <DropDownSelect className="rounded-2xl">{children}</DropDownSelect>
+interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {}
+
+const Select: React.FC<SelectProps> = (props) => {
+  const { children } = props
+  return (
+    <DropDownSelect {...props} className="rounded-2xl">
+      {children}
+    </DropDownSelect>
+  )
 }
 
 const Container = styled.div`

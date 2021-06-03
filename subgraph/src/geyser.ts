@@ -79,6 +79,7 @@ export function handleGeyserCreated(event: GeyserCreated): void {
   entity.scalingTime = geyserData.rewardScaling.time
   entity.status = 'Online'
   entity.bonusTokens = []
+  entity.totalRewardsClaimed = BigInt.fromI32(0)
 
   _updateGeyser(entity, geyserContract, event.block.timestamp)
 }
@@ -149,6 +150,7 @@ export function handleRewardClaimed(event: RewardClaimed): void {
   let entity = ClaimedReward.load(id)
   if (entity == null) {
     entity = new ClaimedReward(id)
+    entity.amount = BigInt.fromI32(0)
   }
 
   entity.vault = event.params.vault.toHex()
@@ -156,6 +158,9 @@ export function handleRewardClaimed(event: RewardClaimed): void {
   entity.amount = entity.amount.plus(event.params.amount)
   entity.lastUpdate = event.block.timestamp
 
+  let geyser = Geyser.load(event.address.toHex()) as Geyser
+  geyser.totalRewardsClaimed = geyser.totalRewardsClaimed.plus(event.params.amount)
+  geyser.save()
   updateGeyser(event.address, event.block.timestamp)
 
   entity.save()

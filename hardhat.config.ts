@@ -237,7 +237,7 @@ task('fund-geyser', 'fund an instance of Geyser')
     const data = await geyserContract.getGeyserData()
     const { rewardToken: rewardTokenAddress } = data
     const rewardToken = await ethers.getContractAt('MockAmpl', rewardTokenAddress, signer)
-    const amt = BigNumber.from(amount)
+    const amt = parseUnits(amount, 9)
     await rewardToken.approve(geyser, amt)
     await geyserContract.connect(signer).fundGeyser(amt, 10000)
   })

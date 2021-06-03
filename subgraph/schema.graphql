@@ -22,6 +22,7 @@ type Geyser @entity {
   lastUpdate: BigInt!
   rewardSchedules: [RewardSchedule]! @derivedFrom(field: "geyser")
   locks: [Lock]! @derivedFrom(field: "geyser")
+  totalRewardsClaimed: BigInt!
 }
 
 type User @entity {

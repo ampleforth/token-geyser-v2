@@ -19,7 +19,8 @@ export const GeyserUnstakeView: React.FC<Props> = () => {
   const [amount, setAmount] = useState<string>('')
   const [receipt, setReceipt] = useState<TransactionReceipt>()
   const [parsedAmount, setParsedAmount] = useState<BigNumber>(BigNumber.from('0'))
-  const { selectedGeyser, stakingTokenDecimals, stakingTokenSymbol } = useContext(GeyserContext)
+  const { selectedGeyser, stakingTokenInfo } = useContext(GeyserContext)
+  const { decimals: stakingTokenDecimals, symbol: stakingTokenSymbol } = stakingTokenInfo
   const { signer } = useContext(Web3Context)
   const { selectedVault, currentLock } = useContext(VaultContext)
   const { walletAmount, refreshWalletAmount } = useContext(WalletContext)

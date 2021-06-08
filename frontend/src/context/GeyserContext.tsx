@@ -3,11 +3,11 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { toChecksumAddress } from 'web3-utils'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { GET_GEYSERS } from '../queries/geyser'
-import { Geyser, StakingTokenInfo, TokenInfo } from '../types'
+import { Geyser, StakingTokenInfo, TokenInfo, GeyserConfig } from '../types'
 import Web3Context from './Web3Context'
 import { POLL_INTERVAL } from '../constants'
 import { defaultTokenInfo, getTokenInfo } from '../utils/token'
-import { GeyserConfig, geysersConfig } from '../config/geyser'
+import { geyserConfigs } from '../config/geyser'
 import { defaultStakingTokenInfo, getStakingTokenInfo } from '../utils/stakingToken'
 
 export const GeyserContext = createContext<{
@@ -17,7 +17,7 @@ export const GeyserContext = createContext<{
   selectGeyserById: (id: string) => void
   stakingTokenInfo: StakingTokenInfo
   rewardTokenInfo: TokenInfo
-  platformTokenInfo: TokenInfo
+  platformTokenInfos: TokenInfo[]
   geyserAddressToName: Map<string, string>
   selectedGeyserConfig: GeyserConfig | null
 }>({
@@ -27,7 +27,7 @@ export const GeyserContext = createContext<{
   selectGeyserById: () => {},
   stakingTokenInfo: defaultStakingTokenInfo(),
   rewardTokenInfo: defaultTokenInfo(),
-  platformTokenInfo: defaultTokenInfo(),
+  platformTokenInfos: [],
   geyserAddressToName: new Map<string, string>(),
   selectedGeyserConfig: null,
 })
@@ -41,9 +41,9 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
   const [geysers, setGeysers] = useState<Geyser[]>([])
   const [selectedGeyser, setSelectedGeyser] = useState<Geyser | null>(null)
   const [selectedGeyserConfig, setSelectedGeyserConfig] = useState<GeyserConfig | null>(null)
-  const [platformTokenInfo, setPlatformTokenInfo] = useState<TokenInfo>(defaultTokenInfo())
+  const [platformTokenInfos, setPlatformTokenInfos] = useState<TokenInfo[]>([])
   const [rewardTokenInfo, setRewardTokenInfo] = useState<TokenInfo>(defaultTokenInfo())
-  const [geyserAddressToName] = useState<Map<string, string>>(new Map(geysersConfig.map(geyser => [toChecksumAddress(geyser.address), geyser.name])))
+  const [geyserAddressToName] = useState<Map<string, string>>(new Map(geyserConfigs.map(geyser => [toChecksumAddress(geyser.address), geyser.name])))
 
   const [stakingTokenInfo, setStakingTokenInfo] = useState<StakingTokenInfo>(defaultStakingTokenInfo())
 
@@ -51,7 +51,7 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
   const selectGeyserById = (id: string) => setSelectedGeyser(geysers.find(geyser => toChecksumAddress(geyser.id) === toChecksumAddress(id)) || selectedGeyser)
 
   useEffect(() => {
-    const ids = geysersConfig.map(geyser => geyser.address.toLowerCase())
+    const ids = geyserConfigs.map(geyser => geyser.address.toLowerCase())
     getGeysers({ variables: { ids }})
   }, [])
 
@@ -65,18 +65,18 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
       if (signer && selectedGeyser) {
         try {
           const geyserAddress = toChecksumAddress(selectedGeyser.id)
-          const geyserConfig = geysersConfig.find(config => toChecksumAddress(config.address) === geyserAddress)
+          const geyserConfig = geyserConfigs.find(config => toChecksumAddress(config.address) === geyserAddress)
           if (!geyserConfig) {
             throw new Error(`Geyser config not found for geyser at ${geyserAddress}`)
           }
           const newStakingTokenInfo = await getStakingTokenInfo(selectedGeyser.stakingToken, geyserConfig.stakingToken, signer)
           const newRewardTokenInfo = await getTokenInfo(selectedGeyser.rewardToken, signer)
-          const { platformTokenAddress } = geyserConfig
-          const newPlatformTokenInfo = platformTokenAddress ? await getTokenInfo(platformTokenAddress, signer) : defaultTokenInfo()
+          const { platformTokenConfigs } = geyserConfig
+          const newPlatformTokenInfos = await Promise.all(platformTokenConfigs.map(({ address }) => getTokenInfo(address, signer)))
           if (mounted) {
             setStakingTokenInfo(newStakingTokenInfo)
             setRewardTokenInfo(newRewardTokenInfo)
-            setPlatformTokenInfo(newPlatformTokenInfo)
+            setPlatformTokenInfos(newPlatformTokenInfos)
             setSelectedGeyserConfig(geyserConfig)
           }
         } catch (e) {
@@ -106,7 +106,7 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
         selectGeyserById,
         stakingTokenInfo,
         rewardTokenInfo,
-        platformTokenInfo,
+        platformTokenInfos,
         geyserAddressToName,
         selectedGeyserConfig,
       }}

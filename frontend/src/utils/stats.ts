@@ -24,7 +24,7 @@ export const defaultGeyserStats = (): GeyserStats => ({
 export const defaultVaultStats = (): VaultStats => ({
   id: '',
   stakingTokenBalance: 0,
-  platformTokenBalance: 0,
+  platformTokenBalances: [],
   rewardTokenBalance: 0,
   currentStake: 0,
 })
@@ -241,7 +241,7 @@ export const getUserStats = async (
 
 export const getVaultStats = async (
   stakingTokenInfo: StakingTokenInfo,
-  platformTokenInfo: TokenInfo,
+  platformTokenInfos: TokenInfo[],
   rewardTokenInfo: TokenInfo,
   vault: Vault | null,
   lock: Lock | null,
@@ -251,16 +251,17 @@ export const getVaultStats = async (
   const vaultAddress = toChecksumAddress(vault.id)
   const { address: stakingTokenAddress, decimals: stakingTokenDecimals } = stakingTokenInfo
   const { address: rewardTokenAddress, decimals: rewardTokenDecimals } = rewardTokenInfo
-  const { address: platformToken, decimals: platformTokenDecimals } = platformTokenInfo
   const stakingTokenBalance = await ERC20Balance(toChecksumAddress(stakingTokenAddress), vaultAddress, signer)
   const rewardTokenBalance = await ERC20Balance(toChecksumAddress(rewardTokenAddress), vaultAddress, signer)
-  const platformTokenBalance = platformToken
-    ? await ERC20Balance(toChecksumAddress(platformToken), vaultAddress, signer)
-    : BigNumber.from('0')
+  const platformTokenBalances = await Promise.all(
+    platformTokenInfos.map(({ address }) => ERC20Balance(toChecksumAddress(address), vaultAddress, signer)),
+  )
 
   const formattedStakingTokenBalance = parseFloat(formatUnits(stakingTokenBalance, stakingTokenDecimals))
   const formattedRewardTokenBalance = parseFloat(formatUnits(rewardTokenBalance, rewardTokenDecimals))
-  const formattedPlatformTokenBalance = parseFloat(formatUnits(platformTokenBalance, platformTokenDecimals))
+  const formattedPlatformTokenBalances = platformTokenBalances.map((balance, index) =>
+    parseFloat(formatUnits(balance, platformTokenInfos[index].decimals)),
+  )
 
   const amount = lock ? lock.amount : '0'
   const currentStake = parseFloat(formatUnits(amount, stakingTokenDecimals))
@@ -268,7 +269,7 @@ export const getVaultStats = async (
   return {
     id: vaultAddress,
     stakingTokenBalance: formattedStakingTokenBalance,
-    platformTokenBalance: formattedPlatformTokenBalance,
+    platformTokenBalances: formattedPlatformTokenBalances,
     rewardTokenBalance: formattedRewardTokenBalance,
     currentStake,
   }

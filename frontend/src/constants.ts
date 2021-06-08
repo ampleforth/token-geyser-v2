@@ -1,17 +1,3 @@
-import { NamedColors } from './styling/colors'
-
-export enum VaultState {
-  ACTIVE,
-  STALE,
-  INACTIVE,
-}
-
-export const VaultStateColors: Record<VaultState, string> = {
-  [VaultState.ACTIVE]: NamedColors.APPLE,
-  [VaultState.STALE]: NamedColors.SCHOOL_BUS_YELLOW,
-  [VaultState.INACTIVE]: NamedColors.RED_ORANGE,
-}
-
 const MS_PER_SEC = 1000
 
 export const HOUR_IN_SEC = 3600
@@ -36,5 +22,13 @@ export enum GeyserView {
 
 // Staking tokens
 export enum StakingToken {
+  // for testing
   MOCK,
+
+  // for mainnet
+  UNISWAP_V2,
+  SUSHISWAP,
+  MOONISWAP_V1,
+  BALANCER_V1,
+  BALANCER_SMART_POOL_V1,
 }

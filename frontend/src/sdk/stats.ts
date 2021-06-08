@@ -1,4 +1,4 @@
-import { BigNumber, Contract, Signer } from 'ethers'
+import { BigNumber, BigNumberish, Contract, Signer } from 'ethers'
 import { loadNetworkConfig } from './utils'
 
 async function _execGeyserFunction<T>(
@@ -31,4 +31,13 @@ export const getCurrentUnlockedRewards = async (geyserAddress: string, signer: S
 
 export const getFutureUnlockedRewards = async (geyserAddress: string, timestamp: number, signer: Signer) => {
   return _execGeyserFunction<BigNumber>(geyserAddress, signer, 'getFutureUnlockedRewards', [timestamp])
+}
+
+export const getCurrentStakeReward = async (
+  vaultAddress: string,
+  geyserAddress: string,
+  amount: BigNumberish,
+  signer: Signer,
+) => {
+  return _execGeyserFunction<BigNumber>(geyserAddress, signer, 'getCurrentStakeReward', [vaultAddress, amount])
 }

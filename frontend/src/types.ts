@@ -1,4 +1,4 @@
-import { BigNumber } from 'ethers'
+import { StakingToken } from './constants'
 
 type ClaimedReward = {
   id: string
@@ -84,7 +84,7 @@ export type GeyserStats = {
 export type VaultStats = {
   id: string
   stakingTokenBalance: number
-  platformTokenBalance: number
+  platformTokenBalances: number[]
   rewardTokenBalance: number
   currentStake: number
 }
@@ -93,4 +93,16 @@ export type UserStats = {
   apy: number
   currentMultiplier: number
   currentReward: number
+}
+
+export type GeyserConfig = {
+  name: string
+  address: string
+  stakingToken: StakingToken
+  platformTokenConfigs: PlatformTokenConfig[]
+}
+
+export type PlatformTokenConfig = {
+  address: string
+  claimLink?: string
 }

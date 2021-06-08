@@ -47,6 +47,8 @@ export const VaultContextProvider: React.FC = ({ children }) => {
         selectVault(userVaults[0])
       } else if (userVaults.length > 0) {
         setSelectedVault(userVaults.find((vault) => vault.id === selectedVault?.id) || userVaults[0])
+      } else {
+        setSelectedVault(null)
       }
     }
   }, [vaultData, selectedVault])

@@ -7,15 +7,17 @@ class Provider extends ethers.providers.Web3Provider {}
 
 const Web3Context = createContext<{
   address?: string
-  wallet?: Wallet
+  wallet: Wallet | null
   onboard?: API
-  provider?: Provider
+  provider: Provider | null
   signer?: Signer
   selectWallet: () => Promise<boolean>
   ready: boolean
 }>({
   selectWallet: async () => false,
   ready: false,
+  wallet: null,
+  provider: null,
 })
 
 interface Subscriptions {
@@ -35,9 +37,9 @@ const initOnboard = (subscriptions: Subscriptions): API => {
 
 const Web3Provider: React.FC = ({ children }) => {
   const [address, setAddress] = useState<string>()
-  const [wallet, setWallet] = useState<Wallet>()
+  const [wallet, setWallet] = useState<Wallet | null>(null)
   const [onboard, setOnboard] = useState<API>()
-  const [provider, setProvider] = useState<Provider>()
+  const [provider, setProvider] = useState<Provider | null>(null)
   const [signer, setSigner] = useState<Signer>()
   const [ready, setReady] = useState(false)
 
@@ -58,9 +60,8 @@ const Web3Provider: React.FC = ({ children }) => {
         if (w?.provider?.selectedAddress) {
           updateWallet(w)
         } else {
-          // TODO: favour using nulls over undefined when explicitly set
-          setProvider(undefined)
-          setWallet(undefined)
+          setProvider(null)
+          setWallet(null)
         }
       },
     })

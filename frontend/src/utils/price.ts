@@ -1,4 +1,5 @@
 import CGApi from 'coingecko-api'
+import { HOUR_IN_MS } from '../constants'
 import * as ls from './ttl'
 
 const DEFAULT_PRICES: Record<string, number> = {
@@ -37,7 +38,7 @@ const SYMBOL_TO_QUERY: Record<string, string> = {
 
 export const getCurrentPrice = async (symbol: string) => {
   const cacheKey = `geyser|${symbol}|spot`
-  const TTL = 3600 * 1000 // 60mins
+  const TTL = HOUR_IN_MS
 
   try {
     const query = SYMBOL_TO_QUERY[symbol]

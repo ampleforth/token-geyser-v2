@@ -6,8 +6,9 @@ import { GET_GEYSERS } from '../queries/geyser'
 import { Geyser, StakingTokenInfo, TokenInfo } from '../types'
 import Web3Context from './Web3Context'
 import { POLL_INTERVAL } from '../constants'
-import { defaultStakingTokenInfo, defaultTokenInfo, getTokenInfo, getStakingTokenInfo } from '../utils/tokens'
+import { defaultTokenInfo, getTokenInfo } from '../utils/token'
 import { GeyserConfig, geysersConfig } from '../config/geyser'
+import { defaultStakingTokenInfo, getStakingTokenInfo } from '../utils/stakingToken'
 
 export const GeyserContext = createContext<{
   geysers: Geyser[]
@@ -18,6 +19,7 @@ export const GeyserContext = createContext<{
   rewardTokenInfo: TokenInfo
   platformTokenInfo: TokenInfo
   geyserAddressToName: Map<string, string>
+  selectedGeyserConfig: GeyserConfig | null
 }>({
   geysers: [],
   selectedGeyser: null,
@@ -27,6 +29,7 @@ export const GeyserContext = createContext<{
   rewardTokenInfo: defaultTokenInfo(),
   platformTokenInfo: defaultTokenInfo(),
   geyserAddressToName: new Map<string, string>(),
+  selectedGeyserConfig: null,
 })
 
 export const GeyserContextProvider: React.FC = ({ children }) => {
@@ -105,6 +108,7 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
         rewardTokenInfo,
         platformTokenInfo,
         geyserAddressToName,
+        selectedGeyserConfig,
       }}
     >
       {children}

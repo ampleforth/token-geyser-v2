@@ -33,3 +33,8 @@ export enum GeyserView {
   STAKE = 'Stake',
   UNSTAKE = 'Unstake',
 }
+
+// Staking tokens
+export enum StakingToken {
+  MOCK,
+}

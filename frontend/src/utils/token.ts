@@ -1,10 +1,9 @@
 import { Signer } from 'ethers'
 import { toChecksumAddress } from 'web3-utils'
 import { ERC20Decimals, ERC20Name, ERC20Symbol } from '../sdk'
-import { StakingTokenInfo, TokenInfo } from '../types'
+import { TokenInfo } from '../types'
 import * as ls from './ttl'
 import { CONST_CACHE_TIME_MS } from '../constants'
-import { StakingToken, STAKING_TOKEN_FUNCTION_MAPPING } from '../config/stakingToken'
 
 export const getTokenInfo = async (
   tokenAddress: string,
@@ -29,25 +28,9 @@ export const getTokenInfo = async (
   return value
 }
 
-export const getStakingTokenInfo = async (
-  tokenAddress: string,
-  token: StakingToken,
-  signer: Signer,
-): Promise<StakingTokenInfo> => {
-  return STAKING_TOKEN_FUNCTION_MAPPING[token](tokenAddress, signer)
-}
-
 export const defaultTokenInfo = (): TokenInfo => ({
   address: '',
   name: '',
   symbol: '',
   decimals: 0,
-})
-
-export const defaultStakingTokenInfo = (): StakingTokenInfo => ({
-  ...defaultTokenInfo(),
-  price: 0,
-  totalSupply: 0,
-  marketCap: 0,
-  composition: [],
 })

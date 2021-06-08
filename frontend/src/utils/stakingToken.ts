@@ -1,19 +1,31 @@
 import { BigNumber, Signer } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 import { toChecksumAddress } from 'web3-utils'
+import { StakingToken } from '../constants'
 import { ERC20Balance } from '../sdk'
 import { StakingTokenInfo, TokenComposition } from '../types'
-import { getCurrentPrice } from '../utils/price'
-import { getTokenInfo } from '../utils/tokens'
+import { getCurrentPrice } from './price'
+import { defaultTokenInfo, getTokenInfo } from './token'
 
-export enum StakingToken {
-  MOCK,
-}
+export const defaultStakingTokenInfo = (): StakingTokenInfo => ({
+  ...defaultTokenInfo(),
+  price: 0,
+  totalSupply: 0,
+  marketCap: 0,
+  composition: [],
+})
 
-type StakingTokenFunction = (tokenAddress: string, signer: Signer) => Promise<StakingTokenInfo>
-
-export const STAKING_TOKEN_FUNCTION_MAPPING: Record<StakingToken, StakingTokenFunction> = {
-  [StakingToken.MOCK]: (address: string, signer: Signer) => getMockLPToken(address, signer),
+export const getStakingTokenInfo = async (
+  tokenAddress: string,
+  token: StakingToken,
+  signer: Signer,
+): Promise<StakingTokenInfo> => {
+  switch (token) {
+    case StakingToken.MOCK:
+      return getMockLPToken(tokenAddress, signer)
+    default:
+      throw new Error(`Handler for ${token} not found`)
+  }
 }
 
 const getTokenComposition = async (
@@ -39,7 +51,7 @@ const getTokenComposition = async (
   }
 }
 
-const getMockLPToken = async (tokenAddress: string, signer: Signer): Promise<StakingTokenInfo> => {
+export const getMockLPToken = async (tokenAddress: string, signer: Signer): Promise<StakingTokenInfo> => {
   const price = ((await getCurrentPrice('AMPL')) + (await getCurrentPrice('BAL'))) / 2
   return {
     address: toChecksumAddress(tokenAddress),

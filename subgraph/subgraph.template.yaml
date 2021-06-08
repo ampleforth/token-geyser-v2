@@ -90,7 +90,7 @@ templates:
           handler: handleStaked
         - event: Unstaked(address,uint256)
           handler: handleUnstaked
-        - event: RewardClaimed(address,address,address,uint256)
+        - event: RewardClaimed(address,address,uint256)
           handler: handleRewardClaimed
   - kind: ethereum/contract
     name: PowerSwitchTemplate

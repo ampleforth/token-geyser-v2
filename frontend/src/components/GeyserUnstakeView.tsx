@@ -46,7 +46,7 @@ export const GeyserUnstakeView: React.FC<Props> = () => {
     }
   }
 
-  const formatDisplayAmount = (amount: BigNumberish) => formatAmount(amount, stakingTokenDecimals, stakingTokenSymbol)
+  const formatDisplayAmount = (amt: BigNumberish) => formatAmount(amt, stakingTokenDecimals, stakingTokenSymbol)
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAmount(e.currentTarget.value)

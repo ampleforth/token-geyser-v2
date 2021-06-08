@@ -87,6 +87,7 @@ task('deploy', 'deploy full set of factory contracts')
     if (mock) {
       const totalSupply = parseUnits('10')
       await deployContract('MockERC20', ethers.getContractFactory, signer, [signer.address, totalSupply])
+      await deployContract('MockBAL', ethers.getContractFactory, signer, [signer.address, totalSupply])
       await deployMockAmpl(signer, ethers.getContractFactory, upgrades.deployProxy)
     }
 

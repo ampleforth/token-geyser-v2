@@ -29,13 +29,18 @@ export const StatsContextProvider: React.FC = ({ children }) => {
     ;(async () => {
       try {
         if (signer && selectedGeyser) {
-          const newGeyserStats = await getGeyserStats(selectedGeyser, stakingTokenInfo)
+          const newGeyserStats = await getGeyserStats(selectedGeyser, stakingTokenInfo, rewardTokenInfo)
           const newUserStats = await getUserStats(selectedGeyser, selectedVault, currentLock, stakingTokenInfo, rewardTokenInfo, signer)
-          const newVaultStats = await getVaultStats(stakingTokenInfo, platformTokenInfo, selectedVault, signer)
+          const newVaultStats = await getVaultStats(stakingTokenInfo, platformTokenInfo, rewardTokenInfo, selectedVault, currentLock, signer)
           if (mounted) {
             setGeyserStats(newGeyserStats)
             setUserStats(newUserStats)
             setVaultStats(newVaultStats)
+            console.log({
+              newGeyserStats,
+              newUserStats,
+              newVaultStats,
+            })
           }
         }
       } catch (e) {

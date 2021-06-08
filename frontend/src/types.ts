@@ -78,20 +78,19 @@ export type StakingTokenInfo = TokenInfo & {
 export type GeyserStats = {
   duration: number
   totalDeposit: number
-  totalRewardsClaimed: BigNumber
+  totalRewardsClaimed: number
 }
 
 export type VaultStats = {
   id: string
-  stakingTokenBalance: BigNumber
-  platformTokenBalance: BigNumber
+  stakingTokenBalance: number
+  platformTokenBalance: number
+  rewardTokenBalance: number
+  currentStake: number
 }
 
 export type UserStats = {
   apy: number
   currentMultiplier: number
-  currentReward: BigNumber
-
-  // want?
-  currentStake?: BigNumber
+  currentReward: number
 }

@@ -19,6 +19,7 @@ export const GET_GEYSERS = gql`
         start
       }
       totalRewardsClaimed
+      lastUpdate
     }
   }
 `

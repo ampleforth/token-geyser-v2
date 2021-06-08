@@ -10,7 +10,7 @@ interface Props {}
 
 export const GeyserFirstContainer: React.FC<Props> = () => {
   const [view, setView] = useState<GeyserView>(GeyserView.STAKE)
-  const getToggleOptions = () => Object.values(GeyserView).map((view) => view.toString())
+  const getToggleOptions = () => Object.values(GeyserView).map((v) => v.toString())
   const selectView = (option: string) => setView(option as GeyserView)
 
   return (

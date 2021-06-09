@@ -1,7 +1,7 @@
 import { BigNumber, BigNumberish, Wallet } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
 import React, { useContext, useEffect, useState } from 'react'
-import { TransactionReceipt } from '@ethersproject/providers'
+import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 import { GeyserContext } from '../context/GeyserContext'
 import { VaultContext } from '../context/VaultContext'
 import { WalletContext } from '../context/WalletContext'
@@ -27,22 +27,23 @@ export const GeyserUnstakeView: React.FC<Props> = () => {
 
   const userStake = BigNumber.from(amountOrZero(currentLock?.amount))
 
-  useEffect(() => {
-    refresh()
-  }, [receipt])
-
   const refresh = () => {
     setAmount('')
     setParsedAmount(BigNumber.from('0'))
     refreshWalletAmount()
   }
 
+  useEffect(() => {
+    refresh()
+  }, [receipt])
+
   const handleUnstake = async () => {
     if (selectedGeyser && selectedVault && signer) {
       const geyserAddress = selectedGeyser.id
       const vaultAddress = selectedVault.id
-      const tx = await unstakeWithdraw(geyserAddress, vaultAddress, parsedAmount, signer as Wallet)
-      setReceipt(await tx.wait())
+      const txs: [TransactionResponse, TransactionResponse] = await unstakeWithdraw(geyserAddress, vaultAddress, parsedAmount, signer as Wallet)
+      const [withdrawStakingTokenTx] = txs
+      setReceipt(await withdrawStakingTokenTx.wait())
     }
   }
 

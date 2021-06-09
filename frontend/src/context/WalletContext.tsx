@@ -21,7 +21,8 @@ export const WalletContextProvider: React.FC = ({ children }) => {
     if (selectedGeyser && signer) {
       const { stakingToken } = selectedGeyser
       try {
-        return await ERC20Balance(stakingToken, await signer.getAddress(), signer)
+        const balance = await ERC20Balance(stakingToken, await signer.getAddress(), signer)
+        return balance
       } catch (e) {
         console.error(e)
         return BigNumber.from('0')

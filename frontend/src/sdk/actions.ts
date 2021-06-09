@@ -2,6 +2,7 @@ import { TransactionResponse } from '@ethersproject/providers'
 import { BigNumberish, Contract, Signer, Wallet } from 'ethers'
 import { randomBytes } from 'ethers/lib/utils'
 import { ERC20_ABI } from './abis'
+import { ERC20Balance } from './tokens'
 import { isPermitable, loadNetworkConfig, signPermission, signPermitEIP2612 } from './utils'
 
 // End to end user flow
@@ -127,12 +128,18 @@ export const unstakeWithdraw = async (
   amount: BigNumberish,
   signer: Wallet,
 ) => {
-  // temporary, might want to implement a contract function that combines the two actions into 1
   const config = await loadNetworkConfig(signer)
+  const signerAddress = await signer.getAddress()
   const geyser = new Contract(geyserAddress, config.GeyserTemplate.abi, signer)
-  const tokenAddress = (await geyser.getGeyserData()).stakingToken
-  await unstake(geyserAddress, vaultAddress, amount, signer)
-  return withdraw(vaultAddress, tokenAddress, await signer.getAddress(), amount, signer)
+  const geyserData = await geyser.getGeyserData()
+  const { stakingToken, rewardToken } = geyserData
+  const tx = await unstake(geyserAddress, vaultAddress, amount, signer)
+  await tx.wait()
+  const rewardsBalance = await ERC20Balance(rewardToken, vaultAddress, signer)
+  return Promise.all([
+    withdraw(vaultAddress, stakingToken, signerAddress, amount, signer),
+    withdraw(vaultAddress, rewardToken, signerAddress, rewardsBalance, signer),
+  ])
 }
 
 export const permitCreateDepositStake = async (geyserAddress: string, amount: BigNumberish, signer: Wallet) => {

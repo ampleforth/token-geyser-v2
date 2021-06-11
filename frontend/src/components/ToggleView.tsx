@@ -33,14 +33,15 @@ const ToggleViewContainer = styled.div`
 `
 
 const SwitchContainer = styled.span`
-  ${tw`bg-darkGray rounded h-14 w-full m-auto flex border`}
+  ${tw`bg-darkGray rounded h-14 m-auto flex border`}
   border-color: '#363636'
 `
 
 const SwitchOptionOne = styled.span`
-  ${tw`font-robotoMono font-bold uppercase z-10 absolute pr-8 w-1/5 self-center`}
+  width: 324px;
+  ${tw`font-robotoMono font-bold uppercase z-10 absolute self-center`}
 `
 
 const SwitchOptionTwo = styled.span`
-  ${tw`font-robotoMono font-bold uppercase z-10 relative w-2/4 self-center`}
+  ${tw`font-robotoMono font-bold uppercase z-10 w-1/2 self-center`}
 `

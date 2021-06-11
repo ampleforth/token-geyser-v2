@@ -33,5 +33,5 @@ const Message = styled.span`
 `
 
 const Button = styled.button`
-  ${tw`float-right w-1/5 ml-44 h-full`}
+  ${tw`justify-self-end h-full`}
 `

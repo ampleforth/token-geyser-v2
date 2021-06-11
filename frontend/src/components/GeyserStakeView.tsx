@@ -13,6 +13,7 @@ import tw from 'twin.macro'
 import styled from 'styled-components/macro'
 import { WalletBalance } from './WalletBalance'
 import { EstimatedRewards } from './EstimatedRewards'
+import { ConnectWalletWarning } from './ConnectWalletWarning'
 
 interface Props {}
 
@@ -25,6 +26,7 @@ export const GeyserStakeView: React.FC<Props> = () => {
   const { signer } = useContext(Web3Context)
   const { selectedVault, currentLock } = useContext(VaultContext)
   const { walletAmount, refreshWalletAmount } = useContext(WalletContext)
+  const { address } = useContext(Web3Context)
 
   useEffect(() => {
     setAmount('')
@@ -43,14 +45,15 @@ export const GeyserStakeView: React.FC<Props> = () => {
 
   return (
     <GeyserStakeViewContainer>
-      <WalletBalance 
+      <WalletBalance
         parsedAmount={parsedAmount}
         walletAmount={walletAmount}
-        decimals={stakingTokenDecimals} 
-        symbol={stakingTokenSymbol} 
+        decimals={stakingTokenDecimals}
+        symbol={stakingTokenSymbol}
       />
       <PositiveInput placeholder="Enter amount" value={amount} onChange={handleOnChange} />
       <EstimatedRewards />
+      {!address && <ConnectWalletWarning />}
       <GeyserInteractionButton onClick={handleGeyserInteraction} displayText={isStakingAction ? `Stake` : `Unstake`} />
     </GeyserStakeViewContainer>
   )
@@ -58,6 +61,6 @@ export const GeyserStakeView: React.FC<Props> = () => {
 
 const GeyserStakeViewContainer = styled.div`
   width: 648px;
-  height: 300px;
+  min-height: 300px;
   ${tw`m-auto mb-7 flex flex-col`}
 `

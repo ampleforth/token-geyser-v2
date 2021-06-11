@@ -1,11 +1,10 @@
-import React from 'react'
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
 import { GeyserStatsBox } from './GeyserStatsBox'
 
 interface MyStatProps {
   name: string
-  value: string // including units
+  value: string
   classNames?: string
 }
 
@@ -19,18 +18,18 @@ const MyStat: React.FC<MyStatProps> = ({ classNames, name, value }) => {
 }
 
 const MyStatContainer = styled.div`
-  max-width: 68px;
+  /* width: 78px; */
   ${tw`font-roboto my-5`}
 `
 
 const MyStatName = styled.h5`
-  ${tw`font-medium mb-2`}
+  ${tw`font-medium mb-2 mr-8`}
 `
 
 const MyStatValue = styled.div`
   width: 80px;
   height: 80px;
-  ${tw`rounded-full bg-mediumGray text-white font-medium mt-2 py-7 items-center justify-center`}
+  ${tw`text-sm rounded-full bg-mediumGray text-white font-medium mt-2 py-7 items-center justify-center`}
 `
 
 export const MyStats = () => {
@@ -38,9 +37,9 @@ export const MyStats = () => {
     <MyStatsContainer>
       <Header>My Stats</Header>
       <MyStatsWrapper>
-        <MyStat classNames="my-6" name="APY" value="Test" />
-        <MyStat name="Reward Multiplier" value="Test" />
-        <MyStat name="Current Rewards" value="Test" />
+        <MyStat classNames="my-6" name="APY" value="19.44%" />
+        <MyStat name="Reward Multiplier" value="1.0x" />
+        <MyStat name="Current Rewards" value="0.00 AMPL" />
       </MyStatsWrapper>
       <GeyserStatsBox name="External Rewards" value="0.00 BAL"></GeyserStatsBox>
     </MyStatsContainer>

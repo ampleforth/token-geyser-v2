@@ -4,10 +4,15 @@ import tw from 'twin.macro'
 interface Props {
   onClick: () => {}
   displayText: string
+  disabled?: boolean
 }
 
-export const GeyserInteractionButton: React.FC<Props> = ({ onClick, displayText }) => {
-  return <Button onClick={onClick}>{displayText}</Button>
+export const GeyserInteractionButton: React.FC<Props> = ({ onClick, displayText, disabled }) => {
+  return (
+    <Button disabled={disabled} onClick={onClick}>
+      {displayText}
+    </Button>
+  )
 }
 
 const Button = styled.button`

@@ -24,7 +24,7 @@ export const HeaderWalletButton: React.FC<Props> = () => {
 const StickyButton = styled.button`
   cursor: pointer;
   float: right;
-  padding: 18px 26px;
+  padding: 18px 56px;
   border-radius: 0px 0px 0px 24px;
   border-width: 0;
   background-color: ${NamedColors.RADICAL_RED};

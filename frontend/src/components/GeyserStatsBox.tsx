@@ -19,13 +19,12 @@ export const GeyserStatsBox: React.FC<Props> = ({ name, value, children }) => {
 }
 
 const GeyserStatsBoxContainer = styled.div`
-  width: 288px;
-  height: 64px;
-  ${tw`font-roboto bg-paleBlue border border-lightGray rounded-sm p-3`}
+  height: 72px;
+  ${tw`mr-5 font-roboto bg-paleBlue border border-lightGray rounded-sm p-3`}
 `
 
 const GeyserStatsBoxLabel = styled.span`
-  ${tw`flex`}
+  ${tw`mb-1 flex font-light`}
 `
 
 const GeyserStatsBoxValueContainer = styled.div`

@@ -15,5 +15,5 @@ export const GeyserStatsView = () => {
 const GeyserStatsContainer = styled.div`
   width: 696px;
   height: 312px;
-  ${tw`font-roboto grid grid-flow-col`};
+  ${tw`font-roboto grid grid-cols-2`};
 `

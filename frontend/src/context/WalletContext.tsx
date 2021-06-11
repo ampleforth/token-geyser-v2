@@ -34,7 +34,7 @@ export const WalletContextProvider: React.FC = ({ children }) => {
   const refreshWalletAmount = () => getWalletAmount()
 
   useEffect(() => {
-    // `mounted` is a workaround for the warning saying that a state update on an unmounted
+    // `mounted` is a workaround for supressing the warning saying that a state update on an unmounted
     // component is not possible: https://stackoverflow.com/questions/53949393/cant-perform-a-react-state-update-on-an-unmounted-component
     let mounted = true
     ;(async () => {

@@ -1,5 +1,5 @@
-import React from 'react'
-import { Input } from '../styling/styles'
+import styled from 'styled-components/macro'
+import tw from 'twin.macro'
 
 interface Props extends React.InputHTMLAttributes<HTMLInputElement> {
   precision?: number
@@ -9,7 +9,7 @@ export const PositiveInput: React.FC<Props> = (props) => {
   const { onChange, precision } = props
 
   const respectsPrecision = (value: string) => {
-    if (precision !== undefined) {
+    if (precision) {
       const parts = value.split('.')
       return parts.length > 0 ? parts[1].length <= precision : true
     }
@@ -26,3 +26,15 @@ export const PositiveInput: React.FC<Props> = (props) => {
 
   return <Input {...props} onChange={positiveOnChange} />
 }
+
+const Input = styled.input`
+  ::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  ::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  ${tw`w-full p-3 my-3 border-2 border border-gray focus:border-primary font-robotoMono font-semibold tracking-tight text-base rounded-md`}
+`

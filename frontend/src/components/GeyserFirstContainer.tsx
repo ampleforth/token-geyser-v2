@@ -1,26 +1,28 @@
-import React, { useState } from 'react'
+import React, { useContext } from 'react'
 import styled from 'styled-components/macro'
 import { GeyserStakeView } from './GeyserStakeView'
 import { GeyserFirstOverlay } from '../styling/styles'
 import { ToggleView } from './ToggleView'
-import { GeyserView } from '../constants'
-import { GeyserUnstakeView } from './GeyserUnstakeView'
+import tw from 'twin.macro'
+import { GeyserContext } from 'context/GeyserContext'
+import { GeyserStatsView } from './GeyserStatsView'
 
 interface Props {}
 
 export const GeyserFirstContainer: React.FC<Props> = () => {
-  const [view, setView] = useState<GeyserView>(GeyserView.STAKE)
-  const getToggleOptions = () => Object.values(GeyserView).map((v) => v.toString())
-  const selectView = (option: string) => setView(option as GeyserView)
+  const { isStakingAction, toggleStakingAction } = useContext(GeyserContext)
 
   return (
-    <div className="flex flex-wrap">
+    <div className="flex flex-col flex-wrap">
       <Container>
+        <Container>
+          <GeyserFirstOverlay>
+            <GeyserStatsView />
+          </GeyserFirstOverlay>
+        </Container>
         <GeyserFirstOverlay>
-          <div className="py-4">
-            <ToggleView options={getToggleOptions()} toggleOption={selectView} activeOption={view} />
-          </div>
-          {view === GeyserView.STAKE ? <GeyserStakeView /> : <GeyserUnstakeView />}
+          <ToggleView enabled={isStakingAction} toggle={toggleStakingAction} />
+          <GeyserStakeView />
         </GeyserFirstOverlay>
       </Container>
     </div>
@@ -28,6 +30,6 @@ export const GeyserFirstContainer: React.FC<Props> = () => {
 }
 
 const Container = styled.div`
-  text-align: center;
-  margin: auto;
+  width: 648px;
+  ${tw`text-center m-auto my-4 flex flex-wrap`}
 `

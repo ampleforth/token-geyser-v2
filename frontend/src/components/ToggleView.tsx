@@ -1,53 +1,46 @@
 import React from 'react'
+import { Switch } from '@headlessui/react'
 import styled from 'styled-components/macro'
-import { NamedColors } from '../styling/colors'
-import { Paragraph } from '../styling/styles'
+import tw from 'twin.macro'
 
 // assumes options are unique
 interface Props {
-  toggleOption: (option: string) => void
-  options: string[]
-  activeOption: string
+  enabled: boolean
+  toggle: () => void
 }
 
-export const ToggleView: React.FC<Props> = ({ options, activeOption, toggleOption }) => (
-  <ToggleContainer>
-    {options.map((option) => (
-      <Option key={option} selected={activeOption === option} onClick={() => toggleOption(option)}>
-        {option}
-      </Option>
-    ))}
-  </ToggleContainer>
-)
-
-interface OptionProps {
-  selected: boolean
-  onClick: () => void
+export const ToggleView: React.FC<Props> = ({ enabled, toggle }) => {
+  return (
+    <ToggleViewContainer>
+      <Switch className="w-full" checked={!enabled} onChange={toggle}>
+        <SwitchContainer>
+          <SwitchOptionOne className={!enabled ? 'text-gray' : 'text-darkGray'}>Stake</SwitchOptionOne>
+          <span
+            className={`block h-full w-1/2 rounded transition duration-300 ease-in-out transform ${
+              !enabled ? 'bg-white translate-x-full' : 'bg-white'
+            }`}
+          />
+          <SwitchOptionTwo className={!enabled ? 'text-darkGray' : 'text-gray'}>Unstake</SwitchOptionTwo>
+        </SwitchContainer>
+      </Switch>
+    </ToggleViewContainer>
+  )
 }
 
-// TODO: toggle theme colors
-const Option: React.FC<OptionProps> = ({ children, selected, onClick }) => (
-  <ToggleButton onClick={onClick} color={selected ? NamedColors.BLACK : NamedColors.WHITE}>
-    <Paragraph color={selected ? NamedColors.WHITE : NamedColors.BLACK}>{children}</Paragraph>
-  </ToggleButton>
-)
-
-const ToggleContainer = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  justify-items: center;
-  margin: auto;
+const ToggleViewContainer = styled.div`
+  width: 648px;
+  margin: 1.5em;
 `
 
-const ToggleButton = styled.button`
-  cursor: pointer;
-  width: 140px;
-  height: 60px;
-  border-radius: 8px;
-  margin: auto;
-  padding: 18px;
-  margin-left: 1em;
-  margin-right: 1em;
-  border: 1px solid ${NamedColors.BLACK};
-  background-color: ${(props) => props.color};
+const SwitchContainer = styled.span`
+  ${tw`bg-darkGray rounded h-14 w-full m-auto flex border`}
+  border-color: '#363636'
+`
+
+const SwitchOptionOne = styled.span`
+  ${tw`font-robotoMono font-bold uppercase z-10 absolute w-1/4 self-center`}
+`
+
+const SwitchOptionTwo = styled.span`
+  ${tw`font-robotoMono font-bold uppercase z-10 relative w-2/4 self-center`}
 `

@@ -9,13 +9,15 @@ export async function getTimestamp() {
 
 export async function increaseTime(seconds: number) {
   const time = await getTimestamp()
+  // instead of using evm_increaseTime, we can pass in the timestamp
+  // the next block should setup as the mining time
+  const expectedEndTime = time + seconds - 1
   await network.provider.request({
-    method: 'evm_increaseTime',
-    params: [seconds - 1],
+    method: 'evm_mine',
+    params: [expectedEndTime],
   })
-  await network.provider.request({ method: 'evm_mine' })
-  if (time + seconds - 1 !== (await getTimestamp())) {
-    throw new Error('evm_increaseTime failed')
+  if (expectedEndTime !== (await getTimestamp())) {
+    throw new Error('evm_mine failed')
   }
 }
 

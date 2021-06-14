@@ -24,6 +24,16 @@ import {
 
 */
 
+/*
+
+  Note: the implementation of increaseTime() was changed to only use `evm_mine` with the
+  timestamp passed as a parameter, instead of using a combination of `evm_increaseTime` and `evm_mine`
+
+  This implementation does not seem to run into the same problem as it previously did.
+  As a result, the indeterminancy issue is fixed
+
+*/
+
 describe('Geyser', function () {
   let accounts: SignerWithAddress[], admin: SignerWithAddress
   let user: Wallet
@@ -1795,6 +1805,90 @@ describe('Geyser', function () {
             .withArgs(rewardPool.address, vault.address, expectedReward)
         })
         it('should transfer tokens', async function () {
+          await expect(unstakeAndClaim(user, geyser, vault, stakingToken, unstakedAmount))
+            .to.emit(vault, 'Unlocked')
+            .withArgs(geyser.address, stakingToken.address, unstakedAmount)
+        })
+      })
+      describe('with full amount of the last of multiple stakes', function () {
+        const currentStake = ethers.utils.parseEther('99')
+        const unstakedAmount = currentStake.div(3)
+        const expectedReward = calculateExpectedReward(
+          unstakedAmount,
+          rewardScaling.time,
+          rewardAmount,
+          currentStake.sub(unstakedAmount).mul(rewardScaling.time),
+        )
+
+        const quantity = 3
+
+        let vault: Contract
+        beforeEach(async function () {
+          // fund geyser
+          await rewardToken.connect(admin).approve(geyser.address, rewardAmount)
+          await geyser.connect(admin).fundGeyser(rewardAmount, rewardScaling.time)
+
+          await increaseTime(rewardScaling.time)
+
+          // deploy vault and transfer stake
+          vault = await createInstance('UniversalVault', vaultFactory, user)
+          await stakingToken.connect(admin).transfer(vault.address, currentStake)
+
+          // perform multiple stakes in same block
+          const permissions = []
+          for (let index = 0; index < quantity; index++) {
+            permissions.push(
+              await signPermission(
+                'Lock',
+                vault,
+                user,
+                geyser.address,
+                stakingToken.address,
+                currentStake.div(quantity),
+                index,
+              ),
+            )
+          }
+          const MockStakeHelper = await deployContract('MockStakeHelper')
+          await MockStakeHelper.stakeBatch(
+            new Array(quantity).fill(geyser.address),
+            new Array(quantity).fill(vault.address),
+            new Array(quantity).fill(currentStake.div(quantity)),
+            permissions,
+          )
+
+          // increase time to the end of reward scaling
+          await increaseTime(rewardScaling.time)
+        })
+        it('should succeed', async function () {
+          await unstakeAndClaim(user, geyser, vault, stakingToken, unstakedAmount)
+        })
+        it('should update state', async function () {
+          await unstakeAndClaim(user, geyser, vault, stakingToken, unstakedAmount)
+
+          const geyserData = await geyser.getGeyserData()
+          const vaultData = await geyser.getVaultData(vault.address)
+
+          expect(geyserData.rewardSharesOutstanding).to.eq(rewardAmount.sub(expectedReward).mul(BASE_SHARES_PER_WEI))
+          expect(geyserData.totalStake).to.eq(currentStake.sub(unstakedAmount))
+          expect(geyserData.totalStakeUnits).to.eq(currentStake.sub(unstakedAmount).mul(rewardScaling.time))
+          expect(geyserData.lastUpdate).to.eq(await getTimestamp())
+          expect(vaultData.totalStake).to.eq(currentStake.sub(unstakedAmount))
+          expect(vaultData.stakes.length).to.eq(2)
+          expect(vaultData.stakes[0].amount).to.eq(currentStake.div(3))
+          expect(vaultData.stakes[1].amount).to.eq(currentStake.div(3))
+        })
+        it('should emit event', async function () {
+          const tx = unstakeAndClaim(user, geyser, vault, stakingToken, unstakedAmount)
+          await expect(tx).to.emit(geyser, 'Unstaked').withArgs(vault.address, unstakedAmount)
+          await expect(tx).to.emit(geyser, 'RewardClaimed').withArgs(vault.address, rewardToken.address, expectedReward)
+        })
+        it('should transfer tokens', async function () {
+          await expect(unstakeAndClaim(user, geyser, vault, stakingToken, unstakedAmount))
+            .to.emit(rewardToken, 'Transfer')
+            .withArgs(rewardPool.address, vault.address, expectedReward)
+        })
+        it('should unlock tokens', async function () {
           await expect(unstakeAndClaim(user, geyser, vault, stakingToken, unstakedAmount))
             .to.emit(vault, 'Unlocked')
             .withArgs(geyser.address, stakingToken.address, unstakedAmount)

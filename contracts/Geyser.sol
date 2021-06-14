@@ -891,8 +891,14 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
             // some stakes have been completely or partially unstaked
             // delete fully unstaked stakes
             while (vaultData.stakes.length > out.newStakesCount) vaultData.stakes.pop();
-            // update partially unstaked stake
-            vaultData.stakes[out.newStakesCount.sub(1)].amount = out.lastStakeAmount;
+
+            // note: if out.lastStakeAmount == 0, it means that the amount unstaked was exactly the amount
+            // staked in vaultData.stakes[vaultData.stakes.length.sub(1)],
+            // so there is no need to update the stake in vaultData.stakes[vaultData.stakes.length.sub(2)]
+            if (out.lastStakeAmount > 0) {
+                // update partially unstaked stake
+                vaultData.stakes[out.newStakesCount.sub(1)].amount = out.lastStakeAmount;
+            }
         }
 
         // update cached stake totals

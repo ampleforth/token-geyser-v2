@@ -17,8 +17,8 @@ export const GET_GEYSERS = gql`
         id
         duration
         start
+        rewardAmount
       }
-      totalRewardsClaimed
       lastUpdate
     }
   }

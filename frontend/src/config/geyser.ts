@@ -1,11 +1,24 @@
-import { StakingToken } from '../constants'
+import { RewardToken, StakingToken } from '../constants'
 import { GeyserConfig } from '../types'
 
+/**
+ *
+ * `address` should be the actual address to which the geyser contract was deployed
+ *
+ */
 const mockGeyserConfigs: GeyserConfig[] = [
   {
     name: 'Trinity V1 (Balancer BTC-ETH-AMPL)',
-    address: '0x0dcd1bf9a1b36ce34237eeafef220932846bcd82',
+    address: '0x0000000000000000000000000000000000000000',
     stakingToken: StakingToken.MOCK,
+    rewardToken: RewardToken.MOCK,
+    platformTokenConfigs: [],
+  },
+  {
+    name: 'Beehive V3 (Uniswap ETH-AMPL)',
+    address: '0x0000000000000000000000000000000000000000',
+    stakingToken: StakingToken.MOCK,
+    rewardToken: RewardToken.MOCK,
     platformTokenConfigs: [],
   },
 ]
@@ -15,6 +28,7 @@ const mainnetGeyserConfigs: GeyserConfig[] = [
     name: 'Pescadero V1 (Sushiswap ETH-AMPL)',
     address: '0x0000000000000000000000000000000000000000',
     stakingToken: StakingToken.SUSHISWAP,
+    rewardToken: RewardToken.AMPL,
     platformTokenConfigs: [],
     // staking token / pool address: 0xCb2286d9471cc185281c4f763d34A962ED212962
   },
@@ -22,6 +36,7 @@ const mainnetGeyserConfigs: GeyserConfig[] = [
     name: 'Beehive V3 (Uniswap ETH-AMPL)',
     address: '0x0000000000000000000000000000000000000000',
     stakingToken: StakingToken.UNISWAP_V2,
+    rewardToken: RewardToken.AMPL,
     platformTokenConfigs: [],
     // staking token / pool address: 0xc5be99A02C6857f9Eac67BbCE58DF5572498F40c
   },
@@ -29,6 +44,7 @@ const mainnetGeyserConfigs: GeyserConfig[] = [
     name: 'Trinity V1 (Balancer BTC-ETH-AMPL)',
     address: '0x0000000000000000000000000000000000000000',
     stakingToken: StakingToken.BALANCER_V1,
+    rewardToken: RewardToken.AMPL,
     platformTokenConfigs: [
       {
         address: '0xba100000625a3754423978a60c9317c58a424e3d',
@@ -41,6 +57,7 @@ const mainnetGeyserConfigs: GeyserConfig[] = [
     name: 'Old Faithful V1 (Balancer AMPL-USDC)',
     address: '0x0000000000000000000000000000000000000000',
     stakingToken: StakingToken.BALANCER_SMART_POOL_V1,
+    rewardToken: RewardToken.AMPL,
     platformTokenConfigs: [
       {
         address: '0xba100000625a3754423978a60c9317c58a424e3d',

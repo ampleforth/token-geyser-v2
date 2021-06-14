@@ -1,4 +1,5 @@
-import { StakingToken } from './constants'
+import { providers, Signer } from 'ethers'
+import { RewardToken, StakingToken } from './constants'
 
 type ClaimedReward = {
   id: string
@@ -24,6 +25,7 @@ export type RewardSchedule = {
   id: string
   duration: string
   start: string
+  rewardAmount: string
 }
 
 export type Geyser = {
@@ -38,7 +40,6 @@ export type Geyser = {
   scalingTime: string
   unlockedReward: string
   rewardSchedules: RewardSchedule[]
-  totalRewardsClaimed: string
   lastUpdate: string
 }
 
@@ -58,11 +59,7 @@ export type TokenInfo = {
   decimals: number
 }
 
-export type TokenComposition = {
-  address: string
-  name: string
-  symbol: string
-  decimals: number
+export type TokenComposition = TokenInfo & {
   balance: number
   value: number
   weight: number
@@ -75,10 +72,14 @@ export type StakingTokenInfo = TokenInfo & {
   composition: TokenComposition[]
 }
 
+export type RewardTokenInfo = TokenInfo & {
+  getTotalRewards: (rewardSchedules: RewardSchedule[]) => Promise<number>
+}
+
 export type GeyserStats = {
   duration: number
   totalDeposit: number
-  totalRewardsClaimed: number
+  totalRewards: number
 }
 
 export type VaultStats = {
@@ -99,6 +100,7 @@ export type GeyserConfig = {
   name: string
   address: string
   stakingToken: StakingToken
+  rewardToken: RewardToken
   platformTokenConfigs: PlatformTokenConfig[]
 }
 
@@ -106,3 +108,11 @@ export type PlatformTokenConfig = {
   address: string
   claimLink?: string
 }
+
+export type SupplyInfo = {
+  timestamp: number
+  supply: number
+  epoch: number
+}
+
+export type SignerOrProvider = Signer | providers.Provider

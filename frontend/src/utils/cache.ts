@@ -15,3 +15,18 @@ export const get = (key: string): any => {
   }
   return null
 }
+
+// Returns the cached value if it exists and useCache(cachedValue) return true
+// Otherwise, compute the value, and cache it
+export async function computeAndCache<T>(
+  getValueOperation: () => Promise<T>,
+  key: string,
+  ttl: number,
+  useCache: (cached: T) => boolean = () => true,
+): Promise<T> {
+  const cachedValue = get(key)
+  if (cachedValue && useCache(cachedValue)) return cachedValue
+  const value = await getValueOperation()
+  set(key, value, ttl)
+  return value
+}

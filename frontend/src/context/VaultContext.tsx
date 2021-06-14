@@ -5,7 +5,7 @@ import { POLL_INTERVAL } from '../constants'
 import { Lock, Vault } from '../types'
 import Web3Context from './Web3Context'
 import { GeyserContext } from './GeyserContext'
-import { Centered } from 'styling/styles'
+import { Centered } from '../styling/styles'
 
 export const VaultContext = createContext<{
   vaults: Vault[]
@@ -21,27 +21,6 @@ export const VaultContext = createContext<{
   currentLock: null,
 })
 
-const mockVaults = [
-  {
-    id: '1',
-    nonce: '1',
-    claimedReward: [],
-    locks: [],
-  },
-  {
-    id: '2',
-    nonce: '1',
-    claimedReward: [],
-    locks: [],
-  },
-  {
-    id: '3',
-    nonce: '1',
-    claimedReward: [],
-    locks: [],
-  },
-]
-
 export const VaultContextProvider: React.FC = ({ children }) => {
   const { address } = useContext(Web3Context)
   const { selectedGeyser } = useContext(GeyserContext)
@@ -49,7 +28,7 @@ export const VaultContextProvider: React.FC = ({ children }) => {
     pollInterval: POLL_INTERVAL,
   })
 
-  const [vaults, setVaults] = useState<Vault[]>(mockVaults)
+  const [vaults, setVaults] = useState<Vault[]>([])
   const [selectedVault, setSelectedVault] = useState<Vault | null>(vaults ? vaults[0] : null)
   const [currentLock, setCurrentLock] = useState<Lock | null>(null)
 

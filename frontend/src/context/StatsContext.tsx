@@ -4,7 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 import { toChecksumAddress } from 'web3-utils'
 import { getCurrentStakeReward } from '../sdk/stats'
 import { GeyserStats, UserStats, VaultStats } from '../types'
-import { defaultGeyserStats, defaultUserStats, defaultVaultStats, getGeyserStats, getUserStats, getVaultStats } from '../utils/stats'
+import { defaultGeyserStats, defaultUserStats, defaultVaultStats, getGeyserStats, getStakeDrip, getUserAPY, getUserDrip, getUserStats, getVaultStats } from '../utils/stats'
 import { GeyserContext } from './GeyserContext'
 import { VaultContext } from './VaultContext'
 import Web3Context from './Web3Context'
@@ -14,11 +14,15 @@ export const StatsContext = createContext<{
   geyserStats: GeyserStats
   vaultStats: VaultStats
   computeRewardsFromUnstake: (unstakeAmount: BigNumberish) => Promise<number>
+  computeAPYFromAdditionalStakes: (stakeAmount: BigNumberish) => Promise<number>
+  computeRewardsFromAdditionalStakes: (stakeAmount: BigNumberish) => Promise<number>
 }>({
   userStats: defaultUserStats(),
   geyserStats: defaultGeyserStats(),
   vaultStats: defaultVaultStats(),
   computeRewardsFromUnstake: async () => 0,
+  computeAPYFromAdditionalStakes: async () => 0,
+  computeRewardsFromAdditionalStakes: async () => 0,
 })
 
 export const StatsContextProvider: React.FC = ({ children }) => {
@@ -26,7 +30,7 @@ export const StatsContextProvider: React.FC = ({ children }) => {
   const [geyserStats, setGeyserStats] = useState<GeyserStats>(defaultGeyserStats())
   const [vaultStats, setVaultStats] = useState<VaultStats>(defaultVaultStats())
 
-  const { signer } = useContext(Web3Context)
+  const { signer, defaultProvider } = useContext(Web3Context)
   const { selectedGeyser, rewardTokenInfo, stakingTokenInfo, platformTokenInfos } = useContext(GeyserContext)
   const { selectedVault, currentLock } = useContext(VaultContext)
 
@@ -41,14 +45,32 @@ export const StatsContextProvider: React.FC = ({ children }) => {
     return 0
   }
 
+  const computeAPYFromAdditionalStakes = async (stakeAmount: BigNumberish) => {
+    if (selectedGeyser && currentLock && signer) {
+      return getUserAPY(selectedGeyser, currentLock, stakingTokenInfo, rewardTokenInfo, stakeAmount, signer)
+    }
+    return 0
+  }
+
+  const computeRewardsFromAdditionalStakes = async (stakeAmount: BigNumberish) => {
+    const { decimals } = rewardTokenInfo
+    if (selectedGeyser && geyserStats.duration && signer) {
+      const drip = await (currentLock
+        ? getUserDrip(selectedGeyser, currentLock, stakeAmount, geyserStats.duration, signer)
+        : getStakeDrip(selectedGeyser, stakeAmount, geyserStats.duration, signer))
+      return parseFloat(formatUnits(drip, decimals))
+    }
+    return 0
+  }
+
   useEffect(() => {
     let mounted = true
     ;(async () => {
       try {
-        if (signer && selectedGeyser) {
+        if (selectedGeyser && stakingTokenInfo.address && rewardTokenInfo.address) {
           const newGeyserStats = await getGeyserStats(selectedGeyser, stakingTokenInfo, rewardTokenInfo)
-          const newUserStats = await getUserStats(selectedGeyser, selectedVault, currentLock, stakingTokenInfo, rewardTokenInfo, signer)
-          const newVaultStats = await getVaultStats(stakingTokenInfo, platformTokenInfos, rewardTokenInfo, selectedVault, currentLock, signer)
+          const newUserStats = await getUserStats(selectedGeyser, selectedVault, currentLock, stakingTokenInfo, rewardTokenInfo, signer || defaultProvider)
+          const newVaultStats = await getVaultStats(stakingTokenInfo, platformTokenInfos, rewardTokenInfo, selectedVault, currentLock, signer || defaultProvider)
           if (mounted) {
             setGeyserStats(newGeyserStats)
             setUserStats(newUserStats)
@@ -60,10 +82,19 @@ export const StatsContextProvider: React.FC = ({ children }) => {
       }
     })()
     return () => { mounted = false }
-  }, [signer, selectedGeyser, selectedVault, currentLock])
+  }, [selectedGeyser, selectedVault, currentLock, stakingTokenInfo.address, rewardTokenInfo.address])
 
   return (
-    <StatsContext.Provider value={{ userStats, geyserStats, vaultStats, computeRewardsFromUnstake }}>
+    <StatsContext.Provider
+      value={{
+        userStats,
+        geyserStats,
+        vaultStats,
+        computeRewardsFromUnstake,
+        computeAPYFromAdditionalStakes,
+        computeRewardsFromAdditionalStakes,
+      }}
+    >
       {children}
     </StatsContext.Provider>
   )

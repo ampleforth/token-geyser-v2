@@ -1,6 +1,6 @@
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
-import { ResponsiveText } from 'styling/styles'
+import { ResponsiveText } from '../styling/styles'
 import { GeyserStatsBox } from './GeyserStatsBox'
 import { MyStatsBox } from './MyStatsBox'
 import { ToolButton } from './ToolButton'

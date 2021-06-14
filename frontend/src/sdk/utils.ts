@@ -1,12 +1,14 @@
 import { TypedDataField } from '@ethersproject/abstract-signer'
-import { BigNumberish, Contract, Signer, Wallet } from 'ethers'
+import { BigNumberish, Contract, providers, Signer, Wallet } from 'ethers'
 import { splitSignature } from 'ethers/lib/utils'
 import mainnetConfig from './deployments/mainnet/factories-latest.json'
 import goerliConfig from './deployments/goerli/factories-latest.json'
 import localhostConfig from './deployments/localhost/factories-latest.json'
 
-export const loadNetworkConfig = async (signer: Signer) => {
-  const network = await signer.provider?.getNetwork()
+export const loadNetworkConfig = async (signerOrProvider: Signer | providers.Provider) => {
+  const network = await (Signer.isSigner(signerOrProvider)
+    ? signerOrProvider.provider?.getNetwork()
+    : signerOrProvider.getNetwork())
 
   switch (network?.name) {
     case 'mainnet':

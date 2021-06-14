@@ -4,7 +4,7 @@ import { GeyserStakeView } from './GeyserStakeView'
 import { GeyserFirstOverlay } from '../styling/styles'
 import { ToggleView } from './ToggleView'
 import tw from 'twin.macro'
-import { GeyserContext } from 'context/GeyserContext'
+import { GeyserContext } from '../context/GeyserContext'
 import { GeyserStatsView } from './GeyserStatsView'
 
 interface Props {}

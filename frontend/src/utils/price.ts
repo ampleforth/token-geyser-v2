@@ -1,6 +1,6 @@
 import CGApi from 'coingecko-api'
 import { HOUR_IN_MS } from '../constants'
-import * as ls from './ttl'
+import * as ls from './cache'
 
 const DEFAULT_PRICES: Record<string, number> = {
   AMPL: 1.0,
@@ -45,23 +45,24 @@ export const getCurrentPrice = async (symbol: string) => {
     if (!query) {
       throw new Error(`Can't fetch price for ${symbol}`)
     }
-    const cachedPrice = ls.get(cacheKey)
-    if (cachedPrice) {
-      return cachedPrice as number
-    }
 
-    const client = new CGApi()
-    const reqTimeoutSec = 10
-    const p: any = await Promise.race([
-      client.simple.price({
-        ids: [query],
-        vs_currencies: ['usd'],
-      }),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('request timeout')), reqTimeoutSec * 1000)),
-    ])
-    const price = p.data[query].usd
-    ls.set(cacheKey, price, TTL)
-    return price as number
+    return await ls.computeAndCache<number>(
+      async () => {
+        const client = new CGApi()
+        const reqTimeoutSec = 10
+        const p: any = await Promise.race([
+          client.simple.price({
+            ids: [query],
+            vs_currencies: ['usd'],
+          }),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('request timeout')), reqTimeoutSec * 1000)),
+        ])
+        const price = p.data[query].usd
+        return price as number
+      },
+      cacheKey,
+      TTL,
+    )
   } catch (e) {
     console.error(e)
     return DEFAULT_PRICES[symbol] || 0

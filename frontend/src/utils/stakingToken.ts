@@ -1,9 +1,9 @@
-import { BigNumber, Contract, Signer } from 'ethers'
+import { BigNumber, Contract } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 import { toChecksumAddress } from 'web3-utils'
 import { StakingToken } from '../constants'
 import { ERC20Balance } from '../sdk'
-import { StakingTokenInfo, TokenComposition } from '../types'
+import { SignerOrProvider, StakingTokenInfo, TokenComposition } from '../types'
 import { BALANCER_BPOOL_V1_ABI } from './abis/BalancerBPoolV1'
 import { BALANCER_CRP_V1_ABI } from './abis/BalancerCRPV1'
 import { MOONISWAP_V1_PAIR_ABI } from './abis/MooniswapV1Pair'
@@ -22,21 +22,21 @@ export const defaultStakingTokenInfo = (): StakingTokenInfo => ({
 export const getStakingTokenInfo = async (
   tokenAddress: string,
   token: StakingToken,
-  signer: Signer,
+  signerOrProvider: SignerOrProvider,
 ): Promise<StakingTokenInfo> => {
   switch (token) {
     case StakingToken.MOCK:
       return getMockLPToken(tokenAddress)
     case StakingToken.UNISWAP_V2:
-      return getUniswapV2(tokenAddress, signer)
+      return getUniswapV2(tokenAddress, signerOrProvider)
     case StakingToken.SUSHISWAP:
-      return getSushiswap(tokenAddress, signer)
+      return getSushiswap(tokenAddress, signerOrProvider)
     case StakingToken.MOONISWAP_V1:
-      return getMooniswap(tokenAddress, signer)
+      return getMooniswap(tokenAddress, signerOrProvider)
     case StakingToken.BALANCER_V1:
-      return getBalancerV1(tokenAddress, signer)
+      return getBalancerV1(tokenAddress, signerOrProvider)
     case StakingToken.BALANCER_SMART_POOL_V1:
-      return getBalancerSmartPoolV1(tokenAddress, signer)
+      return getBalancerSmartPoolV1(tokenAddress, signerOrProvider)
     default:
       throw new Error(`Handler for ${token} not found`)
   }
@@ -45,12 +45,12 @@ export const getStakingTokenInfo = async (
 const getTokenComposition = async (
   tokenAddress: string,
   stakingTokenAddress: string,
-  signer: Signer,
+  signerOrProvider: SignerOrProvider,
   weight: number,
 ): Promise<TokenComposition> => {
-  const { name, symbol, decimals } = await getTokenInfo(tokenAddress, signer)
+  const { name, symbol, decimals } = await getTokenInfo(tokenAddress, signerOrProvider)
   const price = await getCurrentPrice(symbol)
-  const balance = await ERC20Balance(tokenAddress, stakingTokenAddress, signer)
+  const balance = await ERC20Balance(tokenAddress, stakingTokenAddress, signerOrProvider)
 
   const balanceNumber = parseInt(formatUnits(balance as BigNumber, decimals), 10)
 
@@ -68,23 +68,25 @@ const getTokenComposition = async (
 const getTokenCompositions = async (
   tokenAddresses: string[],
   stakingTokenAddress: string,
-  signer: Signer,
+  signerOrProvider: SignerOrProvider,
   weights: number[],
 ): Promise<TokenComposition[]> =>
   Promise.all(
-    tokenAddresses.map((token, index) => getTokenComposition(token, stakingTokenAddress, signer, weights[index])),
+    tokenAddresses.map((token, index) =>
+      getTokenComposition(token, stakingTokenAddress, signerOrProvider, weights[index]),
+    ),
   )
 
 const getMarketCap = (composition: TokenComposition[]) => composition.reduce((m, c) => m + c.value, 0)
 
 const uniswapV2Pair = async (
   tokenAddress: string,
-  signer: Signer,
+  signerOrProvider: SignerOrProvider,
   namePrefix: string,
   symbolPrefix: string,
 ): Promise<StakingTokenInfo> => {
   const address = toChecksumAddress(tokenAddress)
-  const contract = new Contract(address, UNISWAP_V2_PAIR_ABI, signer)
+  const contract = new Contract(address, UNISWAP_V2_PAIR_ABI, signerOrProvider)
   const token0Address: string = await contract.token0()
   const token1Address: string = await contract.token1()
   const decimals: number = await contract.decimals()
@@ -93,7 +95,10 @@ const uniswapV2Pair = async (
 
   const totalSupplyNumber = parseFloat(formatUnits(totalSupply, decimals))
 
-  const tokenCompositions = await getTokenCompositions([token0Address, token1Address], address, signer, [0.5, 0.5])
+  const tokenCompositions = await getTokenCompositions([token0Address, token1Address], address, signerOrProvider, [
+    0.5,
+    0.5,
+  ])
   const [token0Symbol, token1Symbol] = tokenCompositions.map((c) => c.symbol)
   const marketCap = getMarketCap(tokenCompositions)
 
@@ -109,15 +114,15 @@ const uniswapV2Pair = async (
   }
 }
 
-const getUniswapV2 = async (tokenAddress: string, signer: Signer) =>
-  uniswapV2Pair(tokenAddress, signer, 'UniswapV2', 'UNI')
+const getUniswapV2 = async (tokenAddress: string, signerOrProvider: SignerOrProvider) =>
+  uniswapV2Pair(tokenAddress, signerOrProvider, 'UniswapV2', 'UNI')
 
-const getSushiswap = async (tokenAddress: string, signer: Signer) =>
-  uniswapV2Pair(tokenAddress, signer, 'Sushiswap', 'SUSHI')
+const getSushiswap = async (tokenAddress: string, signerOrProvider: SignerOrProvider) =>
+  uniswapV2Pair(tokenAddress, signerOrProvider, 'Sushiswap', 'SUSHI')
 
-const getMooniswap = async (tokenAddress: string, signer: Signer): Promise<StakingTokenInfo> => {
+const getMooniswap = async (tokenAddress: string, signerOrProvider: SignerOrProvider): Promise<StakingTokenInfo> => {
   const address = toChecksumAddress(tokenAddress)
-  const contract = new Contract(address, MOONISWAP_V1_PAIR_ABI, signer)
+  const contract = new Contract(address, MOONISWAP_V1_PAIR_ABI, signerOrProvider)
   const tokens: [string, string] = await contract.getTokens()
   const [token0Address, token1Address] = tokens
   const decimals: number = await contract.decimals()
@@ -128,7 +133,10 @@ const getMooniswap = async (tokenAddress: string, signer: Signer): Promise<Staki
 
   const totalSupplyNumber = parseFloat(formatUnits(totalSupply, decimals))
 
-  const tokenCompositions = await getTokenCompositions([token0Address, token1Address], address, signer, [0.5, 0.5])
+  const tokenCompositions = await getTokenCompositions([token0Address, token1Address], address, signerOrProvider, [
+    0.5,
+    0.5,
+  ])
   const marketCap = getMarketCap(tokenCompositions)
 
   return {
@@ -143,8 +151,11 @@ const getMooniswap = async (tokenAddress: string, signer: Signer): Promise<Staki
   }
 }
 
-const getBalancerTokenCompositions = async (address: string, signer: Signer): Promise<TokenComposition[]> => {
-  const contract = new Contract(address, BALANCER_BPOOL_V1_ABI, signer)
+const getBalancerTokenCompositions = async (
+  address: string,
+  signerOrProvider: SignerOrProvider,
+): Promise<TokenComposition[]> => {
+  const contract = new Contract(address, BALANCER_BPOOL_V1_ABI, signerOrProvider)
   const tokenAddresses: string[] = await contract.getCurrentTokens()
   const totalDenormalizedWeight: number = await contract.getTotalDenormalizedWeight()
   const tokenDenormalizedWeights: number[] = await Promise.all(
@@ -152,12 +163,12 @@ const getBalancerTokenCompositions = async (address: string, signer: Signer): Pr
   )
   const tokenWeights = tokenDenormalizedWeights.map((w) => w / totalDenormalizedWeight)
 
-  return getTokenCompositions(tokenAddresses, address, signer, tokenWeights)
+  return getTokenCompositions(tokenAddresses, address, signerOrProvider, tokenWeights)
 }
 
-const getBalancerV1 = async (tokenAddress: string, signer: Signer): Promise<StakingTokenInfo> => {
+const getBalancerV1 = async (tokenAddress: string, signerOrProvider: SignerOrProvider): Promise<StakingTokenInfo> => {
   const address = toChecksumAddress(tokenAddress)
-  const contract = new Contract(address, BALANCER_BPOOL_V1_ABI, signer)
+  const contract = new Contract(address, BALANCER_BPOOL_V1_ABI, signerOrProvider)
 
   const name: string = await contract.name()
   const symbol: string = await contract.symbol()
@@ -166,7 +177,7 @@ const getBalancerV1 = async (tokenAddress: string, signer: Signer): Promise<Stak
   const totalSupply: BigNumber = await contract.totalSupply()
   const totalSupplyNumber = parseFloat(formatUnits(totalSupply, decimals))
 
-  const tokenCompositions = await getBalancerTokenCompositions(address, signer)
+  const tokenCompositions = await getBalancerTokenCompositions(address, signerOrProvider)
   const marketCap = getMarketCap(tokenCompositions)
 
   return {
@@ -181,9 +192,12 @@ const getBalancerV1 = async (tokenAddress: string, signer: Signer): Promise<Stak
   }
 }
 
-const getBalancerSmartPoolV1 = async (tokenAddress: string, signer: Signer): Promise<StakingTokenInfo> => {
+const getBalancerSmartPoolV1 = async (
+  tokenAddress: string,
+  signerOrProvider: SignerOrProvider,
+): Promise<StakingTokenInfo> => {
   const address = toChecksumAddress(tokenAddress)
-  const contract = new Contract(address, BALANCER_CRP_V1_ABI, signer)
+  const contract = new Contract(address, BALANCER_CRP_V1_ABI, signerOrProvider)
 
   const bPool: string = await contract.bPool()
   const decimals: number = await contract.decimals()
@@ -192,7 +206,7 @@ const getBalancerSmartPoolV1 = async (tokenAddress: string, signer: Signer): Pro
   const totalSupply: BigNumber = await contract.totalSupply()
   const totalSupplyNumber = parseFloat(formatUnits(totalSupply, decimals))
 
-  const tokenCompositions = await getBalancerTokenCompositions(bPool, signer)
+  const tokenCompositions = await getBalancerTokenCompositions(bPool, signerOrProvider)
   const marketCap = getMarketCap(tokenCompositions)
 
   return {

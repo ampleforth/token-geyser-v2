@@ -1,15 +1,17 @@
 import { API, Wallet } from 'bnc-onboard/dist/src/interfaces'
 import Onboard from 'bnc-onboard'
 import React, { createContext, useCallback, useEffect, useState } from 'react'
-import { ethers, Signer } from 'ethers'
+import { providers, Signer } from 'ethers'
+import { getDefaultProvider } from '../utils/eth'
 
-class Provider extends ethers.providers.Web3Provider {}
+class Provider extends providers.Web3Provider {}
 
 const Web3Context = createContext<{
   address?: string
   wallet: Wallet | null
   onboard?: API
   provider: Provider | null
+  defaultProvider: providers.Provider
   signer?: Signer
   selectWallet: () => Promise<boolean>
   ready: boolean
@@ -18,6 +20,7 @@ const Web3Context = createContext<{
   ready: false,
   wallet: null,
   provider: null,
+  defaultProvider: getDefaultProvider(),
 })
 
 interface Subscriptions {
@@ -40,6 +43,7 @@ const Web3Provider: React.FC = ({ children }) => {
   const [wallet, setWallet] = useState<Wallet | null>(null)
   const [onboard, setOnboard] = useState<API>()
   const [provider, setProvider] = useState<Provider | null>(null)
+  const [defaultProvider] = useState<providers.Provider>(getDefaultProvider())
   const [signer, setSigner] = useState<Signer>()
   const [ready, setReady] = useState(false)
 
@@ -98,6 +102,7 @@ const Web3Provider: React.FC = ({ children }) => {
         signer,
         selectWallet,
         ready,
+        defaultProvider,
       }}
     >
       {children}

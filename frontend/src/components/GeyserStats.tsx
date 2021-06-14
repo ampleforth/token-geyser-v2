@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { ResponsiveText } from 'styling/styles'
+import { ResponsiveText } from '../styling/styles'
 import tw from 'twin.macro'
 import { GeyserStatsBox } from './GeyserStatsBox'
 

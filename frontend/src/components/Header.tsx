@@ -1,20 +1,19 @@
 import { useContext } from 'react'
 import styled, { css } from 'styled-components/macro'
 import tw from 'twin.macro'
-import { toChecksumAddress } from 'web3-utils'
 import { GeyserContext } from '../context/GeyserContext'
 import { VaultContext } from '../context/VaultContext'
 import { Dropdown } from './Dropdown'
 import { HeaderWalletButton } from './HeaderWalletButton'
 import { ToolButton } from './ToolButton'
 import copy from 'assets/clipboard.svg'
-import { ResponsiveText } from 'styling/styles'
+import { ResponsiveText } from '../styling/styles'
 
 export const Header = () => {
-  const { geysers, selectGeyserById, selectedGeyser, geyserAddressToName } = useContext(GeyserContext)
+  const { geysers, selectGeyserByName, selectedGeyser, getGeyserName } = useContext(GeyserContext)
   const { vaults, selectVaultById, selectedVault } = useContext(VaultContext)
 
-  const handleGeyserChange = (geyserId: string) => selectGeyserById(geyserId)
+  const handleGeyserChange = (geyserName: string) => selectGeyserByName(geyserName)
   const handleVaultChange = (vaultId: string) => selectVaultById(vaultId)
 
   const handleCopyVaultID = () => navigator.clipboard.writeText(selectedVault!.id)
@@ -46,8 +45,8 @@ export const Header = () => {
             <Label>Geyser</Label>
             {geysers.length > 0 && (
               <Dropdown
-                options={geysers.map((geyser) => geyser.id)}
-                selectedOption={selectedGeyser ? selectedGeyser.id : geysers[0].id}
+                options={geysers.map((geyser) => getGeyserName(geyser.id))}
+                selectedOption={getGeyserName(selectedGeyser ? selectedGeyser.id : geysers[0].id)}
                 onChange={handleGeyserChange}
               />
             )}

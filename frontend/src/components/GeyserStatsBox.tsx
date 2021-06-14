@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { ResponsiveSubText, ResponsiveText } from 'styling/styles'
+import { ResponsiveSubText, ResponsiveText } from '../styling/styles'
 import tw from 'twin.macro'
 
 interface Props {

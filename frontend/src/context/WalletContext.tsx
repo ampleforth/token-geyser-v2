@@ -29,9 +29,12 @@ export const WalletContextProvider: React.FC = ({ children }) => {
       }
     }
     return BigNumber.from('0')
-  }, [selectedGeyser, signer])
+  }, [selectedGeyser?.stakingToken, signer])
 
-  const refreshWalletAmount = () => getWalletAmount()
+  const refreshWalletAmount = async () => {
+    const balance = await getWalletAmount()
+    setWalletAmount(balance)
+  }
 
   useEffect(() => {
     // `mounted` is a workaround for supressing the warning saying that a state update on an unmounted

@@ -12,9 +12,7 @@ export const Paragraph = styled.p`
 `
 
 export const GeyserFirstOverlay = styled.div`
-  box-shadow: 0px -2px 25px -3px rgb(0 0 0 / 10%);
-  border-radius: 10px;
-  width: 100%;
+  ${tw`shadow-lg w-full rounded-lg`}
 `
 
 export const LogoDiv = styled.div`
@@ -31,6 +29,5 @@ export const ResponsiveText = css`
 `
 
 export const ResponsiveSubText = css`
-  ${ResponsiveText}
   ${tw`text-xs sm:text-xs`}
 `

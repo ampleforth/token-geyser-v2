@@ -28,11 +28,11 @@ const Content = styled.div`
 `
 
 const ConnectWalletWarningContainer = styled.div`
-  ${tw`h-80px shadow-md mt-1 mb-5 border border-primary rounded flex flex-row tracking-wider`}
+  ${tw`h-80px shadow-all-xs mt-1 mb-5 border border-primary rounded flex flex-row tracking-wider`}
 `
 
 const ColoredDiv = styled.div`
-  ${tw`h-full w-4 shadow-md rounded-l-sm bg-primary`}
+  ${tw`h-full w-4 rounded-l-sm bg-primary`}
 `
 
 const Img = styled.img`

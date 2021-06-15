@@ -37,6 +37,10 @@ module.exports = {
         '2xl': '6rem',
       },
     },
+    boxShadow: {
+      all: '0 0px 16px rgba(0, 0, 0, 0.3)',
+      'all-xs': '0 0px 8px rgba(0, 0, 0, 0.3)',
+    },
     extend: {
       width: {
         '80px': '80px',

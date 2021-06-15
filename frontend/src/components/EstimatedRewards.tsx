@@ -19,7 +19,7 @@ export const EstimatedRewards = () => {
 }
 
 const EstimatedRewardsContainer = styled.div`
-  ${tw`h-120px shadow-md my-6 border border-lightGray rounded flex flex-row tracking-wide`}
+  ${tw`h-120px shadow-all-xs my-6 border border-lightGray rounded flex flex-row tracking-wide`}
 `
 
 const ColoredDiv = styled.div`

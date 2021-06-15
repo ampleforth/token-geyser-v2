@@ -7,7 +7,8 @@ export const Paragraph = styled.p`
 `
 
 export const GeyserFirstOverlay = styled.div`
-  ${tw`shadow-lg w-full rounded-lg`}
+  ${tw`shadow-all w-full rounded-lg my-2`}
+  ${tw`sm:my-4`}
 `
 
 export const LogoSpan = styled.span`

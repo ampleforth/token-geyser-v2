@@ -31,5 +31,5 @@ export const WalletBalance: React.FC<Props> = ({ parsedAmount, walletAmount, dec
 }
 
 const FlexDiv = styled.div`
-  ${tw`flex font-roboto font-bold`}
+  ${tw`flex font-bold`}
 `

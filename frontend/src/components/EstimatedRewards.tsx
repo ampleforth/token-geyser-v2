@@ -20,7 +20,7 @@ export const EstimatedRewards = () => {
 
 const EstimatedRewardsContainer = styled.div`
   height: 120px;
-  ${tw`shadow-md my-6 border border-lightGray rounded flex flex-row font-roboto tracking-wide`}
+  ${tw`shadow-md my-6 border border-lightGray rounded flex flex-row tracking-wide`}
 `
 
 const ColoredDiv = styled.div`

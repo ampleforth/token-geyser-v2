@@ -11,9 +11,7 @@ module.exports = {
       '2xl': '1536px',
     },
     fontFamily: {
-      roboto: ['Roboto', 'sans-serif'],
-      robotoMono: ['Roboto Mono', 'sans-serif'],
-      times: ['Times New Roman'],
+      times: ['Times\\ New\\ Roman'],
     },
     colors: {
       primary: '#912DFF',
@@ -25,6 +23,8 @@ module.exports = {
       lightBlack: '#363636',
       black: '#000000',
       white: '#FFFFFF',
+      amaranth: '#EE2A4F',
+      radicalRed: '#FF2D55',
       paleBlue: '#F9F9F9',
     },
     container: {

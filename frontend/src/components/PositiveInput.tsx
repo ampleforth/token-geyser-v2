@@ -36,5 +36,5 @@ const Input = styled.input`
     -webkit-appearance: none;
     margin: 0;
   }
-  ${tw`w-full p-3 my-3 border-2 border border-gray focus:border-primary font-robotoMono font-semibold tracking-tight text-base rounded-md`}
+  ${tw`w-full p-3 my-3 border-2 border border-gray focus:border-primary font-semibold tracking-wider text-base rounded-md`}
 `

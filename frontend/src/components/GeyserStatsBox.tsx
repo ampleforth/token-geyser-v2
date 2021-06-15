@@ -1,18 +1,21 @@
 import styled from 'styled-components/macro'
-import { ResponsiveText } from 'styling/styles'
+import { ResponsiveSubText, ResponsiveText } from 'styling/styles'
 import tw from 'twin.macro'
 
 interface Props {
   name: string
   value: string
+  units: string
 }
 
-export const GeyserStatsBox: React.FC<Props> = ({ name, value, children }) => {
+export const GeyserStatsBox: React.FC<Props> = ({ name, value, units, children }) => {
   return (
     <GeyserStatsBoxContainer>
       <GeyserStatsBoxLabel>{name}</GeyserStatsBoxLabel>
       <GeyserStatsBoxValueContainer>
-        <GeyserStatsBoxValue>{value}</GeyserStatsBoxValue>
+        <GeyserStatsBoxValue>
+          {value} <GeyserStatsBoxUnits>{units}</GeyserStatsBoxUnits>
+        </GeyserStatsBoxValue>
         {children}
       </GeyserStatsBoxValueContainer>
     </GeyserStatsBoxContainer>
@@ -34,4 +37,8 @@ const GeyserStatsBoxValueContainer = styled.div`
 
 const GeyserStatsBoxValue = styled.span`
   ${ResponsiveText}
+`
+
+const GeyserStatsBoxUnits = styled.span`
+  ${ResponsiveSubText}
 `

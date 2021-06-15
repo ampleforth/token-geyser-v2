@@ -29,3 +29,8 @@ export const LogoDiv = styled.div`
 export const ResponsiveText = css`
   ${tw`text-sm sm:text-base`}
 `
+
+export const ResponsiveSubText = css`
+  ${ResponsiveText}
+  ${tw`text-xs sm:text-xs`}
+`

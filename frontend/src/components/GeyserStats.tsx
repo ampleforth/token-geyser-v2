@@ -8,13 +8,13 @@ export const GeyserStats = () => {
     <GeyserStatsContainer>
       <Header>Geyser Stats</Header>
       <GeyserStatsBoxContainer>
-        <GeyserStatsBox name="Program Duration" value="44.6 days left"></GeyserStatsBox>
+        <GeyserStatsBox name="Program Duration" value="44.6" units="days left"></GeyserStatsBox>
       </GeyserStatsBoxContainer>
       <GeyserStatsBoxContainer>
-        <GeyserStatsBox name="Total Deposits" value="4,640,563.97 USD"></GeyserStatsBox>
+        <GeyserStatsBox name="Total Deposits" value="4,640,563.97" units="USD"></GeyserStatsBox>
       </GeyserStatsBoxContainer>
       <GeyserStatsBoxContainer>
-        <GeyserStatsBox name="Total Rewards" value="1,263,169.53 AMPL"></GeyserStatsBox>
+        <GeyserStatsBox name="Total Rewards" value="1,263,169.53" units="AMPL"></GeyserStatsBox>
       </GeyserStatsBoxContainer>
     </GeyserStatsContainer>
   )

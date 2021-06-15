@@ -37,9 +37,9 @@ const SwitchContainer = styled.span`
 `
 
 const SwitchOptionOne = styled.span`
-  ${tw`font-robotoMono font-bold uppercase z-10 absolute w-1/2 self-center`}
+  ${tw`font-bold uppercase z-10 absolute w-1/2 self-center`}
 `
 
 const SwitchOptionTwo = styled.span`
-  ${tw`font-robotoMono font-bold uppercase z-10 w-1/2 self-center`}
+  ${tw`font-bold uppercase z-10 w-1/2 self-center`}
 `

@@ -15,7 +15,7 @@ export const ConnectWalletWarning = () => {
 
 const ConnectWalletWarningContainer = styled.div`
   height: 80px;
-  ${tw`shadow-md mt-1 mb-5 border border-primary rounded flex flex-row font-roboto tracking-wider`}
+  ${tw`shadow-md mt-1 mb-5 border border-primary rounded flex flex-row tracking-wider`}
 `
 
 const ColoredDiv = styled.div`

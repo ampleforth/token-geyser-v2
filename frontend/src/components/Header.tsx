@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import { useContext } from 'react'
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
 import { toChecksumAddress } from 'web3-utils'

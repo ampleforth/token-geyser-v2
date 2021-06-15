@@ -24,6 +24,7 @@ module.exports = {
       black: '#000000',
       white: '#FFFFFF',
       amaranth: '#EE2A4F',
+      link: '#0D23EE',
       radicalRed: '#FF2D55',
       paleBlue: '#F9F9F9',
     },
@@ -37,11 +38,11 @@ module.exports = {
         '2xl': '6rem',
       },
     },
-    boxShadow: {
-      all: '0 0px 16px rgba(0, 0, 0, 0.3)',
-      'all-xs': '0 0px 8px rgba(0, 0, 0, 0.3)',
-    },
     extend: {
+      boxShadow: {
+        all: '0 0px 16px rgba(0, 0, 0, 0.3)',
+        'all-xs': '0 0px 8px rgba(0, 0, 0, 0.3)',
+      },
       width: {
         '80px': '80px',
         sm: '648px',

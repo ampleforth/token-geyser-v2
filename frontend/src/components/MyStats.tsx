@@ -3,6 +3,7 @@ import tw from 'twin.macro'
 import { ResponsiveText } from 'styling/styles'
 import { GeyserStatsBox } from './GeyserStatsBox'
 import { MyStatsBox } from './MyStatsBox'
+import { ToolButton } from './ToolButton'
 
 export const MyStats = () => {
   return (
@@ -14,7 +15,9 @@ export const MyStats = () => {
         <MyStatsBox name="Current Rewards" value="0.00" delim=" " units="AMPL" />
       </MyStatsWrapper>
       <GeyserStatsContainer>
-        <GeyserStatsBox name="External Rewards" value="0.00" units="BAL"></GeyserStatsBox>
+        <GeyserStatsBox name="External Rewards" value="0.00" units="BAL">
+          <ToolButton displayText="Claim" onClick={() => {}} />
+        </GeyserStatsBox>
       </GeyserStatsContainer>
     </MyStatsContainer>
   )
@@ -29,9 +32,8 @@ const MyStatsWrapper = styled.div`
 `
 
 const Header = styled.h3`
-  color: #ff1d1d;
   ${ResponsiveText}
-  ${tw`uppercase flex font-medium sm:pl-3`}
+  ${tw`uppercase flex text-radicalRed font-medium sm:pl-3`}
 `
 
 const GeyserStatsContainer = styled.div`

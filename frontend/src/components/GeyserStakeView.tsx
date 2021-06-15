@@ -26,7 +26,7 @@ export const GeyserStakeView: React.FC<Props> = () => {
   const { signer } = useContext(Web3Context)
   const { selectedVault, currentLock } = useContext(VaultContext)
   const { walletAmount, refreshWalletAmount } = useContext(WalletContext)
-  const { address } = useContext(Web3Context)
+  const { selectWallet, address } = useContext(Web3Context)
 
   useEffect(() => {
     setAmount('')
@@ -53,8 +53,12 @@ export const GeyserStakeView: React.FC<Props> = () => {
       />
       <PositiveInput placeholder="Enter amount" value={amount} onChange={handleOnChange} />
       <EstimatedRewards />
-      {!address && <ConnectWalletWarning />}
-      <GeyserInteractionButton onClick={handleGeyserInteraction} displayText={isStakingAction ? `Stake` : `Unstake`} />
+      {!address && <ConnectWalletWarning onClick={selectWallet} />}
+      <GeyserInteractionButton
+        disabled={!address}
+        onClick={handleGeyserInteraction}
+        displayText={isStakingAction ? `Stake` : `Unstake`}
+      />
     </GeyserStakeViewContainer>
   )
 }

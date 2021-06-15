@@ -36,10 +36,7 @@ export const Dropdown: React.FC<Props> = ({ options, selectedOption, onChange })
                   <>
                     <span className={`${selected ? 'font-medium' : 'font-normal'} ablock truncate`}>{option}</span>
                     {selected ? (
-                      <span
-                        className={`'text-primary'}
-                                absolute inset-y-0 left-0 flex items-center pl-3`}
-                      >
+                      <span className={`'text-primary' absolute inset-y-0 left-0 flex items-center pl-3`}>
                         <Img src={checkMark} alt="Selected" />
                       </span>
                     ) : null}

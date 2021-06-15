@@ -30,8 +30,8 @@ const MyStatContainer = styled.div`
 `
 
 const MyStatName = styled.span`
-  ${tw`mb-1 flex font-light text-sm`}
-  ${tw`sm:mb-2 sm:mr-8 sm:block sm:ml-3 sm:text-base`}
+  ${ResponsiveText}
+  ${tw`mb-1 flex font-light sm:mb-2 sm:mr-8 sm:block sm:ml-3`}
 `
 
 const MyStatValueContainer = styled.div`

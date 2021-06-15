@@ -24,10 +24,7 @@ const EstimatedRewardsContainer = styled.div`
 `
 
 const ColoredDiv = styled.div`
-  width: 1em;
-  height: 100%;
-  background: #ff2d55;
-  ${tw`shadow-md rounded-l`}
+  ${tw`rounded-l-sm h-full bg-radicalRed w-4`}
 `
 
 const Img = styled.img`
@@ -43,5 +40,5 @@ const RewardsLabel = styled.span`
 `
 
 const RewardsAmount = styled.span`
-  ${tw`flex uppercase font-extrabold`}
+  ${tw`flex uppercase font-bold`}
 `

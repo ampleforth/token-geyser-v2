@@ -6,9 +6,7 @@ import { Paragraph } from '../styling/styles'
 import { NamedColors } from '../styling/colors'
 import tw from 'twin.macro'
 
-interface Props {}
-
-export const HeaderWalletButton: React.FC<Props> = () => {
+export const HeaderWalletButton = () => {
   const { selectWallet, address } = useContext(Web3Context)
 
   return (

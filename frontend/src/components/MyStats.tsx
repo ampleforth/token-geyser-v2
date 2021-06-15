@@ -1,4 +1,5 @@
 import styled from 'styled-components/macro'
+import { ResponsiveText } from 'styling/styles'
 import tw from 'twin.macro'
 import { GeyserStatsBox } from './GeyserStatsBox'
 
@@ -58,5 +59,6 @@ const MyStatsWrapper = styled.div`
 
 const Header = styled.h3`
   color: #ff1d1d;
-  ${tw`text-sm sm:text-base uppercase flex font-medium sm:pl-3`}
+  ${ResponsiveText}
+  ${tw`uppercase flex font-medium sm:pl-3`}
 `

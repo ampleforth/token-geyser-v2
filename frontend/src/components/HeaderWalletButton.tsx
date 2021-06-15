@@ -4,6 +4,7 @@ import Web3Context from '../context/Web3Context'
 import { displayAddr } from '../utils/formatDisplayAddress'
 import { Paragraph } from '../styling/styles'
 import { NamedColors } from '../styling/colors'
+import tw from 'twin.macro'
 
 interface Props {}
 
@@ -24,11 +25,11 @@ export const HeaderWalletButton: React.FC<Props> = () => {
 const StickyButton = styled.button`
   cursor: pointer;
   float: right;
-  padding: 18px 56px;
   border-radius: 0px 0px 0px 24px;
   border-width: 0;
   background-color: ${NamedColors.RADICAL_RED};
   :hover {
     background-color: ${NamedColors.AMARANTH};
   }
+  ${tw`px-6 py-4 sm:px-14 sm:py-5`}
 `

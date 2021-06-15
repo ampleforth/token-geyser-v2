@@ -40,7 +40,11 @@ module.exports = {
     extend: {
       width: {
         '80px': '80px',
-        '648px': '648px',
+        sm: '648px',
+        md: '768px',
+        lg: '1024px',
+        xl: '1280px',
+        '2xl': '1536px',
       },
       height: {
         '40px': '40px',
@@ -49,7 +53,7 @@ module.exports = {
         '180px': '180px',
         '280px': '280px',
         '312px': '312px',
-        'fit': 'fit-content',
+        fit: 'fit-content',
       },
     },
   },

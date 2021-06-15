@@ -1,5 +1,6 @@
 // Collective place for universal styles
-import styled from 'styled-components/macro'
+import styled, { css } from 'styled-components/macro'
+import tw from 'twin.macro'
 
 // TODO: Set up theming, media breakpoints styling, typography
 
@@ -23,4 +24,8 @@ export const LogoDiv = styled.div`
   padding: 10px;
   padding-left: 20px;
   padding-right: 22px;
+`
+
+export const ResponsiveText = css`
+  ${tw`text-sm sm:text-base`}
 `

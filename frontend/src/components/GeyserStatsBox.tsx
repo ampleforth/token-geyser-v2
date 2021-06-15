@@ -1,4 +1,5 @@
 import styled from 'styled-components/macro'
+import { ResponsiveText } from 'styling/styles'
 import tw from 'twin.macro'
 
 interface Props {
@@ -23,7 +24,8 @@ const GeyserStatsBoxContainer = styled.div`
 `
 
 const GeyserStatsBoxLabel = styled.span`
-  ${tw`mb-1 flex font-light text-sm sm:text-base`}
+  ${ResponsiveText}
+  ${tw`mb-1 flex font-light`}
 `
 
 const GeyserStatsBoxValueContainer = styled.div`
@@ -31,5 +33,5 @@ const GeyserStatsBoxValueContainer = styled.div`
 `
 
 const GeyserStatsBoxValue = styled.span`
-  ${tw`text-sm sm:text-base`}
+  ${ResponsiveText}
 `

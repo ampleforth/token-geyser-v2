@@ -25,11 +25,12 @@ const GeyserStatsContainer = styled.div`
 `
 
 const Header = styled.h3`
-  color: #ff1d1d;
   ${ResponsiveText}
-  ${tw`uppercase flex font-medium sm:pl-3`}
+  ${tw`uppercase flex font-medium text-radicalRed`}
+  ${tw`sm:pl-3`}
 `
 
 const GeyserStatsBoxContainer = styled.div`
-  ${tw`mt-4 sm:mt-3`}
+  ${tw`mt-4`}
+  ${tw`sm:mt-3`}
 `

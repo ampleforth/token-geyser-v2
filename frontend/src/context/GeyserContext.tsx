@@ -1,7 +1,6 @@
 import { useLazyQuery } from '@apollo/client'
 import { createContext, useContext, useEffect, useState } from 'react'
 import { toChecksumAddress } from 'web3-utils'
-import { LoadingSpinner } from '../components/LoadingSpinner'
 import { GET_GEYSERS } from '../queries/geyser'
 import { Geyser, StakingTokenInfo, TokenInfo, GeyserConfig, Vault } from '../types'
 import Web3Context from './Web3Context'
@@ -12,6 +11,7 @@ import { defaultStakingTokenInfo, getStakingTokenInfo } from '../utils/stakingTo
 import { BigNumber, Wallet } from 'ethers'
 import { approveCreateDepositStake, approveDepositStake, unstakeWithdraw } from 'sdk'
 import { TransactionReceipt } from '@ethersproject/providers'
+import { Centered } from 'styling/styles'
 
 export const GeyserContext = createContext<{
   geysers: Geyser[]
@@ -147,7 +147,7 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
     }
   }, [geysers])
 
-  if (geyserLoading) return <LoadingSpinner />
+  if (geyserLoading) return <Centered>Loading...</Centered>
 
   return (
     <GeyserContext.Provider

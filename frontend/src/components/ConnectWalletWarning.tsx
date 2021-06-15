@@ -32,13 +32,12 @@ const ConnectWalletWarningContainer = styled.div`
 `
 
 const ColoredDiv = styled.div`
-  width: 1em;
-  height: 100%;
-  ${tw`shadow-md rounded-l-sm bg-primary`}
+  ${tw`h-full w-4 shadow-md rounded-l-sm bg-primary`}
 `
 
 const Img = styled.img`
-  ${tw`w-0 mx-4 sm:mx-8 h-3/5 my-auto sm:w-auto`}
+  ${tw`w-0 mx-4 h-3/5 my-auto`}
+  ${tw`sm:mx-8 sm:w-auto`}
 `
 
 const Message = styled.span`
@@ -50,7 +49,8 @@ const ButtonWrapper = styled.div`
 `
 
 const Button = styled.button`
-  ${tw`sm:text-lg uppercase font-bold bg-primary text-secondary w-full h-full`}
+  ${tw`uppercase font-bold bg-primary text-secondary w-full h-full`}
+  ${tw`sm:text-lg`}
 `
 
 const MessageContainer = styled.div`

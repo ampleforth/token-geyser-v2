@@ -13,6 +13,6 @@ export const GeyserStatsView = () => {
 }
 
 const GeyserStatsContainer = styled.div`
-  width: 100%;
-  ${tw`grid grid-cols-2 h-280px sm:h-312px`};
+  ${tw`grid grid-cols-2 w-full h-280px`};
+  ${tw`sm:h-312px`}
 `

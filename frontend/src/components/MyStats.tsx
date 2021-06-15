@@ -1,6 +1,6 @@
 import styled from 'styled-components/macro'
-import { ResponsiveText } from 'styling/styles'
 import tw from 'twin.macro'
+import { ResponsiveText } from 'styling/styles'
 import { GeyserStatsBox } from './GeyserStatsBox'
 import { MyStatsBox } from './MyStatsBox'
 
@@ -35,5 +35,6 @@ const Header = styled.h3`
 `
 
 const GeyserStatsContainer = styled.div`
-  ${tw`mt-4 sm:mt-0`}
+  ${tw`mt-4`}
+  ${tw`sm:mt-0`}
 `

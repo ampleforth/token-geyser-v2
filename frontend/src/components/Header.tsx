@@ -17,13 +17,11 @@ export const Header = () => {
 
   return (
     <Container>
-      <WidthContainer>
-        <FloatLeft>
-          <LogoSpan>Λ</LogoSpan>
-          <Label>Geyser</Label>
-        </FloatLeft>
-      </WidthContainer>
-      <WidthContainer>
+      <LeftContainer>
+        <LogoSpan>Λ</LogoSpan>
+        <Label>Geyser</Label>
+      </LeftContainer>
+      <MiddleContainer>
         {geysers.length > 0 && (
           <Dropdown
             options={geysers.map((geyser) => geyserAddressToName.get(toChecksumAddress(geyser.id)) as string)}
@@ -40,17 +38,17 @@ export const Header = () => {
             onChange={handleVaultChange}
           />
         )}
-      </WidthContainer>
-      <WidthContainer>
+      </MiddleContainer>
+      <RightContainer>
         <HeaderWalletButton />
-      </WidthContainer>
+      </RightContainer>
     </Container>
   )
 }
 
 const Container = styled.div`
-  ${tw`flex flex-wrap py-1 -mt-1 sm:border-b sm:border-lightGray`}
-  height: fit-content;
+  ${tw`flex flex-wrap py-1 -mt-1 h-fit`}
+  ${tw`sm:border-b sm:border-lightGray`}
 `
 
 const Label = styled.span`
@@ -58,16 +56,19 @@ const Label = styled.span`
 `
 
 const LogoSpan = styled.span`
-  ${tw` ml-4 sm:ml-20 md:ml-32 p-5`}
   font-family: 'Coromont Garamond';
-  text-transform: none;
-  font-size: 1.75rem;
+  ${tw` ml-4 p-5 text-3xl`}
+  ${tw`sm:ml-20 md:ml-32`}
 `
 
-const WidthContainer = styled.div`
+const LeftContainer = styled.div`
+  ${tw`w-1/3 m-auto`}
+`
+
+const MiddleContainer = styled.div`
   ${tw`w-1/3`}
 `
 
-const FloatLeft = styled.div`
-  ${tw`float-left mt-2 justify-center self-center`}
+const RightContainer = styled.div`
+  ${tw`w-1/3`}
 `

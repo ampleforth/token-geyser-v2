@@ -21,5 +21,7 @@ export const HeaderWalletButton = () => {
 }
 
 const StickyButton = styled.button`
-  ${tw`px-6 py-4 sm:px-14 sm:py-5 rounded-bl-2xl float-right bg-radicalRed hover:bg-amaranth`}
+  ${tw`px-6 py-4 rounded-bl-2xl float-right bg-radicalRed`}
+  ${tw`sm:px-14 sm:py-5`}
+  ${tw`hover:bg-amaranth`}
 `

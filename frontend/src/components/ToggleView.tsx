@@ -32,8 +32,7 @@ const ToggleViewContainer = styled.div`
 `
 
 const SwitchContainer = styled.span`
-  ${tw`bg-darkGray relative rounded h-14 m-auto flex border`}
-  border-color: '#363636'
+  ${tw`bg-darkGray relative rounded h-14 m-auto flex border border-darkGray`}
 `
 
 const SwitchOptionOne = styled.span`

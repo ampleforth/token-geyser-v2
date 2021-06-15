@@ -4,8 +4,8 @@ import { GET_USER_VAULTS } from '../queries/vault'
 import { POLL_INTERVAL } from '../constants'
 import { Lock, Vault } from '../types'
 import Web3Context from './Web3Context'
-import { LoadingSpinner } from '../components/LoadingSpinner'
 import { GeyserContext } from './GeyserContext'
+import { Centered } from 'styling/styles'
 
 export const VaultContext = createContext<{
   vaults: Vault[]
@@ -61,7 +61,7 @@ export const VaultContextProvider: React.FC = ({ children }) => {
     }
   }, [selectedVault, selectedGeyser])
 
-  if (vaultLoading) return <LoadingSpinner />
+  if (vaultLoading) return <Centered>Loading...</Centered>
 
   return (
     <VaultContext.Provider

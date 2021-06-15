@@ -1,27 +1,20 @@
-// Collective place for universal styles
 import styled, { css } from 'styled-components/macro'
 import tw from 'twin.macro'
 
-// TODO: Set up theming, media breakpoints styling, typography
-
 export const Paragraph = styled.p`
   color: ${(props) => props.color};
-  font-size: 1rem;
-  font-weight: bold;
-  margin: auto;
+  ${tw`text-base font-bold m-auto`}
 `
 
 export const GeyserFirstOverlay = styled.div`
   ${tw`shadow-lg w-full rounded-lg`}
 `
 
-export const LogoDiv = styled.div`
+export const LogoSpan = styled.span`
+  ${tw` ml-4 sm:ml-20 md:ml-32 p-5 text-xl`}
   font-family: 'Coromont Garamond';
   text-transform: none;
   font-size: 1.75rem;
-  padding: 10px;
-  padding-left: 20px;
-  padding-right: 22px;
 `
 
 export const ResponsiveText = css`
@@ -30,4 +23,8 @@ export const ResponsiveText = css`
 
 export const ResponsiveSubText = css`
   ${tw`text-xs sm:text-xs`}
+`
+
+export const Centered = styled.div`
+  ${tw`h-full w-full m-auto self-center`}
 `

@@ -64,6 +64,5 @@ export const GeyserStakeView: React.FC<Props> = () => {
 }
 
 const GeyserStakeViewContainer = styled.div`
-  min-height: 300px;
-  ${tw`m-6 mb-7 flex flex-col`}
+  ${tw`m-6 mb-7 min-h-300px flex flex-col`}
 `

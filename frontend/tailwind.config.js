@@ -63,6 +63,9 @@ module.exports = {
         '312px': '312px',
         fit: 'fit-content',
       },
+      minHeight: {
+        '300px': '300px',
+      },
     },
   },
   variants: {

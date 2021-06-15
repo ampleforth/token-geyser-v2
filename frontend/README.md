@@ -1,3 +1,10 @@
+## TODO
+
+- Add library to do the  increment numbers animation on initial load
+- Hook up stats and handlers
+- Add a dialog/modal on stake/unstake actions for better feedback (desktop only?)
+- Cleanup
+
 # token-geyser-v2-ui
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

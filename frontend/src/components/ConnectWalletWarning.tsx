@@ -25,7 +25,7 @@ const ColoredDiv = styled.div`
 `
 
 const Img = styled.img`
-  ${tw`mx-8 h-3/5 my-auto`}
+  ${tw`sm:mx-8 h-3/5 my-auto w-0 sm:w-auto`}
 `
 
 const Message = styled.span`

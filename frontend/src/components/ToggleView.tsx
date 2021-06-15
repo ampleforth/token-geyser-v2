@@ -28,18 +28,16 @@ export const ToggleView: React.FC<Props> = ({ enabled, toggle }) => {
 }
 
 const ToggleViewContainer = styled.div`
-  width: 648px;
-  margin: 1.5em;
+  ${tw`m-6`}
 `
 
 const SwitchContainer = styled.span`
-  ${tw`bg-darkGray rounded h-14 m-auto flex border`}
+  ${tw`bg-darkGray relative rounded h-14 m-auto flex border`}
   border-color: '#363636'
 `
 
 const SwitchOptionOne = styled.span`
-  width: 324px;
-  ${tw`font-robotoMono font-bold uppercase z-10 absolute self-center`}
+  ${tw`font-robotoMono font-bold uppercase z-10 absolute w-1/2 self-center`}
 `
 
 const SwitchOptionTwo = styled.span`

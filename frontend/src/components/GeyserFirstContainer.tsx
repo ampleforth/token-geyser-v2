@@ -30,6 +30,5 @@ export const GeyserFirstContainer: React.FC<Props> = () => {
 }
 
 const Container = styled.div`
-  width: 648px;
-  ${tw`text-center m-auto my-4 flex flex-wrap`}
+  ${tw`text-center m-auto my-4 flex flex-wrap w-full sm:w-648px`}
 `

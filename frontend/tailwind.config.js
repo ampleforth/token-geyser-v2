@@ -3,6 +3,13 @@ module.exports = {
   purge: ['./src/**/*.{js,jsx,ts,tsx}', './public/index.html'],
   darkMode: false, // or 'media' or 'class'
   theme: {
+    screens: {
+      sm: '648px',
+      md: '768px',
+      lg: '1024px',
+      xl: '1280px',
+      '2xl': '1536px',
+    },
     fontFamily: {
       roboto: ['Roboto', 'sans-serif'],
       robotoMono: ['Roboto Mono', 'sans-serif'],
@@ -30,7 +37,21 @@ module.exports = {
         '2xl': '6rem',
       },
     },
-    extend: {},
+    extend: {
+      width: {
+        '80px': '80px',
+        '648px': '648px',
+      },
+      height: {
+        '40px': '40px',
+        '72px': '72px',
+        '80px': '80px',
+        '180px': '180px',
+        '280px': '280px',
+        '312px': '312px',
+        'fit': 'fit-content',
+      },
+    },
   },
   variants: {
     animation: ['responsive', 'motion-safe', 'motion-reduce'],

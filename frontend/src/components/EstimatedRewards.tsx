@@ -7,7 +7,7 @@ export const EstimatedRewards = () => {
   return (
     <EstimatedRewardsContainer>
       <ColoredDiv />
-      <Img src={rewardSymbol} alt="Rewards Symbol" />
+      <Img src={rewardSymbol} alt="Rewards Symbol" className="w-0 sm:w-auto"/>
       <RewardsTextContainer>
         <RewardsLabel>
           Your Estimated Rewards <Img src={info} alt="Info" />

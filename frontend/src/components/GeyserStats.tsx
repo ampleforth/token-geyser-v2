@@ -20,14 +20,14 @@ export const GeyserStats = () => {
 }
 
 const GeyserStatsContainer = styled.div`
-  ${tw`w-full font-roboto m-5`}
+  ${tw`px-5 my-5 pr-0`}
 `
 
 const Header = styled.h3`
   color: #ff1d1d;
-  ${tw`uppercase flex font-medium mx-5`}
+  ${tw`text-sm sm:text-base uppercase flex font-medium sm:pl-3`}
 `
 
 const GeyserStatsBoxContainer = styled.div`
-  ${tw`mt-3 mr-6`}
+  ${tw`mt-4 sm:mt-3`}
 `

@@ -19,17 +19,17 @@ const MyStat: React.FC<MyStatProps> = ({ classNames, name, value }) => {
 
 const MyStatContainer = styled.div`
   /* width: 78px; */
-  ${tw`font-roboto my-5`}
+  ${tw`h-40px mt-4 font-roboto sm:my-5 sm:col-span-1 sm:h-fit sm:h-72px`}
 `
 
-const MyStatName = styled.h5`
-  ${tw`font-medium mb-2 mr-8`}
+const MyStatName = styled.span`
+  ${tw`mb-1 flex font-light text-sm`}
+  ${tw`sm:font-medium sm:mb-2 sm:mr-8 sm:block sm:ml-3 sm:text-base`}
 `
 
 const MyStatValue = styled.div`
-  width: 80px;
-  height: 80px;
-  ${tw`text-sm rounded-full bg-mediumGray text-white font-medium mt-2 py-7 items-center justify-center`}
+  ${tw`flex text-sm`}
+  ${tw`sm:text-base sm:rounded-full sm:bg-mediumGray sm:text-white sm:font-medium sm:mt-2 sm:py-7 sm:items-center sm:justify-center sm:h-80px sm:w-80px`}
 `
 
 export const MyStats = () => {
@@ -37,24 +37,26 @@ export const MyStats = () => {
     <MyStatsContainer>
       <Header>My Stats</Header>
       <MyStatsWrapper>
-        <MyStat classNames="my-6" name="APY" value="19.44%" />
+        <MyStat classNames="sm:my-6" name="APY" value="19.44%" />
         <MyStat name="Reward Multiplier" value="1.0x" />
         <MyStat name="Current Rewards" value="0.00 AMPL" />
       </MyStatsWrapper>
-      <GeyserStatsBox name="External Rewards" value="0.00 BAL"></GeyserStatsBox>
+      <div className="mt-4 sm:mt-0">
+        <GeyserStatsBox name="External Rewards" value="0.00 BAL"></GeyserStatsBox>
+      </div>
     </MyStatsContainer>
   )
 }
 
 const MyStatsContainer = styled.div`
-  ${tw`font-roboto px-5 my-5 pr-0 border-r-2 border-lightGray`}
+  ${tw`px-5 my-5 pr-0 border-r-2 border-lightGray`}
 `
 
 const MyStatsWrapper = styled.div`
-  ${tw`grid grid-cols-3`}
+  ${tw`sm:grid sm:grid-cols-3 sm:h-180px`}
 `
 
 const Header = styled.h3`
   color: #ff1d1d;
-  ${tw`uppercase flex font-medium mx-5`}
+  ${tw`text-sm sm:text-base uppercase flex font-medium sm:pl-3`}
 `

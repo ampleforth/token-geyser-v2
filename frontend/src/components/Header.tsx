@@ -4,7 +4,6 @@ import tw from 'twin.macro'
 import { toChecksumAddress } from 'web3-utils'
 import { GeyserContext } from '../context/GeyserContext'
 import { VaultContext } from '../context/VaultContext'
-import { displayAddr } from '../utils/formatDisplayAddress'
 import { Dropdown } from './Dropdown'
 import { HeaderWalletButton } from './HeaderWalletButton'
 
@@ -31,7 +30,7 @@ export const Header = () => {
             onChange={handleGeyserChange}
           />
         )}
-        {vaults && vaults.length > 0 && (
+        {vaults.length > 0 && (
           <Dropdown
             options={vaults.map((vault) => vault.id)}
             selectedOption={selectedVault ? selectedVault.id : vaults[0].id}
@@ -62,13 +61,12 @@ const LogoSpan = styled.span`
 `
 
 const LeftContainer = styled.div`
-  ${tw`w-1/3 m-auto`}
+  ${tw`flex items-center w-auto header-wrap:w-1/4`}
 `
 
 const MiddleContainer = styled.div`
-  ${tw`w-1/3`}
+  ${tw`flex flex-wrap items-center justify-center w-full order-3 header-wrap:w-1/2 header-wrap:order-2`}
 `
-
 const RightContainer = styled.div`
-  ${tw`w-1/3`}
+  ${tw`ml-auto order-2 header-wrap:order-3 w-auto header-wrap:w-1/4`}
 `

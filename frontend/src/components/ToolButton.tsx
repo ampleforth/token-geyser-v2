@@ -4,12 +4,13 @@ import tw from 'twin.macro'
 
 interface Props {
   displayText: string
+  classNames?: string
   onClick: () => void
 }
 
-export const ToolButton: React.FC<Props> = ({ displayText, onClick, children }) => {
+export const ToolButton: React.FC<Props> = ({ classNames, displayText, onClick, children }) => {
   return (
-    <Button onClick={onClick}>
+    <Button className={classNames} onClick={onClick}>
       {displayText} {children}
     </Button>
   )
@@ -17,6 +18,6 @@ export const ToolButton: React.FC<Props> = ({ displayText, onClick, children }) 
 
 const Button = styled.button`
   ${ResponsiveSubText}
-  ${tw`p-0 ml-1 uppercase text-link`}
+  ${tw`p-0 inline-flex uppercase text-link`}
   ${tw`hover:underline`}
 `

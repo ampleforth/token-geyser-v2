@@ -66,6 +66,9 @@ module.exports = {
       minHeight: {
         '300px': '300px',
       },
+      maxWidth: {
+        '830px': '830px',
+      },
     },
   },
   variants: {

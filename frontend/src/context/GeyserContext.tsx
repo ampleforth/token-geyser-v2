@@ -2,7 +2,7 @@ import { useLazyQuery } from '@apollo/client'
 import { createContext, useContext, useEffect, useState } from 'react'
 import { toChecksumAddress } from 'web3-utils'
 import { GET_GEYSERS } from '../queries/geyser'
-import { Geyser, StakingTokenInfo, TokenInfo, GeyserConfig, Vault } from '../types'
+import { Geyser, StakingTokenInfo, TokenInfo, GeyserConfig, Vault, GeyserStatus } from '../types'
 import Web3Context from './Web3Context'
 import { POLL_INTERVAL } from '../constants'
 import { defaultTokenInfo, getTokenInfo } from '../utils/token'
@@ -41,13 +41,46 @@ export const GeyserContext = createContext<{
   selectedGeyserConfig: null,
 })
 
+const mockGeysers = [
+  {
+    id: '1',
+    rewardToken: 'string',
+    stakingToken: 'string',
+    totalStake: 'string',
+    totalStakeUnits: 'string',
+    status: GeyserStatus.ONLINE,
+    scalingFloor: 'string',
+    scalingCeiling: 'string',
+    scalingTime: 'string',
+    unlockedReward: 'string',
+    rewardSchedules: [],
+    totalRewardsClaimed: 'string',
+    lastUpdate: 'string',
+  },
+  {
+    id: '2',
+    rewardToken: 'string',
+    stakingToken: 'string',
+    totalStake: 'string',
+    totalStakeUnits: 'string',
+    status: GeyserStatus.ONLINE,
+    scalingFloor: 'string',
+    scalingCeiling: 'string',
+    scalingTime: 'string',
+    unlockedReward: 'string',
+    rewardSchedules: [],
+    totalRewardsClaimed: 'string',
+    lastUpdate: 'string',
+  },
+]
+
 export const GeyserContextProvider: React.FC = ({ children }) => {
   const { signer } = useContext(Web3Context)
   // Polling to fetch fresh geyser stats
   const [getGeysers, { loading: geyserLoading, data: geyserData }] = useLazyQuery(GET_GEYSERS, {
     pollInterval: POLL_INTERVAL,
   })
-  const [geysers, setGeysers] = useState<Geyser[]>([])
+  const [geysers, setGeysers] = useState<Geyser[]>(mockGeysers)
   const [selectedGeyser, setSelectedGeyser] = useState<Geyser | null>(null)
   const [selectedGeyserConfig, setSelectedGeyserConfig] = useState<GeyserConfig | null>(null)
   const [platformTokenInfos, setPlatformTokenInfos] = useState<TokenInfo[]>([])

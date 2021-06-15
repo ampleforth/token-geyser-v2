@@ -1,11 +1,14 @@
 import { useContext } from 'react'
-import styled from 'styled-components/macro'
+import styled, { css } from 'styled-components/macro'
 import tw from 'twin.macro'
 import { toChecksumAddress } from 'web3-utils'
 import { GeyserContext } from '../context/GeyserContext'
 import { VaultContext } from '../context/VaultContext'
 import { Dropdown } from './Dropdown'
 import { HeaderWalletButton } from './HeaderWalletButton'
+import { ToolButton } from './ToolButton'
+import copy from 'assets/clipboard.svg'
+import { ResponsiveText } from 'styling/styles'
 
 export const Header = () => {
   const { geysers, selectGeyserById, selectedGeyser, geyserAddressToName } = useContext(GeyserContext)
@@ -14,29 +17,42 @@ export const Header = () => {
   const handleGeyserChange = (geyserId: string) => selectGeyserById(geyserId)
   const handleVaultChange = (vaultId: string) => selectVaultById(vaultId)
 
+  const handleCopyVaultID = () => navigator.clipboard.writeText(selectedVault!.id)
+
   return (
     <Container>
       <LeftContainer>
         <LogoSpan>Λ</LogoSpan>
-        <Label>Geyser</Label>
+        <HeaderLabel>Geyser</HeaderLabel>
       </LeftContainer>
       <MiddleContainer>
-        {geysers.length > 0 && (
-          <Dropdown
-            options={geysers.map((geyser) => geyserAddressToName.get(toChecksumAddress(geyser.id)) as string)}
-            selectedOption={
-              geyserAddressToName.get(toChecksumAddress(selectedGeyser ? selectedGeyser.id : geysers[0].id)) as string
-            }
-            onChange={handleGeyserChange}
-          />
-        )}
-        {vaults.length > 0 && (
-          <Dropdown
-            options={vaults.map((vault) => vault.id)}
-            selectedOption={selectedVault ? selectedVault.id : vaults[0].id}
-            onChange={handleVaultChange}
-          />
-        )}
+        <VaultsContainer>
+          {vaults.length > 0 && (
+            <>
+              <Label>Vault</Label>
+              <ToolButton classNames="my-auto mx-2" displayText="Copy" onClick={handleCopyVaultID}>
+                <Img src={copy} alt="Copy" />
+              </ToolButton>
+              <Dropdown
+                options={vaults.map((vault) => vault.id)}
+                selectedOption={selectedVault ? selectedVault.id : vaults[0].id}
+                onChange={handleVaultChange}
+              />
+            </>
+          )}
+        </VaultsContainer>
+        <GeysersContainer>
+          <>
+            <Label>Geyser</Label>
+            {geysers.length > 0 && (
+              <Dropdown
+                options={geysers.map((geyser) => geyser.id)}
+                selectedOption={selectedGeyser ? selectedGeyser.id : geysers[0].id}
+                onChange={handleGeyserChange}
+              />
+            )}
+          </>
+        </GeysersContainer>
       </MiddleContainer>
       <RightContainer>
         <HeaderWalletButton />
@@ -45,28 +61,59 @@ export const Header = () => {
   )
 }
 
+// TODO: Add back in to geyser dropdown and remove mocks
+// options={geysers.map((geyser) => geyserAddressToName.get(toChecksumAddress(geyser.id)) as string)}
+// selectedOption={geyserAddressToName.get(toChecksumAddress(selectedGeyser ? selectedGeyser.id : geysers[0].id)) as string}
+
 const Container = styled.div`
   ${tw`flex flex-wrap py-1 -mt-1 h-fit`}
-  ${tw`sm:border-b sm:border-lightGray`}
+  ${tw`xl:border-b xl:border-lightGray`}
+`
+
+const HeaderLabel = styled.span`
+  ${tw`font-times italic text-2xl`}
 `
 
 const Label = styled.span`
-  ${tw`font-times italic text-2xl`}
+  ${ResponsiveText}
+  ${tw`tracking-widest font-light`}
+  ${tw`lg:hidden`}
 `
 
 const LogoSpan = styled.span`
   font-family: 'Coromont Garamond';
   ${tw` ml-4 p-5 text-3xl`}
-  ${tw`sm:ml-20 md:ml-32`}
+  ${tw`sm:ml-20`}
 `
 
 const LeftContainer = styled.div`
-  ${tw`flex items-center w-auto header-wrap:w-1/4`}
+  ${tw`flex items-center`}
+  ${tw`xl:w-2/12`}
 `
 
 const MiddleContainer = styled.div`
-  ${tw`flex flex-wrap items-center justify-center w-full order-3 header-wrap:w-1/2 header-wrap:order-2`}
+  ${tw`flex flex-col xl:flex-row items-center justify-center w-full order-3`}
+  ${tw`md:max-w-830px md:mx-auto xl:w-8/12 xl:order-2`}
 `
 const RightContainer = styled.div`
-  ${tw`ml-auto order-2 header-wrap:order-3 w-auto header-wrap:w-1/4`}
+  ${tw`ml-auto order-2 w-auto`}
+  ${tw`xl:order-3 xl:w-2/12`}
+`
+
+const Img = styled.img`
+  ${tw`w-auto mx-2 fill-current text-link`}
+`
+
+const DropdownContainer = css`
+  ${tw`my-3`}
+  ${tw`sm:mx-10 xl:mx-5 xl:flex flex-row`}
+`
+
+const VaultsContainer = styled.div`
+  ${DropdownContainer}
+  ${tw`xl:flex-row-reverse`}
+`
+
+const GeysersContainer = styled.div`
+  ${DropdownContainer}
 `

@@ -4,6 +4,8 @@
 - Hook up stats and handlers
 - Add a dialog/modal on stake/unstake actions for better feedback (desktop only?)
 - Cleanup
+- Weird header error around 1255px
+- Unstake divs (see mobile design) -- Amount to Stake, Your Rewards, Staked Balance: 
 
 # token-geyser-v2-ui
 

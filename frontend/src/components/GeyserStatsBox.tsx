@@ -14,9 +14,10 @@ export const GeyserStatsBox: React.FC<Props> = ({ name, value, units, children }
       <GeyserStatsBoxLabel>{name}</GeyserStatsBoxLabel>
       <GeyserStatsBoxValueContainer>
         <GeyserStatsBoxValue>
-          {value}
+          {value}{' '}
           <GeyserStatsBoxUnits>
-            {units} {children}
+            {units}
+            {children}
           </GeyserStatsBoxUnits>
         </GeyserStatsBoxValue>
       </GeyserStatsBoxValueContainer>

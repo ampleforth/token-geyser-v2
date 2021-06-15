@@ -16,7 +16,7 @@ export const MyStats = () => {
       </MyStatsWrapper>
       <GeyserStatsContainer>
         <GeyserStatsBox name="External Rewards" value="0.00" units="BAL">
-          <ToolButton displayText="Claim" onClick={() => {}} />
+          <ToolButton classNames="ml-1" displayText="Claim" onClick={() => {}} />
         </GeyserStatsBox>
       </GeyserStatsContainer>
     </MyStatsContainer>

@@ -71,33 +71,32 @@ const Container = styled.div`
 `
 
 const HeaderLabel = styled.span`
-  ${tw`font-times italic text-2xl`}
+  ${tw`font-times italic text-2xl pt-5`}
 `
 
 const Label = styled.span`
   ${ResponsiveText}
   ${tw`tracking-widest font-light`}
-  ${tw`lg:hidden`}
+  ${tw`xl:hidden`}
 `
 
 const LogoSpan = styled.span`
   font-family: 'Coromont Garamond';
-  ${tw` ml-4 p-5 text-3xl`}
-  ${tw`sm:ml-20`}
+  ${tw`ml-4 p-5 text-3xl`}
+  ${tw`header-wrap:ml-20`}
 `
 
 const LeftContainer = styled.div`
-  ${tw`flex items-center`}
-  ${tw`xl:w-2/12`}
+  ${tw`flex w-auto`}
 `
 
 const MiddleContainer = styled.div`
   ${tw`flex flex-col xl:flex-row items-center justify-center w-full order-3`}
-  ${tw`md:max-w-830px md:mx-auto xl:w-8/12 xl:order-2`}
+  ${tw`header-wrap:max-w-830px header-wrap:mx-auto header-wrap:order-2 header-wrap:w-1/3 xl:w-8/12`}
 `
 const RightContainer = styled.div`
   ${tw`ml-auto order-2 w-auto`}
-  ${tw`xl:order-3 xl:w-2/12`}
+  ${tw`header-wrap:ml-0 header-wrap:order-3`}
 `
 
 const Img = styled.img`

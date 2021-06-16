@@ -2,14 +2,18 @@ import { useContext, useState, useEffect } from 'react'
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
 import { GeyserContext } from '../context/GeyserContext'
-import { UserInputContext } from '../context/UserInputContext'
 import { StatsContext } from '../context/StatsContext'
 import { CardValue, CardLabel } from '../styling/styles'
 import { amountOrZero } from '../utils/amount'
 import { formatWithDecimals } from '../utils/numeral'
+import { BigNumber } from 'ethers'
 
-export const UnstakeSummary= () => {
-  const { userInput, parsedUserInput } = useContext(UserInputContext)
+interface Props {
+  userInput: string
+  parsedUserInput: BigNumber
+}
+
+export const UnstakeSummary: React.FC<Props> = ({ userInput, parsedUserInput }) => {
   const { rewardTokenInfo: { symbol: rewardTokenSymbol }, stakingTokenInfo: { symbol: stakingTokenSymbol } } = useContext(GeyserContext)
   const { computeRewardsFromUnstake } = useContext(StatsContext)
 

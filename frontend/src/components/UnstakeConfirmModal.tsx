@@ -1,20 +1,20 @@
 import { Dialog, Transition } from '@headlessui/react'
 import { StatsContext } from '../context/StatsContext'
-import { UserInputContext } from '../context/UserInputContext'
 import { Fragment, useContext, useEffect, useState } from 'react'
 import { safeNumeral } from '../utils/numeral'
 import { GeyserContext } from 'context/GeyserContext'
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
+import { BigNumber } from 'ethers'
 
 interface Props {
   open: boolean
   onClose: () => void
   onConfirm: () => void
+  parsedUserInput: BigNumber
 }
 
-export const UnstakeConfirmModal: React.FC<Props> = ({ open, onClose, onConfirm }) => {
-  const { parsedUserInput } = useContext(UserInputContext)
+export const UnstakeConfirmModal: React.FC<Props> = ({ parsedUserInput, open, onClose, onConfirm }) => {
   const { computeLossFromUnstake1Month } = useContext(StatsContext)
   const { rewardTokenInfo: { symbol }} = useContext(GeyserContext)
   const [loss, setLoss] = useState<string>('0.00')

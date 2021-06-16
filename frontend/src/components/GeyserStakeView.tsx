@@ -15,13 +15,13 @@ import { UserBalance } from './UserBalance'
 import { EstimatedRewards } from './EstimatedRewards'
 import { ConnectWalletWarning } from './ConnectWalletWarning'
 import { UnstakeSummary } from './UnstakeSummary'
-import { UserInputContext } from '../context/UserInputContext'
 import { UnstakeConfirmModal } from './UnstakeConfirmModal'
 
 interface Props {}
 
 export const GeyserStakeView: React.FC<Props> = () => {
-  const { userInput, setUserInput, parsedUserInput, setParsedUserInput } = useContext(UserInputContext)
+  const [userInput, setUserInput] = useState('')
+  const [parsedUserInput, setParsedUserInput] = useState(BigNumber.from('0'))
   const [receipt, setReceipt] = useState<TransactionReceipt>()
   const { selectedGeyser, stakingTokenInfo, handleGeyserAction, isStakingAction } = useContext(GeyserContext)
   const { decimals: stakingTokenDecimals, symbol: stakingTokenSymbol } = stakingTokenInfo
@@ -82,14 +82,16 @@ export const GeyserStakeView: React.FC<Props> = () => {
         precision={stakingTokenDecimals}
         maxValue={isStakingAction ? walletAmount : currentStakeAmount}
       />
-      {isStakingAction ? <EstimatedRewards /> : <UnstakeSummary />}
+      {isStakingAction
+        ? <EstimatedRewards parsedUserInput={parsedUserInput} />
+        : <UnstakeSummary userInput={userInput} parsedUserInput={parsedUserInput} />}
       {!address && <ConnectWalletWarning onClick={selectWallet} />}
       <GeyserInteractionButton
         disabled={!address || parsedUserInput.isZero()}
         onClick={handleGeyserInteraction}
         displayText={isStakingAction ? `Stake` : `Unstake`}
       />
-      {!isStakingAction && <UnstakeConfirmModal open={unstakeConfirmModalOpen} onClose={() => setUnstakeConfirmModalOpen(false)} onConfirm={handleConfirmUnstake}/>}
+      {!isStakingAction && <UnstakeConfirmModal parsedUserInput={parsedUserInput} open={unstakeConfirmModalOpen} onClose={() => setUnstakeConfirmModalOpen(false)} onConfirm={handleConfirmUnstake}/>}
     </GeyserStakeViewContainer>
   )
 }

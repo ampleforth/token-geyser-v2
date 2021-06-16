@@ -5,14 +5,17 @@ import info from 'assets/info.svg'
 import { useContext, useEffect, useState } from 'react'
 import { GeyserContext } from '../context/GeyserContext'
 import { CardValue, CardLabel } from '../styling/styles'
-import { UserInputContext } from 'context/UserInputContext'
 import { StatsContext } from 'context/StatsContext'
 import { formatWithDecimals } from 'utils/numeral'
+import { BigNumber } from 'ethers'
 
-export const EstimatedRewards = () => {
+interface Props {
+  parsedUserInput: BigNumber
+}
+
+export const EstimatedRewards: React.FC<Props> = ({ parsedUserInput }) => {
   const [rewards, setRewards] = useState<string>('0.00')
   const { rewardTokenInfo: { symbol } } = useContext(GeyserContext)
-  const { parsedUserInput } = useContext(UserInputContext)
   const { computeRewardsFromAdditionalStakes, geyserStats: { calcPeriodInDays } } = useContext(StatsContext)
 
   useEffect(() => {

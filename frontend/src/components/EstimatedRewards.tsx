@@ -4,6 +4,7 @@ import rewardSymbol from 'assets/rewardSymbol.svg'
 import info from 'assets/info.svg'
 import { useContext, useState } from 'react'
 import { GeyserContext } from '../context/GeyserContext'
+import { CardValue, CardLabel } from '../styling/styles'
 
 export const EstimatedRewards = () => {
   const [rewards, setRewards] = useState<string>('0.00')
@@ -14,10 +15,10 @@ export const EstimatedRewards = () => {
       <ColoredDiv />
       <Img src={rewardSymbol} alt="Rewards Symbol" className="w-0 sm:w-auto"/>
       <RewardsTextContainer>
-        <RewardsLabel>
+        <CardLabel>
           Your Estimated Rewards <Img src={info} alt="Info" />
-        </RewardsLabel>
-        <RewardsAmount>{rewards} {symbol}</RewardsAmount>
+        </CardLabel>
+        <CardValue>{rewards} {symbol}</CardValue>
       </RewardsTextContainer>
     </EstimatedRewardsContainer>
   )
@@ -37,12 +38,4 @@ const Img = styled.img`
 
 const RewardsTextContainer = styled.div`
   ${tw`flex flex-col my-auto`}
-`
-
-const RewardsLabel = styled.span`
-  ${tw`flex capitalize text-gray font-bold`}
-`
-
-const RewardsAmount = styled.span`
-  ${tw`flex uppercase font-bold`}
 `

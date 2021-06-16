@@ -1,10 +1,11 @@
 ## TODO
 
-- Add library to do the  increment numbers animation on initial load
-- Hook up stats and handlers
 - Add a dialog/modal on stake/unstake actions for better feedback (desktop only?)
 - Cleanup
-- Unstake divs (see mobile design) -- Amount to Stake, Your Rewards, Staked Balance: 
+- Show estimated rewards when user inputs stake amount
+- Various tool tips
+- Replace platform token stat & add vault management container
+
 
 # token-geyser-v2-ui
 

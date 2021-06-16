@@ -7,6 +7,7 @@ import { Web3Provider } from './context/Web3Context'
 import { client } from './queries/client'
 import { WalletContextProvider } from './context/WalletContext'
 import { StatsContextProvider } from './context/StatsContext'
+import { UserInputContextProvider } from './context/UserInputContext'
 
 function App() {
   return (
@@ -16,8 +17,10 @@ function App() {
           <VaultContextProvider>
             <WalletContextProvider>
               <StatsContextProvider>
-                <Header />
-                <GeyserFirstContainer />
+                <UserInputContextProvider>
+                  <Header />
+                  <GeyserFirstContainer />
+                </UserInputContextProvider>
               </StatsContextProvider>
             </WalletContextProvider>
           </VaultContextProvider>

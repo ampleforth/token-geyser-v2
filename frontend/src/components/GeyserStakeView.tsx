@@ -14,12 +14,13 @@ import styled from 'styled-components/macro'
 import { UserBalance } from './UserBalance'
 import { EstimatedRewards } from './EstimatedRewards'
 import { ConnectWalletWarning } from './ConnectWalletWarning'
+import { UnstakeSummary } from './UnstakeSummary'
+import { UserInputContext } from '../context/UserInputContext'
 
 interface Props {}
 
 export const GeyserStakeView: React.FC<Props> = () => {
-  const [amount, setAmount] = useState<string>('')
-  const [parsedAmount, setParsedAmount] = useState<BigNumber>(BigNumber.from('0'))
+  const { userInput, setUserInput, parsedUserInput, setParsedUserInput } = useContext(UserInputContext)
   const [receipt, setReceipt] = useState<TransactionReceipt>()
   const { selectedGeyser, stakingTokenInfo, handleGeyserAction, isStakingAction } = useContext(GeyserContext)
   const { decimals: stakingTokenDecimals, symbol: stakingTokenSymbol } = stakingTokenInfo
@@ -30,8 +31,8 @@ export const GeyserStakeView: React.FC<Props> = () => {
   const currentStakeAmount = BigNumber.from(currentLock ? currentLock.amount : '0')
 
   const refreshInputAmount = () => {
-    setAmount('')
-    setParsedAmount(BigNumber.from('0'))
+    setUserInput('')
+    setParsedUserInput(BigNumber.from('0'))
   }
 
   useEffect(() => {
@@ -43,19 +44,19 @@ export const GeyserStakeView: React.FC<Props> = () => {
     refreshInputAmount()
   }, [isStakingAction])
 
-  const handleGeyserInteraction = async () => setReceipt(await handleGeyserAction(selectedVault, parsedAmount))
+  const handleGeyserInteraction = async () => setReceipt(await handleGeyserAction(selectedVault, parsedUserInput))
 
   const handleOnChange = (value: string) => {
-    setAmount(value)
+    setUserInput(value)
     if (selectedGeyser && signer) {
-      setParsedAmount(parseUnits(amountOrZero(value).toString(), stakingTokenDecimals))
+      setParsedUserInput(parseUnits(amountOrZero(value).toString(), stakingTokenDecimals))
     }
   }
 
   return (
     <GeyserStakeViewContainer>
       <UserBalance
-        parsedAmount={parsedAmount}
+        parsedAmount={parsedUserInput}
         currentAmount={isStakingAction ? walletAmount : currentStakeAmount}
         decimals={stakingTokenDecimals}
         symbol={stakingTokenSymbol}
@@ -63,12 +64,12 @@ export const GeyserStakeView: React.FC<Props> = () => {
       />
       <PositiveInput
         placeholder="Enter amount"
-        value={amount}
+        value={userInput}
         onChange={handleOnChange}
         precision={stakingTokenDecimals}
         maxValue={isStakingAction ? walletAmount : currentStakeAmount}
       />
-      <EstimatedRewards />
+      {isStakingAction ? <EstimatedRewards /> : <UnstakeSummary />}
       {!address && <ConnectWalletWarning onClick={selectWallet} />}
       <GeyserInteractionButton
         disabled={!address}

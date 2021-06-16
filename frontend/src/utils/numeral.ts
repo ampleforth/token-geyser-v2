@@ -6,6 +6,17 @@ export const safeNumeral = (n: number, f: string): string => {
   return safeNum === 'NaN' ? numeral(0).format(f) : safeNum
 }
 
+export const formatWithDecimals = (value: string, decimals = 2) => {
+  if (decimals === 0) return value
+  const parts = value.split('.')
+  if (parts.length > 1) {
+    if (parts[1].length >= decimals) return value
+    const missingDecimals = decimals - parts[1].length
+    return `${value}${Array(missingDecimals).fill('0').join('')}`
+  }
+  return `${value}.${Array(decimals).fill('0').join('')}`
+}
+
 export const humanReadableDuration = (duration: number) => {
   const durationLabel = [
     {

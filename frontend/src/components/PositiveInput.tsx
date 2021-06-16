@@ -49,7 +49,7 @@ export const PositiveInput: React.FC<Props> = (props) => {
 }
 
 const Container = styled.div`
-  ${tw`flex flex-row border border-gray h-fit my-3 rounded-md`}
+  ${tw`flex flex-row border border-gray h-fit mb-3 mt-1 rounded-md`}
 `
 
 const Input = styled.input`

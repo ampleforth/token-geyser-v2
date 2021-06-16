@@ -29,3 +29,13 @@ export const ResponsiveSubText = css`
 export const Centered = styled.div`
   ${tw`h-full w-full m-auto self-center`}
 `
+
+// typography
+
+export const CardLabel = styled.span`
+  ${tw`flex capitalize text-gray font-light`}
+`
+
+export const CardValue = styled.span`
+  ${tw`flex uppercase text-xl`}
+`

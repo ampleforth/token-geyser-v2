@@ -80,6 +80,7 @@ export type GeyserStats = {
   duration: number
   totalDeposit: number
   totalRewards: number
+  calcPeriodInDays: number
 }
 
 export type VaultStats = {

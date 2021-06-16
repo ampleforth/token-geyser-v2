@@ -31,6 +31,7 @@ export const defaultGeyserStats = (): GeyserStats => ({
   duration: 0,
   totalDeposit: 0,
   totalRewards: 0,
+  calcPeriodInDays: 0,
 })
 
 export const defaultVaultStats = (): VaultStats => ({
@@ -50,6 +51,12 @@ const getGeyserDuration = (geyser: Geyser) => {
   return Math.max(...schedulesEndTime.map((endTime) => endTime - now), 0)
 }
 
+export const getCalcPeriod = (geyser: Geyser) => {
+  const { scalingTime } = geyser
+  const geyserDuration = getGeyserDuration(geyser)
+  return Math.max(Math.min(geyserDuration, parseInt(scalingTime, 10)), DAY_IN_SEC)
+}
+
 const getGeyserTotalDeposit = (geyser: Geyser, stakingTokenInfo: StakingTokenInfo) => {
   const { totalStake } = geyser
   const { decimals } = stakingTokenInfo
@@ -67,6 +74,7 @@ export const getGeyserStats = async (
       duration: getGeyserDuration(geyser),
       totalDeposit: getGeyserTotalDeposit(geyser, stakingTokenInfo),
       totalRewards: await rewardTokenInfo.getTotalRewards(geyser.rewardSchedules),
+      calcPeriodInDays: getCalcPeriod(geyser) / DAY_IN_SEC,
     }),
     `${toChecksumAddress(geyser.id)}|stats`,
     GEYSER_STATS_CACHE_TIME_MS,
@@ -151,29 +159,26 @@ const calculateAPY = (inflow: number, outflow: number, periods: number) => (1 + 
  */
 export const getUserAPY = async (
   geyser: Geyser,
-  lock: Lock,
+  lock: Lock | null,
   stakingTokenInfo: StakingTokenInfo,
   rewardTokenInfo: TokenInfo,
   additionalStakes: BigNumberish,
   signerOrProvider: SignerOrProvider,
 ) => {
   const { scalingTime } = geyser
-  const { amount: stakedAmount } = lock
   const { decimals: stakingTokenDecimals, price: stakingTokenPrice } = stakingTokenInfo
   const { decimals: rewardTokenDecimals, symbol: rewardTokenSymbol } = rewardTokenInfo
   const rewardTokenPrice = await getCurrentPrice(rewardTokenSymbol)
-  const geyserDuration = getGeyserDuration(geyser)
-  const calcPeriod = Math.max(Math.min(geyserDuration, parseInt(scalingTime, 10)), DAY_IN_SEC)
-  const userDripAfterPeriod = await getUserDrip(
-    geyser,
-    lock,
-    additionalStakes,
-    parseInt(scalingTime, 10),
-    signerOrProvider,
-  )
+  const calcPeriod = getCalcPeriod(geyser)
+  const drip = await (lock
+    ? getUserDrip(geyser, lock, additionalStakes, parseInt(scalingTime, 10), signerOrProvider)
+    : getStakeDrip(geyser, additionalStakes, parseInt(scalingTime, 10), signerOrProvider))
 
+  const stakedAmount = BigNumber.from(additionalStakes)
+    .add(lock ? lock.amount : '0')
+    .toString()
   const inflow = parseFloat(formatUnits(stakedAmount, stakingTokenDecimals)) * stakingTokenPrice
-  const outflow = parseFloat(formatUnits(userDripAfterPeriod, rewardTokenDecimals)) * rewardTokenPrice
+  const outflow = parseFloat(formatUnits(drip, rewardTokenDecimals)) * rewardTokenPrice
   const periods = YEAR_IN_SEC / calcPeriod
   return calculateAPY(inflow, outflow, periods)
 }
@@ -198,8 +203,7 @@ const getPoolAPY = async (
       const inflow = 20000.0 // avg_deposit: 20,000 USD
 
       const stake = BigNumber.from(Math.round(inflow / stakingTokenPrice))
-      const geyserDuration = getGeyserDuration(geyser)
-      const calcPeriod = Math.max(Math.min(geyserDuration, parseInt(scalingTime, 10)), DAY_IN_SEC)
+      const calcPeriod = getCalcPeriod(geyser)
       const stakeDripAfterPeriod = await getStakeDrip(geyser, stake, parseInt(scalingTime, 10), signerOrProvider)
       if (stakeDripAfterPeriod === 0) return 0
 

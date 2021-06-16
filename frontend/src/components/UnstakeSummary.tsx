@@ -18,7 +18,7 @@ export const UnstakeSummary= () => {
   useEffect(() => {
     ;(async () => {
       setRewardAmount(formatWithDecimals(`${await computeRewardsFromUnstake(parsedUserInput)}`, 2))
-    })
+    })()
   }, [parsedUserInput])
 
   return (

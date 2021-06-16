@@ -46,8 +46,8 @@ export const StatsContextProvider: React.FC = ({ children }) => {
   }
 
   const computeAPYFromAdditionalStakes = async (stakeAmount: BigNumberish) => {
-    if (selectedGeyser && currentLock && signer) {
-      return getUserAPY(selectedGeyser, currentLock, stakingTokenInfo, rewardTokenInfo, stakeAmount, signer)
+    if (selectedGeyser) {
+      return getUserAPY(selectedGeyser, currentLock, stakingTokenInfo, rewardTokenInfo, stakeAmount, signer || defaultProvider)
     }
     return 0
   }
@@ -58,7 +58,7 @@ export const StatsContextProvider: React.FC = ({ children }) => {
       const drip = await (currentLock
         ? getUserDrip(selectedGeyser, currentLock, stakeAmount, geyserStats.duration, signer)
         : getStakeDrip(selectedGeyser, stakeAmount, geyserStats.duration, signer))
-      return parseFloat(formatUnits(drip, decimals))
+      return parseFloat(formatUnits(Math.round(drip), decimals))
     }
     return 0
   }

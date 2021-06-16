@@ -20,7 +20,7 @@ export const MyStats = () => {
         <MyStatsBox
           classNames="sm:my-6"
           name="APY"
-          value={apy}
+          value={Math.min(apy, 10000)}
           units="%"
           interpolate={(val) => safeNumeral(val, '0.00%').slice(0, -1)}
         />

@@ -2,13 +2,24 @@ import styled from 'styled-components/macro'
 import tw from 'twin.macro'
 import rewardSymbol from 'assets/rewardSymbol.svg'
 import info from 'assets/info.svg'
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { GeyserContext } from '../context/GeyserContext'
 import { CardValue, CardLabel } from '../styling/styles'
+import { UserInputContext } from 'context/UserInputContext'
+import { StatsContext } from 'context/StatsContext'
+import { formatWithDecimals } from 'utils/numeral'
 
 export const EstimatedRewards = () => {
   const [rewards, setRewards] = useState<string>('0.00')
-  const { rewardTokenInfo: { symbol }} = useContext(GeyserContext)
+  const { rewardTokenInfo: { symbol } } = useContext(GeyserContext)
+  const { parsedUserInput } = useContext(UserInputContext)
+  const { computeRewardsFromAdditionalStakes, geyserStats: { calcPeriodInDays } } = useContext(StatsContext)
+
+  useEffect(() => {
+    ;(async () => {
+      setRewards(formatWithDecimals(`${await computeRewardsFromAdditionalStakes(parsedUserInput)}`, 2))
+    })()
+  }, [parsedUserInput])
 
   return (
     <EstimatedRewardsContainer>
@@ -18,7 +29,7 @@ export const EstimatedRewards = () => {
         <CardLabel>
           Your Estimated Rewards <Img src={info} alt="Info" />
         </CardLabel>
-        <CardValue>{rewards} {symbol}</CardValue>
+        <CardValue>{rewards} {symbol} {parsedUserInput.gt(0) && calcPeriodInDays > 0 ? `in ${calcPeriodInDays} day${calcPeriodInDays > 1 ? 's' : ''}` : ''}</CardValue>
       </RewardsTextContainer>
     </EstimatedRewardsContainer>
   )

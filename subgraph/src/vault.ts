@@ -71,13 +71,6 @@ export function handleRageQuit(event: RageQuit): void {
 
 export function handleTransfer(event: Transfer): void {
   let from = new User(event.params.from.toHex())
-  let to = new User(event.params.to.toHex())
-
-  let vault = new Vault(event.params.tokenId.toHex())
-
-  vault.owner = event.params.to.toHex()
-
+  updateVault(Address.fromHexString(event.params.tokenId.toHex()) as Address)
   from.save()
-  to.save()
-  vault.save()
 }

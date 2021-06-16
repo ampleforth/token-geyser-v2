@@ -9,7 +9,7 @@ import { GeyserConfig } from '../types'
 const mockGeyserConfigs: GeyserConfig[] = [
   {
     name: 'Trinity V1 (Balancer BTC-ETH-AMPL)',
-    address: '0x0000000000000000000000000000000000000000',
+    address: '0xa85233c63b9ee964add6f2cffe00fd84eb32338f',
     stakingToken: StakingToken.MOCK,
     rewardToken: RewardToken.MOCK,
     platformTokenConfigs: [],

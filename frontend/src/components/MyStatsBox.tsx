@@ -1,22 +1,29 @@
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
-import { ResponsiveSubText, ResponsiveText } from 'styling/styles'
+import { ResponsiveSubText, ResponsiveText, AnimatedSpan } from '../styling/styles'
+import { useSpring } from 'react-spring'
 
 interface Props {
   name: string
-  value: string
+  from?: number
+  interpolate?: (val: number) => any
+  value: number
   units: string
   delim?: string
   classNames?: string
 }
 
-export const MyStatsBox: React.FC<Props> = ({ classNames, name, units, delim, value }) => {
+export const MyStatsBox: React.FC<Props> = ({ classNames, name, units, delim, value, from, interpolate }) => {
+  const styles = useSpring({ val: value, from: { val: from || 0 } })
+
   return (
     <MyStatContainer>
       <MyStatName className={classNames}>{name}</MyStatName>
       <MyStatValueContainer>
         <MyStatValue>
-          {value}
+          <AnimatedSpan>
+            {styles.val.to(val => interpolate ? interpolate(val) : val)}
+          </AnimatedSpan>
           {delim}
           <MyStatUnits>{units}</MyStatUnits>
         </MyStatValue>

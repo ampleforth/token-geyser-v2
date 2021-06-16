@@ -1,20 +1,28 @@
 import styled from 'styled-components/macro'
-import { ResponsiveSubText, ResponsiveText } from '../styling/styles'
 import tw from 'twin.macro'
+import { useSpring } from 'react-spring'
+import { ResponsiveSubText, ResponsiveText, AnimatedSpan } from '../styling/styles'
 
 interface Props {
   name: string
-  value: string
+  value: number
   units: string
+  from?: number
+  interpolate?: (val: number) => any
 }
 
-export const GeyserStatsBox: React.FC<Props> = ({ name, value, units, children }) => {
+export const GeyserStatsBox: React.FC<Props> = ({ name, value, units, children, from, interpolate }) => {
+  const styles = useSpring({ val: value, from: { val: from || 0 }})
+
   return (
     <GeyserStatsBoxContainer>
       <GeyserStatsBoxLabel>{name}</GeyserStatsBoxLabel>
       <GeyserStatsBoxValueContainer>
         <GeyserStatsBoxValue>
-          {value}{' '}
+          <AnimatedSpan>
+            {styles.val.to(val => interpolate ? interpolate(val) : val)}
+          </AnimatedSpan>
+          {' '}
           <GeyserStatsBoxUnits>
             {units}
             {children}

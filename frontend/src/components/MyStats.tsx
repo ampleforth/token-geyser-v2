@@ -1,21 +1,45 @@
+import { useContext } from 'react'
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
+import { GeyserContext } from '../context/GeyserContext'
+import { StatsContext } from '../context/StatsContext'
 import { ResponsiveText } from '../styling/styles'
+import { safeNumeral } from '../utils/numeral'
 import { GeyserStatsBox } from './GeyserStatsBox'
 import { MyStatsBox } from './MyStatsBox'
 import { ToolButton } from './ToolButton'
 
 export const MyStats = () => {
+  const { userStats: { apy, currentMultiplier, currentReward } } = useContext(StatsContext)
+  const { rewardTokenInfo: { symbol: rewardTokenSymbol }} = useContext(GeyserContext)
+
   return (
     <MyStatsContainer>
       <Header>My Stats</Header>
       <MyStatsWrapper>
-        <MyStatsBox classNames="sm:my-6" name="APY" value="19.44" units="%" />
-        <MyStatsBox name="Reward Multiplier" value="1.0" units="x" />
-        <MyStatsBox name="Current Rewards" value="0.00" delim=" " units="AMPL" />
+        <MyStatsBox
+          classNames="sm:my-6"
+          name="APY"
+          value={apy}
+          units="%"
+          interpolate={(val) => safeNumeral(val, '0.00%').slice(0, -1)}
+        />
+        <MyStatsBox
+          name="Reward Multiplier"
+          value={currentMultiplier}
+          units="x"
+          interpolate={(val) => safeNumeral(val, '0.0')}
+        />
+        <MyStatsBox
+          name="Current Rewards"
+          value={currentReward}
+          delim=" "
+          units={rewardTokenSymbol}
+          interpolate={(val) => safeNumeral(val, '0,0.00')}
+        />
       </MyStatsWrapper>
       <GeyserStatsContainer>
-        <GeyserStatsBox name="External Rewards" value="0.00" units="BAL">
+        <GeyserStatsBox name="External Rewards" value={0.00} units="BAL">
           <ToolButton classNames="ml-1" displayText="Claim" onClick={() => {}} />
         </GeyserStatsBox>
       </GeyserStatsContainer>

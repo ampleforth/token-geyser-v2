@@ -2,19 +2,41 @@ import styled from 'styled-components/macro'
 import { ResponsiveText } from '../styling/styles'
 import tw from 'twin.macro'
 import { GeyserStatsBox } from './GeyserStatsBox'
+import { useContext } from 'react'
+import { StatsContext } from '../context/StatsContext'
+import { safeNumeral } from '../utils/numeral'
+import { GeyserContext } from '../context/GeyserContext'
 
 export const GeyserStats = () => {
+  const { geyserStats: { duration, totalDeposit, totalRewards }} = useContext(StatsContext)
+  const { rewardTokenInfo: { symbol }} = useContext(GeyserContext)
+
   return (
     <GeyserStatsContainer>
       <Header>Geyser Stats</Header>
       <GeyserStatsBoxContainer>
-        <GeyserStatsBox name="Program Duration" value="44.6" units="days left"></GeyserStatsBox>
+        <GeyserStatsBox
+          name="Program Duration"
+          value={duration}
+          units="days left"
+          interpolate={(val) => Math.round(val)}
+        />
       </GeyserStatsBoxContainer>
       <GeyserStatsBoxContainer>
-        <GeyserStatsBox name="Total Deposits" value="4,640,563.97" units="USD"></GeyserStatsBox>
+        <GeyserStatsBox
+          name="Total Deposits"
+          value={totalDeposit}
+          units="USD"
+          interpolate={(val) => safeNumeral(val, '0,0.00')}
+        />
       </GeyserStatsBoxContainer>
       <GeyserStatsBoxContainer>
-        <GeyserStatsBox name="Total Rewards" value="1,263,169.53" units="AMPL"></GeyserStatsBox>
+        <GeyserStatsBox
+          name="Total Rewards"
+          value={totalRewards}
+          units={symbol}
+          interpolate={(val) => safeNumeral(val, '0,0.00')}
+        />
       </GeyserStatsBoxContainer>
     </GeyserStatsContainer>
   )

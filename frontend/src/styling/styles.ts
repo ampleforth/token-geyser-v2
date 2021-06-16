@@ -1,5 +1,6 @@
 import styled, { css } from 'styled-components/macro'
 import tw from 'twin.macro'
+import { animated } from 'react-spring'
 
 export const Paragraph = styled.p`
   color: ${(props) => props.color};
@@ -28,4 +29,8 @@ export const ResponsiveSubText = css`
 
 export const Centered = styled.div`
   ${tw`h-full w-full m-auto self-center`}
+`
+
+export const AnimatedSpan = styled(animated.div)`
+  ${tw`inline`}
 `

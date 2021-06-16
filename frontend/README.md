@@ -3,7 +3,7 @@
 - Add a dialog/modal on stake for better feedback (desktop only?)
 - Cleanup
 - Various tool tips
-- Replace platform token stat & add vault management container
+- add vault management container
 
 
 # token-geyser-v2-ui

@@ -7,11 +7,10 @@ import { ResponsiveText } from '../styling/styles'
 import { safeNumeral } from '../utils/numeral'
 import { GeyserStatsBox } from './GeyserStatsBox'
 import { MyStatsBox } from './MyStatsBox'
-import { ToolButton } from './ToolButton'
 
 export const MyStats = () => {
-  const { userStats: { apy, currentMultiplier, currentReward } } = useContext(StatsContext)
-  const { rewardTokenInfo: { symbol: rewardTokenSymbol }} = useContext(GeyserContext)
+  const { userStats: { apy, currentMultiplier, currentReward }, vaultStats: { stakingTokenBalance } } = useContext(StatsContext)
+  const { rewardTokenInfo: { symbol: rewardTokenSymbol }, stakingTokenInfo: { price: stakingTokenPrice }} = useContext(GeyserContext)
 
   return (
     <MyStatsContainer>
@@ -39,9 +38,12 @@ export const MyStats = () => {
         />
       </MyStatsWrapper>
       <GeyserStatsContainer>
-        <GeyserStatsBox name="External Rewards" value={0.00} units="BAL">
-          <ToolButton classNames="ml-1" displayText="Claim" onClick={() => {}} />
-        </GeyserStatsBox>
+        <GeyserStatsBox
+          name="Total Staked"
+          value={stakingTokenBalance * stakingTokenPrice}
+          units="USD"
+          interpolate={(val) => safeNumeral(val, '0,0.00')}
+        />
       </GeyserStatsContainer>
     </MyStatsContainer>
   )

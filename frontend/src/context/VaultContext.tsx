@@ -50,6 +50,9 @@ export const VaultContextProvider: React.FC = ({ children }) => {
       } else {
         setSelectedVault(null)
       }
+    } else {
+      setVaults([])
+      setSelectedVault(null)
     }
   }, [vaultData, selectedVault])
 

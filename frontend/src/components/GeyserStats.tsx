@@ -6,6 +6,7 @@ import { useContext } from 'react'
 import { StatsContext } from '../context/StatsContext'
 import { safeNumeral } from '../utils/numeral'
 import { GeyserContext } from '../context/GeyserContext'
+import { DAY_IN_SEC } from '../constants'
 
 export const GeyserStats = () => {
   const { geyserStats: { duration, totalDeposit, totalRewards }} = useContext(StatsContext)
@@ -17,9 +18,9 @@ export const GeyserStats = () => {
       <GeyserStatsBoxContainer>
         <GeyserStatsBox
           name="Program Duration"
-          value={duration}
+          value={duration / DAY_IN_SEC}
           units="days left"
-          interpolate={(val) => Math.round(val)}
+          interpolate={(val) => safeNumeral(val, '0.0')}
         />
       </GeyserStatsBoxContainer>
       <GeyserStatsBoxContainer>

@@ -28,6 +28,7 @@ module.exports = {
       link: '#0D23EE',
       radicalRed: '#FF2D55',
       paleBlue: '#F9F9F9',
+      '0D23EE': '#0D23EE',
     },
     container: {
       center: true,

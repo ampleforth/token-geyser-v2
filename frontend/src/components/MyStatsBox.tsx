@@ -1,29 +1,40 @@
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
-import { ResponsiveSubText, ResponsiveText, AnimatedSpan } from '../styling/styles'
-import { useSpring } from 'react-spring'
+import { ResponsiveSubText, ResponsiveText } from '../styling/styles'
+import { useSpring, animated } from 'react-spring'
+import { useState } from 'react'
 
 interface Props {
   name: string
   from?: number
-  interpolate?: (val: number) => any
+  interpolate: (val: number) => string
   value: number
   units: string
   delim?: string
   classNames?: string
 }
 
-export const MyStatsBox: React.FC<Props> = ({ classNames, name, units, delim, value, from, interpolate }) => {
-  const styles = useSpring({ val: value, from: { val: from || 0 } })
+export const MyStatsBox: React.FC<Props> = ({ classNames, name, units, delim, value: targetValue, from, interpolate }) => {
+  const [statsValue, setStatsValue] = useState<string>(interpolate(targetValue))
+
+  // react-spring has a bug where floating point numbers are casted as integers on re-render (e.g. '1.0' gets shown as '1' on re-render).
+  // this is a temporary work-around, see https://github.com/pmndrs/react-spring/issues/1564
+  useSpring({
+    val: targetValue,
+    from: { val: from || 0 },
+    onChange: ({ value }) => {
+      setStatsValue(interpolate(value.val))
+    },
+  })
 
   return (
     <MyStatContainer>
       <MyStatName className={classNames}>{name}</MyStatName>
       <MyStatValueContainer>
         <MyStatValue>
-          <AnimatedSpan>
-            {styles.val.to(val => interpolate ? interpolate(val) : val)}
-          </AnimatedSpan>
+          <animated.span>
+            {statsValue}
+          </animated.span>
           {delim}
           <MyStatUnits>{units}</MyStatUnits>
         </MyStatValue>

@@ -2,8 +2,13 @@ import styled from 'styled-components/macro'
 import tw from 'twin.macro'
 import rewardSymbol from 'assets/rewardSymbol.svg'
 import info from 'assets/info.svg'
+import { useContext, useState } from 'react'
+import { GeyserContext } from '../context/GeyserContext'
 
 export const EstimatedRewards = () => {
+  const [rewards, setRewards] = useState<string>('0.00')
+  const { rewardTokenInfo: { symbol }} = useContext(GeyserContext)
+
   return (
     <EstimatedRewardsContainer>
       <ColoredDiv />
@@ -12,7 +17,7 @@ export const EstimatedRewards = () => {
         <RewardsLabel>
           Your Estimated Rewards <Img src={info} alt="Info" />
         </RewardsLabel>
-        <RewardsAmount>0.00 Ampl</RewardsAmount>
+        <RewardsAmount>{rewards} {symbol}</RewardsAmount>
       </RewardsTextContainer>
     </EstimatedRewardsContainer>
   )

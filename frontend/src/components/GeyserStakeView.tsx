@@ -11,7 +11,7 @@ import { PositiveInput } from './PositiveInput'
 import { GeyserInteractionButton } from './GeyserInteractionButton'
 import tw from 'twin.macro'
 import styled from 'styled-components/macro'
-import { WalletBalance } from './WalletBalance'
+import { UserBalance } from './UserBalance'
 import { EstimatedRewards } from './EstimatedRewards'
 import { ConnectWalletWarning } from './ConnectWalletWarning'
 
@@ -27,31 +27,47 @@ export const GeyserStakeView: React.FC<Props> = () => {
   const { selectedVault, currentLock } = useContext(VaultContext)
   const { walletAmount, refreshWalletAmount } = useContext(WalletContext)
   const { selectWallet, address } = useContext(Web3Context)
+  const currentStakeAmount = BigNumber.from(currentLock ? currentLock.amount : '0')
 
-  useEffect(() => {
+  const refreshInputAmount = () => {
     setAmount('')
     setParsedAmount(BigNumber.from('0'))
+  }
+
+  useEffect(() => {
+    refreshInputAmount()
     refreshWalletAmount()
   }, [receipt])
 
+  useEffect(() => {
+    refreshInputAmount()
+  }, [isStakingAction])
+
   const handleGeyserInteraction = async () => setReceipt(await handleGeyserAction(selectedVault, parsedAmount))
 
-  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAmount(e.currentTarget.value)
+  const handleOnChange = (value: string) => {
+    setAmount(value)
     if (selectedGeyser && signer) {
-      setParsedAmount(parseUnits(amountOrZero(e.currentTarget.value).toString(), stakingTokenDecimals))
+      setParsedAmount(parseUnits(amountOrZero(value).toString(), stakingTokenDecimals))
     }
   }
 
   return (
     <GeyserStakeViewContainer>
-      <WalletBalance
+      <UserBalance
         parsedAmount={parsedAmount}
-        walletAmount={walletAmount}
+        currentAmount={isStakingAction ? walletAmount : currentStakeAmount}
         decimals={stakingTokenDecimals}
         symbol={stakingTokenSymbol}
+        isStakingAction={isStakingAction}
       />
-      <PositiveInput placeholder="Enter amount" value={amount} onChange={handleOnChange} />
+      <PositiveInput
+        placeholder="Enter amount"
+        value={amount}
+        onChange={handleOnChange}
+        precision={stakingTokenDecimals}
+        maxValue={isStakingAction ? walletAmount : currentStakeAmount}
+      />
       <EstimatedRewards />
       {!address && <ConnectWalletWarning onClick={selectWallet} />}
       <GeyserInteractionButton

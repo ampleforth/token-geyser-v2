@@ -1,27 +1,36 @@
+import { useState } from 'react'
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
-import { useSpring } from 'react-spring'
-import { ResponsiveSubText, ResponsiveText, AnimatedSpan } from '../styling/styles'
+import { useSpring, animated } from 'react-spring'
+import { ResponsiveSubText, ResponsiveText } from '../styling/styles'
 
 interface Props {
   name: string
   value: number
   units: string
   from?: number
-  interpolate?: (val: number) => any
+  interpolate?: (val: number) => string
 }
 
-export const GeyserStatsBox: React.FC<Props> = ({ name, value, units, children, from, interpolate }) => {
-  const styles = useSpring({ val: value, from: { val: from || 0 }})
+export const GeyserStatsBox: React.FC<Props> = ({ name, value: targetValue, units, children, from, interpolate }) => {
+  const [statsValue, setStatsValue] = useState<string>(interpolate ? interpolate(targetValue) : `${targetValue}`)
+
+  useSpring({
+    val: targetValue,
+    from: { val: from || 0 },
+    onChange: ({ value }) => {
+      setStatsValue(interpolate ? interpolate(value.val) : `${value.val}`)
+    },
+  })
 
   return (
     <GeyserStatsBoxContainer>
       <GeyserStatsBoxLabel>{name}</GeyserStatsBoxLabel>
       <GeyserStatsBoxValueContainer>
         <GeyserStatsBoxValue>
-          <AnimatedSpan>
-            {styles.val.to(val => interpolate ? interpolate(val) : val)}
-          </AnimatedSpan>
+          <animated.span>
+            {statsValue}
+          </animated.span>
           {' '}
           <GeyserStatsBoxUnits>
             {units}

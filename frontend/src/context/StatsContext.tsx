@@ -1,10 +1,11 @@
-import { BigNumberish } from 'ethers'
+import { MONTH_IN_SEC } from '../constants'
+import {  BigNumberish } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { toChecksumAddress } from 'web3-utils'
 import { getCurrentStakeReward } from '../sdk/stats'
 import { GeyserStats, UserStats, VaultStats } from '../types'
-import { defaultGeyserStats, defaultUserStats, defaultVaultStats, getGeyserStats, getStakeDrip, getUserAPY, getUserDrip, getUserStats, getVaultStats } from '../utils/stats'
+import { defaultGeyserStats, defaultUserStats, defaultVaultStats, getGeyserStats, getStakeDrip, getUserAPY, getUserDrip, getUserDripAfterWithdraw, getUserStats, getVaultStats } from '../utils/stats'
 import { GeyserContext } from './GeyserContext'
 import { VaultContext } from './VaultContext'
 import Web3Context from './Web3Context'
@@ -16,6 +17,7 @@ export const StatsContext = createContext<{
   computeRewardsFromUnstake: (unstakeAmount: BigNumberish) => Promise<number>
   computeAPYFromAdditionalStakes: (stakeAmount: BigNumberish) => Promise<number>
   computeRewardsFromAdditionalStakes: (stakeAmount: BigNumberish) => Promise<number>
+  computeLossFromUnstake1Month: (unstakeAmount: BigNumberish) => Promise<number>
 }>({
   userStats: defaultUserStats(),
   geyserStats: defaultGeyserStats(),
@@ -23,6 +25,7 @@ export const StatsContext = createContext<{
   computeRewardsFromUnstake: async () => 0,
   computeAPYFromAdditionalStakes: async () => 0,
   computeRewardsFromAdditionalStakes: async () => 0,
+  computeLossFromUnstake1Month: async () => 0,
 })
 
 export const StatsContextProvider: React.FC = ({ children }) => {
@@ -54,11 +57,21 @@ export const StatsContextProvider: React.FC = ({ children }) => {
 
   const computeRewardsFromAdditionalStakes = async (stakeAmount: BigNumberish) => {
     const { decimals } = rewardTokenInfo
-    if (selectedGeyser && geyserStats.duration && signer) {
+    if (selectedGeyser && geyserStats.duration) {
       const drip = await (currentLock
-        ? getUserDrip(selectedGeyser, currentLock, stakeAmount, geyserStats.duration, signer)
-        : getStakeDrip(selectedGeyser, stakeAmount, geyserStats.duration, signer))
+        ? getUserDrip(selectedGeyser, currentLock, stakeAmount, geyserStats.duration, signer || defaultProvider)
+        : getStakeDrip(selectedGeyser, stakeAmount, geyserStats.duration, signer || defaultProvider))
       return parseFloat(formatUnits(Math.round(drip), decimals))
+    }
+    return 0
+  }
+
+  const computeLossFromUnstake1Month = async (unstakeAmount: BigNumberish) => {
+    const { decimals } = rewardTokenInfo
+    if (selectedGeyser && currentLock) {
+      const normalGains = await getUserDrip(selectedGeyser, currentLock, '0', MONTH_IN_SEC, signer || defaultProvider)
+      const gainsAfterUnstake = await getUserDripAfterWithdraw(selectedGeyser, currentLock, unstakeAmount, MONTH_IN_SEC, signer || defaultProvider)
+      return parseFloat(formatUnits(Math.round(normalGains - gainsAfterUnstake), decimals))
     }
     return 0
   }
@@ -93,6 +106,7 @@ export const StatsContextProvider: React.FC = ({ children }) => {
         computeRewardsFromUnstake,
         computeAPYFromAdditionalStakes,
         computeRewardsFromAdditionalStakes,
+        computeLossFromUnstake1Month,
       }}
     >
       {children}

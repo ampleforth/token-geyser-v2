@@ -22,7 +22,7 @@ export const MyStats = () => {
           name="APY"
           value={Math.min(apy, 10000)}
           units="%"
-          interpolate={(val) => safeNumeral(val, '0.00%').slice(0, -1)}
+          interpolate={(val) => safeNumeral(val, '0.00%').slice(0, val > 100 ? -4 : -1)}
         />
         <MyStatsBox
           name="Reward Multiplier"

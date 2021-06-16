@@ -16,6 +16,7 @@ import { EstimatedRewards } from './EstimatedRewards'
 import { ConnectWalletWarning } from './ConnectWalletWarning'
 import { UnstakeSummary } from './UnstakeSummary'
 import { UserInputContext } from '../context/UserInputContext'
+import { UnstakeConfirmModal } from './UnstakeConfirmModal'
 
 interface Props {}
 
@@ -29,6 +30,7 @@ export const GeyserStakeView: React.FC<Props> = () => {
   const { walletAmount, refreshWalletAmount } = useContext(WalletContext)
   const { selectWallet, address } = useContext(Web3Context)
   const currentStakeAmount = BigNumber.from(currentLock ? currentLock.amount : '0')
+  const [unstakeConfirmModalOpen, setUnstakeConfirmModalOpen] = useState<boolean>(false)
 
   const refreshInputAmount = () => {
     setUserInput('')
@@ -44,7 +46,18 @@ export const GeyserStakeView: React.FC<Props> = () => {
     refreshInputAmount()
   }, [isStakingAction])
 
-  const handleGeyserInteraction = async () => setReceipt(await handleGeyserAction(selectedVault, parsedUserInput))
+  const handleGeyserInteraction = async () => {
+    if (isStakingAction) {
+      setReceipt(await handleGeyserAction(selectedVault, parsedUserInput))
+    } else {
+      setUnstakeConfirmModalOpen(true)
+    }
+  }
+
+  const handleConfirmUnstake = async () => {
+    setReceipt(await handleGeyserAction(selectedVault, parsedUserInput))
+    setUnstakeConfirmModalOpen(false)
+  }
 
   const handleOnChange = (value: string) => {
     setUserInput(value)
@@ -72,10 +85,11 @@ export const GeyserStakeView: React.FC<Props> = () => {
       {isStakingAction ? <EstimatedRewards /> : <UnstakeSummary />}
       {!address && <ConnectWalletWarning onClick={selectWallet} />}
       <GeyserInteractionButton
-        disabled={!address}
+        disabled={!address || parsedUserInput.isZero()}
         onClick={handleGeyserInteraction}
         displayText={isStakingAction ? `Stake` : `Unstake`}
       />
+      {!isStakingAction && <UnstakeConfirmModal open={unstakeConfirmModalOpen} onClose={() => setUnstakeConfirmModalOpen(false)} onConfirm={handleConfirmUnstake}/>}
     </GeyserStakeViewContainer>
   )
 }

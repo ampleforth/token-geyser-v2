@@ -129,6 +129,14 @@ export const getUserDrip = async (
   )
 }
 
+export const getUserDripAfterWithdraw = async (
+  geyser: Geyser,
+  lock: Lock,
+  withdrawAmount: BigNumberish,
+  duration: number,
+  signerOrProvider: SignerOrProvider,
+) => getUserDrip(geyser, lock, BigNumber.from('0').sub(withdrawAmount), duration, signerOrProvider)
+
 export const getStakeDrip = async (
   geyser: Geyser,
   stake: BigNumberish,
@@ -178,7 +186,7 @@ export const getUserAPY = async (
     .add(lock ? lock.amount : '0')
     .toString()
   const inflow = parseFloat(formatUnits(stakedAmount, stakingTokenDecimals)) * stakingTokenPrice
-  const outflow = parseFloat(formatUnits(drip, rewardTokenDecimals)) * rewardTokenPrice
+  const outflow = parseFloat(formatUnits(Math.round(drip), rewardTokenDecimals)) * rewardTokenPrice
   const periods = YEAR_IN_SEC / calcPeriod
   return calculateAPY(inflow, outflow, periods)
 }
@@ -207,7 +215,7 @@ const getPoolAPY = async (
       const stakeDripAfterPeriod = await getStakeDrip(geyser, stake, parseInt(scalingTime, 10), signerOrProvider)
       if (stakeDripAfterPeriod === 0) return 0
 
-      const outflow = parseFloat(formatUnits(stakeDripAfterPeriod, rewardTokenDecimals)) * rewardTokenPrice
+      const outflow = parseFloat(formatUnits(Math.round(stakeDripAfterPeriod), rewardTokenDecimals)) * rewardTokenPrice
       const periods = YEAR_IN_SEC / calcPeriod
       return calculateAPY(inflow, outflow, periods)
     },

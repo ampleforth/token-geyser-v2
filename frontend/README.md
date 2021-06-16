@@ -1,8 +1,7 @@
 ## TODO
 
-- Add a dialog/modal on stake/unstake actions for better feedback (desktop only?)
+- Add a dialog/modal on stake for better feedback (desktop only?)
 - Cleanup
-- Show estimated rewards when user inputs stake amount
 - Various tool tips
 - Replace platform token stat & add vault management container
 

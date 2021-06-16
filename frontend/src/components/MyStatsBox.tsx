@@ -61,6 +61,7 @@ const MyStatValueContainer = styled.div`
 
 const MyStatValue = styled.span`
   width: 100%;
+  ${tw`text-left sm:text-center`}
   ${ResponsiveText}
 `
 

@@ -12,6 +12,17 @@ async function _execGeyserFunction<T>(
   return geyser[fnc](...args) as Promise<T>
 }
 
+async function _execVaultFunction<T>(
+  vaultAddress: string,
+  signerOrProvider: Signer | providers.Provider,
+  fnc: string,
+  args: any[] = [],
+): Promise<T> {
+  const config = await loadNetworkConfig(signerOrProvider)
+  const vault = new Contract(vaultAddress, config.VaultTemplate.abi, signerOrProvider)
+  return vault[fnc](...args) as Promise<T>
+}
+
 export const getCurrentVaultReward = async (
   vaultAddress: string,
   geyserAddress: string,
@@ -57,4 +68,12 @@ export const getCurrentStakeReward = async (
     vaultAddress,
     amount,
   ])
+}
+
+export const getBalanceLocked = async (
+  vaultAddress: string,
+  tokenAddress: string,
+  signerOrProvider: Signer | providers.Provider,
+) => {
+  return _execVaultFunction<BigNumber>(vaultAddress, signerOrProvider, 'getBalanceLocked', [tokenAddress])
 }

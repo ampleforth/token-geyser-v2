@@ -12,14 +12,12 @@ const mockGeyserConfigs: GeyserConfig[] = [
     address: '0xa85233c63b9ee964add6f2cffe00fd84eb32338f',
     stakingToken: StakingToken.MOCK,
     rewardToken: RewardToken.MOCK,
-    platformTokenConfigs: [],
   },
   {
     name: 'Beehive V3 (Uniswap ETH-AMPL)',
     address: '0x0000000000000000000000000000000000000000',
     stakingToken: StakingToken.MOCK,
     rewardToken: RewardToken.MOCK,
-    platformTokenConfigs: [],
   },
 ]
 
@@ -29,7 +27,6 @@ const mainnetGeyserConfigs: GeyserConfig[] = [
     address: '0x0000000000000000000000000000000000000000',
     stakingToken: StakingToken.SUSHISWAP,
     rewardToken: RewardToken.AMPL,
-    platformTokenConfigs: [],
     // staking token / pool address: 0xCb2286d9471cc185281c4f763d34A962ED212962
   },
   {
@@ -37,7 +34,6 @@ const mainnetGeyserConfigs: GeyserConfig[] = [
     address: '0x0000000000000000000000000000000000000000',
     stakingToken: StakingToken.UNISWAP_V2,
     rewardToken: RewardToken.AMPL,
-    platformTokenConfigs: [],
     // staking token / pool address: 0xc5be99A02C6857f9Eac67BbCE58DF5572498F40c
   },
   {
@@ -45,12 +41,6 @@ const mainnetGeyserConfigs: GeyserConfig[] = [
     address: '0x0000000000000000000000000000000000000000',
     stakingToken: StakingToken.BALANCER_V1,
     rewardToken: RewardToken.AMPL,
-    platformTokenConfigs: [
-      {
-        address: '0xba100000625a3754423978a60c9317c58a424e3d',
-        claimLink: 'https://claim.balancer.fi/#/',
-      },
-    ],
     // staking token / pool address: 0xa751A143f8fe0a108800Bfb915585E4255C2FE80
   },
   {
@@ -58,12 +48,6 @@ const mainnetGeyserConfigs: GeyserConfig[] = [
     address: '0x0000000000000000000000000000000000000000',
     stakingToken: StakingToken.BALANCER_SMART_POOL_V1,
     rewardToken: RewardToken.AMPL,
-    platformTokenConfigs: [
-      {
-        address: '0xba100000625a3754423978a60c9317c58a424e3d',
-        claimLink: 'https://claim.balancer.fi/#/',
-      },
-    ],
   },
   // staking token / pool address: 0x49F2befF98cE62999792Ec98D0eE4Ad790E7786F
 ]

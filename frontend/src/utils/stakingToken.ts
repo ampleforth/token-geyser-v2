@@ -125,9 +125,7 @@ const getMooniswap = async (tokenAddress: string, signerOrProvider: SignerOrProv
   const contract = new Contract(address, MOONISWAP_V1_PAIR_ABI, signerOrProvider)
   const tokens: [string, string] = await contract.getTokens()
   const [token0Address, token1Address] = tokens
-  const decimals: number = await contract.decimals()
-  const symbol: string = await contract.symbol()
-  const name: string = await contract.name()
+  const { name, symbol, decimals } = await getTokenInfo(address, signerOrProvider)
 
   const totalSupply: BigNumber = await contract.totalSupply()
 
@@ -170,9 +168,7 @@ const getBalancerV1 = async (tokenAddress: string, signerOrProvider: SignerOrPro
   const address = toChecksumAddress(tokenAddress)
   const contract = new Contract(address, BALANCER_BPOOL_V1_ABI, signerOrProvider)
 
-  const name: string = await contract.name()
-  const symbol: string = await contract.symbol()
-  const decimals: number = await contract.decimals()
+  const { name, symbol, decimals } = await getTokenInfo(address, signerOrProvider)
 
   const totalSupply: BigNumber = await contract.totalSupply()
   const totalSupplyNumber = parseFloat(formatUnits(totalSupply, decimals))
@@ -200,9 +196,8 @@ const getBalancerSmartPoolV1 = async (
   const contract = new Contract(address, BALANCER_CRP_V1_ABI, signerOrProvider)
 
   const bPool: string = await contract.bPool()
-  const decimals: number = await contract.decimals()
-  const symbol: string = await contract.symbol()
-  const name: string = await contract.name()
+  const { name, symbol, decimals } = await getTokenInfo(address, signerOrProvider)
+
   const totalSupply: BigNumber = await contract.totalSupply()
   const totalSupplyNumber = parseFloat(formatUnits(totalSupply, decimals))
 

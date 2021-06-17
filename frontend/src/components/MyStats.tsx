@@ -9,7 +9,7 @@ import { GeyserStatsBox } from './GeyserStatsBox'
 import { MyStatsBox } from './MyStatsBox'
 
 export const MyStats = () => {
-  const { userStats: { apy, currentMultiplier, currentReward }, vaultStats: { stakingTokenBalance } } = useContext(StatsContext)
+  const { userStats: { apy, currentMultiplier, currentReward }, vaultStats: { currentStake } } = useContext(StatsContext)
   const { rewardTokenInfo: { symbol: rewardTokenSymbol }, stakingTokenInfo: { price: stakingTokenPrice }} = useContext(GeyserContext)
 
   return (
@@ -40,7 +40,7 @@ export const MyStats = () => {
       <GeyserStatsContainer>
         <GeyserStatsBox
           name="Total Staked"
-          value={stakingTokenBalance * stakingTokenPrice}
+          value={currentStake * stakingTokenPrice}
           units="USD"
           interpolate={(val) => safeNumeral(val, '0,0.00')}
         />

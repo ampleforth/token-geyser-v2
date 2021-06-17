@@ -52,3 +52,10 @@ export const UFRG_INIT_BLOCK = 7947823
 
 export const AMPL_LAUNCH_DATE = 1561687200
 export const INITIAL_SUPPLY = 50000000
+
+// alignment
+export enum Align {
+  LEFT,
+  RIGHT,
+  CENTER,
+}

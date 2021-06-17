@@ -6,14 +6,10 @@ export const Paragraph = styled.p`
   ${tw`text-base font-bold m-auto`}
 `
 
-const Overlay = styled.div`
+export const Overlay = styled.div`
   ${tw`shadow-all w-full rounded-lg my-2`}
   ${tw`sm:my-4`}
 `
-
-export const GeyserFirstOverlay = styled(Overlay)``
-
-export const VaultFirstOverlay = styled(Overlay)``
 
 export const LogoSpan = styled.span`
   ${tw` ml-4 sm:ml-20 md:ml-32 p-5 text-xl`}

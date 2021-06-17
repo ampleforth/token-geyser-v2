@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import styled from 'styled-components/macro'
 import { GeyserStakeView } from './GeyserStakeView'
-import { GeyserFirstOverlay } from '../styling/styles'
+import { Overlay } from '../styling/styles'
 import { ToggleView } from './ToggleView'
 import tw from 'twin.macro'
 import { GeyserContext } from '../context/GeyserContext'
@@ -16,14 +16,14 @@ export const GeyserFirstContainer: React.FC<Props> = () => {
     <div className="flex flex-col flex-wrap">
       <Container>
         <Container>
-          <GeyserFirstOverlay>
+          <Overlay>
             <GeyserStatsView />
-          </GeyserFirstOverlay>
+          </Overlay>
         </Container>
-        <GeyserFirstOverlay>
+        <Overlay>
           <ToggleView enabled={isStakingAction} toggle={toggleStakingAction} />
           <GeyserStakeView />
-        </GeyserFirstOverlay>
+        </Overlay>
       </Container>
     </div>
   )

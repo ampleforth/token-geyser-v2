@@ -1,16 +1,19 @@
+import { Align } from "../constants"
 import { ReactNode } from "react"
 import styled from "styled-components/macro"
 import tw from "twin.macro"
 
-type Column = {
+export type Column = {
   title: ReactNode
   dataIndex: string
   key: string | number
+  textAlign?: Align
 }
 
-type DataSource = {
+export type DataSource = {
   [index: string]: ReactNode
   key: string | number
+  textAlign?: Align
 }
 
 interface Props {
@@ -25,22 +28,41 @@ export const Table: React.FC<Props> = ({ columns, dataSource }) => {
 
   const rows = dataSource.map(getRowFromSource)
 
+  const getAlignmentClass = (textAlign: Align) => {
+    switch(textAlign) {
+      case Align.CENTER: return 'text-center'
+      case Align.LEFT: return 'text-left'
+      case Align.RIGHT: return 'text-right'
+      default: return ''
+    }
+  }
+
   return (
     <TableContainer>
       <TableContent>
         <TableHead>
           <tr>
-            {columns.map(({ title, key }) => (
-              <HeaderCell key={key}>{title}</HeaderCell>
+            {columns.map(({ title, key, textAlign }) => (
+              <HeaderCell
+                key={key}
+                className={getAlignmentClass(textAlign || Align.LEFT)}
+              >
+                {title}
+              </HeaderCell>
             ))}
           </tr>
         </TableHead>
         <TableBody>
-          {rows.map((row, index) => (
-            <tr key={dataSource[index].key}>
-              {row.map((cell) => (
-                <RowCell>{cell}</RowCell>
-              ))}
+          {rows.map((row, rowNumber) => (
+            <tr key={dataSource[rowNumber].key}>
+              {row.map((cell, colNumber) => {
+                console.log(columns[colNumber])
+                return (
+                  <RowCell className={getAlignmentClass(columns[colNumber].textAlign || Align.LEFT)}>
+                    {cell}
+                  </RowCell>
+                )
+              })}
             </tr>
           ))}
         </TableBody>
@@ -62,13 +84,13 @@ const TableHead = styled.thead`
 `
 
 const TableBody = styled.tbody`
-  ${tw`bg-white divide-y divide-gray`}
+  ${tw`divide-y divide-gray`}
 `
 
 const HeaderCell = styled.th`
-  ${tw`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider`}
+  ${tw`px-6 py-3 text-xs font-medium uppercase tracking-wider`}
 `
 
 const RowCell = styled.td`
-  ${tw`px-6 py-4 whitespace-nowrap text-left`}
+  ${tw`px-6 py-4 whitespace-nowrap`}
 `

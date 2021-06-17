@@ -71,3 +71,6 @@ export enum Align {
   RIGHT,
   CENTER,
 }
+
+// Infura
+export const INFURA_PROJECT_ID = ''

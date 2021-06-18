@@ -22,7 +22,9 @@ export const GeyserFirstContainer = () => {
         <GeyserStatsView />
       </GeyserFirstOverlay>
       <GeyserFirstOverlay>
-        <ToggleView enabled={isStakingAction} toggle={toggleStakingAction} />
+        <ToggleContainer>
+          <ToggleView enabled={isStakingAction} toggle={toggleStakingAction} options={['Stake', 'Unstake']} />
+        </ToggleContainer>
         <GeyserStakeView />
       </GeyserFirstOverlay>
     </Container>
@@ -36,4 +38,8 @@ const Container = styled.div`
 
 const Center = styled.div`
   ${tw`text-center m-auto my-4 flex flex-col flex-wrap`}
+`
+
+const ToggleContainer = styled.div`
+  ${tw`m-6`}
 `

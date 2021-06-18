@@ -11,13 +11,6 @@ export const GeyserFirstOverlay = styled.div`
   ${tw`sm:my-4`}
 `
 
-export const LogoSpan = styled.span`
-  ${tw` ml-4 sm:ml-20 md:ml-32 p-5 text-xl`}
-  font-family: 'Coromont Garamond';
-  text-transform: none;
-  font-size: 1.75rem;
-`
-
 export const ResponsiveText = css`
   ${tw`text-sm sm:text-base`}
 `

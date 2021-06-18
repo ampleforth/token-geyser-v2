@@ -1,4 +1,5 @@
 import { ApolloProvider } from '@apollo/client'
+import { AppContextProvider } from 'context/AppContext'
 import { Header } from './components/Header'
 import { GeyserFirstContainer } from './components/GeyserFirstContainer'
 import { VaultContextProvider } from './context/VaultContext'
@@ -11,18 +12,20 @@ import { StatsContextProvider } from './context/StatsContext'
 function App() {
   return (
     <ApolloProvider client={client}>
-      <Web3Provider>
-        <GeyserContextProvider>
-          <VaultContextProvider>
-            <WalletContextProvider>
-              <StatsContextProvider>
-                <Header />
-                <GeyserFirstContainer />
-              </StatsContextProvider>
-            </WalletContextProvider>
-          </VaultContextProvider>
-        </GeyserContextProvider>
-      </Web3Provider>
+      <AppContextProvider>
+        <Web3Provider>
+          <GeyserContextProvider>
+            <VaultContextProvider>
+              <WalletContextProvider>
+                <StatsContextProvider>
+                  <Header />
+                  <GeyserFirstContainer />
+                </StatsContextProvider>
+              </WalletContextProvider>
+            </VaultContextProvider>
+          </GeyserContextProvider>
+        </Web3Provider>
+      </AppContextProvider>
     </ApolloProvider>
   )
 }

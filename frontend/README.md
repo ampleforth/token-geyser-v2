@@ -1,14 +1,18 @@
+# token-geyser-v2-ui
+
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+
 ## TODO
 
 - Add a dialog/modal on stake for better feedback (desktop only?)
 - Cleanup
 - Various tool tips
 - add vault management container
+- Remove `numeral-es6` and `react-spring` from root dir
 
+## Known workarounds/oddities
 
-# token-geyser-v2-ui
-
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+- `let mounted = true in useEffect` is a workaround for supressing the warning saying that a state update on an unmounted component is not possible: https://stackoverflow.com/questions/53949393/cant-perform-a-react-state-update-on-an-unmounted-component
 
 ## Available Scripts
 

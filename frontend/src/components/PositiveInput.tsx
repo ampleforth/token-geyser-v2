@@ -61,7 +61,7 @@ const Input = styled.input`
     -webkit-appearance: none;
     margin: 0;
   }
-  ${tw`w-10/12 font-semibold tracking-wider p-3 text-base`}
+  ${tw`w-10/12 font-semibold tracking-wider rounded-lg p-3 text-base`}
   ${tw`focus:outline-none`}
 `
 

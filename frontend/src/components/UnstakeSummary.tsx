@@ -20,9 +20,9 @@ export const UnstakeSummary: React.FC<Props> = ({ userInput, parsedUserInput }) 
   const [rewardAmount, setRewardAmount] = useState<string>('0.00')
 
   useEffect(() => {
-    ;(async () => {
+    (async () => {
       setRewardAmount(formatWithDecimals(`${await computeRewardsFromUnstake(parsedUserInput)}`, 2))
-    })()
+    })();
   }, [parsedUserInput])
 
   return (

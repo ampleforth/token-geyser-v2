@@ -7,13 +7,11 @@ interface Props {
   disabled?: boolean
 }
 
-export const GeyserInteractionButton: React.FC<Props> = ({ onClick, displayText, disabled }) => {
-  return (
+export const GeyserInteractionButton: React.FC<Props> = ({ onClick, displayText, disabled }) => (
     <Button disabled={disabled} onClick={onClick}>
       {displayText}
     </Button>
   )
-}
 
 const Button = styled.button`
   ${tw`h-16 border-2 rounded-lg bg-primary text-secondary uppercase font-semibold`};

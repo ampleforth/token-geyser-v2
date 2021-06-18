@@ -77,8 +77,8 @@ export const StatsContextProvider: React.FC = ({ children }) => {
   }
 
   useEffect(() => {
-    let mounted = true
-    ;(async () => {
+    let mounted = true;
+    (async () => {
       try {
         if (selectedGeyser && stakingTokenInfo.address && rewardTokenInfo.address) {
           const newGeyserStats = await getGeyserStats(selectedGeyser, stakingTokenInfo, rewardTokenInfo)
@@ -93,7 +93,7 @@ export const StatsContextProvider: React.FC = ({ children }) => {
       } catch (e) {
         console.error(e)
       }
-    })()
+    })();
     return () => { mounted = false }
   }, [selectedGeyser, selectedVault, currentLock, stakingTokenInfo.address, rewardTokenInfo.address])
 

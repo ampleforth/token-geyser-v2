@@ -6,22 +6,20 @@ interface Props {
   onClick: () => void
 }
 
-export const ConnectWalletWarning: React.FC<Props> = ({ onClick }) => {
-  return (
-    <ConnectWalletWarningContainer>
-      <ColoredDiv />
-      <Content>
-        <MessageContainer>
-          <Img src={warning} alt="Warning" />
-          <Message>Connect Your Ethereum Wallet</Message>
-        </MessageContainer>
-        <ButtonWrapper>
-          <Button onClick={onClick}>Connect</Button>
-        </ButtonWrapper>
-      </Content>
-    </ConnectWalletWarningContainer>
-  )
-}
+export const ConnectWalletWarning: React.FC<Props> = ({ onClick }) => (
+  <ConnectWalletWarningContainer>
+    <ColoredDiv />
+    <Content>
+      <MessageContainer>
+        <Img src={warning} alt="Warning" />
+        <Message>Connect Your Ethereum Wallet</Message>
+      </MessageContainer>
+      <ButtonWrapper>
+        <Button onClick={onClick}>Connect</Button>
+      </ButtonWrapper>
+    </Content>
+  </ConnectWalletWarningContainer>
+)
 
 const Content = styled.div`
   ${tw`flex flex-row flex-grow`}

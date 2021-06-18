@@ -1,16 +1,16 @@
 import { useLazyQuery } from '@apollo/client'
 import { createContext, useContext, useEffect, useState } from 'react'
 import { toChecksumAddress } from 'web3-utils'
-import { GET_GEYSERS } from '../queries/geyser'
+import { TransactionReceipt } from '@ethersproject/providers'
+import { BigNumber, Wallet } from 'ethers'
+import {  getTokenInfo } from '../utils/token'
 import { Geyser, StakingTokenInfo, TokenInfo, GeyserConfig, RewardTokenInfo, Vault, GeyserStatus } from '../types'
 import Web3Context from './Web3Context'
 import { POLL_INTERVAL } from '../constants'
-import {  getTokenInfo } from '../utils/token'
 import { geyserConfigs } from '../config/geyser'
 import { defaultStakingTokenInfo, getStakingTokenInfo } from '../utils/stakingToken'
-import { BigNumber, Wallet } from 'ethers'
 import { approveCreateDepositStake, approveDepositStake, unstakeWithdraw } from '../sdk'
-import { TransactionReceipt } from '@ethersproject/providers'
+import { GET_GEYSERS } from '../queries/geyser'
 import { Centered } from '../styling/styles'
 import { defaultRewardTokenInfo, getRewardTokenInfo } from '../utils/rewardToken'
 
@@ -67,10 +67,10 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
     if (isStakingAction) {
       const stakedReceipt = await handleStake(selectedVault, parsedAmount)
       return stakedReceipt
-    } else {
-      const unstakedReceipt = await handleUnstake(selectedVault, parsedAmount)
-      return unstakedReceipt
     }
+    const unstakedReceipt = await handleUnstake(selectedVault, parsedAmount)
+    return unstakedReceipt
+    
   }
 
   const handleUnstake = async (selectedVault: Vault | null, parsedAmount: BigNumber) => {
@@ -123,8 +123,8 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
   }, [geyserData])
 
   useEffect(() => {
-    let mounted = true
-    ;(async () => {
+    let mounted = true;
+    (async () => {
       if (selectedGeyser) {
         try {
           const geyserAddress = toChecksumAddress(selectedGeyser.id)
@@ -146,7 +146,7 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
           console.error(e)
         }
       }
-    })()
+    })();
     return () => {
       mounted = false
     }

@@ -2,6 +2,8 @@ import { BigNumber } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
 import React, { useContext, useEffect, useState } from 'react'
 import { TransactionReceipt } from '@ethersproject/providers'
+import styled from 'styled-components/macro'
+import tw from 'twin.macro'
 import { GeyserContext } from '../context/GeyserContext'
 import { VaultContext } from '../context/VaultContext'
 import { WalletContext } from '../context/WalletContext'
@@ -9,17 +11,13 @@ import Web3Context from '../context/Web3Context'
 import { amountOrZero } from '../utils/amount'
 import { PositiveInput } from './PositiveInput'
 import { GeyserInteractionButton } from './GeyserInteractionButton'
-import tw from 'twin.macro'
-import styled from 'styled-components/macro'
 import { UserBalance } from './UserBalance'
 import { EstimatedRewards } from './EstimatedRewards'
 import { ConnectWalletWarning } from './ConnectWalletWarning'
 import { UnstakeSummary } from './UnstakeSummary'
 import { UnstakeConfirmModal } from './UnstakeConfirmModal'
 
-interface Props {}
-
-export const GeyserStakeView: React.FC<Props> = () => {
+export const GeyserStakeView = () => {
   const [userInput, setUserInput] = useState('')
   const [parsedUserInput, setParsedUserInput] = useState(BigNumber.from('0'))
   const [receipt, setReceipt] = useState<TransactionReceipt>()
@@ -82,16 +80,25 @@ export const GeyserStakeView: React.FC<Props> = () => {
         precision={stakingTokenDecimals}
         maxValue={isStakingAction ? walletAmount : currentStakeAmount}
       />
-      {isStakingAction
-        ? <EstimatedRewards parsedUserInput={parsedUserInput} />
-        : <UnstakeSummary userInput={userInput} parsedUserInput={parsedUserInput} />}
+      {isStakingAction ? (
+        <EstimatedRewards parsedUserInput={parsedUserInput} />
+      ) : (
+        <UnstakeSummary userInput={userInput} parsedUserInput={parsedUserInput} />
+      )}
       {!address && <ConnectWalletWarning onClick={selectWallet} />}
       <GeyserInteractionButton
         disabled={!address || parsedUserInput.isZero()}
         onClick={handleGeyserInteraction}
         displayText={isStakingAction ? `Stake` : `Unstake`}
       />
-      {!isStakingAction && <UnstakeConfirmModal parsedUserInput={parsedUserInput} open={unstakeConfirmModalOpen} onClose={() => setUnstakeConfirmModalOpen(false)} onConfirm={handleConfirmUnstake}/>}
+      {!isStakingAction && (
+        <UnstakeConfirmModal
+          parsedUserInput={parsedUserInput}
+          open={unstakeConfirmModalOpen}
+          onClose={() => setUnstakeConfirmModalOpen(false)}
+          onConfirm={handleConfirmUnstake}
+        />
+      )}
     </GeyserStakeViewContainer>
   )
 }

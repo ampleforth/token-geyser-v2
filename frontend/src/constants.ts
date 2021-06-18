@@ -65,6 +65,10 @@ export enum RewardToken {
   AMPL,
 }
 
+// subgraph endpoint
+const GEYSER_SUBGRAPH_NAME = ''
+export const GEYSER_SUBGRAPH_ENDPOINT = `https://api.thegraph.com/subgraphs/name/${GEYSER_SUBGRAPH_NAME}`
+
 // ufragments deploy block number
 export const UFRG_INIT_BLOCK = 7947823
 

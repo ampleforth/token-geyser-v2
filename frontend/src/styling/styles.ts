@@ -11,6 +11,10 @@ export const GeyserFirstOverlay = styled.div`
   ${tw`sm:my-4`}
 `
 
+export const ResponsiveHeader = css`
+  ${tw`text-base sm:text-lg`}
+`
+
 export const ResponsiveText = css`
   ${tw`text-sm sm:text-base`}
 `

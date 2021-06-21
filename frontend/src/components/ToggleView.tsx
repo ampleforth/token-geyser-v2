@@ -6,13 +6,12 @@ import tw from 'twin.macro'
 interface Props {
   enabled: boolean
   options: [string, string]
-  compact?: boolean
   toggle: () => void
 }
 
-export const ToggleView: React.FC<Props> = ({ enabled, toggle, options, compact }) => (
-  <Switch className='w-full' checked={!enabled} onChange={toggle}>
-    <SwitchContainer className={compact ? 'h-10' : 'h-14' }>
+export const ToggleView: React.FC<Props> = ({ enabled, toggle, options }) => (
+  <Switch className="w-full" checked={!enabled} onChange={toggle}>
+    <SwitchContainer className='h-14'>
       <SwitchOptionOne className={!enabled ? 'text-gray' : 'text-darkGray'}>{options[0]}</SwitchOptionOne>
       <span
         className={`block h-full w-1/2 rounded transition duration-300 ease-in-out transform ${
@@ -22,7 +21,7 @@ export const ToggleView: React.FC<Props> = ({ enabled, toggle, options, compact 
       <SwitchOptionTwo className={!enabled ? 'text-darkGray' : 'text-gray'}>{options[1]}</SwitchOptionTwo>
     </SwitchContainer>
   </Switch>
-  )
+)
 
 const SwitchContainer = styled.span`
   ${tw`bg-darkGray relative rounded m-auto flex border border-darkGray`}

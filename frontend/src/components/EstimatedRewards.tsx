@@ -34,7 +34,11 @@ export const EstimatedRewards: React.FC<Props> = ({ parsedUserInput }) => {
         <CardLabel>
           Your Estimated Rewards <Img src={info} alt="Info" />
         </CardLabel>
-        <CardValue>{rewards} {symbol} {parsedUserInput.gt(0) && calcPeriodInDays > 0 ? `in ${calcPeriodInDays} day${calcPeriodInDays > 1 ? 's' : ''}` : ''}</CardValue>
+        <CardValue>{rewards} {symbol}{' '}
+          <span>
+            {parsedUserInput.gt(0) && calcPeriodInDays > 0 ? `in ${calcPeriodInDays} day${calcPeriodInDays > 1 ? 's' : ''}` : ''}
+          </span>
+        </CardValue>
       </RewardsTextContainer>
     </EstimatedRewardsContainer>
   )

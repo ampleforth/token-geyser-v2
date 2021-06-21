@@ -40,6 +40,7 @@ export const VaultBalanceView = () => {
       title: 'Token',
       dataIndex: 'token',
       key: 'token',
+      widthClass: 'sm:w-1/3 w-1/4',
     },
     {
       title: 'Balance',
@@ -63,9 +64,9 @@ export const VaultBalanceView = () => {
     .map((vaultTokenBalance) =>
       ({
         key: vaultTokenBalance.symbol,
-        token: vaultTokenBalance.symbol,
-        balance: safeNumeral(vaultTokenBalance.balance, '0.00000'),
-        unlocked: safeNumeral(vaultTokenBalance.unlockedBalance, '0.00000'),
+        token: <TextEllipsis>{vaultTokenBalance.symbol}</TextEllipsis>,
+        balance: safeNumeral(vaultTokenBalance.balance, '0.00'),
+        unlocked: safeNumeral(vaultTokenBalance.unlockedBalance, '0.00'),
         action: (
           <ActionButton
             disabled={vaultTokenBalance.parsedUnlockedBalance.isZero()}
@@ -95,11 +96,15 @@ const Container = styled.div`
 `
 
 const ButtonText = styled.span`
-  ${tw`m-2 text-xs`}
+  ${tw`m-1 text-xs py-3 sm:px-2`}
 `
 
 const ActionButton = styled.button`
-  ${tw`flex border-2 rounded-lg bg-primary text-secondary uppercase m-auto`};
-  ${tw`hover:border-primary hover:bg-secondary hover:text-primary`}
-  ${tw`disabled:bg-lightGray disabled:cursor-not-allowed disabled:border-none disabled:text-white`}
+  ${tw`flex m-auto text-link bg-0D23EE bg-opacity-5 uppercase`}
+  ${tw`disabled:bg-lightGray disabled:bg-opacity-50 disabled:cursor-not-allowed disabled:border-none disabled:text-gray`}
+  ${tw`focus:outline-none`}
+`
+
+const TextEllipsis = styled.div`
+  ${tw`overflow-ellipsis overflow-hidden`}
 `

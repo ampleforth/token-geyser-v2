@@ -1,14 +1,14 @@
-import { MONTH_IN_SEC } from '../constants'
 import {  BigNumberish } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { toChecksumAddress } from 'web3-utils'
-import { getCurrentStakeReward } from '../sdk/stats'
-import { GeyserStats, UserStats, VaultStats } from '../types'
-import { defaultGeyserStats, defaultUserStats, defaultVaultStats, getGeyserStats, getStakeDrip, getUserAPY, getUserDrip, getUserDripAfterWithdraw, getUserStats, getVaultStats } from '../utils/stats'
+import { getCurrentStakeReward } from 'sdk/stats'
+import { GeyserStats, UserStats, VaultStats } from 'types'
+import { defaultGeyserStats, defaultUserStats, defaultVaultStats, getGeyserStats, getStakeDrip, getUserAPY, getUserDrip, getUserDripAfterWithdraw, getUserStats, getVaultStats } from 'utils/stats'
 import { GeyserContext } from './GeyserContext'
 import { VaultContext } from './VaultContext'
 import Web3Context from './Web3Context'
+import { MONTH_IN_SEC } from '../constants'
 
 export const StatsContext = createContext<{
   userStats: UserStats

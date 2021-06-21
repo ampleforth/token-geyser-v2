@@ -3,10 +3,10 @@ import { useContext, useState } from "react"
 import styled from "styled-components/macro"
 import tw from "twin.macro"
 import { safeNumeral } from "utils/numeral"
-import { Column, Table } from "./Table"
 import { VaultTokenBalance } from "types"
 import { VaultContext } from "context/VaultContext"
 import { Align } from "../constants"
+import { Column, Table } from "./Table"
 import { SingleTxModal } from "./SingleTxModal"
 
 export const VaultBalanceView = () => {
@@ -17,8 +17,8 @@ export const VaultBalanceView = () => {
   const [tokenBalance, setTokenBalance] = useState<VaultTokenBalance>()
   const [modalOpen, setModalOpen] = useState<boolean>(false)
 
-  const confirmWithdraw = (tokenBalance: VaultTokenBalance) => {
-    setTokenBalance(tokenBalance)
+  const confirmWithdraw = (balance: VaultTokenBalance) => {
+    setTokenBalance(balance)
     setModalOpen(true)
   }
 
@@ -27,6 +27,7 @@ export const VaultBalanceView = () => {
       const { address, parsedUnlockedBalance } = tokenBalance
       return withdrawFromVault(address, parsedUnlockedBalance)
     }
+    return undefined
   }
 
   const onClose = () => {

@@ -1,24 +1,24 @@
 import { BigNumber } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
-import { useContext, useEffect, useState } from 'react'
-import { GeyserContext } from '../context/GeyserContext'
-import { VaultContext } from '../context/VaultContext'
-import { WalletContext } from '../context/WalletContext'
-import Web3Context from '../context/Web3Context'
-import { amountOrZero } from '../utils/amount'
-import { PositiveInput } from './PositiveInput'
-import { GeyserInteractionButton } from './GeyserInteractionButton'
+import { TransactionReceipt } from '@ethersproject/providers'
 import tw from 'twin.macro'
 import styled from 'styled-components/macro'
+import { useContext, useEffect, useState } from 'react'
+import { GeyserContext } from 'context/GeyserContext'
+import { VaultContext } from 'context/VaultContext'
+import { WalletContext } from 'context/WalletContext'
+import Web3Context from 'context/Web3Context'
+import { TxStateMachine } from 'hooks/useTxStateMachine'
+import { amountOrZero } from 'utils/amount'
+import { PositiveInput } from './PositiveInput'
+import { GeyserInteractionButton } from './GeyserInteractionButton'
 import { UserBalance } from './UserBalance'
 import { EstimatedRewards } from './EstimatedRewards'
 import { ConnectWalletWarning } from './ConnectWalletWarning'
 import { UnstakeSummary } from './UnstakeSummary'
 import { UnstakeConfirmModal } from './UnstakeConfirmModal'
 import { SingleTxModal } from './SingleTxModal'
-import { TransactionReceipt } from '@ethersproject/providers'
 import { UnstakeTxModal } from './UnstakeTxModal'
-import { TxStateMachine } from 'hooks/useTxStateMachine'
 import { TxState } from '../constants'
 
 interface Props {}
@@ -76,6 +76,7 @@ export const GeyserStakeView: React.FC<Props> = () => {
   const withdrawStaking = async () => {
     if (withdrawFromVault)
       return withdrawFromVault(stakingTokenAddress, parsedUserInput)
+    return undefined
   }
 
   const withdrawReward = async (receipt?: TransactionReceipt) => {
@@ -87,6 +88,7 @@ export const GeyserStakeView: React.FC<Props> = () => {
         return response
       }
     }
+    return undefined
   }
 
   const withdrawStakingTxMessage = (txStateMachine: TxStateMachine) => {
@@ -98,14 +100,14 @@ export const GeyserStakeView: React.FC<Props> = () => {
         return (
           <span>
             Withdrawing {stakingTokenSymbol} from your vault...{' '}
-            View on <a className="text-link" href={`https://etherscan.io/tx/${response?.hash}`} target="_blank">Etherscan</a>
+            View on <a rel="noreferrer" className="text-link" href={`https://etherscan.io/tx/${response?.hash}`} target="_blank">Etherscan</a>
           </span>
         )
       case TxState.MINED:
         return (
           <span>
             Successfully withdrew <b>{userInput} {stakingTokenSymbol}</b> from your vault to your wallet.{' '}
-            View on <a className="text-link" href={`https://etherscan.io/tx/${response?.hash}`} target="_blank">Etherscan</a>
+            View on <a rel="noreferrer" className="text-link" href={`https://etherscan.io/tx/${response?.hash}`} target="_blank">Etherscan</a>
           </span>
         )
       case TxState.FAILED:
@@ -128,14 +130,14 @@ export const GeyserStakeView: React.FC<Props> = () => {
         return (
           <span>
             Withdrawing {rewardTokenSymbol} from your vault...{' '}
-            View on <a className="text-link" href={`https://etherscan.io/tx/${response?.hash}`} target="_blank">Etherscan</a>
+            View on <a rel="noreferrer" className="text-link" href={`https://etherscan.io/tx/${response?.hash}`} target="_blank">Etherscan</a>
           </span>
         )
       case TxState.MINED:
         return (
           <span>
             Successfully withdrew <b>{formatUnits(actualRewardsFromUnstake, rewardTokenDecimals)} {rewardTokenSymbol}</b> from your vault to your wallet.{' '}
-            View on <a className="text-link" href={`https://etherscan.io/tx/${response?.hash}`} target="_blank">Etherscan</a>
+            View on <a rel="noreferrer" className="text-link" href={`https://etherscan.io/tx/${response?.hash}`} target="_blank">Etherscan</a>
           </span>
         )
       case TxState.FAILED:

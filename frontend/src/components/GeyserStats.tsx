@@ -1,11 +1,11 @@
 import styled from 'styled-components/macro'
-import { ResponsiveText } from '../styling/styles'
 import tw from 'twin.macro'
-import { GeyserStatsBox } from './GeyserStatsBox'
 import { useContext } from 'react'
-import { StatsContext } from '../context/StatsContext'
-import { safeNumeral } from '../utils/numeral'
-import { GeyserContext } from '../context/GeyserContext'
+import { StatsContext } from 'context/StatsContext'
+import { safeNumeral } from 'utils/numeral'
+import { GeyserContext } from 'context/GeyserContext'
+import { ResponsiveText } from 'styling/styles'
+import { GeyserStatsBox } from './GeyserStatsBox'
 import { DAY_IN_SEC } from '../constants'
 
 export const GeyserStats = () => {

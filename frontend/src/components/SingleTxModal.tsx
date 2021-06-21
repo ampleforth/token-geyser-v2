@@ -1,10 +1,10 @@
-import { TransactionResponse } from "@ethersproject/providers"
-import { TxState } from "../constants"
-import { useTxStateMachine } from "hooks/useTxStateMachine"
 import { ReactNode, useEffect, useState } from "react"
-import { Modal } from "./Modal"
+import { TransactionResponse } from "@ethersproject/providers"
+import { useTxStateMachine } from "hooks/useTxStateMachine"
 import { ModalButton } from "styling/styles"
+import { Modal } from "./Modal"
 import { ProcessingButton } from "./ProcessingButton"
+import { TxState } from "../constants"
 
 interface Props {
   submit: () => Promise<TransactionResponse | undefined>
@@ -33,14 +33,14 @@ export const SingleTxModal: React.FC<Props> = ({ submit, txSuccessMessage, open,
         return (
           <span>
             Transaction submitted to blockchain, waiting to be mined.{' '}
-            View on <a className="text-link" href={`https://etherscan.io/tx/${response?.hash}`} target="_blank">Etherscan</a>
+            View on <a rel="noreferrer" className="text-link" href={`https://etherscan.io/tx/${response?.hash}`} target="_blank">Etherscan</a>
           </span>
         )
       case TxState.MINED:
         return (
           <>
             {successMessage}{' '}
-            <span>View on <a className="text-link" href={`https://etherscan.io/tx/${response?.hash}`} target="_blank">Etherscan</a></span>
+            <span>View on <a rel="noreferrer" className="text-link" href={`https://etherscan.io/tx/${response?.hash}`} target="_blank">Etherscan</a></span>
           </>
         )
       case TxState.FAILED:

@@ -1,12 +1,12 @@
-import { StatsContext } from '../context/StatsContext'
-import { useContext, useEffect, useRef, useState } from 'react'
-import { safeNumeral } from '../utils/numeral'
+import { useContext, useEffect, useState } from 'react'
+import { safeNumeral } from 'utils/numeral'
+import { StatsContext } from 'context/StatsContext'
 import { GeyserContext } from 'context/GeyserContext'
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
 import { BigNumber } from 'ethers'
-import { Modal } from './Modal'
 import { ModalButton } from 'styling/styles'
+import { Modal } from './Modal'
 
 interface Props {
   open: boolean

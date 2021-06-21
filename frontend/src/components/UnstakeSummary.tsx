@@ -1,12 +1,12 @@
 import { useContext, useState, useEffect } from 'react'
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
-import { GeyserContext } from '../context/GeyserContext'
-import { StatsContext } from '../context/StatsContext'
-import { CardValue, CardLabel } from '../styling/styles'
-import { amountOrZero } from '../utils/amount'
-import { formatWithDecimals } from '../utils/numeral'
 import { BigNumber } from 'ethers'
+import { GeyserContext } from 'context/GeyserContext'
+import { StatsContext } from 'context/StatsContext'
+import { CardValue, CardLabel } from 'styling/styles'
+import { amountOrZero } from 'utils/amount'
+import { formatWithDecimals } from 'utils/numeral'
 
 interface Props {
   userInput: string

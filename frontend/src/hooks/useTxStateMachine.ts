@@ -1,6 +1,6 @@
+import { useEffect, useState } from 'react'
 import { TransactionResponse, TransactionReceipt } from '@ethersproject/providers'
 import { TxState } from '../constants'
-import { useEffect, useState } from 'react'
 
 type SubmitFunction = (receipt?: TransactionReceipt) => Promise<TransactionResponse | undefined>
 

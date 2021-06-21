@@ -1,14 +1,14 @@
 import { useLazyQuery } from '@apollo/client'
 import { createContext, useContext, useEffect, useState } from 'react'
+import { TransactionResponse, TransactionReceipt } from '@ethersproject/providers'
+import { BigNumber } from 'ethers'
+import { withdraw, withdrawRewards } from 'sdk'
 import { GET_USER_VAULTS } from '../queries/vault'
 import { POLL_INTERVAL } from '../constants'
 import { Lock, Vault } from '../types'
 import Web3Context from './Web3Context'
 import { GeyserContext } from './GeyserContext'
 import { Centered } from '../styling/styles'
-import { TransactionResponse, TransactionReceipt } from '@ethersproject/providers'
-import { BigNumber } from 'ethers'
-import { withdraw, withdrawRewards } from 'sdk'
 
 export const VaultContext = createContext<{
   vaults: Vault[]

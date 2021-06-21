@@ -1,10 +1,10 @@
 import { TransactionResponse, TransactionReceipt } from '@ethersproject/providers'
-import { TxState } from '../constants'
 import { useTxStateMachine, TxStateMachine } from 'hooks/useTxStateMachine'
 import { ReactNode, useEffect, useState } from 'react'
-import { Modal } from './Modal'
 import { ModalButton } from 'styling/styles'
+import { Modal } from './Modal'
 import { ProcessingButton } from './ProcessingButton'
+import { TxState } from '../constants'
 
 interface Props {
   open: boolean
@@ -53,14 +53,14 @@ export const UnstakeTxModal: React.FC<Props> = ({ open, onClose, unstake, unstak
         return (
           <span>
             Transaction submitted to blockchain, waiting to be mined.{' '}
-            View on <a className="text-link" href={`https://etherscan.io/tx/${response?.hash}`} target="_blank">Etherscan</a>
+            View on <a rel="noreferrer" className="text-link" href={`https://etherscan.io/tx/${response?.hash}`} target="_blank">Etherscan</a>
           </span>
         )
       case TxState.MINED:
         return (
           <>
             {unstakeSuccessMessage}{' '}
-            <span>View on <a className="text-link" href={`https://etherscan.io/tx/${response?.hash}`} target="_blank">Etherscan</a></span>
+            <span>View on <a rel="noreferrer" className="text-link" href={`https://etherscan.io/tx/${response?.hash}`} target="_blank">Etherscan</a></span>
           </>
         )
       case TxState.FAILED:

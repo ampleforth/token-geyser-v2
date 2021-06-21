@@ -3,17 +3,17 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { toChecksumAddress } from 'web3-utils'
 import { TransactionResponse } from '@ethersproject/providers'
 import { BigNumber, Wallet } from 'ethers'
-import { Geyser, StakingTokenInfo, TokenInfo, GeyserConfig, RewardTokenInfo, Vault } from '../types'
+import { Geyser, StakingTokenInfo, TokenInfo, GeyserConfig, RewardTokenInfo, Vault } from 'types'
+import {  getTokenInfo } from 'utils/token'
+import { geyserConfigs } from 'config/geyser'
+import { defaultStakingTokenInfo, getStakingTokenInfo } from 'utils/stakingToken'
+import { approveCreateDepositStake, approveDepositStake, unstake } from 'sdk'
+import { GET_GEYSERS } from 'queries/geyser'
+import { Centered } from 'styling/styles'
+import { defaultRewardTokenInfo, getRewardTokenInfo } from 'utils/rewardToken'
+import { additionalTokens } from 'config/additionalTokens'
 import Web3Context from './Web3Context'
 import { POLL_INTERVAL } from '../constants'
-import {  getTokenInfo } from '../utils/token'
-import { geyserConfigs } from '../config/geyser'
-import { defaultStakingTokenInfo, getStakingTokenInfo } from '../utils/stakingToken'
-import { approveCreateDepositStake, approveDepositStake, unstake } from '../sdk'
-import { GET_GEYSERS } from '../queries/geyser'
-import { Centered } from '../styling/styles'
-import { defaultRewardTokenInfo, getRewardTokenInfo } from '../utils/rewardToken'
-import { additionalTokens } from 'config/additionalTokens'
 
 export const GeyserContext = createContext<{
   geysers: Geyser[]
@@ -74,6 +74,7 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
       const vaultAddress = selectedVault.id
       return unstake(geyserAddress, vaultAddress, parsedAmount, signer as Wallet)
     }
+    return undefined
   }
   const handleStake = async (selectedVault: Vault | null, parsedAmount: BigNumber) => {
     if (selectedGeyser && signer && !parsedAmount.isZero()) {
@@ -83,6 +84,7 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
         : approveCreateDepositStake(geyserAddress, parsedAmount, signer as Wallet)
       )
     }
+    return undefined
   }
 
   const selectGeyser = (geyser: Geyser) => setSelectedGeyser(geyser)

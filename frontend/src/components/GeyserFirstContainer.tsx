@@ -1,10 +1,10 @@
 import React, { useContext } from 'react'
 import styled from 'styled-components/macro'
-import { GeyserStakeView } from './GeyserStakeView'
-import { Overlay } from '../styling/styles'
-import { ToggleView } from './ToggleView'
 import tw from 'twin.macro'
-import { GeyserContext } from '../context/GeyserContext'
+import { Overlay } from 'styling/styles'
+import { GeyserContext } from 'context/GeyserContext'
+import { ToggleView } from './ToggleView'
+import { GeyserStakeView } from './GeyserStakeView'
 import { GeyserStatsView } from './GeyserStatsView'
 
 interface Props {}

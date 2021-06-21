@@ -1,0 +1,109 @@
+import { TransactionResponse, TransactionReceipt } from '@ethersproject/providers'
+import { TxState } from '../constants'
+import { useTxStateMachine, TxStateMachine } from 'hooks/useTxStateMachine'
+import { ReactNode, useEffect, useState } from 'react'
+import { Modal } from './Modal'
+import { ModalButton } from 'styling/styles'
+import { ProcessingButton } from './ProcessingButton'
+
+interface Props {
+  open: boolean
+  onClose: () => void
+  unstake: () => Promise<TransactionResponse | undefined>
+  unstakeSuccessMessage?: ReactNode
+
+  withdrawStaking: () => Promise<TransactionResponse | undefined>
+  withdrawStakingTxMessage: (txStateMachine: TxStateMachine) => ReactNode
+
+  withdrawReward: (receipt?: TransactionReceipt) => Promise<TransactionResponse | undefined>
+  withdrawRewardTxMessage: (TxStateMachine: TxStateMachine) => ReactNode
+}
+
+export const UnstakeTxModal: React.FC<Props> = ({ open, onClose, unstake, unstakeSuccessMessage, withdrawStaking, withdrawReward, withdrawStakingTxMessage, withdrawRewardTxMessage, children }) => {
+  const unstakeTxStateMachine = useTxStateMachine(unstake)
+  const withdrawStakeStateMachine = useTxStateMachine(withdrawStaking)
+  const withdrawRewardStateMachine = useTxStateMachine(withdrawReward)
+  const [submittedWithdraw, setSubmittedWithdraw] = useState<boolean>(false)
+
+  useEffect(() => {
+    if (open) {
+      setSubmittedWithdraw(false)
+      unstakeTxStateMachine.refresh()
+      withdrawStakeStateMachine.refresh()
+      withdrawRewardStateMachine.refresh()
+      unstakeTxStateMachine.submitTx()
+    }
+  }, [open])
+
+  useEffect(() => {
+    const { state: unstakeState, receipt: unstakeReceipt } = unstakeTxStateMachine
+    if (unstakeState === TxState.MINED && unstakeReceipt && !submittedWithdraw) {
+      withdrawStakeStateMachine.submitTx()
+      withdrawRewardStateMachine.submitTx(unstakeReceipt)
+      setSubmittedWithdraw(true)
+    }
+  }, [unstakeTxStateMachine])
+
+  const getUnstakeTxMessage = () => {
+    const { state, response } = unstakeTxStateMachine
+    switch (state) {
+      case TxState.PENDING:
+        return <span>Waiting for user to confirm transaction...</span>
+      case TxState.SUBMITTED:
+        return (
+          <span>
+            Transaction submitted to blockchain, waiting to be mined.{' '}
+            View on <a className="text-link" href={`https://etherscan.io/tx/${response?.hash}`} target="_blank">Etherscan</a>
+          </span>
+        )
+      case TxState.MINED:
+        return (
+          <>
+            {unstakeSuccessMessage}{' '}
+            <span>View on <a className="text-link" href={`https://etherscan.io/tx/${response?.hash}`} target="_blank">Etherscan</a></span>
+          </>
+        )
+      case TxState.FAILED:
+        return <>Transaction failed.</>
+      default:
+        return <></>
+    }
+  }
+
+  const getModalBody = () => {
+    if (unstakeTxStateMachine.state !== TxState.MINED) return getUnstakeTxMessage()
+    return (
+      <div className="flex flex-col space-y-2">
+        <div>{getUnstakeTxMessage()}</div>
+        <div>{withdrawStakingTxMessage(withdrawStakeStateMachine)}</div>
+        <div>{withdrawRewardTxMessage(withdrawRewardStateMachine)}</div>
+      </div>
+    )
+  }
+
+  const isProcessing = () => {
+    const processingStates = new Set([TxState.PENDING, TxState.SUBMITTED])
+    const unstakeProcessing = processingStates.has(unstakeTxStateMachine.state)
+    const withdrawProcessing = (unstakeTxStateMachine.state === TxState.MINED) && [withdrawStakeStateMachine, withdrawRewardStateMachine].filter(({ state }) => processingStates.has(state)).length > 0
+    return unstakeProcessing || withdrawProcessing
+  }
+
+  return (
+    <Modal onClose={onClose} open={open} disableClose={isProcessing()}>
+      <Modal.Title>
+        Processing Transaction
+      </Modal.Title>
+      <Modal.Body>
+        {getModalBody()}
+        {children}
+      </Modal.Body>
+      <Modal.Footer>
+        {isProcessing() ? (
+          <ProcessingButton />
+        ) : (
+          <ModalButton onClick={onClose}> Close </ModalButton>
+        )}
+      </Modal.Footer>
+    </Modal>
+  )
+}

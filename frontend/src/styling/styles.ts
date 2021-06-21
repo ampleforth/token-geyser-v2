@@ -39,3 +39,8 @@ export const CardLabel = styled.span`
 export const CardValue = styled.span`
   ${tw`flex uppercase text-xl`}
 `
+
+export const ModalButton = styled.button`
+  width: 40%;
+  ${tw`inline-flex items-center justify-center px-4 py-2 text-sm font-medium border rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2`}
+`

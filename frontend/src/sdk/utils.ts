@@ -1,9 +1,10 @@
 import { TypedDataField } from '@ethersproject/abstract-signer'
 import { BigNumberish, Contract, providers, Signer, Wallet } from 'ethers'
-import { splitSignature } from 'ethers/lib/utils'
+import { LogDescription, splitSignature } from 'ethers/lib/utils'
 import mainnetConfig from './deployments/mainnet/factories-latest.json'
 import goerliConfig from './deployments/goerli/factories-latest.json'
 import localhostConfig from './deployments/localhost/factories-latest.json'
+import { TransactionReceipt } from '@ethersproject/providers'
 
 export const loadNetworkConfig = async (signerOrProvider: Signer | providers.Provider) => {
   const network = await (Signer.isSigner(signerOrProvider)
@@ -104,4 +105,21 @@ export const signPermitEIP2612 = async (
   const sig = splitSignature(signedPermission)
   // return
   return [values.owner, values.spender, values.value, values.deadline, sig.v, sig.r, sig.s]
+}
+
+export const parseEventFromReceipt = (
+  receipt: TransactionReceipt,
+  contract: Contract,
+  event: string,
+): LogDescription | null => {
+  const filter = contract.filters[event]
+  if (!filter) return null
+  const eventFilter = filter()
+  if (!eventFilter || !eventFilter.topics || eventFilter.topics.length === 0) return null
+  const topicHash = eventFilter.topics[0]
+  const filteredLogs = receipt.logs.filter((log) => log.topics[0] === topicHash)
+  if (filteredLogs.length > 0) {
+    return contract.interface.parseLog(filteredLogs[0])
+  }
+  return null
 }

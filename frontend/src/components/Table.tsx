@@ -55,14 +55,11 @@ export const Table: React.FC<Props> = ({ columns, dataSource }) => {
         <TableBody>
           {rows.map((row, rowNumber) => (
             <tr key={dataSource[rowNumber].key}>
-              {row.map((cell, colNumber) => {
-                console.log(columns[colNumber])
-                return (
-                  <RowCell className={getAlignmentClass(columns[colNumber].textAlign || Align.LEFT)}>
-                    {cell}
-                  </RowCell>
-                )
-              })}
+              {row.map((cell, colNumber) => (
+                <RowCell key={colNumber} className={getAlignmentClass(columns[colNumber].textAlign || Align.LEFT)}>
+                  {cell}
+                </RowCell>
+              ))}
             </tr>
           ))}
         </TableBody>

@@ -1,16 +1,16 @@
 import { useLazyQuery } from '@apollo/client'
 import { createContext, useContext, useEffect, useState } from 'react'
 import { toChecksumAddress } from 'web3-utils'
-import { GET_GEYSERS } from '../queries/geyser'
+import { TransactionResponse } from '@ethersproject/providers'
+import { BigNumber, Wallet } from 'ethers'
 import { Geyser, StakingTokenInfo, TokenInfo, GeyserConfig, RewardTokenInfo, Vault } from '../types'
 import Web3Context from './Web3Context'
 import { POLL_INTERVAL } from '../constants'
 import {  getTokenInfo } from '../utils/token'
 import { geyserConfigs } from '../config/geyser'
 import { defaultStakingTokenInfo, getStakingTokenInfo } from '../utils/stakingToken'
-import { BigNumber, Wallet } from 'ethers'
-import { approveCreateDepositStake, approveDepositStake, unstakeWithdraw } from '../sdk'
-import { TransactionReceipt } from '@ethersproject/providers'
+import { approveCreateDepositStake, approveDepositStake, unstake } from '../sdk'
+import { GET_GEYSERS } from '../queries/geyser'
 import { Centered } from '../styling/styles'
 import { defaultRewardTokenInfo, getRewardTokenInfo } from '../utils/rewardToken'
 import { additionalTokens } from 'config/additionalTokens'
@@ -23,7 +23,7 @@ export const GeyserContext = createContext<{
   selectGeyserByName: (name: string) => void
   isStakingAction: boolean
   toggleStakingAction: () => void
-  handleGeyserAction: (arg0: Vault |  null, arg1: BigNumber) => Promise<TransactionReceipt | undefined>
+  handleGeyserAction: (arg0: Vault |  null, arg1: BigNumber) => Promise<TransactionResponse | undefined>
   stakingTokenInfo: StakingTokenInfo
   rewardTokenInfo: RewardTokenInfo
   allTokensInfos: TokenInfo[]
@@ -65,43 +65,23 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
   const [isStakingAction, setIsStakingAction] = useState(true)
 
   const toggleStakingAction = () => setIsStakingAction(!isStakingAction)
-  const handleGeyserAction = async (selectedVault: Vault | null, parsedAmount: BigNumber) => {
-    if (isStakingAction) {
-      const stakedReceipt = await handleStake(selectedVault, parsedAmount)
-      return stakedReceipt
-    } else {
-      const unstakedReceipt = await handleUnstake(selectedVault, parsedAmount)
-      return unstakedReceipt
-    }
-  }
+  const handleGeyserAction = async (selectedVault: Vault | null, parsedAmount: BigNumber) =>
+    (isStakingAction ? handleStake : handleUnstake)(selectedVault, parsedAmount)
 
   const handleUnstake = async (selectedVault: Vault | null, parsedAmount: BigNumber) => {
     if (selectedGeyser && selectedVault && signer) {
       const geyserAddress = selectedGeyser.id
       const vaultAddress = selectedVault.id
-      const [withdrawStakingTokenTx] = await unstakeWithdraw(
-        geyserAddress,
-        vaultAddress,
-        parsedAmount,
-        signer as Wallet,
-      )
-      const receipt = await withdrawStakingTokenTx.wait()
-      return receipt
+      return unstake(geyserAddress, vaultAddress, parsedAmount, signer as Wallet)
     }
   }
-
   const handleStake = async (selectedVault: Vault | null, parsedAmount: BigNumber) => {
     if (selectedGeyser && signer && !parsedAmount.isZero()) {
       const geyserAddress = selectedGeyser.id
-      let tx
-      if (selectedVault) {
-        const vaultAddress = selectedVault.id
-        tx = await approveDepositStake(geyserAddress, vaultAddress, parsedAmount, signer as Wallet)
-      } else {
-        tx = await approveCreateDepositStake(geyserAddress, parsedAmount, signer as Wallet)
-      }
-      const receipt = await tx.wait()
-      return receipt
+      return (selectedVault
+        ? approveDepositStake(geyserAddress, selectedVault.id, parsedAmount, signer as Wallet)
+        : approveCreateDepositStake(geyserAddress, parsedAmount, signer as Wallet)
+      )
     }
   }
 

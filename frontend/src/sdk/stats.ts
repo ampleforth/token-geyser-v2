@@ -1,5 +1,6 @@
 import { BigNumber, BigNumberish, Contract, providers, Signer } from 'ethers'
-import { loadNetworkConfig } from './utils'
+import { TransactionReceipt } from '@ethersproject/providers'
+import { loadNetworkConfig, parseEventFromReceipt } from './utils'
 
 async function _execGeyserFunction<T>(
   geyserAddress: string,
@@ -76,4 +77,16 @@ export const getBalanceLocked = async (
   signerOrProvider: Signer | providers.Provider,
 ) => {
   return _execVaultFunction<BigNumber>(vaultAddress, signerOrProvider, 'getBalanceLocked', [tokenAddress])
+}
+
+export const getClaimedRewardsFromUnstake = async (
+  receipt: TransactionReceipt,
+  geyserAddress: string,
+  signerOrProvider: Signer | providers.Provider,
+) => {
+  const config = await loadNetworkConfig(signerOrProvider)
+  const geyser = new Contract(geyserAddress, config.GeyserTemplate.abi, signerOrProvider)
+  const eventLog = parseEventFromReceipt(receipt, geyser, 'RewardClaimed')
+  if (!eventLog) return null
+  return eventLog.args
 }

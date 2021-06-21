@@ -1,7 +1,8 @@
-import { TransactionResponse } from '@ethersproject/providers'
-import { BigNumberish, Contract, Signer, Wallet } from 'ethers'
+import { TransactionResponse, TransactionReceipt } from '@ethersproject/providers'
+import { BigNumber, BigNumberish, Contract, Signer, Wallet } from 'ethers'
 import { randomBytes } from 'ethers/lib/utils'
 import { ERC20_ABI } from './abis'
+import { getClaimedRewardsFromUnstake } from './stats'
 import { ERC20Balance } from './tokens'
 import { isPermitable, loadNetworkConfig, signPermission, signPermitEIP2612 } from './utils'
 
@@ -78,6 +79,24 @@ export const withdraw = async (
   const token = new Contract(tokenAddress, ERC20_ABI, signer)
 
   return vault.transferERC20(token.address, recipientAddress, amount) as Promise<TransactionResponse>
+}
+
+// The transaction receipt must be the receipt from unstaking
+export const withdrawRewards = async (
+  geyserAddress: string,
+  recipientAddress: string,
+  receipt: TransactionReceipt,
+  signer: Signer,
+) => {
+  const claimedRewards = await getClaimedRewardsFromUnstake(receipt, geyserAddress, signer)
+  if (!claimedRewards) return null
+  const { vault, token, amount } = claimedRewards
+  const rewards = BigNumber.from(amount)
+  if (rewards.isZero()) return null
+  return {
+    response: await withdraw(vault, token, recipientAddress, rewards, signer),
+    rewards,
+  }
 }
 
 /// Combined Actions ///

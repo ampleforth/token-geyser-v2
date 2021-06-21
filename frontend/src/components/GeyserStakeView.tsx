@@ -19,7 +19,7 @@ import { UnstakeSummary } from './UnstakeSummary'
 import { UnstakeConfirmModal } from './UnstakeConfirmModal'
 import { SingleTxModal } from './SingleTxModal'
 import { UnstakeTxModal } from './UnstakeTxModal'
-import { TxState } from '../constants'
+import { WithdrawTxMessage } from './WithdrawTxMessage'
 
 interface Props {}
 
@@ -57,7 +57,7 @@ export const GeyserStakeView: React.FC<Props> = () => {
 
     // Need to set a timeout before opening a new modal
     // otherwise the overflow-y of the page gets messed up
-    setTimeout(() => setTxModalOpen(true), 500)
+    setTimeout(() => setTxModalOpen(true), 300)
   }
 
   const handleOnChange = (value: string) => {
@@ -91,65 +91,13 @@ export const GeyserStakeView: React.FC<Props> = () => {
     return undefined
   }
 
-  const withdrawStakingTxMessage = (txStateMachine: TxStateMachine) => {
-    const { state, response } = txStateMachine
-    switch (state) {
-      case TxState.PENDING:
-        return <span>Withdrawing {stakingTokenSymbol} from your vault...</span>
-      case TxState.SUBMITTED:
-        return (
-          <span>
-            Withdrawing {stakingTokenSymbol} from your vault...{' '}
-            View on <a rel="noreferrer" className="text-link" href={`https://etherscan.io/tx/${response?.hash}`} target="_blank">Etherscan</a>
-          </span>
-        )
-      case TxState.MINED:
-        return (
-          <span>
-            Successfully withdrew <b>{userInput} {stakingTokenSymbol}</b> from your vault to your wallet.{' '}
-            View on <a rel="noreferrer" className="text-link" href={`https://etherscan.io/tx/${response?.hash}`} target="_blank">Etherscan</a>
-          </span>
-        )
-      case TxState.FAILED:
-        return (
-          <span>
-            Unlocked <b>{userInput} {stakingTokenSymbol}</b> that can be withdrawn from your vault.
-          </span>
-        )
-      default:
-        return <></>
-    }
-  }
+  const withdrawStakingTxMessage = (txStateMachine: TxStateMachine) => (
+    <WithdrawTxMessage txStateMachine={txStateMachine} symbol={stakingTokenSymbol} amount={userInput} />
+  )
 
-  const withdrawRewardTxMessage = (txStateMachine: TxStateMachine) => {
-    const { state, response } = txStateMachine
-    switch (state) {
-      case TxState.PENDING:
-        return <span>Withdrawing {rewardTokenSymbol} from your vault...</span>
-      case TxState.SUBMITTED:
-        return (
-          <span>
-            Withdrawing {rewardTokenSymbol} from your vault...{' '}
-            View on <a rel="noreferrer" className="text-link" href={`https://etherscan.io/tx/${response?.hash}`} target="_blank">Etherscan</a>
-          </span>
-        )
-      case TxState.MINED:
-        return (
-          <span>
-            Successfully withdrew <b>{formatUnits(actualRewardsFromUnstake, rewardTokenDecimals)} {rewardTokenSymbol}</b> from your vault to your wallet.{' '}
-            View on <a rel="noreferrer" className="text-link" href={`https://etherscan.io/tx/${response?.hash}`} target="_blank">Etherscan</a>
-          </span>
-        )
-      case TxState.FAILED:
-        return (
-          <span>
-            Unlocked <b>{formatUnits(actualRewardsFromUnstake, rewardTokenDecimals)} {rewardTokenSymbol}</b> that can be withdrawn from your vault.
-          </span>
-        )
-      default:
-        return <></>
-    }
-  }
+  const withdrawRewardTxMessage = (txStateMachine: TxStateMachine) => (
+    <WithdrawTxMessage txStateMachine={txStateMachine} symbol={rewardTokenSymbol} amount={formatUnits(actualRewardsFromUnstake, rewardTokenDecimals)} />
+  )
 
   return (
     <GeyserStakeViewContainer>

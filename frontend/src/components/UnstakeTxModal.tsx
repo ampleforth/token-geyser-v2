@@ -5,12 +5,13 @@ import { ModalButton } from 'styling/styles'
 import { Modal } from './Modal'
 import { ProcessingButton } from './ProcessingButton'
 import { TxState } from '../constants'
+import { SingleTxMessage } from './SingleTxMessage'
 
 interface Props {
   open: boolean
   onClose: () => void
   unstake: () => Promise<TransactionResponse | undefined>
-  unstakeSuccessMessage?: ReactNode
+  unstakeSuccessMessage: ReactNode
 
   withdrawStaking: () => Promise<TransactionResponse | undefined>
   withdrawStakingTxMessage: (txStateMachine: TxStateMachine) => ReactNode
@@ -44,37 +45,12 @@ export const UnstakeTxModal: React.FC<Props> = ({ open, onClose, unstake, unstak
     }
   }, [unstakeTxStateMachine])
 
-  const getUnstakeTxMessage = () => {
-    const { state, response } = unstakeTxStateMachine
-    switch (state) {
-      case TxState.PENDING:
-        return <span>Waiting for user to confirm transaction...</span>
-      case TxState.SUBMITTED:
-        return (
-          <span>
-            Transaction submitted to blockchain, waiting to be mined.{' '}
-            View on <a rel="noreferrer" className="text-link" href={`https://etherscan.io/tx/${response?.hash}`} target="_blank">Etherscan</a>
-          </span>
-        )
-      case TxState.MINED:
-        return (
-          <>
-            {unstakeSuccessMessage}{' '}
-            <span>View on <a rel="noreferrer" className="text-link" href={`https://etherscan.io/tx/${response?.hash}`} target="_blank">Etherscan</a></span>
-          </>
-        )
-      case TxState.FAILED:
-        return <>Transaction failed.</>
-      default:
-        return <></>
-    }
-  }
-
   const getModalBody = () => {
-    if (unstakeTxStateMachine.state !== TxState.MINED) return getUnstakeTxMessage()
+    if (unstakeTxStateMachine.state !== TxState.MINED)
+      return <SingleTxMessage txStateMachine={unstakeTxStateMachine} successMessage={unstakeSuccessMessage} />
     return (
       <div className="flex flex-col space-y-2">
-        <div>{getUnstakeTxMessage()}</div>
+        <div><SingleTxMessage txStateMachine={unstakeTxStateMachine} successMessage={unstakeSuccessMessage} /></div>
         <div>{withdrawStakingTxMessage(withdrawStakeStateMachine)}</div>
         <div>{withdrawRewardTxMessage(withdrawRewardStateMachine)}</div>
       </div>

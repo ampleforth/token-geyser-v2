@@ -3,6 +3,9 @@ import { createContext, Fragment, MutableRefObject, useRef } from 'react'
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
 
+// Modal needs a focusable element to function correctly.
+// Use a context to pass the ref object down to Modal.Body,
+// which will make the modal focus on Modal.Body, if given
 const ModalContext = createContext<{
   ref: MutableRefObject<null> | null
 }>({

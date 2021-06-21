@@ -33,6 +33,10 @@ export enum TxState {
   FAILED,
 }
 
+export const EXTERNAL_LINKS: Record<string, string> = {
+  etherscan: 'https://etherscan.io/tx',
+}
+
 // Staking tokens
 export enum StakingToken {
   // for testing

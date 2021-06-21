@@ -107,6 +107,8 @@ export const signPermitEIP2612 = async (
   return [values.owner, values.spender, values.value, values.deadline, sig.v, sig.r, sig.s]
 }
 
+// utility function to parse an event from a transaction receipt
+// useful when we need to get data from a specific transaction (e.g. getting the actual rewards claimed from unstake)
 export const parseEventFromReceipt = (
   receipt: TransactionReceipt,
   contract: Contract,

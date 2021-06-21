@@ -5,6 +5,7 @@ import { ModalButton } from "styling/styles"
 import { Modal } from "./Modal"
 import { ProcessingButton } from "./ProcessingButton"
 import { TxState } from "../constants"
+import { SingleTxMessage } from "./SingleTxMessage"
 
 interface Props {
   submit: () => Promise<TransactionResponse | undefined>
@@ -14,7 +15,8 @@ interface Props {
 }
 
 export const SingleTxModal: React.FC<Props> = ({ submit, txSuccessMessage, open, onClose, children }) => {
-  const { state, response, submitTx, refresh } = useTxStateMachine(submit)
+  const txStateMachine = useTxStateMachine(submit)
+  const { state, submitTx, refresh } = txStateMachine
   const [successMessage, setSuccessMessage] = useState<ReactNode>(null)
 
   useEffect(() => {
@@ -25,31 +27,6 @@ export const SingleTxModal: React.FC<Props> = ({ submit, txSuccessMessage, open,
     }
   }, [open])
 
-  const getModalBody = () => {
-    switch(state) {
-      case TxState.PENDING:
-        return <span>Waiting for user to confirm transaction...</span>
-      case TxState.SUBMITTED:
-        return (
-          <span>
-            Transaction submitted to blockchain, waiting to be mined.{' '}
-            View on <a rel="noreferrer" className="text-link" href={`https://etherscan.io/tx/${response?.hash}`} target="_blank">Etherscan</a>
-          </span>
-        )
-      case TxState.MINED:
-        return (
-          <>
-            {successMessage}{' '}
-            <span>View on <a rel="noreferrer" className="text-link" href={`https://etherscan.io/tx/${response?.hash}`} target="_blank">Etherscan</a></span>
-          </>
-        )
-      case TxState.FAILED:
-        return <>Transaction failed.</>
-      default:
-        return <></>
-    }
-  }
-
   const isProcessing = () => [TxState.PENDING, TxState.SUBMITTED].includes(state)
 
   return (
@@ -58,7 +35,7 @@ export const SingleTxModal: React.FC<Props> = ({ submit, txSuccessMessage, open,
         Processing Transaction
       </Modal.Title>
       <Modal.Body>
-        {getModalBody()}
+        <SingleTxMessage successMessage={successMessage} txStateMachine={txStateMachine} />
         {children}
       </Modal.Body>
       <Modal.Footer>

@@ -2,7 +2,7 @@ import styled from 'styled-components/macro'
 import tw from 'twin.macro'
 
 interface Props {
-  onClick: () => {}
+  onClick: () => void
   displayText: string
   disabled?: boolean
 }

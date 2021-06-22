@@ -358,7 +358,7 @@ export const getVaultStats = async (
     id: vaultAddress,
     stakingTokenBalance: stakingTokenBalanceInfo.balance,
     rewardTokenBalance: rewardTokenBalanceInfo.balance,
-    vaultTokenBalances: vaultTokenBalances,
+    vaultTokenBalances,
     currentStake,
   }
 }

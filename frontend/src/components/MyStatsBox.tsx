@@ -3,7 +3,7 @@ import tw from 'twin.macro'
 import { useSpring, animated } from 'react-spring'
 import { useState } from 'react'
 import info from 'assets/info.svg'
-import { ResponsiveSubText, ResponsiveText } from '../styling/styles'
+import { ResponsiveSubText, ResponsiveText } from 'styling/styles'
 
 interface Props {
   name: string

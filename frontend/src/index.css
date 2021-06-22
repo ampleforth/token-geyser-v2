@@ -24,3 +24,8 @@ code {
 #root {
   height: 100%;
 }
+
+/* makes sure that the onboard modals do not get overlayed by background elements */
+.bn-onboard-custom {
+  z-index: 100;
+}

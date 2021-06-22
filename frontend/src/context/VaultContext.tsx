@@ -36,7 +36,7 @@ export const VaultContextProvider: React.FC = ({ children }) => {
   })
 
   const [vaults, setVaults] = useState<Vault[]>([])
-  const [selectedVault, setSelectedVault] = useState<Vault | null>(vaults ? vaults[0] : null)
+  const [selectedVault, setSelectedVault] = useState<Vault | null>(null)
   const [currentLock, setCurrentLock] = useState<Lock | null>(null)
 
   const selectVault = (vault: Vault) => setSelectedVault(vault)

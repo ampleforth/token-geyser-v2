@@ -124,3 +124,8 @@ export type SupplyInfo = {
 }
 
 export type SignerOrProvider = Signer | providers.Provider
+
+export type TooltipMessage = {
+  title: string
+  body: string
+}

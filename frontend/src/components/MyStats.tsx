@@ -1,20 +1,54 @@
-import { useContext } from 'react'
+import { useContext, useCallback } from 'react'
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
+import {
+  GET_APY_NO_STAKE_MSG,
+  GET_APY_STAKE_MSG,
+  GET_CURRENT_REWARDS_MSG,
+  GET_REWARD_MULTIPLIER_MSG,
+} from '../constants'
 import { GeyserContext } from '../context/GeyserContext'
 import { StatsContext } from '../context/StatsContext'
 import { ResponsiveText } from '../styling/styles'
 import { safeNumeral } from '../utils/numeral'
 import { GeyserStatsBox } from './GeyserStatsBox'
 import { MyStatsBox } from './MyStatsBox'
+import { Tooltip } from './Tooltip'
 
 export const MyStats = () => {
-  const { userStats: { apy, currentMultiplier, currentReward }, vaultStats: { currentStake } } = useContext(StatsContext)
-  const { rewardTokenInfo: { symbol: rewardTokenSymbol }, stakingTokenInfo: { price: stakingTokenPrice }} = useContext(GeyserContext)
+  const {
+    userStats: { apy, currentMultiplier, currentReward },
+    vaultStats: { currentStake },
+    geyserStats: { duration },
+  } = useContext(StatsContext)
+  const {
+    rewardTokenInfo: { symbol: rewardTokenSymbol },
+    stakingTokenInfo: { price: stakingTokenPrice },
+  } = useContext(GeyserContext)
+
+  const getTooltipMessages = useCallback(
+    () => [
+      {
+        title: 'APY',
+        body: currentStake > 0 ? GET_APY_STAKE_MSG() : GET_APY_NO_STAKE_MSG({ days: duration }),
+      },
+      {
+        title: 'Reward Multiplier',
+        body: GET_REWARD_MULTIPLIER_MSG({ days: duration, multiplier: currentMultiplier }),
+      },
+      {
+        title: 'Current Rewards',
+        body: GET_CURRENT_REWARDS_MSG(),
+      },
+    ],
+    [currentStake],
+  )
 
   return (
     <MyStatsContainer>
-      <Header>My Stats</Header>
+      <Header>
+        My Stats <Tooltip classNames="my-auto ml-2 normal-case tracking-wide" panelClassnames='-translate-x-1/4' messages={getTooltipMessages()} />
+      </Header>
       <MyStatsWrapper>
         <MyStatsBox
           classNames="sm:my-6"
@@ -65,4 +99,9 @@ const Header = styled.h3`
 const GeyserStatsContainer = styled.div`
   ${tw`mt-4`}
   ${tw`sm:mt-0`}
+`
+
+const InfoIcon = styled.img`
+  ${tw`cursor-pointer hidden`}
+  ${tw`sm:inline-flex sm:ml-2`}
 `

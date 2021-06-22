@@ -1,13 +1,14 @@
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
 import rewardSymbol from 'assets/rewardSymbol.svg'
-import info from 'assets/info.svg'
 import { useContext, useEffect, useState } from 'react'
-import { GeyserContext } from '../context/GeyserContext'
-import { CardValue, CardLabel } from '../styling/styles'
 import { StatsContext } from 'context/StatsContext'
 import { formatWithDecimals } from 'utils/numeral'
 import { BigNumber } from 'ethers'
+import { GET_ESTIMATED_REWARDS_MSG } from '../constants'
+import { Tooltip } from './Tooltip'
+import { CardValue, CardLabel } from '../styling/styles'
+import { GeyserContext } from '../context/GeyserContext'
 
 interface Props {
   parsedUserInput: BigNumber
@@ -19,20 +20,25 @@ export const EstimatedRewards: React.FC<Props> = ({ parsedUserInput }) => {
   const { computeRewardsFromAdditionalStakes, geyserStats: { calcPeriodInDays } } = useContext(StatsContext)
 
   useEffect(() => {
-    ;(async () => {
+    (async () => {
       setRewards(
         parsedUserInput.isZero() ? '0.00' : formatWithDecimals(`${await computeRewardsFromAdditionalStakes(parsedUserInput)}`, 2)
       )
-    })()
+    })();
   }, [parsedUserInput])
 
   return (
     <EstimatedRewardsContainer>
       <ColoredDiv />
-      <Img src={rewardSymbol} alt="Rewards Symbol" className="w-0 sm:w-auto"/>
+      <Icon src={rewardSymbol} alt="Rewards Symbol" className="w-0 sm:w-auto" />
       <RewardsTextContainer>
         <CardLabel>
-          Your Estimated Rewards <Img src={info} alt="Info" />
+          Your Estimated Rewards
+          <Tooltip
+            classNames="my-auto ml-2 normal-case tracking-wide"
+            panelClassnames="-translate-x-3/4 xs:left-1/2 xs:-translate-x-1/2"
+            messages={[{ title: 'Estimated Rewards', body: GET_ESTIMATED_REWARDS_MSG() }]}
+          />
         </CardLabel>
         <CardValue>{rewards} {symbol}{' '}
           <span>
@@ -52,7 +58,7 @@ const ColoredDiv = styled.div`
   ${tw`rounded-l-sm h-full bg-radicalRed w-4`}
 `
 
-const Img = styled.img`
+const Icon = styled.img`
   ${tw`mx-4`}
 `
 

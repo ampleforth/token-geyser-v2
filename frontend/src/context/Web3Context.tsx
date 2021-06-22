@@ -73,13 +73,13 @@ const Web3Provider: React.FC = ({ children }) => {
   }, [updateWallet])
 
   useEffect(() => {
-    ;(async () => {
+    (async () => {
       const previouslySelectedWallet = localStorage.getItem('selectedWallet')
       if (previouslySelectedWallet && onboard) {
         const walletSelected = await onboard.walletSelect(previouslySelectedWallet)
         setReady(walletSelected)
       }
-    })()
+    })();
   }, [onboard])
 
   const selectWallet = async (): Promise<boolean> => {

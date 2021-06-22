@@ -21,9 +21,7 @@ import { SingleTxModal } from './SingleTxModal'
 import { UnstakeTxModal } from './UnstakeTxModal'
 import { WithdrawTxMessage } from './WithdrawTxMessage'
 
-interface Props {}
-
-export const GeyserStakeView: React.FC<Props> = () => {
+export const GeyserStakeView = () => {
   const [userInput, setUserInput] = useState('')
   const [parsedUserInput, setParsedUserInput] = useState(BigNumber.from('0'))
   const { selectedGeyser, stakingTokenInfo, rewardTokenInfo, handleGeyserAction, isStakingAction } = useContext(GeyserContext)
@@ -115,9 +113,11 @@ export const GeyserStakeView: React.FC<Props> = () => {
         precision={stakingTokenDecimals}
         maxValue={isStakingAction ? walletAmount : currentStakeAmount}
       />
-      {isStakingAction
-        ? <EstimatedRewards parsedUserInput={parsedUserInput} />
-        : <UnstakeSummary userInput={userInput} parsedUserInput={parsedUserInput} />}
+      {isStakingAction ? (
+        <EstimatedRewards parsedUserInput={parsedUserInput} />
+      ) : (
+        <UnstakeSummary userInput={userInput} parsedUserInput={parsedUserInput} />
+      )}
       {!address && <ConnectWalletWarning onClick={selectWallet} />}
       <GeyserInteractionButton
         disabled={!address || parsedUserInput.isZero()}

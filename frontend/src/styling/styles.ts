@@ -12,11 +12,8 @@ export const Overlay = styled.div`
   ${tw`sm:my-4`}
 `
 
-export const LogoSpan = styled.span`
-  ${tw` ml-4 sm:ml-20 md:ml-32 p-5 text-xl`}
-  font-family: 'Coromont Garamond';
-  text-transform: none;
-  font-size: 1.75rem;
+export const ResponsiveHeader = css`
+  ${tw`text-base sm:text-lg`}
 `
 
 export const ResponsiveText = css`

@@ -17,8 +17,6 @@ interface Props {
 export const MyStatsBox: React.FC<Props> = ({ classNames, name, units, delim, value: targetValue, from, interpolate }) => {
   const [statsValue, setStatsValue] = useState<string>(interpolate(targetValue))
 
-  // react-spring has a bug where floating point numbers are casted as integers on re-render (e.g. '1.0' gets shown as '1' on re-render).
-  // this is a temporary work-around, see https://github.com/pmndrs/react-spring/issues/1564
   useSpring({
     val: targetValue,
     from: { val: from || 0 },
@@ -29,12 +27,12 @@ export const MyStatsBox: React.FC<Props> = ({ classNames, name, units, delim, va
 
   return (
     <MyStatContainer>
-      <MyStatName className={classNames}>{name}</MyStatName>
+      <MyStatName className={classNames}>
+        {name}
+      </MyStatName>
       <MyStatValueContainer>
         <MyStatValue>
-          <animated.span>
-            {statsValue}
-          </animated.span>
+          <animated.span>{statsValue}</animated.span>
           {delim}
           <MyStatUnits>{units}</MyStatUnits>
         </MyStatValue>
@@ -60,8 +58,7 @@ const MyStatValueContainer = styled.div`
 `
 
 const MyStatValue = styled.span`
-  width: 100%;
-  ${tw`text-left sm:text-center`}
+  ${tw`w-full text-left sm:text-center`}
   ${ResponsiveText}
 `
 

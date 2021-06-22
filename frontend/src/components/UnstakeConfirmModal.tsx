@@ -21,9 +21,9 @@ export const UnstakeConfirmModal: React.FC<Props> = ({ parsedUserInput, open, on
   const [loss, setLoss] = useState<string>('0.00')
 
   useEffect(() => {
-    ;(async () => {
+    (async () => {
       setLoss(safeNumeral(await computeLossFromUnstake1Month(parsedUserInput), '0,0.00'))
-    })()
+    })();
   }, [parsedUserInput])
 
   return (

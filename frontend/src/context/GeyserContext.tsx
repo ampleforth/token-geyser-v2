@@ -65,6 +65,7 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
   const [isStakingAction, setIsStakingAction] = useState(true)
 
   const toggleStakingAction = () => setIsStakingAction(!isStakingAction)
+  
   const handleGeyserAction = async (selectedVault: Vault | null, parsedAmount: BigNumber) =>
     (isStakingAction ? handleStake : handleUnstake)(selectedVault, parsedAmount)
 
@@ -141,8 +142,8 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
   }, [geyserData])
 
   useEffect(() => {
-    let mounted = true
-    ;(async () => {
+    let mounted = true;
+    (async () => {
       if (selectedGeyser) {
         try {
           const geyserAddress = toChecksumAddress(selectedGeyser.id)
@@ -161,7 +162,7 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
           console.error(e)
         }
       }
-    })()
+    })();
     return () => {
       mounted = false
     }

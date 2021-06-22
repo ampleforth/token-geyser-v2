@@ -13,6 +13,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 ## Known workarounds/oddities
 
 - `let mounted = true in useEffect` is a workaround for supressing the warning saying that a state update on an unmounted component is not possible: https://stackoverflow.com/questions/53949393/cant-perform-a-react-state-update-on-an-unmounted-component
+-  react-spring has a bug where floating point numbers are casted as integers on re-render (e.g. '1.0' gets shown as '1' on re-render). This is a temporary work-around, see https://github.com/pmndrs/react-spring/issues/1564
 
 ## Available Scripts
 

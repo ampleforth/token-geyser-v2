@@ -6,7 +6,7 @@ export const Paragraph = styled.p`
   ${tw`text-base font-bold m-auto`}
 `
 
-export const GeyserFirstOverlay = styled.div`
+export const Overlay = styled.div`
   ${tw`shadow-all w-full rounded-lg my-2`}
   ${tw`sm:my-4`}
 `

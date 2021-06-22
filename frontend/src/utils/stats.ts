@@ -1,7 +1,12 @@
 import { BigNumber, BigNumberish } from 'ethers'
 import { toChecksumAddress } from 'web3-utils'
 import { formatUnits } from 'ethers/lib/utils'
-import { getCurrentUnlockedRewards, getCurrentVaultReward, getFutureUnlockedRewards } from '../sdk/stats'
+import {
+  getBalanceLocked,
+  getCurrentUnlockedRewards,
+  getCurrentVaultReward,
+  getFutureUnlockedRewards,
+} from '../sdk/stats'
 import {
   Geyser,
   GeyserStats,
@@ -13,6 +18,7 @@ import {
   UserStats,
   Vault,
   VaultStats,
+  VaultTokenBalance,
 } from '../types'
 import { ERC20Balance } from '../sdk'
 import { DAY_IN_SEC, GEYSER_STATS_CACHE_TIME_MS, YEAR_IN_SEC } from '../constants'
@@ -37,8 +43,8 @@ export const defaultGeyserStats = (): GeyserStats => ({
 export const defaultVaultStats = (): VaultStats => ({
   id: '',
   stakingTokenBalance: 0,
-  platformTokenBalances: [],
   rewardTokenBalance: 0,
+  vaultTokenBalances: [],
   currentStake: 0,
 })
 
@@ -289,38 +295,70 @@ export const getUserStats = async (
   }
 }
 
+const getVaultTokenBalance = async (
+  tokenInfo: TokenInfo,
+  vaultAddress: string,
+  signerOrProvider: SignerOrProvider,
+): Promise<VaultTokenBalance> => {
+  const tokenAddress = toChecksumAddress(tokenInfo.address)
+  const parsedBalance = await ERC20Balance(tokenAddress, vaultAddress, signerOrProvider)
+  const lockedBalance = await getBalanceLocked(vaultAddress, tokenAddress, signerOrProvider)
+  const parsedUnlockedBalance = parsedBalance.sub(lockedBalance)
+  const balance = parseFloat(formatUnits(parsedBalance, tokenInfo.decimals))
+  const unlockedBalance = parseFloat(formatUnits(parsedUnlockedBalance, tokenInfo.decimals))
+
+  return {
+    ...tokenInfo,
+    address: tokenAddress,
+    parsedBalance,
+    balance,
+    unlockedBalance,
+    parsedUnlockedBalance,
+  }
+}
+
 export const getVaultStats = async (
   stakingTokenInfo: StakingTokenInfo,
-  platformTokenInfos: TokenInfo[],
-  rewardTokenInfo: TokenInfo,
+  rewardTokenInfo: RewardTokenInfo,
+  allTokensInfos: TokenInfo[],
   vault: Vault | null,
   lock: Lock | null,
   signerOrProvider: SignerOrProvider,
 ): Promise<VaultStats> => {
   if (!vault) return defaultVaultStats()
   const vaultAddress = toChecksumAddress(vault.id)
-  const { address: stakingTokenAddress, decimals: stakingTokenDecimals } = stakingTokenInfo
-  const { address: rewardTokenAddress, decimals: rewardTokenDecimals } = rewardTokenInfo
-  const stakingTokenBalance = await ERC20Balance(toChecksumAddress(stakingTokenAddress), vaultAddress, signerOrProvider)
-  const rewardTokenBalance = await ERC20Balance(toChecksumAddress(rewardTokenAddress), vaultAddress, signerOrProvider)
-  const platformTokenBalances = await Promise.all(
-    platformTokenInfos.map(({ address }) => ERC20Balance(toChecksumAddress(address), vaultAddress, signerOrProvider)),
-  )
 
-  const formattedStakingTokenBalance = parseFloat(formatUnits(stakingTokenBalance, stakingTokenDecimals))
-  const formattedRewardTokenBalance = parseFloat(formatUnits(rewardTokenBalance, rewardTokenDecimals))
-  const formattedPlatformTokenBalances = platformTokenBalances.map((balance, index) =>
-    parseFloat(formatUnits(balance, platformTokenInfos[index].decimals)),
+  const addressSet = new Set<string>([stakingTokenInfo.address, rewardTokenInfo.address].map(toChecksumAddress))
+  const stakingTokenBalanceInfo = await getVaultTokenBalance(stakingTokenInfo, vaultAddress, signerOrProvider)
+  const rewardTokenBalanceInfo = await getVaultTokenBalance(rewardTokenInfo, vaultAddress, signerOrProvider)
+
+  const additionalTokenBalances: VaultTokenBalance[] = (
+    await Promise.allSettled(
+      allTokensInfos
+        .map((tokenInfo) => ({ ...tokenInfo, address: toChecksumAddress(tokenInfo.address) }))
+        .filter(({ address }) => {
+          const isDuplicate = addressSet.has(address)
+          if (!isDuplicate) addressSet.add(address)
+          return !isDuplicate
+        })
+        .map((tokenInfo) => getVaultTokenBalance(tokenInfo, vaultAddress, signerOrProvider)),
+    )
   )
+    .filter(({ status }) => status === 'fulfilled')
+    .map((result) => (result as PromiseFulfilledResult<VaultTokenBalance>).value)
+
+  const vaultTokenBalances = [stakingTokenBalanceInfo, rewardTokenBalanceInfo]
+    .concat(additionalTokenBalances)
+    .sort((a, b) => (a.symbol < b.symbol ? -1 : 1))
 
   const amount = lock ? lock.amount : '0'
-  const currentStake = parseFloat(formatUnits(amount, stakingTokenDecimals))
+  const currentStake = parseFloat(formatUnits(amount, stakingTokenInfo.decimals))
 
   return {
     id: vaultAddress,
-    stakingTokenBalance: formattedStakingTokenBalance,
-    platformTokenBalances: formattedPlatformTokenBalances,
-    rewardTokenBalance: formattedRewardTokenBalance,
+    stakingTokenBalance: stakingTokenBalanceInfo.balance,
+    rewardTokenBalance: rewardTokenBalanceInfo.balance,
+    vaultTokenBalances: vaultTokenBalances,
     currentStake,
   }
 }

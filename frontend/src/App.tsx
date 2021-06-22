@@ -8,6 +8,7 @@ import { Web3Provider } from './context/Web3Context'
 import { client } from './queries/client'
 import { WalletContextProvider } from './context/WalletContext'
 import { StatsContextProvider } from './context/StatsContext'
+import { VaultFirstContainer } from 'components/VaultFirstContainer'
 
 function App() {
   return (

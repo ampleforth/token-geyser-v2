@@ -6,6 +6,9 @@ import { Lock, Vault } from '../types'
 import Web3Context from './Web3Context'
 import { GeyserContext } from './GeyserContext'
 import { Centered } from '../styling/styles'
+import { TransactionResponse } from '@ethersproject/providers'
+import { BigNumber } from 'ethers'
+import { withdraw } from 'sdk'
 
 export const VaultContext = createContext<{
   vaults: Vault[]
@@ -13,16 +16,18 @@ export const VaultContext = createContext<{
   selectVault: (arg0: Vault) => void
   selectVaultById: (id: string) => void
   currentLock: Lock | null
+  withdrawFromVault: ((tokenAddress: string, amount: BigNumber) => Promise<TransactionResponse>) | null
 }>({
   vaults: [],
   selectedVault: null,
   selectVault: () => {},
   selectVaultById: () => {},
   currentLock: null,
+  withdrawFromVault: null,
 })
 
 export const VaultContextProvider: React.FC = ({ children }) => {
-  const { address } = useContext(Web3Context)
+  const { address, signer } = useContext(Web3Context)
   const { selectedGeyser } = useContext(GeyserContext)
   const [getVaults, { loading: vaultLoading, data: vaultData }] = useLazyQuery(GET_USER_VAULTS, {
     pollInterval: POLL_INTERVAL,
@@ -33,7 +38,10 @@ export const VaultContextProvider: React.FC = ({ children }) => {
   const [currentLock, setCurrentLock] = useState<Lock | null>(null)
 
   const selectVault = (vault: Vault) => setSelectedVault(vault)
-  const selectVaultById = (id: string) => setSelectedVault(vaults.find((vault) => vault.id === id) || selectedVault)
+  const selectVaultById = (id: string) => setSelectedVault(vaults.find(vault => vault.id === id) || selectedVault)
+  const withdrawFromVault = address && signer && selectedVault
+    ? (tokenAddress: string, amount: BigNumber) => withdraw(selectedVault.id, tokenAddress, address, amount, signer)
+    : null
 
   useEffect(() => {
     if (address) getVaults({ variables: { id: address } })
@@ -74,6 +82,7 @@ export const VaultContextProvider: React.FC = ({ children }) => {
         selectVault,
         selectVaultById,
         currentLock,
+        withdrawFromVault,
       }}
     >
       {children}

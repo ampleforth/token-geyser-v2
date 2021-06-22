@@ -73,3 +73,10 @@ export const GET_CURRENT_REWARDS_MSG = () =>
   'Your share of the total unlocked reward pool. Larger your deposit and for longer, higher your share.'
 
 export const GET_ESTIMATED_REWARDS_MSG = () => 'Estimated rewards assume you have achieved the maximum reward multiplier.'
+
+// alignment
+export enum Align {
+  LEFT,
+  RIGHT,
+  CENTER,
+}

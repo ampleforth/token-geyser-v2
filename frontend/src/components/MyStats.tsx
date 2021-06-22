@@ -16,22 +16,16 @@ import { MyStatsBox } from './MyStatsBox'
 import { Tooltip } from './Tooltip'
 
 export const MyStats = () => {
-  const {
-    userStats: { apy, currentMultiplier, currentReward },
-    vaultStats: { stakingTokenBalance },
-    geyserStats: { duration },
-  } = useContext(StatsContext)
-  const {
-    rewardTokenInfo: { symbol: rewardTokenSymbol },
-    stakingTokenInfo: { price: stakingTokenPrice },
-  } = useContext(GeyserContext)
+  
+  const { userStats: { apy, currentMultiplier, currentReward }, vaultStats: { currentStake }, geyserStats: { duration } } = useContext(StatsContext)
+  const { rewardTokenInfo: { symbol: rewardTokenSymbol }, stakingTokenInfo: { price: stakingTokenPrice }} = useContext(GeyserContext)
 
 
   const getTooltipMessages = useCallback(
     () => [
       {
         title: 'APY',
-        body: stakingTokenBalance > 0 ? GET_APY_STAKE_MSG() : GET_APY_NO_STAKE_MSG({ days: duration }),
+        body: currentStake > 0 ? GET_APY_STAKE_MSG() : GET_APY_NO_STAKE_MSG({ days: duration }),
       },
       {
         title: 'Reward Multiplier',
@@ -42,8 +36,9 @@ export const MyStats = () => {
         body: GET_CURRENT_REWARDS_MSG(),
       },
     ],
-    [stakingTokenBalance],
+    [currentStake],
   )
+
 
   return (
     <MyStatsContainer>
@@ -75,7 +70,7 @@ export const MyStats = () => {
       <GeyserStatsContainer>
         <GeyserStatsBox
           name="Total Staked"
-          value={stakingTokenBalance * stakingTokenPrice}
+          value={currentStake * stakingTokenPrice}
           units="USD"
           interpolate={(val) => safeNumeral(val, '0,0.00')}
         />

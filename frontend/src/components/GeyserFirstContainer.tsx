@@ -1,10 +1,10 @@
 import { useContext } from 'react'
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
-import { GeyserStakeView } from './GeyserStakeView'
-import { GeyserFirstOverlay } from '../styling/styles'
+import { Overlay } from 'styling/styles'
+import { GeyserContext } from 'context/GeyserContext'
 import { ToggleView } from './ToggleView'
-import { GeyserContext } from '../context/GeyserContext'
+import { GeyserStakeView } from './GeyserStakeView'
 import { GeyserStatsView } from './GeyserStatsView'
 import { VaultsList } from './VaultsList'
 import { GeysersList } from './GeysersList'
@@ -18,15 +18,15 @@ export const GeyserFirstContainer = () => {
         <VaultsList />
         <GeysersList />
       </Center>
-      <GeyserFirstOverlay>
+      <Overlay>
         <GeyserStatsView />
-      </GeyserFirstOverlay>
-      <GeyserFirstOverlay>
+      </Overlay>
+      <Overlay>
         <ToggleContainer>
           <ToggleView enabled={isStakingAction} toggle={toggleStakingAction} options={['Stake', 'Unstake']} />
         </ToggleContainer>
         <GeyserStakeView />
-      </GeyserFirstOverlay>
+      </Overlay>
     </Container>
   )
 }

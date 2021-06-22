@@ -1,4 +1,4 @@
-import { providers, Signer } from 'ethers'
+import { BigNumber, providers, Signer } from 'ethers'
 import { RewardToken, StakingToken } from './constants'
 
 type ClaimedReward = {
@@ -83,11 +83,18 @@ export type GeyserStats = {
   calcPeriodInDays: number
 }
 
+export type VaultTokenBalance = TokenInfo & {
+  balance: number
+  parsedBalance: BigNumber
+  unlockedBalance: number
+  parsedUnlockedBalance: BigNumber
+}
+
 export type VaultStats = {
   id: string
   stakingTokenBalance: number
-  platformTokenBalances: number[]
   rewardTokenBalance: number
+  vaultTokenBalances: VaultTokenBalance[]
   currentStake: number
 }
 
@@ -102,12 +109,12 @@ export type GeyserConfig = {
   address: string
   stakingToken: StakingToken
   rewardToken: RewardToken
-  platformTokenConfigs: PlatformTokenConfig[]
 }
 
-export type PlatformTokenConfig = {
+export type AdditionalTokenConfig = {
   address: string
-  claimLink?: string
+  enabled: boolean
+  [key: string]: any
 }
 
 export type SupplyInfo = {

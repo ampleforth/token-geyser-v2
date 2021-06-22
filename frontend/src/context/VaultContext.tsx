@@ -1,5 +1,8 @@
 import { useLazyQuery } from '@apollo/client'
 import { createContext, useContext, useEffect, useState } from 'react'
+import { TransactionResponse, TransactionReceipt } from '@ethersproject/providers'
+import { BigNumber } from 'ethers'
+import { withdraw, withdrawRewards } from 'sdk'
 import { GET_USER_VAULTS } from '../queries/vault'
 import { POLL_INTERVAL } from '../constants'
 import { Lock, Vault } from '../types'
@@ -13,16 +16,20 @@ export const VaultContext = createContext<{
   selectVault: (arg0: Vault) => void
   selectVaultById: (id: string) => void
   currentLock: Lock | null
+  withdrawFromVault: ((tokenAddress: string, amount: BigNumber) => Promise<TransactionResponse>) | null
+  withdrawRewardsFromVault: ((receipt: TransactionReceipt) => Promise<{ response: TransactionResponse, rewards: BigNumber } | null>) | null
 }>({
   vaults: [],
   selectedVault: null,
   selectVault: () => {},
   selectVaultById: () => {},
   currentLock: null,
+  withdrawFromVault: null,
+  withdrawRewardsFromVault: null,
 })
 
 export const VaultContextProvider: React.FC = ({ children }) => {
-  const { address } = useContext(Web3Context)
+  const { address, signer, ready } = useContext(Web3Context)
   const { selectedGeyser } = useContext(GeyserContext)
   const [getVaults, { loading: vaultLoading, data: vaultData }] = useLazyQuery(GET_USER_VAULTS, {
     pollInterval: POLL_INTERVAL,
@@ -33,7 +40,14 @@ export const VaultContextProvider: React.FC = ({ children }) => {
   const [currentLock, setCurrentLock] = useState<Lock | null>(null)
 
   const selectVault = (vault: Vault) => setSelectedVault(vault)
-  const selectVaultById = (id: string) => setSelectedVault(vaults.find((vault) => vault.id === id) || selectedVault)
+  const selectVaultById = (id: string) => setSelectedVault(vaults.find(vault => vault.id === id) || selectedVault)
+  const withdrawFromVault = address && signer && selectedVault
+    ? (tokenAddress: string, amount: BigNumber) => withdraw(selectedVault.id, tokenAddress, address, amount, signer)
+    : null
+
+  const withdrawRewardsFromVault = address && signer && selectedGeyser
+    ? (receipt: TransactionReceipt) => withdrawRewards(selectedGeyser.id, address, receipt, signer)
+    : null
 
   useEffect(() => {
     if (address) getVaults({ variables: { id: address } })
@@ -64,7 +78,7 @@ export const VaultContextProvider: React.FC = ({ children }) => {
     }
   }, [selectedVault, selectedGeyser])
 
-  if (vaultLoading) return <Centered>Loading...</Centered>
+  if (vaultLoading || (!address && ready)) return <Centered>Loading...</Centered>
 
   return (
     <VaultContext.Provider
@@ -74,6 +88,8 @@ export const VaultContextProvider: React.FC = ({ children }) => {
         selectVault,
         selectVaultById,
         currentLock,
+        withdrawFromVault,
+        withdrawRewardsFromVault,
       }}
     >
       {children}

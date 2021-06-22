@@ -21,8 +21,10 @@ export const EstimatedRewards: React.FC<Props> = ({ parsedUserInput }) => {
 
   useEffect(() => {
     (async () => {
-      setRewards(formatWithDecimals(`${await computeRewardsFromAdditionalStakes(parsedUserInput)}`, 2))
-    })();
+      setRewards(
+        parsedUserInput.isZero() ? '0.00' : formatWithDecimals(`${await computeRewardsFromAdditionalStakes(parsedUserInput)}`, 2)
+      )
+    })()
   }, [parsedUserInput])
 
   return (
@@ -40,9 +42,9 @@ export const EstimatedRewards: React.FC<Props> = ({ parsedUserInput }) => {
         </CardLabel>
         <CardValue>
           {rewards} {symbol}{' '}
-          {parsedUserInput.gt(0) && calcPeriodInDays > 0
-            ? `in ${calcPeriodInDays} day${calcPeriodInDays > 1 ? 's' : ''}`
-            : ''}
+          <span>
+            {parsedUserInput.gt(0) && calcPeriodInDays > 0 ? `in ${calcPeriodInDays} day${calcPeriodInDays > 1 ? 's' : ''}` : ''}
+          </span>
         </CardValue>
       </RewardsTextContainer>
     </EstimatedRewardsContainer>

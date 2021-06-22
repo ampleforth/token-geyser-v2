@@ -69,15 +69,12 @@ export function handleRageQuit(event: RageQuit): void {
   updateLock(event.address, event.params.delegate, event.params.token, event.block.timestamp)
 }
 
+function bigIntToAddress(value: BigInt): Address {
+  return Address.fromString(value.toHex().slice(2).padStart(40, '0'))
+}
+
 export function handleTransfer(event: Transfer): void {
   let from = new User(event.params.from.toHex())
-  let to = new User(event.params.to.toHex())
-
-  let vault = new Vault(event.params.tokenId.toHex())
-
-  vault.owner = event.params.to.toHex()
-
+  updateVault(bigIntToAddress(event.params.tokenId))
   from.save()
-  to.save()
-  vault.save()
 }

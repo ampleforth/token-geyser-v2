@@ -21,7 +21,7 @@ export const POLL_INTERVAL = 5 * MS_PER_SEC
 export const CONST_CACHE_TIME_MS = YEAR_IN_MS
 
 // geyser stats cache time
-export const GEYSER_STATS_CACHE_TIME_MS = MIN_IN_SEC
+export const GEYSER_STATS_CACHE_TIME_MS = MIN_IN_MS
 
 export const MOCK_ERC_20_ADDRESS = '0x0165878A594ca255338adfa4d48449f69242Eb8F'
 
@@ -29,6 +29,18 @@ export const MOCK_ERC_20_ADDRESS = '0x0165878A594ca255338adfa4d48449f69242Eb8F'
 export enum MODE {
   Vaults,
   Geysers,
+}
+
+// transaction state
+export enum TxState {
+  PENDING,
+  SUBMITTED,
+  MINED,
+  FAILED,
+}
+
+export const EXTERNAL_LINKS: Record<string, string> = {
+  etherscan: 'https://etherscan.io/tx',
 }
 
 // Staking tokens
@@ -72,4 +84,15 @@ export const GET_REWARD_MULTIPLIER_MSG = ({ days = 1, multiplier = 1 }) =>
 export const GET_CURRENT_REWARDS_MSG = () =>
   'Your share of the total unlocked reward pool. Larger your deposit and for longer, higher your share.'
 
-export const GET_ESTIMATED_REWARDS_MSG = () => 'Estimated rewards assume you have achieved the maximum reward multiplier.'
+export const GET_ESTIMATED_REWARDS_MSG = () =>
+  'Estimated rewards assume you have achieved the maximum reward multiplier.'
+
+// alignment
+export enum Align {
+  LEFT,
+  RIGHT,
+  CENTER,
+}
+
+// Infura
+export const INFURA_PROJECT_ID = ''

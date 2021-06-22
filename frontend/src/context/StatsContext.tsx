@@ -1,14 +1,14 @@
-import { MONTH_IN_SEC } from '../constants'
 import {  BigNumberish } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { toChecksumAddress } from 'web3-utils'
-import { getCurrentStakeReward } from '../sdk/stats'
-import { GeyserStats, UserStats, VaultStats } from '../types'
-import { defaultGeyserStats, defaultUserStats, defaultVaultStats, getGeyserStats, getStakeDrip, getUserAPY, getUserDrip, getUserDripAfterWithdraw, getUserStats, getVaultStats } from '../utils/stats'
+import { getCurrentStakeReward } from 'sdk/stats'
+import { GeyserStats, UserStats, VaultStats } from 'types'
+import { defaultGeyserStats, defaultUserStats, defaultVaultStats, getGeyserStats, getStakeDrip, getUserAPY, getUserDrip, getUserDripAfterWithdraw, getUserStats, getVaultStats } from 'utils/stats'
 import { GeyserContext } from './GeyserContext'
 import { VaultContext } from './VaultContext'
 import Web3Context from './Web3Context'
+import { MONTH_IN_SEC } from '../constants'
 
 export const StatsContext = createContext<{
   userStats: UserStats
@@ -18,6 +18,7 @@ export const StatsContext = createContext<{
   computeAPYFromAdditionalStakes: (stakeAmount: BigNumberish) => Promise<number>
   computeRewardsFromAdditionalStakes: (stakeAmount: BigNumberish) => Promise<number>
   computeLossFromUnstake1Month: (unstakeAmount: BigNumberish) => Promise<number>
+  refreshVaultStats: () => void
 }>({
   userStats: defaultUserStats(),
   geyserStats: defaultGeyserStats(),
@@ -26,6 +27,7 @@ export const StatsContext = createContext<{
   computeAPYFromAdditionalStakes: async () => 0,
   computeRewardsFromAdditionalStakes: async () => 0,
   computeLossFromUnstake1Month: async () => 0,
+  refreshVaultStats: () => {},
 })
 
 export const StatsContextProvider: React.FC = ({ children }) => {
@@ -34,7 +36,7 @@ export const StatsContextProvider: React.FC = ({ children }) => {
   const [vaultStats, setVaultStats] = useState<VaultStats>(defaultVaultStats())
 
   const { signer, defaultProvider } = useContext(Web3Context)
-  const { selectedGeyser, rewardTokenInfo, stakingTokenInfo, platformTokenInfos } = useContext(GeyserContext)
+  const { selectedGeyser, rewardTokenInfo, stakingTokenInfo, allTokensInfos } = useContext(GeyserContext)
   const { selectedVault, currentLock } = useContext(VaultContext)
 
   const computeRewardsFromUnstake = async (unstakeAmount: BigNumberish) => {
@@ -76,6 +78,12 @@ export const StatsContextProvider: React.FC = ({ children }) => {
     return 0
   }
 
+  const refreshVaultStats = async () => {
+    if (selectedGeyser && stakingTokenInfo.address && rewardTokenInfo.address) {
+      setVaultStats(await getVaultStats(stakingTokenInfo, rewardTokenInfo, allTokensInfos, selectedVault, currentLock, signer || defaultProvider))
+    }
+  }
+
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -83,7 +91,7 @@ export const StatsContextProvider: React.FC = ({ children }) => {
         if (selectedGeyser && stakingTokenInfo.address && rewardTokenInfo.address) {
           const newGeyserStats = await getGeyserStats(selectedGeyser, stakingTokenInfo, rewardTokenInfo)
           const newUserStats = await getUserStats(selectedGeyser, selectedVault, currentLock, stakingTokenInfo, rewardTokenInfo, signer || defaultProvider)
-          const newVaultStats = await getVaultStats(stakingTokenInfo, platformTokenInfos, rewardTokenInfo, selectedVault, currentLock, signer || defaultProvider)
+          const newVaultStats = await getVaultStats(stakingTokenInfo, rewardTokenInfo, allTokensInfos, selectedVault, currentLock, signer || defaultProvider)
           if (mounted) {
             setGeyserStats(newGeyserStats)
             setUserStats(newUserStats)
@@ -107,6 +115,7 @@ export const StatsContextProvider: React.FC = ({ children }) => {
         computeAPYFromAdditionalStakes,
         computeRewardsFromAdditionalStakes,
         computeLossFromUnstake1Month,
+        refreshVaultStats,
       }}
     >
       {children}

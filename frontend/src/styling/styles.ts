@@ -1,12 +1,13 @@
 import styled, { css } from 'styled-components/macro'
 import tw from 'twin.macro'
+import { Button } from 'components/Button'
 
 export const Paragraph = styled.p`
   color: ${(props) => props.color};
   ${tw`text-base font-bold m-auto`}
 `
 
-export const GeyserFirstOverlay = styled.div`
+export const Overlay = styled.div`
   ${tw`shadow-all w-full rounded-lg my-2`}
   ${tw`sm:my-4`}
 `
@@ -34,5 +35,11 @@ export const CardLabel = styled.span`
 `
 
 export const CardValue = styled.span`
-  ${tw`flex uppercase text-xl`}
+  ${tw`flex flex-wrap text-xl whitespace-pre-wrap`}
+`
+
+export const ModalButton = styled(Button)`
+  width: 40%;
+  ${tw`inline-flex items-center justify-center px-4 py-2 text-sm font-medium border rounded-md`}
+  ${tw`focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2`}
 `

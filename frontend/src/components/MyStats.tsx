@@ -1,6 +1,13 @@
 import { useContext, useCallback } from 'react'
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
+import { GeyserContext } from 'context/GeyserContext'
+import { StatsContext } from 'context/StatsContext'
+import { ResponsiveText } from 'styling/styles'
+import { safeNumeral } from 'utils/numeral'
+import { GeyserStatsBox } from './GeyserStatsBox'
+import { MyStatsBox } from './MyStatsBox'
+import { Tooltip } from './Tooltip'
 import {
   DAY_IN_SEC,
   GET_APY_NO_STAKE_MSG,
@@ -8,13 +15,6 @@ import {
   GET_CURRENT_REWARDS_MSG,
   GET_REWARD_MULTIPLIER_MSG,
 } from '../constants'
-import { GeyserContext } from '../context/GeyserContext'
-import { StatsContext } from '../context/StatsContext'
-import { ResponsiveText } from '../styling/styles'
-import { safeNumeral } from '../utils/numeral'
-import { GeyserStatsBox } from './GeyserStatsBox'
-import { MyStatsBox } from './MyStatsBox'
-import { Tooltip } from './Tooltip'
 
 export const MyStats = () => {
   const {
@@ -100,9 +100,4 @@ const Header = styled.h3`
 const GeyserStatsContainer = styled.div`
   ${tw`mt-4`}
   ${tw`sm:mt-0`}
-`
-
-const InfoIcon = styled.img`
-  ${tw`cursor-pointer hidden`}
-  ${tw`sm:inline-flex sm:ml-2`}
 `

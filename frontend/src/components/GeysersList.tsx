@@ -3,8 +3,8 @@ import tw from 'twin.macro'
 import { ResponsiveText } from 'styling/styles'
 import { useContext } from 'react'
 import { GeyserContext } from 'context/GeyserContext'
-import { Dropdown } from './Dropdown'
 import { GeyserStatus } from 'types'
+import { Dropdown } from './Dropdown'
 
 export const GeysersList = () => {
   const { geysers, selectGeyserByName, selectedGeyser, getGeyserName } = useContext(GeyserContext)

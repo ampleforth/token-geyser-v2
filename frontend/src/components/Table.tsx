@@ -1,7 +1,7 @@
-import { Align } from "../constants"
 import { ReactNode } from "react"
 import styled from "styled-components/macro"
 import tw from "twin.macro"
+import { Align } from "../constants"
 
 export type Column = {
   title: ReactNode
@@ -24,7 +24,7 @@ interface Props {
 
 export const Table: React.FC<Props> = ({ columns, dataSource }) => {
   const getRowFromSource = (source: DataSource) => (
-    columns.map(({ dataIndex }) => source.hasOwnProperty(dataIndex) ? source[dataIndex] : '')
+    columns.map(({ dataIndex }) => Object.getOwnPropertyDescriptor(source, dataIndex) ? source[dataIndex] : '')
   )
 
   const rows = dataSource.map(getRowFromSource)
@@ -38,9 +38,8 @@ export const Table: React.FC<Props> = ({ columns, dataSource }) => {
     }
   }
 
-  const getPaddingClass = (colNumber: number, numCols: number) => {
-    return (colNumber === 0 && 'pl-3') || (colNumber === numCols - 1 && 'pr-3') || ''
-  }
+  const getPaddingClass = (colNumber: number, numCols: number) =>
+    (colNumber === 0 && 'pl-3') || (colNumber === numCols - 1 && 'pr-3') || ''
 
   return (
     <TableContent>

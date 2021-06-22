@@ -40,7 +40,8 @@ export const EstimatedRewards: React.FC<Props> = ({ parsedUserInput }) => {
             messages={[{ title: 'Estimated Rewards', body: GET_ESTIMATED_REWARDS_MSG() }]}
           />
         </CardLabel>
-        <CardValue>{rewards} {symbol}{' '}
+        <CardValue>
+          {rewards} {symbol}{' '}
           <span>
             {parsedUserInput.gt(0) && calcPeriodInDays > 0 ? `in ${calcPeriodInDays} day${calcPeriodInDays > 1 ? 's' : ''}` : ''}
           </span>

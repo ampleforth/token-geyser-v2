@@ -1,6 +1,6 @@
 import styled from 'styled-components/macro'
-import { ResponsiveSubText } from '../styling/styles'
 import tw from 'twin.macro'
+import { ResponsiveSubText } from 'styling/styles'
 
 interface Props {
   displayText: string
@@ -8,13 +8,11 @@ interface Props {
   onClick: () => void
 }
 
-export const ToolButton: React.FC<Props> = ({ classNames, displayText, onClick, children }) => {
-  return (
-    <Button className={classNames} onClick={onClick}>
-      {displayText} {children}
-    </Button>
-  )
-}
+export const ToolButton: React.FC<Props> = ({ classNames, displayText, onClick, children }) => (
+  <Button className={classNames} onClick={onClick}>
+    {displayText} {children}
+  </Button>
+)
 
 const Button = styled.button`
   ${ResponsiveSubText}

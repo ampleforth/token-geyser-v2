@@ -44,14 +44,10 @@ export const Dropdown: React.FC<Props> = ({ options, optgroups, selectedOption, 
     <>
       {groups.map(({ group, options: opts }) => (
         <>
-          {opts.length > 0 && (
-            <>
-              <Listbox.Option disabled key={group} className="text-gray align-center justify-center flex" value={group}>
-                <span>{group}</span>
-              </Listbox.Option>
-              {renderOptions(opts)}
-            </>
-          )}
+          <Listbox.Option disabled key={group} className="text-gray align-center justify-center flex" value={group}>
+            <span>{group}</span>
+          </Listbox.Option>
+          {renderOptions(opts)}
         </>
       ))}
     </>

@@ -58,5 +58,5 @@ const Img = styled.img`
 
 const SelectedOption = styled.span`
   ${ResponsiveText}
-  ${tw`font-bold tracking-wide block my-2`}
+  ${tw`font-bold tracking-wide block my-2 w-336px overflow-hidden overflow-ellipsis`}
 `

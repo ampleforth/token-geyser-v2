@@ -65,6 +65,7 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
   const [isStakingAction, setIsStakingAction] = useState(true)
 
   const toggleStakingAction = () => setIsStakingAction(!isStakingAction)
+  
   const handleGeyserAction = async (selectedVault: Vault | null, parsedAmount: BigNumber) =>
     (isStakingAction ? handleStake : handleUnstake)(selectedVault, parsedAmount)
 

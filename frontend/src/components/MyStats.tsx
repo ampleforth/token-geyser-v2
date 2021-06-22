@@ -2,6 +2,7 @@ import { useContext, useCallback } from 'react'
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
 import {
+  DAY_IN_SEC,
   GET_APY_NO_STAKE_MSG,
   GET_APY_STAKE_MSG,
   GET_CURRENT_REWARDS_MSG,
@@ -30,11 +31,11 @@ export const MyStats = () => {
     () => [
       {
         title: 'APY',
-        body: currentStake > 0 ? GET_APY_STAKE_MSG() : GET_APY_NO_STAKE_MSG({ days: duration }),
+        body: currentStake > 0 ? GET_APY_STAKE_MSG() : GET_APY_NO_STAKE_MSG({ days: safeNumeral(duration / DAY_IN_SEC, '0.0') }),
       },
       {
         title: 'Reward Multiplier',
-        body: GET_REWARD_MULTIPLIER_MSG({ days: duration, multiplier: currentMultiplier }),
+        body: GET_REWARD_MULTIPLIER_MSG({ days: safeNumeral(duration / DAY_IN_SEC, '0.0'), multiplier: safeNumeral(currentMultiplier, '0.0') }),
       },
       {
         title: 'Current Rewards',

@@ -4,10 +4,31 @@ import { ResponsiveText } from 'styling/styles'
 import { useContext } from 'react'
 import { GeyserContext } from 'context/GeyserContext'
 import { Dropdown } from './Dropdown'
+import { GeyserStatus } from 'types'
 
 export const GeysersList = () => {
   const { geysers, selectGeyserByName, selectedGeyser, getGeyserName } = useContext(GeyserContext)
   const handleGeyserChange = (geyserName: string) => selectGeyserByName(geyserName)
+
+  const optgroups = (() => {
+    const activeGeysers = geysers
+      .filter(({ status }) => status !== GeyserStatus.SHUTDOWN)
+      .map(({ id }) => getGeyserName(id))
+    const inactiveGeysers = geysers
+      .filter(({ status }) => status === GeyserStatus.SHUTDOWN)
+      .map(({ id }) => getGeyserName(id))
+
+    return [
+      {
+        group: 'Active Geysers',
+        options: activeGeysers,
+      },
+      {
+        group: 'Inactive Geysers',
+        options: inactiveGeysers,
+      },
+    ]
+  })()
 
   return (
     <>
@@ -17,7 +38,7 @@ export const GeysersList = () => {
             <Label>Geyser</Label>
           </Heading>
           <Dropdown
-            options={geysers.map((geyser) => getGeyserName(geyser.id))}
+            optgroups={optgroups}
             selectedOption={getGeyserName(selectedGeyser ? selectedGeyser.id : geysers[0].id)}
             onChange={handleGeyserChange}
           />

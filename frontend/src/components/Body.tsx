@@ -1,9 +1,10 @@
 import { AppContext } from 'context/AppContext'
 import { useContext } from 'react'
-import { MODE } from '../constants'
 import { GeyserFirstContainer } from './GeyserFirstContainer'
+import { VaultFirstContainer } from './VaultFirstContainer'
+import { MODE } from '../constants'
 
 export const Body = () => {
   const { mode } = useContext(AppContext)
-  return <>{mode === MODE.Vaults ? <div>Vaults view</div> : <GeyserFirstContainer />}</>
+  return mode === MODE.Vaults ? <VaultFirstContainer /> : <GeyserFirstContainer />
 }

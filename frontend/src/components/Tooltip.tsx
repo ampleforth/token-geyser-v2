@@ -61,5 +61,5 @@ const Title = styled.p`
 
 const Body = styled.p`
   ${ResponsiveText}
-  ${tw`text-black`}
+  ${tw`text-black text-left`}
 `

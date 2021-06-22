@@ -10,7 +10,7 @@ interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   isLoading?: boolean
 }
 
-export const LoadingButton: React.FC<Props> = (props) => {
+export const Button: React.FC<Props> = (props) => {
   const { isLoading, children } = props
   return (
     <button type="button" {...props}>

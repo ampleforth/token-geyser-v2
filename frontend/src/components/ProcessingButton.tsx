@@ -1,7 +1,6 @@
 import styled from "styled-components/macro"
 import tw from "twin.macro"
-import { ModalButtonStyle } from "styling/styles"
-import { LoadingButton } from "./LoadingButton"
+import { ModalButton } from "styling/styles"
 
 
 export const ProcessingButton = () => (
@@ -10,7 +9,6 @@ export const ProcessingButton = () => (
   </DisabledButton>
 )
 
-const DisabledButton = styled(LoadingButton)`
-  ${ModalButtonStyle}
+const DisabledButton = styled(ModalButton)`
   ${tw`bg-lightGray cursor-not-allowed border-none text-white cursor-not-allowed`}
 `

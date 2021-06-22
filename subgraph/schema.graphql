@@ -4,9 +4,14 @@ enum GeyserStatus {
   Shutdown
 }
 
+type PowerSwitch @entity {
+  id: ID! # ${powerSwitch.address}
+  status: GeyserStatus!
+}
+
 type Geyser @entity {
   id: ID! # ${geyser.address}
-  powerSwitch: Bytes!
+  powerSwitch: PowerSwitch!
   rewardPool: Bytes!
   rewardPoolBalances: [RewardPoolBalance]! @derivedFrom(field: "geyser")
   unlockedReward: BigInt!
@@ -18,7 +23,6 @@ type Geyser @entity {
   totalStake: BigInt!
   totalStakeUnits: BigInt!
   bonusTokens: [Bytes!]!
-  status: GeyserStatus!
   lastUpdate: BigInt!
   rewardSchedules: [RewardSchedule]! @derivedFrom(field: "geyser")
   locks: [Lock]! @derivedFrom(field: "geyser")

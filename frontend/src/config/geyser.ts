@@ -15,7 +15,7 @@ const mockGeyserConfigs: GeyserConfig[] = [
   },
   {
     name: 'Beehive V3 (Uniswap ETH-AMPL)',
-    address: '0x0000000000000000000000000000000000000000',
+    address: '0x4a679253410272dd5232b3ff7cf5dbb88f295319',
     stakingToken: StakingToken.MOCK,
     rewardToken: RewardToken.MOCK,
   },

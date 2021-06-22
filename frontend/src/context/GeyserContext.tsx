@@ -100,7 +100,7 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     if (geyserData && geyserData.geysers) {
-      const currentGeysers = [...geyserData.geysers] as Geyser[]
+      const currentGeysers = [...geyserData.geysers].map((geyser) => ({ ...geyser, status: geyser.powerSwitch.status })) as Geyser[]
       const ids = geyserConfigs.map(geyser => geyser.address.toLowerCase())
       currentGeysers.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id))
       setGeysers(currentGeysers)

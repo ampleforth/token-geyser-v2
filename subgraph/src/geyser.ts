@@ -19,7 +19,7 @@ import { EmergencyShutdown, PowerOff, PowerOn } from '../generated/templates/Pow
 import { ERC20 } from '../generated/templates/GeyserTemplate/ERC20'
 
 // entity imports
-import { ClaimedReward, Geyser, Lock, RewardPoolBalance, RewardSchedule } from '../generated/schema'
+import { ClaimedReward, Geyser, Lock, RewardPoolBalance, RewardSchedule, PowerSwitch } from '../generated/schema'
 
 // template instantiation
 export function handleNewGeyser(event: InstanceAdded): void {
@@ -67,17 +67,19 @@ export function handleGeyserCreated(event: GeyserCreated): void {
   let geyserContract = GeyserContract.bind(event.address)
 
   PowerSwitchTemplate.create(event.params.powerSwitch)
+  let powerSwitch = new PowerSwitch(event.params.powerSwitch.toHex())
+  powerSwitch.status = 'Online'
+  powerSwitch.save()
 
   let geyserData = geyserContract.getGeyserData()
 
-  entity.powerSwitch = event.params.powerSwitch
+  entity.powerSwitch = event.params.powerSwitch.toHex()
   entity.rewardPool = event.params.rewardPool
   entity.stakingToken = geyserData.stakingToken
   entity.rewardToken = geyserData.rewardToken
   entity.scalingFloor = geyserData.rewardScaling.floor
   entity.scalingCeiling = geyserData.rewardScaling.ceiling
   entity.scalingTime = geyserData.rewardScaling.time
-  entity.status = 'Online'
   entity.bonusTokens = []
 
   _updateGeyser(entity, geyserContract, event.block.timestamp)
@@ -163,7 +165,7 @@ export function handleRewardClaimed(event: RewardClaimed): void {
 }
 
 export function handlePowerOn(event: PowerOn): void {
-  let entity = Geyser.load(event.address.toHex())
+  let entity = new PowerSwitch(event.address.toHex())
 
   entity.status = 'Online'
 
@@ -171,7 +173,7 @@ export function handlePowerOn(event: PowerOn): void {
 }
 
 export function handlePowerOff(event: PowerOff): void {
-  let entity = Geyser.load(event.address.toHex())
+  let entity = new PowerSwitch(event.address.toHex())
 
   entity.status = 'Offline'
 
@@ -179,7 +181,7 @@ export function handlePowerOff(event: PowerOff): void {
 }
 
 export function handleEmergencyShutdown(event: EmergencyShutdown): void {
-  let entity = Geyser.load(event.address.toHex())
+  let entity = new PowerSwitch(event.address.toHex())
 
   entity.status = 'Shutdown'
 

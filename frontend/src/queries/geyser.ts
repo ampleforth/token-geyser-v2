@@ -8,7 +8,6 @@ export const GET_GEYSERS = gql`
       stakingToken
       totalStake
       totalStakeUnits
-      status
       scalingFloor
       scalingCeiling
       scalingTime
@@ -20,6 +19,10 @@ export const GET_GEYSERS = gql`
         rewardAmount
       }
       lastUpdate
+      powerSwitch {
+        id
+        status
+      }
     }
   }
 `

@@ -2,19 +2,29 @@
 
 ## Known workarounds/oddities
 
-- `let mounted = true in useEffect` is a workaround for supressing the warning saying that a state update on an unmounted component is not possible: https://stackoverflow.com/questions/53949393/cant-perform-a-react-state-update-on-an-unmounted-component
+- `let mounted = true` in `useEffect` is a workaround for supressing the warning saying that a state update on an unmounted component is not possible: https://stackoverflow.com/questions/53949393/cant-perform-a-react-state-update-on-an-unmounted-component
 -  react-spring has a bug where floating point numbers are casted as integers on re-render (e.g. '1.0' gets shown as '1' on re-render). This is a temporary work-around, see https://github.com/pmndrs/react-spring/issues/1564
+- Opening a modal right after closing a previous one can mess up the `overflow-y` of the page. As a workaround, there is a delay before the second modal is opened (see the function `handleConfirmUnstake` under `src/components/GeyserStakeView.tsx`)
 
 ## Required Setup
 
-### GraphQL Endpoint
+The following are the main elements that need to be configured prior to deploying
+
+1. [GraphQL Endpoint for subgraph](#graphql-endpoint)
+2. [Environment variable `NODE_ENV`](#process-environment)
+3. [Geysers configuration](#geyser-specific-configuration)
+4. [List of additional tokens for vault management](#list-of-additional-tokens)
+5. [Infura Project ID](#ethereum-provider)
+
+
+## GraphQL Endpoint
 
 To make sure that the application can fetch data from the subgraph,
 the correct endpoint need to be passed to the GraphQL client.
 Replace the value of `GEYSER_SUBGRAPH_NAME` under `src/constants.ts` with the name of the deployed subgraph.
 The initialization of the GraphQL client can be found under `src/queries/client.ts`.
 
-### Process Environment
+## Process Environment
 
 Make sure that the environment variable `NODE_ENV` is set to something other than `development` when deploying to production.
 
@@ -121,6 +131,35 @@ const getREW = async (...): Promise<RewardTokenInfo> => {
     ...
   }
 }
+```
+
+## List of Additional Tokens
+
+Users can withdraw unlocked tokens from their vaults. By default, all reward and staking tokens
+from all configured geysers will be shown on the UI. It is possible to show more by adding
+token information to the `mainnetAdditionalTokens` list under `src/config/additionalTokens.ts`
+with the following properties:
+
+```
+address: string   // the address of the token
+enabled: boolean  // whether or not to show this token
+```
+
+Note that it is assumed that the token is an ERC20 token.
+
+### Example
+
+Say we want to show the `WETH` balance of users' vaults. The following changes will need to be made:
+
+Under `src/config/additionalTokens.ts`
+```
+const mainnetAdditionalTokens = [
+  ...
+  {
+    address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+    enabled: true,
+  },
+]
 ```
 
 ## Ethereum Provider

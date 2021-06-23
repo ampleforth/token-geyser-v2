@@ -5,6 +5,7 @@ import tw from "twin.macro"
 import { safeNumeral } from "utils/numeral"
 import { VaultTokenBalance } from "types"
 import { VaultContext } from "context/VaultContext"
+import { Ellipsis } from "styling/styles"
 import { Align } from "../constants"
 import { Column, Table } from "./Table"
 import { SingleTxModal } from "./SingleTxModal"
@@ -106,5 +107,5 @@ const ActionButton = styled.button`
 `
 
 const TextEllipsis = styled.div`
-  ${tw`overflow-ellipsis overflow-hidden`}
+  ${Ellipsis}
 `

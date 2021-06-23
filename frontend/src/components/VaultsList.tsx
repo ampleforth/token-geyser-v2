@@ -1,7 +1,7 @@
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
 import copy from 'assets/clipboard.svg'
-import { ResponsiveText } from 'styling/styles'
+import { Ellipsis, ResponsiveText } from 'styling/styles'
 import { useContext } from 'react'
 import { VaultContext } from 'context/VaultContext'
 import { ToolButton } from './ToolButton'
@@ -53,10 +53,12 @@ const Label = styled.span`
 `
 
 const Img = styled.img`
-  ${tw`w-auto mx-2 fill-current text-link`}
+  ${tw`w-16px h-16px`}
+  ${tw`mx-2 fill-current text-link`}
 `
 
 const SelectedOption = styled.span`
   ${ResponsiveText}
-  ${tw`font-bold tracking-wide block my-2 w-336px overflow-hidden overflow-ellipsis`}
+  ${Ellipsis}
+  ${tw`font-bold tracking-wide block my-2 w-336px`}
 `

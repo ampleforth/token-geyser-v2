@@ -26,9 +26,9 @@ export const GEYSER_STATS_CACHE_TIME_MS = MIN_IN_MS
 export const MOCK_ERC_20_ADDRESS = '0x0165878A594ca255338adfa4d48449f69242Eb8F'
 
 // app mode
-export enum MODE {
-  Vaults,
-  Geysers,
+export enum Mode {
+  VAULTS,
+  GEYSERS,
 }
 
 // transaction state

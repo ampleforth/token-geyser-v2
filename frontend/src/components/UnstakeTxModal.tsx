@@ -4,8 +4,8 @@ import { ReactNode, useEffect, useState } from 'react'
 import { ModalButton } from 'styling/styles'
 import { Modal } from './Modal'
 import { ProcessingButton } from './ProcessingButton'
-import { TxState } from '../constants'
 import { SingleTxMessage } from './SingleTxMessage'
+import { TxState } from '../constants'
 
 interface Props {
   open: boolean

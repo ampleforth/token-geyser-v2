@@ -25,7 +25,7 @@ export const UserBalance: React.FC<Props> = ({ parsedAmount, currentAmount, deci
 }
 
 const Text = styled.span`
-  ${tw`text-xs sm:text-base`}
+  ${tw`text-xs sm:text-sm`}
 `
 
 const FlexDiv = styled.div`

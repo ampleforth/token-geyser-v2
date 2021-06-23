@@ -28,6 +28,10 @@ export const Centered = styled.div`
   ${tw`h-full w-full m-auto self-center`}
 `
 
+export const Ellipsis = css`
+  ${tw`overflow-ellipsis overflow-hidden`}
+`
+
 // typography
 
 export const CardLabel = styled.span`

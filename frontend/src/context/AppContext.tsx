@@ -1,18 +1,18 @@
 import { createContext, useState } from 'react'
-import { MODE } from '../constants'
+import { Mode } from '../constants'
 
 export const AppContext = createContext<{
-  mode: MODE
+  mode: Mode
   toggleMode: () => void
 }>({
-  mode: MODE.Geysers,
+  mode: Mode.GEYSERS,
   toggleMode: () => {},
 })
 
 export const AppContextProvider: React.FC = ({ children }) => {
-  const [appMode, setAppMode] = useState<MODE>(MODE.Geysers)
+  const [appMode, setAppMode] = useState<Mode>(Mode.GEYSERS)
 
-  const toggleMode = () => (appMode === MODE.Geysers ? setAppMode(MODE.Vaults) : setAppMode(MODE.Geysers))
+  const toggleMode = () => setAppMode(appMode === Mode.GEYSERS ? Mode.VAULTS : Mode.GEYSERS)
 
   return <AppContext.Provider value={{ mode: appMode, toggleMode }}>{children}</AppContext.Provider>
 }

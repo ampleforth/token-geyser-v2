@@ -30,7 +30,7 @@ export const EstimatedRewards: React.FC<Props> = ({ parsedUserInput }) => {
   return (
     <EstimatedRewardsContainer>
       <ColoredDiv />
-      <Icon src={rewardSymbol} alt="Rewards Symbol" className="w-0 sm:w-auto" />
+      <Icon src={rewardSymbol} alt="Rewards Symbol" />
       <RewardsTextContainer>
         <CardLabel>
           Your Estimated Rewards
@@ -60,7 +60,8 @@ const ColoredDiv = styled.div`
 `
 
 const Icon = styled.img`
-  ${tw`mx-4`}
+  ${tw`mx-4 w-0`}
+  ${tw`sm:w-auto`}
 `
 
 const RewardsTextContainer = styled.div`

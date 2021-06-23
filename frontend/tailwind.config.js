@@ -47,6 +47,7 @@ module.exports = {
         'all-xs': '0 0px 8px rgba(0, 0, 0, 0.3)',
       },
       width: {
+        '16px': '16px',
         '80px': '80px',
         '336px': '336px',
         sm: '648px',
@@ -57,6 +58,7 @@ module.exports = {
       },
       height: {
         '10px': '10px',
+        '16px': '16px',
         '40px': '40px',
         '72px': '72px',
         '80px': '80px',

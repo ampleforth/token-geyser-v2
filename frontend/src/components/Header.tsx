@@ -2,7 +2,7 @@ import { AppContext } from 'context/AppContext'
 import { useContext } from 'react'
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
-import { MODE } from '../constants'
+import { Mode } from '../constants'
 import { HeaderWalletButton } from './HeaderWalletButton'
 import { HeaderToggle } from './HeaderToggle'
 
@@ -14,7 +14,7 @@ export const Header = () => {
         <LogoSpan>Λ</LogoSpan>
       </LeftContainer>
       <MiddleContainer>
-        <HeaderToggle enabled={mode === MODE.Vaults} toggle={toggleMode} options={['Vault View', 'Geyser View']} />
+        <HeaderToggle enabled={mode === Mode.VAULTS} toggle={toggleMode} options={['Geyser View', 'Vault View']} />
       </MiddleContainer>
       <RightContainer>
         <HeaderWalletButton />

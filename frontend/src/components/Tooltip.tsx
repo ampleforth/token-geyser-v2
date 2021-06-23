@@ -4,7 +4,7 @@ import styled from 'styled-components/macro'
 import tw from 'twin.macro'
 import info from 'assets/info.svg'
 import { TooltipMessage } from 'types'
-import { ResponsiveText } from 'styling/styles'
+import { ResponsiveSubText, ResponsiveText } from 'styling/styles'
 
 interface Props {
   messages: TooltipMessage[]
@@ -60,6 +60,6 @@ const Title = styled.p`
 `
 
 const Body = styled.p`
-  ${ResponsiveText}
+  ${ResponsiveSubText}
   ${tw`text-black text-left`}
 `

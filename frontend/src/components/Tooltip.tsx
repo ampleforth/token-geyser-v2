@@ -13,7 +13,7 @@ interface Props {
 }
 
 export const Tooltip: React.FC<Props> = ({ messages, classNames, panelClassnames }) => (
-  <Popover className={`font-normal relative bg-white z-50 ${classNames}`}>
+  <Popover className={`font-normal relative bg-white ${classNames}`}>
     <Popover.Button className="flex">
       <img src={info} alt="Info" />
     </Popover.Button>

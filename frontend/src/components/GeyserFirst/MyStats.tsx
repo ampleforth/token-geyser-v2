@@ -5,16 +5,16 @@ import { GeyserContext } from 'context/GeyserContext'
 import { StatsContext } from 'context/StatsContext'
 import { ResponsiveText } from 'styling/styles'
 import { safeNumeral } from 'utils/numeral'
+import { Tooltip } from 'components/Tooltip'
 import { GeyserStatsBox } from './GeyserStatsBox'
 import { MyStatsBox } from './MyStatsBox'
-import { Tooltip } from './Tooltip'
 import {
   DAY_IN_SEC,
   GET_APY_NO_STAKE_MSG,
   GET_APY_STAKE_MSG,
   GET_CURRENT_REWARDS_MSG,
   GET_REWARD_MULTIPLIER_MSG,
-} from '../constants'
+} from '../../constants'
 
 export const MyStats = () => {
   const {

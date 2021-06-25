@@ -6,7 +6,7 @@ import { GeyserContext } from 'context/GeyserContext'
 import { safeNumeral } from 'utils/numeral'
 import { ResponsiveText } from 'styling/styles'
 import { GeyserStatsBox } from './GeyserStatsBox'
-import { DAY_IN_SEC } from '../constants'
+import { DAY_IN_SEC } from '../../constants'
 
 export const GeyserStats = () => {
   const { geyserStats: { duration, totalDeposit, totalRewards }} = useContext(StatsContext)

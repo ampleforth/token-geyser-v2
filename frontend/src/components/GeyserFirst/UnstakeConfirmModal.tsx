@@ -6,7 +6,7 @@ import styled from 'styled-components/macro'
 import tw from 'twin.macro'
 import { BigNumber } from 'ethers'
 import { ModalButton } from 'styling/styles'
-import { Modal } from './Modal'
+import { Modal } from 'components/Modal'
 
 interface Props {
   open: boolean

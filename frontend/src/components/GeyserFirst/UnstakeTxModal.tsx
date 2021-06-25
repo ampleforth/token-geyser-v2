@@ -2,10 +2,10 @@ import { TransactionResponse, TransactionReceipt } from '@ethersproject/provider
 import { useTxStateMachine, TxStateMachine } from 'hooks/useTxStateMachine'
 import { ReactNode, useEffect, useState } from 'react'
 import { ModalButton } from 'styling/styles'
-import { Modal } from './Modal'
-import { ProcessingButton } from './ProcessingButton'
-import { SingleTxMessage } from './SingleTxMessage'
-import { TxState } from '../constants'
+import { Modal } from 'components/Modal'
+import { ProcessingButton } from 'components/ProcessingButton'
+import { SingleTxMessage } from 'components/SingleTxMessage'
+import { TxState } from '../../constants'
 
 interface Props {
   open: boolean

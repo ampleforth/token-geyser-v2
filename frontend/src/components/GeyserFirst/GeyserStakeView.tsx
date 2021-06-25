@@ -10,20 +10,20 @@ import { WalletContext } from 'context/WalletContext'
 import Web3Context from 'context/Web3Context'
 import { TxStateMachine } from 'hooks/useTxStateMachine'
 import { amountOrZero } from 'utils/amount'
-import { PositiveInput } from './PositiveInput'
+import { PositiveInput } from 'components/PositiveInput'
+import { SingleTxModal } from 'components/SingleTxModal'
 import { GeyserInteractionButton } from './GeyserInteractionButton'
 import { UserBalance } from './UserBalance'
 import { EstimatedRewards } from './EstimatedRewards'
 import { ConnectWalletWarning } from './ConnectWalletWarning'
 import { UnstakeSummary } from './UnstakeSummary'
 import { UnstakeConfirmModal } from './UnstakeConfirmModal'
-import { SingleTxModal } from './SingleTxModal'
 import { UnstakeTxModal } from './UnstakeTxModal'
 import { WithdrawTxMessage } from './WithdrawTxMessage'
 import {
   WITHDRAW_UNLOCKED_STAKING_TOKENS_WHEN_UNSTAKING,
   WITHDRAW_UNLOCKED_REWARD_TOKENS_WHEN_UNSTAKING,
-} from '../constants'
+} from '../../constants'
 
 export const GeyserStakeView = () => {
   const [userInput, setUserInput] = useState('')

@@ -1,7 +1,7 @@
 import { BigNumber, BigNumberish } from 'ethers'
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
-import { formatAmount } from '../utils/amount'
+import { formatAmount } from 'utils/amount'
 
 interface Props {
   parsedAmount: BigNumber

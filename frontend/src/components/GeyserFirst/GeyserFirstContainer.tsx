@@ -3,7 +3,7 @@ import styled from 'styled-components/macro'
 import tw from 'twin.macro'
 import { Overlay } from 'styling/styles'
 import { GeyserContext } from 'context/GeyserContext'
-import { ToggleView } from './ToggleView'
+import { ToggleView } from 'components/ToggleView'
 import { GeyserStakeView } from './GeyserStakeView'
 import { GeyserStatsView } from './GeyserStatsView'
 

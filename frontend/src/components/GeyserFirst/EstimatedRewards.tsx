@@ -5,10 +5,10 @@ import { useContext, useEffect, useState } from 'react'
 import { StatsContext } from 'context/StatsContext'
 import { formatWithDecimals } from 'utils/numeral'
 import { BigNumber } from 'ethers'
-import { GET_ESTIMATED_REWARDS_MSG } from '../constants'
-import { Tooltip } from './Tooltip'
-import { CardValue, CardLabel } from '../styling/styles'
-import { GeyserContext } from '../context/GeyserContext'
+import { Tooltip } from 'components/Tooltip'
+import { CardValue, CardLabel } from 'styling/styles'
+import { GeyserContext } from 'context/GeyserContext'
+import { GET_ESTIMATED_REWARDS_MSG } from '../../constants'
 
 interface Props {
   parsedUserInput: BigNumber

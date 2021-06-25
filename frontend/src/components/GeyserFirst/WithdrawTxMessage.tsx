@@ -1,6 +1,6 @@
 import { TxStateMachine } from "hooks/useTxStateMachine"
-import { TxState } from "../constants"
-import { EtherscanLink } from "./EtherscanLink"
+import { EtherscanLink } from "components/EtherscanLink"
+import { TxState } from "../../constants"
 
 interface Props {
   txStateMachine: TxStateMachine

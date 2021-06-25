@@ -6,9 +6,9 @@ import { safeNumeral } from "utils/numeral"
 import { VaultTokenBalance } from "types"
 import { VaultContext } from "context/VaultContext"
 import { Ellipsis } from "styling/styles"
-import { Align } from "../constants"
-import { Column, Table } from "./Table"
-import { SingleTxModal } from "./SingleTxModal"
+import { Column, Table } from "components/Table"
+import { SingleTxModal } from "components/SingleTxModal"
+import { Align } from "../../constants"
 
 export const VaultBalanceView = () => {
   const { vaultStats: { vaultTokenBalances }, refreshVaultStats } = useContext(StatsContext)

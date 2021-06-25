@@ -1,6 +1,15 @@
 # token-geyser-v2-ui
 
-## Known workarounds/oddities
+Jump to
+- [Known workarounds](#known-workarounds)
+- [Required Setup](#required-setup)
+- [Stats Calculation](#stats)
+- [User Flows](#user-flows)
+- [Withdraw Unlocked Balance When Unstaking](#withdraw-unlocked-balance-when-unstaking)
+- [Dev Specific Configuration](#dev-specific-configuration)
+- [Development and Deployment](#development-and-deployment-documentation)
+
+## Known Workarounds
 
 - `let mounted = true` in `useEffect` is a workaround for supressing the warning saying that a state update on an unmounted component is not possible: https://stackoverflow.com/questions/53949393/cant-perform-a-react-state-update-on-an-unmounted-component
 -  react-spring has a bug where floating point numbers are casted as integers on re-render (e.g. '1.0' gets shown as '1' on re-render). This is a temporary work-around, see https://github.com/pmndrs/react-spring/issues/1564
@@ -52,7 +61,7 @@ Staking tokens (LP tokens) will have customizable logic for calculating their pr
 #### Adding a new staking token
 
 To add a new staking token, first add a new member to the enum `StakingToken` under `src/constants.ts`.
-Then, under `src/stakingToken.ts`, add a new case handler to the function `getStakingTokenInfo`,
+Then, under `src/utils/stakingToken.ts`, add a new case handler to the function `getStakingTokenInfo`,
 and write a function that will return `Promise<StakingTokenInfo>`.
 
 #### Example
@@ -67,7 +76,7 @@ export enum StakingToken {
 }
 ```
 
-Under `src/stakingToken.ts`
+Under `src/utils/stakingToken.ts`
 ```
 export const getStakingTokenInfo = async (...) => {
   ...
@@ -96,7 +105,7 @@ Similarly, reward tokens also have customizable logic. Currently, the only rewar
 #### Adding a new reward token
 
 To add a new reward token, first add a new member to the enum `RewardToken` under `src/constants.ts`.
-Then, under `src/rewardToken.ts`, add a new case handler to the function `getRewardTokenInfo`,
+Then, under `src/utils/rewardToken.ts`, add a new case handler to the function `getRewardTokenInfo`,
 and write a function that will return `Promise<RewardTokenInfo>`.
 
 #### Example
@@ -169,6 +178,49 @@ To use Infura as provider, replace the value of `INFURA_PROJECT_ID` under `src/c
 ## Stats
 
 User and geyser stats calculations are ported over from V1. The accounting math can be found under `src/utils/stats.ts`.
+
+## User Flows
+
+### New Users
+
+A new user will be able to connect their wallet to the dApp. Upon their first stake action, a new vault will be created for them.
+
+### Staking
+
+A stake action will first make the user deposit tokens to their vault, and stake (i.e. lock) the deposited amount to a geyser. We note that this is independent of the prior unlocked amount in the vault. Also note that a new vault will be created for the user if they do not have an existing one.
+
+For instance, if a vault has a total balance of 5 tokens, all of which is unlocked, and the user wants to stake 4 tokens, then the user will still have to deposit 4 tokens into the vault, and they will be staked in the geyser.
+
+The end result is that the vault will have a total balance of 9 tokens, where 5 tokens are unlocked. The user is therefore not encouraged to have unlocked balances in their vaults.
+
+### Unstaking
+
+Upon clicking on the unstake button, the transaction to unstake (i.e. unlock) the specified amount will be submitted. If the transaction goes through, two more transactions will be submitted: one transaction to withdraw the specified amount of staking token from the vault to the user wallet, and another to withdraw the rewards gained from the unstaking. In the instance where a withdraw transaction fails or is rejected, the user can go manually withdraw the unlocked balance from their vault using the vault management view.
+
+### Vault Management
+
+A user can manage their vaults through the vault management view. This view will show a list of tokens and their corresponding total balance & unlocked balance in the vault. The list of tokens includes all the staking and reward tokens of the specified geysers, as well as additional tokens that can be configured (see [here](#list-of-additional-tokens)).
+
+It is possible for the user to withdraw the unlocked balance of a token from their vault to their wallet through this view.
+
+
+## Withdraw Unlocked Balance When Unstaking
+
+One edge case that comes up in the current unstake flow is that the staking tokens might be staked into different geyser programs (maybe external ones). If that is the case, then unstaking, say, 5 tokens from a geyser does not always imply that 5 tokens will be unlocked after the unstaking. As it currently stands, if this scenario were to arise, the transaction to withdraw the staking tokens will fail, and the user can withdraw the actual unlocked balance from their vault using the vault management view.
+
+However, the functionality to withdraw exactly the unlocked balance is implemented in the code, but it is simply not used. If the decision is to enable this functionality, the following changes are required:
+
+To withdraw the entire unlocked balance of staking tokens after unstaking, under `src/constants.ts`, set `WITHDRAW_UNLOCKED_STAKING_TOKENS_WHEN_UNSTAKING` to `true`
+```
+export const WITHDRAW_UNLOCKED_STAKING_TOKENS_WHEN_UNSTAKING = true
+```
+
+To withdraw the entire unlocked balance of reward tokens after unstaking, under `src/constants.ts`, set `WITHDRAW_UNLOCKED_REWARD_TOKENS_WHEN_UNSTAKING` to `true`
+```
+export const WITHDRAW_UNLOCKED_REWARD_TOKENS_WHEN_UNSTAKING = true
+```
+
+Note that withdrawing the entire unlocked balance also means withdrawing any previously unlocked tokens in the vault that are independent from the tokens gained as a result of the current unstaking action.
 
 ## Dev Specific Configuration
 

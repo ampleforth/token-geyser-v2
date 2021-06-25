@@ -2,7 +2,7 @@ import { TransactionResponse, TransactionReceipt } from '@ethersproject/provider
 import { BigNumber, BigNumberish, Contract, Signer, Wallet } from 'ethers'
 import { randomBytes } from 'ethers/lib/utils'
 import { ERC20_ABI } from './abis'
-import { getClaimedRewardsFromUnstake } from './stats'
+import { getBalanceLocked, getClaimedRewardsFromUnstake } from './stats'
 import { ERC20Balance } from './tokens'
 import { isPermitable, loadNetworkConfig, signPermission, signPermitEIP2612 } from './utils'
 
@@ -99,6 +99,23 @@ export const withdrawRewards = async (
   }
 }
 
+export const withdrawUnlocked = async (
+  vaultAddress: string,
+  tokenAddress: string,
+  recipientAddress: string,
+  signer: Signer,
+) => {
+  const unlockedBalance = (await ERC20Balance(tokenAddress, vaultAddress, signer)).sub(
+    await getBalanceLocked(vaultAddress, tokenAddress, signer),
+  )
+
+  if (unlockedBalance.isZero()) return null
+  return {
+    response: await withdraw(vaultAddress, tokenAddress, recipientAddress, unlockedBalance, signer),
+    amount: unlockedBalance,
+  }
+}
+
 /// Combined Actions ///
 
 export const approveCreateDepositStake = async (geyserAddress: string, amount: BigNumberish, signer: Wallet) => {
@@ -139,26 +156,6 @@ export const approveDepositStake = async (
   await token.approve(router.address, amount)
 
   return router.depositStake(...args) as Promise<TransactionResponse>
-}
-
-export const unstakeWithdraw = async (
-  geyserAddress: string,
-  vaultAddress: string,
-  amount: BigNumberish,
-  signer: Wallet,
-) => {
-  const config = await loadNetworkConfig(signer)
-  const signerAddress = await signer.getAddress()
-  const geyser = new Contract(geyserAddress, config.GeyserTemplate.abi, signer)
-  const geyserData = await geyser.getGeyserData()
-  const { stakingToken, rewardToken } = geyserData
-  const tx = await unstake(geyserAddress, vaultAddress, amount, signer)
-  await tx.wait()
-  const rewardsBalance = await ERC20Balance(rewardToken, vaultAddress, signer)
-  return Promise.all([
-    withdraw(vaultAddress, stakingToken, signerAddress, amount, signer),
-    withdraw(vaultAddress, rewardToken, signerAddress, rewardsBalance, signer),
-  ])
 }
 
 export const permitCreateDepositStake = async (geyserAddress: string, amount: BigNumberish, signer: Wallet) => {

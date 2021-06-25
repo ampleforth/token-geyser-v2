@@ -100,3 +100,9 @@ export enum Align {
 
 // Infura
 export const INFURA_PROJECT_ID = ''
+
+// Enable withdrawing whole unlocked balance of staking tokens when unstaking
+export const WITHDRAW_UNLOCKED_STAKING_TOKENS_WHEN_UNSTAKING = true
+
+// Enable withdrawing whole unlocked balance of reward tokens when unstaking
+export const WITHDRAW_UNLOCKED_REWARD_TOKENS_WHEN_UNSTAKING = true

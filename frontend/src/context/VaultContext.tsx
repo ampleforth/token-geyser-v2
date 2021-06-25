@@ -2,7 +2,7 @@ import { useLazyQuery } from '@apollo/client'
 import { createContext, useContext, useEffect, useState } from 'react'
 import { TransactionResponse, TransactionReceipt } from '@ethersproject/providers'
 import { BigNumber } from 'ethers'
-import { withdraw, withdrawRewards } from 'sdk'
+import { withdraw, withdrawRewards, withdrawUnlocked } from 'sdk'
 import { GET_USER_VAULTS } from '../queries/vault'
 import { POLL_INTERVAL } from '../constants'
 import { Lock, Vault } from '../types'
@@ -18,6 +18,7 @@ export const VaultContext = createContext<{
   currentLock: Lock | null
   withdrawFromVault: ((tokenAddress: string, amount: BigNumber) => Promise<TransactionResponse>) | null
   withdrawRewardsFromVault: ((receipt: TransactionReceipt) => Promise<{ response: TransactionResponse, rewards: BigNumber } | null>) | null
+  withdrawUnlockedFromVault: ((tokenAddress: string) => Promise<{ response: TransactionResponse, amount: BigNumber } | null>) | null
 }>({
   vaults: [],
   selectedVault: null,
@@ -26,6 +27,7 @@ export const VaultContext = createContext<{
   currentLock: null,
   withdrawFromVault: null,
   withdrawRewardsFromVault: null,
+  withdrawUnlockedFromVault: null,
 })
 
 export const VaultContextProvider: React.FC = ({ children }) => {
@@ -47,6 +49,10 @@ export const VaultContextProvider: React.FC = ({ children }) => {
 
   const withdrawRewardsFromVault = address && signer && selectedGeyser
     ? (receipt: TransactionReceipt) => withdrawRewards(selectedGeyser.id, address, receipt, signer)
+    : null
+
+  const withdrawUnlockedFromVault = address && signer && selectedVault
+    ? (tokenAddress: string) => withdrawUnlocked(selectedVault.id, tokenAddress, address, signer)
     : null
 
   useEffect(() => {
@@ -90,6 +96,7 @@ export const VaultContextProvider: React.FC = ({ children }) => {
         currentLock,
         withdrawFromVault,
         withdrawRewardsFromVault,
+        withdrawUnlockedFromVault,
       }}
     >
       {children}

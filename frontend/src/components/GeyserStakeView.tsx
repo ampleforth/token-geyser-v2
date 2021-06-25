@@ -20,20 +20,25 @@ import { UnstakeConfirmModal } from './UnstakeConfirmModal'
 import { SingleTxModal } from './SingleTxModal'
 import { UnstakeTxModal } from './UnstakeTxModal'
 import { WithdrawTxMessage } from './WithdrawTxMessage'
+import {
+  WITHDRAW_UNLOCKED_STAKING_TOKENS_WHEN_UNSTAKING,
+  WITHDRAW_UNLOCKED_REWARD_TOKENS_WHEN_UNSTAKING,
+} from '../constants'
 
 export const GeyserStakeView = () => {
   const [userInput, setUserInput] = useState('')
   const [parsedUserInput, setParsedUserInput] = useState(BigNumber.from('0'))
   const { selectedGeyser, stakingTokenInfo, rewardTokenInfo, handleGeyserAction, isStakingAction } = useContext(GeyserContext)
   const { decimals: stakingTokenDecimals, symbol: stakingTokenSymbol, address: stakingTokenAddress } = stakingTokenInfo
-  const { decimals: rewardTokenDecimals, symbol: rewardTokenSymbol } = rewardTokenInfo
+  const { decimals: rewardTokenDecimals, symbol: rewardTokenSymbol, address: rewardTokenAddress } = rewardTokenInfo
   const { signer } = useContext(Web3Context)
-  const { selectedVault, currentLock, withdrawFromVault, withdrawRewardsFromVault } = useContext(VaultContext)
+  const { selectedVault, currentLock, withdrawFromVault, withdrawRewardsFromVault, withdrawUnlockedFromVault } = useContext(VaultContext)
   const { walletAmount, refreshWalletAmount } = useContext(WalletContext)
   const { selectWallet, address } = useContext(Web3Context)
   const currentStakeAmount = BigNumber.from(currentLock ? currentLock.amount : '0')
   const [unstakeConfirmModalOpen, setUnstakeConfirmModalOpen] = useState<boolean>(false)
   const [actualRewardsFromUnstake, setActualRewardsFromUnstake] = useState<BigNumber>(BigNumber.from('0'))
+  const [actualStakingTokensFromUnstake, setActualStakingTokensFromUnstake] = useState<BigNumber>(BigNumber.from('0'))
 
   const [txModalOpen, setTxModalOpen] = useState<boolean>(false)
 
@@ -72,13 +77,34 @@ export const GeyserStakeView = () => {
   }
 
   const withdrawStaking = async () => {
-    if (withdrawFromVault)
+    if (WITHDRAW_UNLOCKED_STAKING_TOKENS_WHEN_UNSTAKING) {
+      if (withdrawUnlockedFromVault) {
+        const tx = await withdrawUnlockedFromVault(stakingTokenAddress)
+        if (tx) {
+          const { response, amount } = tx
+          console.log(amount.toString())
+          setActualStakingTokensFromUnstake(amount)
+          return response
+        }
+      }
+    } else if (withdrawFromVault) {
+      setActualStakingTokensFromUnstake(parsedUserInput)
       return withdrawFromVault(stakingTokenAddress, parsedUserInput)
+    }
     return undefined
   }
 
   const withdrawReward = async (receipt?: TransactionReceipt) => {
-    if (receipt && withdrawRewardsFromVault) {
+    if (WITHDRAW_UNLOCKED_REWARD_TOKENS_WHEN_UNSTAKING) {
+      if (withdrawUnlockedFromVault) {
+        const tx = await withdrawUnlockedFromVault(rewardTokenAddress)
+        if (tx) {
+          const { response, amount } = tx
+          setActualRewardsFromUnstake(amount)
+          return response
+        }
+      }
+    } else if (receipt && withdrawRewardsFromVault) {
       const tx = await withdrawRewardsFromVault(receipt)
       if (tx) {
         const { response, rewards } = tx
@@ -90,7 +116,7 @@ export const GeyserStakeView = () => {
   }
 
   const withdrawStakingTxMessage = (txStateMachine: TxStateMachine) => (
-    <WithdrawTxMessage txStateMachine={txStateMachine} symbol={stakingTokenSymbol} amount={userInput} />
+    <WithdrawTxMessage txStateMachine={txStateMachine} symbol={stakingTokenSymbol} amount={formatUnits(actualStakingTokensFromUnstake, stakingTokenDecimals)} />
   )
 
   const withdrawRewardTxMessage = (txStateMachine: TxStateMachine) => (

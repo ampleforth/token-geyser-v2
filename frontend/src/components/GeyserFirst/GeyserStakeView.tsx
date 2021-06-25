@@ -7,6 +7,7 @@ import { useContext, useEffect, useState } from 'react'
 import { GeyserContext } from 'context/GeyserContext'
 import { VaultContext } from 'context/VaultContext'
 import { WalletContext } from 'context/WalletContext'
+import { StatsContext } from 'context/StatsContext'
 import Web3Context from 'context/Web3Context'
 import { TxStateMachine } from 'hooks/useTxStateMachine'
 import { amountOrZero } from 'utils/amount'
@@ -34,6 +35,7 @@ export const GeyserStakeView = () => {
   const { signer } = useContext(Web3Context)
   const { selectedVault, currentLock, withdrawFromVault, withdrawRewardsFromVault, withdrawUnlockedFromVault } = useContext(VaultContext)
   const { walletAmount, refreshWalletAmount } = useContext(WalletContext)
+  const { refreshVaultStats } = useContext(StatsContext)
   const { selectWallet, address } = useContext(Web3Context)
   const currentStakeAmount = BigNumber.from(currentLock ? currentLock.amount : '0')
   const [unstakeConfirmModalOpen, setUnstakeConfirmModalOpen] = useState<boolean>(false)
@@ -74,6 +76,7 @@ export const GeyserStakeView = () => {
     setTxModalOpen(false)
     refreshInputAmount()
     refreshWalletAmount()
+    refreshVaultStats()
   }
 
   const withdrawStaking = async () => {

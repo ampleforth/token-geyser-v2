@@ -5,6 +5,7 @@ import tw from "twin.macro"
 import { safeNumeral } from "utils/numeral"
 import { VaultTokenBalance } from "types"
 import { VaultContext } from "context/VaultContext"
+import { WalletContext } from "context/WalletContext"
 import { Ellipsis } from "styling/styles"
 import { Column, Table } from "components/Table"
 import { SingleTxModal } from "components/SingleTxModal"
@@ -17,6 +18,7 @@ export const VaultBalanceView = () => {
   // state of the token about to be withdrawn
   const [tokenBalance, setTokenBalance] = useState<VaultTokenBalance>()
   const [modalOpen, setModalOpen] = useState<boolean>(false)
+  const { refreshWalletAmount } = useContext(WalletContext)
 
   const confirmWithdraw = (balance: VaultTokenBalance) => {
     setTokenBalance(balance)
@@ -34,6 +36,7 @@ export const VaultBalanceView = () => {
   const onClose = () => {
     setModalOpen(false)
     refreshVaultStats()
+    refreshWalletAmount()
   }
 
   const columns: Column[] = [

@@ -281,6 +281,12 @@ export default {
         mnemonic: process.env.DEV_MNEMONIC || Wallet.createRandom().mnemonic.phrase,
       },
     },
+    kovan: {
+      url: 'https://kovan.infura.io/v3/' + process.env.INFURA_ID,
+      accounts: {
+        mnemonic: process.env.DEV_MNEMONIC || Wallet.createRandom().mnemonic.phrase,
+      },
+    },
   },
   solidity: {
     compilers: [

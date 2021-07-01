@@ -4,6 +4,7 @@ pragma abicoder v2;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import {IERC20Permit} from "@openzeppelin/contracts/drafts/IERC20Permit.sol";
 import {TransferHelper} from "@uniswap/lib/contracts/libraries/TransferHelper.sol";
 
@@ -14,7 +15,31 @@ import {IFactory} from "./Factory/IFactory.sol";
 /// @title RouterV1
 /// @notice Convenience contract for ampleforth geyser
 /// @dev Security contact: dev-support@ampleforth.org
-contract RouterV1 {
+contract RouterV1 is IERC721Receiver {
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes calldata
+    ) external pure override returns (bytes4) {
+        return IERC721Receiver.onERC721Received.selector;
+    }
+
+    function create2Vault(address vaultFactory, bytes32 salt) public returns (address vault) {
+        vault = IFactory(vaultFactory).create2("", salt);
+    }
+
+    function depositStake(
+        address geyser,
+        address vault,
+        uint256 amount,
+        bytes calldata permission
+    ) public {
+        address stakingToken = IGeyser(geyser).getGeyserData().stakingToken;
+        TransferHelper.safeTransferFrom(stakingToken, msg.sender, vault, amount);
+        IGeyser(geyser).stake(vault, amount, permission);
+    }
+
     function create2VaultAndStake(
         address geyser,
         address vaultFactory,
@@ -24,15 +49,11 @@ contract RouterV1 {
         bytes calldata permission
     ) external returns (address vault) {
         // create vault
-        vault = IFactory(vaultFactory).create2("", salt);
-        // get staking token
-        address stakingToken = IGeyser(geyser).getGeyserData().stakingToken;
+        vault = create2Vault(vaultFactory, salt);
         // transfer ownership
         IERC721(vaultFactory).safeTransferFrom(address(this), vaultOwner, uint256(vault));
-        // transfer tokens
-        TransferHelper.safeTransferFrom(stakingToken, msg.sender, vault, amount);
-        // stake
-        IGeyser(geyser).stake(vault, amount, permission);
+        // transfer tokens and stake
+        depositStake(geyser, vault, amount, permission);
     }
 
     struct Permit {

@@ -10,12 +10,7 @@ import { Lock, LockedBalance, User, Vault } from '../generated/schema'
 import { Transfer } from '../generated/UniversalVaultNFT/ERC721'
 
 // entity imports
-import {
-  Locked,
-  RageQuit,
-  Unlocked,
-  VaultContract,
-} from '../generated/templates/VaultTemplate/VaultContract'
+import { Locked, RageQuit, Unlocked, VaultContract } from '../generated/templates/VaultTemplate/VaultContract'
 
 // template instantiation
 function updateVault(vaultAddress: Address): void {
@@ -40,25 +35,12 @@ export function handleNewVault(event: InstanceAdded): void {
 }
 
 // event handlers
-function updateLock(
-  vaultAddress: Address,
-  geyserAddress: Address,
-  tokenAddress: Address,
-  timestamp: BigInt,
-): void {
+function updateLock(vaultAddress: Address, geyserAddress: Address, tokenAddress: Address, timestamp: BigInt): void {
   updateVault(vaultAddress)
 
   let vaultContract = VaultContract.bind(vaultAddress)
-  let lock = new Lock(
-    vaultAddress.toHex() +
-      '-' +
-      geyserAddress.toHex() +
-      '-' +
-      tokenAddress.toHex(),
-  )
-  let lockedBalance = new LockedBalance(
-    vaultAddress.toHex() + '-' + tokenAddress.toHex(),
-  )
+  let lock = new Lock(vaultAddress.toHex() + '-' + geyserAddress.toHex() + '-' + tokenAddress.toHex())
+  let lockedBalance = new LockedBalance(vaultAddress.toHex() + '-' + tokenAddress.toHex())
 
   lock.amount = vaultContract.getBalanceDelegated(tokenAddress, geyserAddress)
   lock.geyser = geyserAddress.toHex()
@@ -76,41 +58,23 @@ function updateLock(
 }
 
 export function handleLocked(event: Locked): void {
-  updateLock(
-    event.address,
-    event.params.delegate,
-    event.params.token,
-    event.block.timestamp,
-  )
+  updateLock(event.address, event.params.delegate, event.params.token, event.block.timestamp)
 }
 
 export function handleUnlocked(event: Unlocked): void {
-  updateLock(
-    event.address,
-    event.params.delegate,
-    event.params.token,
-    event.block.timestamp,
-  )
+  updateLock(event.address, event.params.delegate, event.params.token, event.block.timestamp)
 }
 
 export function handleRageQuit(event: RageQuit): void {
-  updateLock(
-    event.address,
-    event.params.delegate,
-    event.params.token,
-    event.block.timestamp,
-  )
+  updateLock(event.address, event.params.delegate, event.params.token, event.block.timestamp)
+}
+
+function bigIntToAddress(value: BigInt): Address {
+  return Address.fromString(value.toHex().slice(2).padStart(40, '0'))
 }
 
 export function handleTransfer(event: Transfer): void {
   let from = new User(event.params.from.toHex())
-  let to = new User(event.params.to.toHex())
-
-  let vault = new Vault(event.params.tokenId.toHex())
-
-  vault.owner = event.params.to.toHex()
-
+  updateVault(bigIntToAddress(event.params.tokenId))
   from.save()
-  to.save()
-  vault.save()
 }

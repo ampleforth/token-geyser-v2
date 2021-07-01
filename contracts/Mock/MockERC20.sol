@@ -8,3 +8,9 @@ contract MockERC20 is ERC20 {
         ERC20._mint(recipient, amount);
     }
 }
+
+contract MockBAL is ERC20 {
+    constructor(address recipient, uint256 amount) ERC20("MockBAL", "BAL") {
+        ERC20._mint(recipient, amount);
+    }
+}

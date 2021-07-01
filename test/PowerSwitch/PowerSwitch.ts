@@ -19,24 +19,18 @@ describe('PowerSwitch', function () {
     it('should fail if msg.sender is not admin', async function () {
       expect(await Mock.getPowerController()).to.eq(accounts[0].address)
       await Mock.connect(accounts[0]).powerOff()
-      await expect(Mock.connect(accounts[1]).powerOn()).to.be.revertedWith(
-        'Ownable: caller is not the owner',
-      )
+      await expect(Mock.connect(accounts[1]).powerOn()).to.be.revertedWith('Ownable: caller is not the owner')
     })
     it('should succeed if in offline state', async function () {
       await Mock.connect(accounts[0]).powerOff()
       await Mock.connect(accounts[0]).powerOn()
     })
     it('should fail if in online state', async function () {
-      await expect(Mock.connect(accounts[0]).powerOn()).to.be.revertedWith(
-        'PowerSwitch: cannot power on',
-      )
+      await expect(Mock.connect(accounts[0]).powerOn()).to.be.revertedWith('PowerSwitch: cannot power on')
     })
     it('should fail if in shutdown state', async function () {
       await Mock.connect(accounts[0]).emergencyShutdown()
-      await expect(Mock.connect(accounts[0]).powerOn()).to.be.revertedWith(
-        'PowerSwitch: cannot power on',
-      )
+      await expect(Mock.connect(accounts[0]).powerOn()).to.be.revertedWith('PowerSwitch: cannot power on')
     })
     it('should succeed and emit event', async function () {
       await Mock.connect(accounts[0]).powerOff()
@@ -54,24 +48,18 @@ describe('PowerSwitch', function () {
   describe('powerOff', function () {
     it('should fail if msg.sender is not admin', async function () {
       expect(await Mock.getPowerController()).to.eq(accounts[0].address)
-      await expect(Mock.connect(accounts[1]).powerOff()).to.be.revertedWith(
-        'Ownable: caller is not the owner',
-      )
+      await expect(Mock.connect(accounts[1]).powerOff()).to.be.revertedWith('Ownable: caller is not the owner')
     })
     it('should succeed if in online state', async function () {
       await Mock.connect(accounts[0]).powerOff()
     })
     it('should fail if in offline state', async function () {
       await Mock.connect(accounts[0]).powerOff()
-      await expect(Mock.connect(accounts[0]).powerOff()).to.be.revertedWith(
-        'PowerSwitch: cannot power off',
-      )
+      await expect(Mock.connect(accounts[0]).powerOff()).to.be.revertedWith('PowerSwitch: cannot power off')
     })
     it('should fail if in shutdown state', async function () {
       await Mock.connect(accounts[0]).emergencyShutdown()
-      await expect(Mock.connect(accounts[0]).powerOff()).to.be.revertedWith(
-        'PowerSwitch: cannot power off',
-      )
+      await expect(Mock.connect(accounts[0]).powerOff()).to.be.revertedWith('PowerSwitch: cannot power off')
     })
     it('should succeed and emit event', async function () {
       const txPromise = Mock.connect(accounts[0]).powerOff()
@@ -88,9 +76,7 @@ describe('PowerSwitch', function () {
   describe('emergencyShutdown', function () {
     it('should fail if msg.sender is not admin', async function () {
       expect(await Mock.getPowerController()).to.eq(accounts[0].address)
-      await expect(
-        Mock.connect(accounts[1]).emergencyShutdown(),
-      ).to.be.revertedWith('Ownable: caller is not the owner')
+      await expect(Mock.connect(accounts[1]).emergencyShutdown()).to.be.revertedWith('Ownable: caller is not the owner')
     })
     it('should succeed if in online state', async function () {
       await Mock.connect(accounts[0]).emergencyShutdown()
@@ -101,9 +87,7 @@ describe('PowerSwitch', function () {
     })
     it('should fail if in shutdown state', async function () {
       await Mock.connect(accounts[0]).emergencyShutdown()
-      await expect(
-        Mock.connect(accounts[0]).emergencyShutdown(),
-      ).to.be.revertedWith('PowerSwitch: cannot shutdown')
+      await expect(Mock.connect(accounts[0]).emergencyShutdown()).to.be.revertedWith('PowerSwitch: cannot shutdown')
     })
     it('should succeed and emit event', async function () {
       const txPromise = Mock.connect(accounts[0]).emergencyShutdown()

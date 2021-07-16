@@ -138,20 +138,20 @@ task('deploy', 'deploy full set of factory contracts')
     if (!noVerify) {
       console.log('Verifying source on etherscan')
 
-      await run('verify', {
+      await run('verify:verify', {
         address: PowerSwitchFactory.address,
       })
-      await run('verify', {
+      await run('verify:verify', {
         address: RewardPoolFactory.address,
       })
-      await run('verify', {
+      await run('verify:verify', {
         address: UniversalVault.address,
       })
-      await run('verify', {
+      await run('verify:verify', {
         address: VaultFactory.address,
         constructorArguments: [UniversalVault.address],
       })
-      await run('verify', {
+      await run('verify:verify', {
         address: GeyserRegistry.address,
       })
     }
@@ -262,7 +262,7 @@ task('verify-geyser', 'verify and lock the Geyser template')
 
     console.log('Verifying source on etherscan')
 
-    await run('verify', {
+    await run('verify:verify', {
       address: contract.address,
     })
   })

@@ -14,7 +14,12 @@ interface Props {
 }
 
 export const UnstakeSummary: React.FC<Props> = ({ userInput, parsedUserInput }) => {
-  const { rewardTokenInfo: { symbol: rewardTokenSymbol }, stakingTokenInfo: { symbol: stakingTokenSymbol } } = useContext(GeyserContext)
+  const {
+    selectedGeyserInfo: {
+      rewardTokenInfo: { symbol: rewardTokenSymbol },
+      stakingTokenInfo: { symbol: stakingTokenSymbol },
+    },
+  } = useContext(GeyserContext)
   const { computeRewardsFromUnstake } = useContext(StatsContext)
 
   const [rewardAmount, setRewardAmount] = useState<string>('0.00')

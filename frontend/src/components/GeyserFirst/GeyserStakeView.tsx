@@ -29,7 +29,7 @@ import {
 export const GeyserStakeView = () => {
   const [userInput, setUserInput] = useState('')
   const [parsedUserInput, setParsedUserInput] = useState(BigNumber.from('0'))
-  const { selectedGeyser, stakingTokenInfo, rewardTokenInfo, handleGeyserAction, isStakingAction } = useContext(GeyserContext)
+  const { selectedGeyserInfo: { geyser: selectedGeyser, stakingTokenInfo, rewardTokenInfo }, handleGeyserAction, isStakingAction } = useContext(GeyserContext)
   const { decimals: stakingTokenDecimals, symbol: stakingTokenSymbol, address: stakingTokenAddress } = stakingTokenInfo
   const { decimals: rewardTokenDecimals, symbol: rewardTokenSymbol, address: rewardTokenAddress } = rewardTokenInfo
   const { signer } = useContext(Web3Context)

@@ -15,7 +15,7 @@ export const WalletContext = createContext<{
 export const WalletContextProvider: React.FC = ({ children }) => {
   const [walletAmount, setWalletAmount] = useState<BigNumber>(BigNumber.from('0'))
   const { signer } = useContext(Web3Context)
-  const { selectedGeyser } = useContext(GeyserContext)
+  const { selectedGeyserInfo: { geyser: selectedGeyser } } = useContext(GeyserContext)
 
   const getWalletAmount = useCallback(async () => {
     if (selectedGeyser && signer) {

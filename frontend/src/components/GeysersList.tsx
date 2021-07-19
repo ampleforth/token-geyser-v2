@@ -7,7 +7,7 @@ import { GeyserStatus } from 'types'
 import { Dropdown } from './Dropdown'
 
 export const GeysersList = () => {
-  const { geysers, selectGeyserByName, selectedGeyser, getGeyserName } = useContext(GeyserContext)
+  const { geysers, selectGeyserByName, selectedGeyserInfo: { geyser: selectedGeyser }, getGeyserName } = useContext(GeyserContext)
   const handleGeyserChange = (geyserName: string) => selectGeyserByName(geyserName)
 
   const optgroups = (() => {

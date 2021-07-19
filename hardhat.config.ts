@@ -11,7 +11,7 @@ import { HardhatUserConfig, task } from 'hardhat/config'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/dist/src/signer-with-address'
 import { parseUnits } from 'ethers/lib/utils'
 
-const SDK_PATH = './frontend/src/sdk'
+const SDK_PATH = './sdk'
 
 async function deployContract(
   name: string,
@@ -285,6 +285,12 @@ export default {
       url: 'https://kovan.infura.io/v3/' + process.env.INFURA_ID,
       accounts: {
         mnemonic: process.env.DEV_MNEMONIC || Wallet.createRandom().mnemonic.phrase,
+      },
+    },
+    mainnet: {
+      url: 'https://mainnet.infura.io/v3/' + process.env.INFURA_ID,
+      accounts: {
+        mnemonic: process.env.PROD_MNEMONIC,
       },
     },
   },

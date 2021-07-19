@@ -287,6 +287,12 @@ export default {
         mnemonic: process.env.DEV_MNEMONIC || Wallet.createRandom().mnemonic.phrase,
       },
     },
+    mainnet: {
+      url: 'https://mainnet.infura.io/v3/' + process.env.INFURA_ID,
+      accounts: {
+        mnemonic: process.env.PROD_MNEMONIC,
+      },
+    },
   },
   solidity: {
     compilers: [

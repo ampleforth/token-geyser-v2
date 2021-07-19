@@ -82,3 +82,7 @@ generated
 # subgraph
 subgraph/subgraph.yaml
 graph-node/
+
+# env
+.env
+frontend/.env

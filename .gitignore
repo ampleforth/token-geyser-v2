@@ -86,3 +86,6 @@ graph-node/
 # env
 .env
 frontend/.env
+
+# rough notes
+notes.txt

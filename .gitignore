@@ -80,7 +80,6 @@ artifacts
 generated
 
 # subgraph
-subgraph/subgraph.yaml
 graph-node/
 
 # env

@@ -56,7 +56,7 @@ export const VaultContextProvider: React.FC = ({ children }) => {
     : null
 
   useEffect(() => {
-    if (address) getVaults({ variables: { id: address } })
+    if (address) getVaults({ variables: { id: address.toLowerCase() } })
   }, [address, getVaults])
 
   useEffect(() => {

@@ -11,7 +11,7 @@ import { HardhatUserConfig, task } from 'hardhat/config'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/dist/src/signer-with-address'
 import { parseUnits } from 'ethers/lib/utils'
 
-const SDK_PATH = './frontend/src/sdk'
+const SDK_PATH = './sdk'
 
 async function deployContract(
   name: string,

@@ -14,6 +14,8 @@ export const loadNetworkConfig = async (signerOrProvider: Signer | providers.Pro
   switch (network?.name) {
     case 'mainnet':
       return mainnetConfig
+    case 'homestead':
+      return mainnetConfig
     case 'goerli':
       return goerliConfig
     case 'localhost':

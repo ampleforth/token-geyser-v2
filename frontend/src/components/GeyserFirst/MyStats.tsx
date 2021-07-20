@@ -18,9 +18,9 @@ import {
 
 export const MyStats = () => {
   const {
-    userStats: { apy, currentMultiplier, currentReward },
+    userStats: { apy, currentMultiplier, maxMultiplier, currentReward },
     vaultStats: { currentStake },
-    geyserStats: { duration },
+    geyserStats: { duration, calcPeriodInDays},
   } = useContext(StatsContext)
   const {
     selectedGeyserInfo: {
@@ -37,7 +37,7 @@ export const MyStats = () => {
       },
       {
         title: 'Reward Multiplier',
-        body: GET_REWARD_MULTIPLIER_MSG({ days: safeNumeral(duration / DAY_IN_SEC, '0.0'), multiplier: safeNumeral(currentMultiplier, '0.0') }),
+        body: GET_REWARD_MULTIPLIER_MSG({ days: safeNumeral(calcPeriodInDays, '0.0'), multiplier: safeNumeral(maxMultiplier, '0.0') }),
       },
       {
         title: 'Current Rewards',

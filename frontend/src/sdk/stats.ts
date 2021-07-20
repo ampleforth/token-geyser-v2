@@ -1,6 +1,7 @@
 import { BigNumber, BigNumberish, Contract, providers, Signer } from 'ethers'
 import { TransactionReceipt } from '@ethersproject/providers'
 import { loadNetworkConfig, parseEventFromReceipt } from './utils'
+import { VaultData } from './types'
 
 async function _execGeyserFunction<T>(
   geyserAddress: string,
@@ -22,6 +23,14 @@ async function _execVaultFunction<T>(
   const config = await loadNetworkConfig(signerOrProvider)
   const vault = new Contract(vaultAddress, config.VaultTemplate.abi, signerOrProvider)
   return vault[fnc](...args) as Promise<T>
+}
+
+export const getVaultData = async (
+  vaultAddress: string,
+  geyserAddress: string,
+  signerOrProvider: Signer | providers.Provider,
+) => {
+  return _execGeyserFunction<VaultData>(geyserAddress, signerOrProvider, 'getVaultData', [vaultAddress])
 }
 
 export const getCurrentVaultReward = async (

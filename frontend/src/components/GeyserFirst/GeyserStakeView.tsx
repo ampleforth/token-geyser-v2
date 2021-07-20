@@ -141,6 +141,7 @@ export const GeyserStakeView = () => {
         onChange={handleOnChange}
         precision={stakingTokenDecimals}
         maxValue={isStakingAction ? walletAmount : currentStakeAmount}
+        skipMaxEnforcement={isStakingAction}
       />
       {isStakingAction ? (
         <EstimatedRewards parsedUserInput={parsedUserInput} />

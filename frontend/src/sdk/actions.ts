@@ -133,8 +133,8 @@ export const approveCreateDepositStake = async (geyserAddress: string, amount: B
   const lockPermission = await signPermission('Lock', vault, signer, geyserAddress, token.address, amount, '0')
   const args = [geyserAddress, config.VaultFactory.address, await signer.getAddress(), amount, salt, lockPermission]
 
-  const allowance = await token.allowance(signer.getAddress(), router.address);
-  if(allowance.lt(amount)){
+  const allowance = await token.allowance(signer.getAddress(), router.address)
+  if (allowance.lt(amount)) {
     await token.approve(router.address, amount)
   }
   return router.create2VaultAndStake(...args) as Promise<TransactionResponse>
@@ -155,8 +155,8 @@ export const approveDepositStake = async (
   const lockPermission = await signPermission('Lock', vault, signer, geyserAddress, token.address, amount)
   const args = [geyserAddress, vaultAddress, amount, lockPermission]
 
-  const allowance = await token.allowance(signer.getAddress(), router.address);
-  if(allowance.lt(amount)){
+  const allowance = await token.allowance(signer.getAddress(), router.address)
+  if (allowance.lt(amount)) {
     await token.approve(router.address, amount)
   }
   return router.depositStake(...args) as Promise<TransactionResponse>

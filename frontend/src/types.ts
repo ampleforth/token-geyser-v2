@@ -107,6 +107,8 @@ export type VaultStats = {
 export type UserStats = {
   apy: number
   currentMultiplier: number
+  minMultiplier: number
+  maxMultiplier: number
   currentReward: number
 }
 

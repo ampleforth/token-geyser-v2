@@ -16,7 +16,7 @@ interface Props {
 
 export const EstimatedRewards: React.FC<Props> = ({ parsedUserInput }) => {
   const [rewards, setRewards] = useState<string>('0.00')
-  const { rewardTokenInfo: { symbol } } = useContext(GeyserContext)
+  const { selectedGeyserInfo: { rewardTokenInfo: { symbol } } } = useContext(GeyserContext)
   const { computeRewardsFromAdditionalStakes, geyserStats: { calcPeriodInDays } } = useContext(StatsContext)
 
   useEffect(() => {

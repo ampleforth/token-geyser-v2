@@ -17,7 +17,7 @@ interface Props {
 
 export const UnstakeConfirmModal: React.FC<Props> = ({ parsedUserInput, open, onClose, onConfirm }) => {
   const { computeLossFromUnstake1Month } = useContext(StatsContext)
-  const { rewardTokenInfo: { symbol }} = useContext(GeyserContext)
+  const { selectedGeyserInfo: { rewardTokenInfo: { symbol } } } = useContext(GeyserContext)
   const [loss, setLoss] = useState<string>('0.00')
 
   useEffect(() => {

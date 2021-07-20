@@ -36,10 +36,11 @@ export const StatsContextProvider: React.FC = ({ children }) => {
   const [vaultStats, setVaultStats] = useState<VaultStats>(defaultVaultStats())
 
   const { signer, defaultProvider } = useContext(Web3Context)
-  const { selectedGeyser, rewardTokenInfo, stakingTokenInfo, allTokensInfos } = useContext(GeyserContext)
+  const { selectedGeyserInfo, allTokensInfos } = useContext(GeyserContext)
   const { selectedVault, currentLock } = useContext(VaultContext)
 
   const computeRewardsFromUnstake = async (unstakeAmount: BigNumberish) => {
+    const { geyser: selectedGeyser, rewardTokenInfo } = selectedGeyserInfo
     const { decimals } = rewardTokenInfo
     if (selectedGeyser && selectedVault && signer && decimals) {
       const vaultAddress = toChecksumAddress(selectedVault.id)
@@ -51,6 +52,7 @@ export const StatsContextProvider: React.FC = ({ children }) => {
   }
 
   const computeAPYFromAdditionalStakes = async (stakeAmount: BigNumberish) => {
+    const { geyser: selectedGeyser, stakingTokenInfo, rewardTokenInfo } = selectedGeyserInfo
     if (selectedGeyser) {
       return getUserAPY(selectedGeyser, currentLock, stakingTokenInfo, rewardTokenInfo, stakeAmount, signer || defaultProvider)
     }
@@ -58,27 +60,34 @@ export const StatsContextProvider: React.FC = ({ children }) => {
   }
 
   const computeRewardsFromAdditionalStakes = async (stakeAmount: BigNumberish) => {
-    const { decimals } = rewardTokenInfo
-    if (selectedGeyser && geyserStats.duration) {
-      const drip = await (currentLock
-        ? getUserDrip(selectedGeyser, currentLock, stakeAmount, geyserStats.duration, signer || defaultProvider)
-        : getStakeDrip(selectedGeyser, stakeAmount, geyserStats.duration, signer || defaultProvider))
-      return parseFloat(formatUnits(Math.round(drip), decimals))
+    const { geyser: selectedGeyser, rewardTokenInfo } = selectedGeyserInfo
+    if (selectedGeyser) {
+      const { decimals } = rewardTokenInfo
+      if (geyserStats.duration) {
+        const drip = await (currentLock
+          ? getUserDrip(selectedGeyser, currentLock, stakeAmount, geyserStats.duration, signer || defaultProvider)
+          : getStakeDrip(selectedGeyser, stakeAmount, geyserStats.duration, signer || defaultProvider))
+        return parseFloat(formatUnits(Math.round(drip), decimals))
+      }
     }
     return 0
   }
 
   const computeLossFromUnstake1Month = async (unstakeAmount: BigNumberish) => {
-    const { decimals } = rewardTokenInfo
-    if (selectedGeyser && currentLock) {
-      const normalGains = await getUserDrip(selectedGeyser, currentLock, '0', MONTH_IN_SEC, signer || defaultProvider)
-      const gainsAfterUnstake = await getUserDripAfterWithdraw(selectedGeyser, currentLock, unstakeAmount, MONTH_IN_SEC, signer || defaultProvider)
-      return parseFloat(formatUnits(Math.round(normalGains - gainsAfterUnstake), decimals))
+    const { geyser: selectedGeyser, rewardTokenInfo } = selectedGeyserInfo
+    if (selectedGeyser) {
+      const { decimals } = rewardTokenInfo
+      if (currentLock) {
+        const normalGains = await getUserDrip(selectedGeyser, currentLock, '0', MONTH_IN_SEC, signer || defaultProvider)
+        const gainsAfterUnstake = await getUserDripAfterWithdraw(selectedGeyser, currentLock, unstakeAmount, MONTH_IN_SEC, signer || defaultProvider)
+        return parseFloat(formatUnits(Math.round(normalGains - gainsAfterUnstake), decimals))
+      }
     }
     return 0
   }
 
   const refreshVaultStats = async () => {
+    const { geyser: selectedGeyser, stakingTokenInfo, rewardTokenInfo } = selectedGeyserInfo
     if (selectedGeyser && stakingTokenInfo.address && rewardTokenInfo.address) {
       setVaultStats(await getVaultStats(stakingTokenInfo, rewardTokenInfo, allTokensInfos, selectedVault, currentLock, signer || defaultProvider))
     }
@@ -88,6 +97,7 @@ export const StatsContextProvider: React.FC = ({ children }) => {
     let mounted = true;
     (async () => {
       try {
+        const { geyser: selectedGeyser, stakingTokenInfo, rewardTokenInfo } = selectedGeyserInfo
         if (selectedGeyser && stakingTokenInfo.address && rewardTokenInfo.address) {
           const newGeyserStats = await getGeyserStats(selectedGeyser, stakingTokenInfo, rewardTokenInfo)
           const newUserStats = await getUserStats(selectedGeyser, selectedVault, currentLock, stakingTokenInfo, rewardTokenInfo, signer || defaultProvider)
@@ -103,7 +113,7 @@ export const StatsContextProvider: React.FC = ({ children }) => {
       }
     })();
     return () => { mounted = false }
-  }, [selectedGeyser, selectedVault, currentLock, stakingTokenInfo.address, rewardTokenInfo.address])
+  }, [selectedGeyserInfo, selectedVault, currentLock])
 
   return (
     <StatsContext.Provider

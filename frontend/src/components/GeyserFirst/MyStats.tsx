@@ -23,8 +23,10 @@ export const MyStats = () => {
     geyserStats: { duration },
   } = useContext(StatsContext)
   const {
-    rewardTokenInfo: { symbol: rewardTokenSymbol },
-    stakingTokenInfo: { price: stakingTokenPrice },
+    selectedGeyserInfo: {
+      rewardTokenInfo: { symbol: rewardTokenSymbol },
+      stakingTokenInfo: { price: stakingTokenPrice },
+    },
   } = useContext(GeyserContext)
 
   const getTooltipMessages = useCallback(

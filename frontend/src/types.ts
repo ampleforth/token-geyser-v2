@@ -76,6 +76,12 @@ export type RewardTokenInfo = TokenInfo & {
   getTotalRewards: (rewardSchedules: RewardSchedule[]) => Promise<number>
 }
 
+export type GeyserInfo = {
+  geyser: Geyser | null
+  stakingTokenInfo: StakingTokenInfo
+  rewardTokenInfo: RewardTokenInfo
+}
+
 export type GeyserStats = {
   duration: number
   totalDeposit: number

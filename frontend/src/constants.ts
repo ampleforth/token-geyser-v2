@@ -102,7 +102,7 @@ export enum Align {
 export const ALCHEMY_PROJECT_ID = 'geo5oyrZyF7LWPaAt7eoLzxHg76ljgsO'
 
 // Infura
-export const INFURA_PROJECT_ID = ''
+export const INFURA_PROJECT_ID = 'dee1a87a734042fcabc2fd116a7b776d'
 
 // Enable withdrawing whole unlocked balance of staking tokens when unstaking
 export const WITHDRAW_UNLOCKED_STAKING_TOKENS_WHEN_UNSTAKING = false

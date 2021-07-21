@@ -6,12 +6,12 @@ export const getDefaultProvider = () => {
     return new ethers.providers.JsonRpcProvider('http://localhost:8545', { name: 'localhost', chainId: 1337 })
   }
 
-  if (INFURA_PROJECT_ID) {
-    return ethers.providers.InfuraProvider.getWebSocketProvider('homestead', INFURA_PROJECT_ID)
-    // return ethers.getDefaultProvider(undefined, { infura: INFURA_PROJECT_ID });
+  if (ALCHEMY_PROJECT_ID) {
+    return new ethers.providers.AlchemyProvider('homestead', ALCHEMY_PROJECT_ID)
   }
 
-  return new ethers.providers.AlchemyProvider('homestead', ALCHEMY_PROJECT_ID)
+  // return ethers.getDefaultProvider(undefined, { infura: INFURA_PROJECT_ID });
+  return ethers.providers.InfuraProvider.getWebSocketProvider('homestead', INFURA_PROJECT_ID)
 }
 
 export const loadHistoricalLogs = async (contract: Contract, eventName: string, startBlock = UFRG_INIT_BLOCK) => {

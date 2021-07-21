@@ -3,6 +3,25 @@ import Onboard from 'bnc-onboard'
 import React, { createContext, useCallback, useEffect, useState } from 'react'
 import { providers, Signer } from 'ethers'
 import { getDefaultProvider } from '../utils/eth'
+import { INFURA_PROJECT_ID } from '../constants'
+
+const INFURA_ENDPOINT = `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`
+
+const SUPPORTED_WALLETS = [
+  { walletName: 'metamask', preferred: true, rpcUrl: INFURA_ENDPOINT },
+  {
+    walletName: 'walletConnect',
+    preferred: true,
+    infuraKey: INFURA_PROJECT_ID,
+  },
+  { walletName: 'walletLink', label: 'Coinbase Wallet', preferred: true, rpcUrl: INFURA_ENDPOINT },
+  { walletName: 'wallet.io', preferred: true, rpcUrl: INFURA_ENDPOINT },
+  { walletName: 'imToken', preferred: true, rpcUrl: INFURA_ENDPOINT },
+  { walletName: 'coinbase', preferred: true, rpcUrl: INFURA_ENDPOINT },
+  { walletName: 'status', preferred: true, rpcUrl: INFURA_ENDPOINT },
+  { walletName: 'trust', preferred: true, rpcUrl: INFURA_ENDPOINT },
+  { walletName: 'authereum', preferred: true, rpcUrl: INFURA_ENDPOINT }, // currently getting rate limited
+];
 
 class Provider extends providers.Web3Provider {}
 
@@ -35,6 +54,10 @@ const initOnboard = (subscriptions: Subscriptions): API => {
   return Onboard({
     ...network,
     subscriptions,
+    hideBranding: true,
+    walletSelect: {
+      wallets: SUPPORTED_WALLETS,
+    },
   })
 }
 

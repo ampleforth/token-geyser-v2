@@ -9,7 +9,6 @@ import { Tooltip } from 'components/Tooltip'
 import { GeyserStatsBox } from './GeyserStatsBox'
 import { MyStatsBox } from './MyStatsBox'
 import {
-  DAY_IN_SEC,
   GET_APY_NO_STAKE_MSG,
   GET_APY_STAKE_MSG,
   GET_CURRENT_REWARDS_MSG,
@@ -20,7 +19,7 @@ export const MyStats = () => {
   const {
     userStats: { apy, currentMultiplier, maxMultiplier, currentReward },
     vaultStats: { currentStake },
-    geyserStats: { duration, calcPeriodInDays},
+    geyserStats: { calcPeriodInDays},
   } = useContext(StatsContext)
   const {
     selectedGeyserInfo: {
@@ -33,11 +32,11 @@ export const MyStats = () => {
     () => [
       {
         title: 'APY',
-        body: currentStake > 0 ? GET_APY_STAKE_MSG() : GET_APY_NO_STAKE_MSG({ days: safeNumeral(duration / DAY_IN_SEC, '0.0') }),
+        body: currentStake > 0 ? GET_APY_STAKE_MSG() : GET_APY_NO_STAKE_MSG({ days: safeNumeral(calcPeriodInDays||30, '0.0') }),
       },
       {
         title: 'Reward Multiplier',
-        body: GET_REWARD_MULTIPLIER_MSG({ days: safeNumeral(calcPeriodInDays, '0.0'), multiplier: safeNumeral(maxMultiplier, '0.0') }),
+        body: GET_REWARD_MULTIPLIER_MSG({ days: safeNumeral(calcPeriodInDays||30, '0.0'), multiplier: safeNumeral(maxMultiplier||3, '0.0') }),
       },
       {
         title: 'Current Rewards',

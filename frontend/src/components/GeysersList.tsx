@@ -11,6 +11,8 @@ export const GeysersList = () => {
   const handleGeyserChange = (geyserName: string) => selectGeyserByName(geyserName)
 
   const optgroups = (() => {
+    // NOTE: active inactive logic is wrong
+    // FIX ME!
     const activeGeysers = geysers
       .filter(({ status }) => status !== GeyserStatus.SHUTDOWN)
       .map(({ id }) => getGeyserName(id))

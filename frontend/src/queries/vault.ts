@@ -14,6 +14,9 @@ export const GET_USER_VAULTS = gql`
         }
         locks(first: 1000) {
           id
+          geyser {
+            id
+          }
           token
           amount
           stakeUnits

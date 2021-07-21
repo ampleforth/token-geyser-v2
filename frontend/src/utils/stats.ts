@@ -2,7 +2,7 @@ import { BigNumber, BigNumberish } from 'ethers'
 import { toChecksumAddress } from 'web3-utils'
 import { formatUnits } from 'ethers/lib/utils'
 import {
-  getVaultData,
+  getGeyserVaultData,
   getBalanceLocked,
   getCurrentUnlockedRewards,
   getCurrentVaultReward,
@@ -263,11 +263,12 @@ const getCurrentMultiplier = async (
   const minMultiplier = 1
   const maxMultiplier = parseInt(scalingCeiling, 10) / parseInt(scalingFloor, 10)
 
-  const vaultData = await getVaultData(vaultAddress, geyserAddress, signerOrProvider)
-  const totalStake = parseFloat(vaultData.totalStake.toString())
+  // TODO: can we fetch this from the subgraph?
+  const geyserVaultData = await getGeyserVaultData(geyserAddress, vaultAddress, signerOrProvider)
+  const totalStake = parseFloat(geyserVaultData.totalStake.toString())
   const st = parseFloat(scalingTime.toString())
   let weightedStake = 0
-  vaultData.stakes.forEach((stake) => {
+  geyserVaultData.stakes.forEach((stake) => {
     const amt = parseFloat(stake.amount.toString())
     const ts = parseFloat(stake.timestamp.toString())
     const perc = Math.min(now - ts, st) / st
@@ -335,6 +336,7 @@ const getVaultTokenBalance = async (
 }
 
 export const getVaultStats = async (
+  geyser: Geyser,
   stakingTokenInfo: StakingTokenInfo,
   rewardTokenInfo: RewardTokenInfo,
   allTokensInfos: TokenInfo[],
@@ -344,6 +346,7 @@ export const getVaultStats = async (
 ): Promise<VaultStats> => {
   if (!vault) return defaultVaultStats()
   const vaultAddress = toChecksumAddress(vault.id)
+  const geyserAddress = toChecksumAddress(geyser.id)
 
   const addressSet = new Set<string>([stakingTokenInfo.address, rewardTokenInfo.address].map(toChecksumAddress))
   const stakingTokenBalanceInfo = await getVaultTokenBalance(stakingTokenInfo, vaultAddress, signerOrProvider)

@@ -25,9 +25,9 @@ async function _execVaultFunction<T>(
   return vault[fnc](...args) as Promise<T>
 }
 
-export const getVaultData = async (
-  vaultAddress: string,
+export const getGeyserVaultData = async (
   geyserAddress: string,
+  vaultAddress: string,
   signerOrProvider: Signer | providers.Provider,
 ) => {
   return _execGeyserFunction<VaultData>(geyserAddress, signerOrProvider, 'getVaultData', [vaultAddress])

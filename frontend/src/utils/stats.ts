@@ -49,6 +49,7 @@ export const defaultVaultStats = (): VaultStats => ({
   rewardTokenBalance: 0,
   vaultTokenBalances: [],
   currentStake: 0,
+  currentStakable: BigNumber.from('0'),
 })
 
 const getGeyserDuration = (geyser: Geyser) => {
@@ -196,8 +197,8 @@ export const getUserAPY = async (
     .add(lock ? lock.amount : '0')
     .toString()
 
-  const inflow = parseFloat(stakedAmount) / 10 ** stakingTokenDecimals * stakingTokenPrice
-  const outflow = Math.round(drip) / 10 ** rewardTokenDecimals * rewardTokenPrice
+  const inflow = (parseFloat(stakedAmount) / 10 ** stakingTokenDecimals) * stakingTokenPrice
+  const outflow = (Math.round(drip) / 10 ** rewardTokenDecimals) * rewardTokenPrice
   const periods = YEAR_IN_SEC / calcPeriod
   return calculateAPY(inflow, outflow, periods)
 }
@@ -346,7 +347,6 @@ export const getVaultStats = async (
 ): Promise<VaultStats> => {
   if (!vault) return defaultVaultStats()
   const vaultAddress = toChecksumAddress(vault.id)
-  const geyserAddress = toChecksumAddress(geyser.id)
 
   const addressSet = new Set<string>([stakingTokenInfo.address, rewardTokenInfo.address].map(toChecksumAddress))
   const stakingTokenBalanceInfo = await getVaultTokenBalance(stakingTokenInfo, vaultAddress, signerOrProvider)
@@ -373,6 +373,7 @@ export const getVaultStats = async (
 
   const amount = lock ? lock.amount : '0'
   const currentStake = parseFloat(formatUnits(amount, stakingTokenInfo.decimals))
+  const currentStakable = stakingTokenBalanceInfo.parsedBalance.sub(amount)
 
   return {
     id: vaultAddress,
@@ -380,5 +381,6 @@ export const getVaultStats = async (
     rewardTokenBalance: rewardTokenBalanceInfo.balance,
     vaultTokenBalances,
     currentStake,
+    currentStakable,
   }
 }

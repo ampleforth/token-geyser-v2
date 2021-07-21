@@ -102,6 +102,7 @@ export type VaultStats = {
   rewardTokenBalance: number
   vaultTokenBalances: VaultTokenBalance[]
   currentStake: number
+  currentStakable: BigNumber
 }
 
 export type UserStats = {

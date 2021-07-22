@@ -69,8 +69,8 @@ export const VaultBalanceView = () => {
       ({
         key: vaultTokenBalance.symbol,
         token: <TextEllipsis>{vaultTokenBalance.symbol}</TextEllipsis>,
-        balance: safeNumeral(vaultTokenBalance.balance, '0.00'),
-        unlocked: safeNumeral(vaultTokenBalance.unlockedBalance, '0.00'),
+        balance: safeNumeral(vaultTokenBalance.balance, '0.00000'),
+        unlocked: safeNumeral(vaultTokenBalance.unlockedBalance, '0.00000'),
         action: (
           <ActionButton
             disabled={vaultTokenBalance.parsedUnlockedBalance.isZero()}

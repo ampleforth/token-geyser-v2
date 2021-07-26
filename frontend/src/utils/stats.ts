@@ -273,7 +273,7 @@ const getCurrentMultiplier = async (
     const amt = parseFloat(stake.amount.toString())
     const ts = parseFloat(stake.timestamp.toString())
     const perc = Math.min(now - ts, st) / st
-    weightedStake = perc * amt
+    weightedStake += perc * amt
   })
   const fraction = weightedStake / totalStake
 

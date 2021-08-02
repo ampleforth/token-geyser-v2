@@ -6,11 +6,12 @@ import tw from 'twin.macro'
 interface Props extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
   precision: number
   maxValue: BigNumber
-  onChange?: (value: string) => void
+  onChange?: (value: string) => void,
+  skipMaxEnforcement?: boolean,
 }
 
 export const PositiveInput: React.FC<Props> = (props) => {
-  const { onChange, precision, maxValue } = props
+  const { onChange, precision, maxValue, skipMaxEnforcement } = props
 
   const respectsPrecision = (value: string) => {
     if (value) {
@@ -21,6 +22,9 @@ export const PositiveInput: React.FC<Props> = (props) => {
   }
 
   const respectsMax = (value: string) => {
+    if(skipMaxEnforcement){
+      return true
+    }
     if (value) {
       return parseUnits(value, precision).lte(maxValue)
     }

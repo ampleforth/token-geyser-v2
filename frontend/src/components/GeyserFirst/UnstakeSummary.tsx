@@ -46,7 +46,7 @@ export const UnstakeSummary: React.FC<Props> = ({ userInput, parsedUserInput }) 
       <SummaryCard>
         <Content>
           <Label>
-            Rewards Claimed
+            Rewards to Claim
           </Label>
           <Value>
             <Amount>{`${rewardAmount} `}</Amount>

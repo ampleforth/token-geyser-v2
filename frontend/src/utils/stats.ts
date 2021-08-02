@@ -2,6 +2,7 @@ import { BigNumber, BigNumberish } from 'ethers'
 import { toChecksumAddress } from 'web3-utils'
 import { formatUnits } from 'ethers/lib/utils'
 import {
+  getVaultData,
   getBalanceLocked,
   getCurrentUnlockedRewards,
   getCurrentVaultReward,
@@ -30,6 +31,8 @@ const nowInSeconds = () => Math.round(Date.now() / 1000)
 export const defaultUserStats = (): UserStats => ({
   apy: 0,
   currentMultiplier: 1.0,
+  minMultiplier: 1.0,
+  maxMultiplier: 1.0,
   currentReward: 0,
 })
 
@@ -79,7 +82,8 @@ export const getGeyserStats = async (
     async () => ({
       duration: getGeyserDuration(geyser),
       totalDeposit: getGeyserTotalDeposit(geyser, stakingTokenInfo),
-      totalRewards: await rewardTokenInfo.getTotalRewards(geyser.rewardSchedules),
+      totalRewards:
+        (await rewardTokenInfo.getTotalRewards(geyser.rewardSchedules)) / 10 ** (rewardTokenInfo.decimals || 1),
       calcPeriodInDays: getCalcPeriod(geyser) / DAY_IN_SEC,
     }),
     `${toChecksumAddress(geyser.id)}|stats`,
@@ -191,8 +195,9 @@ export const getUserAPY = async (
   const stakedAmount = BigNumber.from(additionalStakes)
     .add(lock ? lock.amount : '0')
     .toString()
-  const inflow = parseFloat(formatUnits(stakedAmount, stakingTokenDecimals)) * stakingTokenPrice
-  const outflow = parseFloat(formatUnits(Math.round(drip), rewardTokenDecimals)) * rewardTokenPrice
+
+  const inflow = parseFloat(stakedAmount) / 10 ** stakingTokenDecimals * stakingTokenPrice
+  const outflow = Math.round(drip) / 10 ** rewardTokenDecimals * rewardTokenPrice
   const periods = YEAR_IN_SEC / calcPeriod
   return calculateAPY(inflow, outflow, periods)
 }
@@ -209,20 +214,25 @@ const getPoolAPY = async (
   ls.computeAndCache<number>(
     async () => {
       const { scalingTime } = geyser
-      const { price: stakingTokenPrice } = stakingTokenInfo
+      const { price: stakingTokenPrice, decimals: stakingTokenDecimals } = stakingTokenInfo
       const { decimals: rewardTokenDecimals, symbol: rewardTokenSymbol } = rewardTokenInfo
       if (!rewardTokenSymbol) return 0
-      const rewardTokenPrice = await getCurrentPrice('AMPL')
+      const rewardTokenPrice = await getCurrentPrice(rewardTokenInfo.symbol)
 
       const inflow = 20000.0 // avg_deposit: 20,000 USD
+      const inflowDecimals = BigNumber.from((10 ** stakingTokenDecimals).toString())
+      const inflowFixedPt = BigNumber.from(inflow).mul(inflowDecimals)
+      const stakeTokenPriceBigNum = BigNumber.from(Math.round(stakingTokenPrice))
+      const stake = inflowFixedPt.div(stakeTokenPriceBigNum)
 
-      const stake = BigNumber.from(Math.round(inflow / stakingTokenPrice))
       const calcPeriod = getCalcPeriod(geyser)
+
       const stakeDripAfterPeriod = await getStakeDrip(geyser, stake, parseInt(scalingTime, 10), signerOrProvider)
       if (stakeDripAfterPeriod === 0) return 0
 
       const outflow = parseFloat(formatUnits(Math.round(stakeDripAfterPeriod), rewardTokenDecimals)) * rewardTokenPrice
       const periods = YEAR_IN_SEC / calcPeriod
+
       return calculateAPY(inflow, outflow, periods)
     },
     `${toChecksumAddress(geyser.id)}|poolAPY`,
@@ -234,35 +244,38 @@ const getPoolAPY = async (
  *
  * The minimum multiplier is 1, and the maximum multiplier is scalingCeiling / scalingFloor
  *
- * If the current multiplier were maxed, then the rewards from unstaking all stakes
- * would be maxRewards = (currentUnlockedRewards * lockStakeUnits / totalStakeUnits)
+ * The current scaling factor is calculated as the "remaining bonus time" weighted sun
+ * of the users stakes.
  *
- * The actual current multiplier is then { minMultiplier + currentRewards / maxRewards * (maxMultiplier - minMultiplier) }
+ * The actual current multiplier is then { minMultiplier + currentScalingFactor * (maxMultiplier - minMultiplier) }
  */
-const getCurrentMultiplier = async (geyser: Geyser, vault: Vault, lock: Lock, signerOrProvider: SignerOrProvider) => {
-  const { scalingFloor, scalingCeiling } = geyser
+const getCurrentMultiplier = async (
+  geyser: Geyser,
+  vault: Vault,
+  lock: Lock,
+  signerOrProvider: SignerOrProvider,
+): Promise<Array<number>> => {
+  const { scalingFloor, scalingCeiling, scalingTime } = geyser
   const geyserAddress = toChecksumAddress(geyser.id)
   const vaultAddress = toChecksumAddress(vault.id)
 
   const now = nowInSeconds()
   const minMultiplier = 1
   const maxMultiplier = parseInt(scalingCeiling, 10) / parseInt(scalingFloor, 10)
-  const totalStakeUnits = getTotalStakeUnits(geyser, now)
-  const lockStakeUnits = getLockStakeUnits(lock, now)
-  if (totalStakeUnits.isZero() || lockStakeUnits.isZero()) return minMultiplier
 
-  const currentUnlockedRewards = await getCurrentUnlockedRewards(geyserAddress, signerOrProvider)
-  if (currentUnlockedRewards.isZero()) return minMultiplier
+  const vaultData = await getVaultData(vaultAddress, geyserAddress, signerOrProvider)
+  const totalStake = parseFloat(vaultData.totalStake.toString())
+  const st = parseFloat(scalingTime.toString())
+  let weightedStake = 0
+  vaultData.stakes.forEach((stake) => {
+    const amt = parseFloat(stake.amount.toString())
+    const ts = parseFloat(stake.timestamp.toString())
+    const perc = Math.min(now - ts, st) / st
+    weightedStake = perc * amt
+  })
+  const fraction = weightedStake / totalStake
 
-  const currentRewards = parseInt(
-    (await getCurrentVaultReward(vaultAddress, geyserAddress, signerOrProvider)).toString(),
-    10,
-  )
-  const maxRewards =
-    parseInt(currentUnlockedRewards.mul(lockStakeUnits).toString(), 10) / parseInt(totalStakeUnits.toString(), 10)
-  const fraction = currentRewards / maxRewards
-
-  return minMultiplier + fraction * (maxMultiplier - minMultiplier)
+  return [minMultiplier, minMultiplier + fraction * (maxMultiplier - minMultiplier), maxMultiplier]
 }
 
 export const getUserStats = async (
@@ -288,9 +301,13 @@ export const getUserStats = async (
   const apy = BigNumber.from(amount).isZero()
     ? await getPoolAPY(geyser, stakingTokenInfo, rewardTokenInfo, signerOrProvider)
     : await getUserAPY(geyser, lock, stakingTokenInfo, rewardTokenInfo, 0, signerOrProvider)
+
+  const m = await getCurrentMultiplier(geyser, vault, lock, signerOrProvider)
   return {
     apy,
-    currentMultiplier: await getCurrentMultiplier(geyser, vault, lock, signerOrProvider),
+    minMultiplier: m[0],
+    currentMultiplier: m[1],
+    maxMultiplier: m[2],
     currentReward: formattedCurrentRewards,
   }
 }

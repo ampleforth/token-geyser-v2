@@ -89,7 +89,7 @@ export const StatsContextProvider: React.FC = ({ children }) => {
   const refreshVaultStats = async () => {
     const { geyser: selectedGeyser, stakingTokenInfo, rewardTokenInfo } = selectedGeyserInfo
     if (selectedGeyser && stakingTokenInfo.address && rewardTokenInfo.address) {
-      setVaultStats(await getVaultStats(stakingTokenInfo, rewardTokenInfo, allTokensInfos, selectedVault, currentLock, signer || defaultProvider))
+      setVaultStats(await getVaultStats(selectedGeyser, stakingTokenInfo, rewardTokenInfo, allTokensInfos, selectedVault, currentLock, signer || defaultProvider))
     }
   }
 
@@ -101,7 +101,7 @@ export const StatsContextProvider: React.FC = ({ children }) => {
         if (selectedGeyser && stakingTokenInfo.address && rewardTokenInfo.address) {
           const newGeyserStats = await getGeyserStats(selectedGeyser, stakingTokenInfo, rewardTokenInfo)
           const newUserStats = await getUserStats(selectedGeyser, selectedVault, currentLock, stakingTokenInfo, rewardTokenInfo, signer || defaultProvider)
-          const newVaultStats = await getVaultStats(stakingTokenInfo, rewardTokenInfo, allTokensInfos, selectedVault, currentLock, signer || defaultProvider)
+          const newVaultStats = await getVaultStats(selectedGeyser, stakingTokenInfo, rewardTokenInfo, allTokensInfos, selectedVault, currentLock, signer || defaultProvider)
           if (mounted) {
             setGeyserStats(newGeyserStats)
             setUserStats(newUserStats)

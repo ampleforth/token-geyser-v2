@@ -35,7 +35,7 @@ export const GeyserStakeView = () => {
   const { signer } = useContext(Web3Context)
   const { selectedVault, currentLock, withdrawFromVault, withdrawRewardsFromVault, withdrawUnlockedFromVault } = useContext(VaultContext)
   const { walletAmount, refreshWalletAmount } = useContext(WalletContext)
-  const { refreshVaultStats } = useContext(StatsContext)
+  const { refreshVaultStats, vaultStats: {currentStakable} } = useContext(StatsContext)
   const { selectWallet, address } = useContext(Web3Context)
   const currentStakeAmount = BigNumber.from(currentLock ? currentLock.amount : '0')
   const [unstakeConfirmModalOpen, setUnstakeConfirmModalOpen] = useState<boolean>(false)
@@ -126,11 +126,13 @@ export const GeyserStakeView = () => {
     <WithdrawTxMessage txStateMachine={txStateMachine} symbol={rewardTokenSymbol} amount={formatUnits(actualRewardsFromUnstake, rewardTokenDecimals)} />
   )
 
+  const stakableAmount = walletAmount.add(currentStakable)
+
   return (
     <GeyserStakeViewContainer>
       <UserBalance
         parsedAmount={parsedUserInput}
-        currentAmount={isStakingAction ? walletAmount : currentStakeAmount}
+        currentAmount={isStakingAction ? stakableAmount : currentStakeAmount}
         decimals={stakingTokenDecimals}
         symbol={stakingTokenSymbol}
         isStakingAction={isStakingAction}
@@ -140,7 +142,7 @@ export const GeyserStakeView = () => {
         value={userInput}
         onChange={handleOnChange}
         precision={stakingTokenDecimals}
-        maxValue={isStakingAction ? walletAmount : currentStakeAmount}
+        maxValue={isStakingAction ? stakableAmount : currentStakeAmount}
         skipMaxEnforcement={isStakingAction}
       />
       {isStakingAction ? (

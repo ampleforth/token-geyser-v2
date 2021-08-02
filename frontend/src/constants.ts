@@ -15,7 +15,7 @@ export const MONTH_IN_MS = MONTH_IN_SEC * MS_PER_SEC
 export const YEAR_IN_MS = YEAR_IN_SEC * MS_PER_SEC
 
 // polling interval for querying subgraph
-export const POLL_INTERVAL = 5 * MS_PER_SEC
+export const POLL_INTERVAL = 30 * MS_PER_SEC
 
 // pseudo permanent cache time
 export const CONST_CACHE_TIME_MS = YEAR_IN_MS
@@ -102,7 +102,7 @@ export enum Align {
 export const ALCHEMY_PROJECT_ID = 'geo5oyrZyF7LWPaAt7eoLzxHg76ljgsO'
 
 // Infura
-export const INFURA_PROJECT_ID = 'dee1a87a734042fcabc2fd116a7b776d'
+export const INFURA_PROJECT_ID = ''
 
 // Enable withdrawing whole unlocked balance of staking tokens when unstaking
 export const WITHDRAW_UNLOCKED_STAKING_TOKENS_WHEN_UNSTAKING = false

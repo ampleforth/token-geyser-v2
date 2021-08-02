@@ -2,7 +2,7 @@ import { BigNumber, BigNumberish } from 'ethers'
 import { toChecksumAddress } from 'web3-utils'
 import { formatUnits } from 'ethers/lib/utils'
 import {
-  getVaultData,
+  getGeyserVaultData,
   getBalanceLocked,
   getCurrentUnlockedRewards,
   getCurrentVaultReward,
@@ -49,6 +49,7 @@ export const defaultVaultStats = (): VaultStats => ({
   rewardTokenBalance: 0,
   vaultTokenBalances: [],
   currentStake: 0,
+  currentStakable: BigNumber.from('0'),
 })
 
 const getGeyserDuration = (geyser: Geyser) => {
@@ -196,8 +197,8 @@ export const getUserAPY = async (
     .add(lock ? lock.amount : '0')
     .toString()
 
-  const inflow = parseFloat(stakedAmount) / 10 ** stakingTokenDecimals * stakingTokenPrice
-  const outflow = Math.round(drip) / 10 ** rewardTokenDecimals * rewardTokenPrice
+  const inflow = (parseFloat(stakedAmount) / 10 ** stakingTokenDecimals) * stakingTokenPrice
+  const outflow = (Math.round(drip) / 10 ** rewardTokenDecimals) * rewardTokenPrice
   const periods = YEAR_IN_SEC / calcPeriod
   return calculateAPY(inflow, outflow, periods)
 }
@@ -263,15 +264,16 @@ const getCurrentMultiplier = async (
   const minMultiplier = 1
   const maxMultiplier = parseInt(scalingCeiling, 10) / parseInt(scalingFloor, 10)
 
-  const vaultData = await getVaultData(vaultAddress, geyserAddress, signerOrProvider)
-  const totalStake = parseFloat(vaultData.totalStake.toString())
+  // TODO: can we fetch this from the subgraph?
+  const geyserVaultData = await getGeyserVaultData(geyserAddress, vaultAddress, signerOrProvider)
+  const totalStake = parseFloat(geyserVaultData.totalStake.toString())
   const st = parseFloat(scalingTime.toString())
   let weightedStake = 0
-  vaultData.stakes.forEach((stake) => {
+  geyserVaultData.stakes.forEach((stake) => {
     const amt = parseFloat(stake.amount.toString())
     const ts = parseFloat(stake.timestamp.toString())
     const perc = Math.min(now - ts, st) / st
-    weightedStake = perc * amt
+    weightedStake += perc * amt
   })
   const fraction = weightedStake / totalStake
 
@@ -335,6 +337,7 @@ const getVaultTokenBalance = async (
 }
 
 export const getVaultStats = async (
+  geyser: Geyser,
   stakingTokenInfo: StakingTokenInfo,
   rewardTokenInfo: RewardTokenInfo,
   allTokensInfos: TokenInfo[],
@@ -370,6 +373,7 @@ export const getVaultStats = async (
 
   const amount = lock ? lock.amount : '0'
   const currentStake = parseFloat(formatUnits(amount, stakingTokenInfo.decimals))
+  const currentStakable = stakingTokenBalanceInfo.parsedBalance.sub(amount)
 
   return {
     id: vaultAddress,
@@ -377,5 +381,6 @@ export const getVaultStats = async (
     rewardTokenBalance: rewardTokenBalanceInfo.balance,
     vaultTokenBalances,
     currentStake,
+    currentStakable,
   }
 }

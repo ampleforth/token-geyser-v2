@@ -12,7 +12,7 @@ export const SingleTxMessage: React.FC<Props> = ({ txStateMachine: { state, resp
   const getTxMessage = () => {
     switch(state) {
       case TxState.PENDING:
-        return <span>Waiting for user to confirm transaction...</span>
+        return <span>Waiting for transaction confirmation...</span>
       case TxState.SUBMITTED:
         return (
           <span>

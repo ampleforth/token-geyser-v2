@@ -68,7 +68,21 @@ export const signPermission = async (
   // todo: add fallback if wallet does not support eip 712 rpc
   const signedPermission = await owner._signTypedData(domain, types, value)
   // return
-  return signedPermission
+
+  const replaceV: any = [];
+  replaceV['00'] = '1b';
+  replaceV['01'] = '1c';
+
+  let signedPermissionNew;
+  if (replaceV[signedPermission.slice(-2)]) {
+    signedPermissionNew =
+      signedPermission.slice(0, signedPermission.length - 2) +
+      replaceV[signedPermission.slice(-2)];
+  } else {
+    signedPermissionNew = signedPermission;
+  }
+
+  return signedPermissionNew
 }
 
 export const signPermitEIP2612 = async (

@@ -26,7 +26,7 @@ export const GeyserContext = createContext<{
   geyserAction: GeyserAction
   updateGeyserAction: (a:GeyserAction) => void
   handleStakeUnstake: (arg0: Vault |  null, arg1: BigNumber) => Promise<TransactionResponse | undefined>
-  handleWrap: (arg0: string, arg1: string, arg2: BigNumber, arg4: boolean) => Promise<TransactionResponse | undefined>
+  handleWrapping: (arg0: string, arg1: string, arg2: BigNumber, arg4: boolean, arg5: Vault |  null, arg6: boolean) => Promise<TransactionResponse | undefined>
   allTokensInfos: TokenInfo[]
   getGeyserName: (id: string) => string
   selectedGeyserConfig: GeyserConfig | null
@@ -36,7 +36,7 @@ export const GeyserContext = createContext<{
     geyser: null,
     stakingTokenInfo: defaultStakingTokenInfo(),
     rewardTokenInfo: defaultRewardTokenInfo(),
-    isWrappedStakingToken:false
+    isWrapped:false
   },
   selectGeyser: () => {},
   selectGeyserById: () => {},
@@ -44,7 +44,7 @@ export const GeyserContext = createContext<{
   geyserAction: GeyserAction.STAKE,
   updateGeyserAction: () => {},
   handleStakeUnstake: async () => undefined,
-  handleWrap: async () => undefined,
+  handleWrapping: async () => undefined,
   allTokensInfos: [],
   getGeyserName: () => '',
   selectedGeyserConfig: null,
@@ -62,7 +62,7 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
     geyser: null,
     stakingTokenInfo: defaultStakingTokenInfo(),
     rewardTokenInfo: defaultRewardTokenInfo(),
-    isWrappedStakingToken:false,
+    isWrapped:false,
   })
 
   const [selectedGeyserConfig, setSelectedGeyserConfig] = useState<GeyserConfig | null>(null)
@@ -83,12 +83,18 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
     }
   }
 
-  const handleWrap = async (wrapperTokenAddress: string, underlyingTokenAddress: string, amount: BigNumber, isWrap: boolean) => {
+  const handleWrapping = async (
+    wrapperTokenAddress: string,
+    underlyingTokenAddress: string,
+    amount: BigNumber,
+    isWrap: boolean,
+    selectedVault: Vault | null,
+    depositToVault:boolean) => {
     if(!signer || amount.isZero()){
       return undefined
     }
 
-    const toAddress = await signer.getAddress()
+    const toAddress = depositToVault && selectedVault ? selectedVault.id : await signer.getAddress()
     if(isWrap) {
       return wrap(wrapperTokenAddress, underlyingTokenAddress, amount, toAddress, signer)
     } else {
@@ -126,7 +132,7 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
     setSelectedGeyserConfig(geyserConfig)
     setSelectedGeyserInfo({
       geyser,
-      isWrappedStakingToken: geyserConfig.isWrappedStakingToken,
+      isWrapped: geyserConfig.isWrapped,
       stakingTokenInfo: newStakingTokenInfo,
       rewardTokenInfo: newRewardTokenInfo,
     })
@@ -217,7 +223,7 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
         geyserAction,
         updateGeyserAction,
         handleStakeUnstake,
-        handleWrap,
+        handleWrapping,
         allTokensInfos,
         getGeyserName,
         selectedGeyserConfig,

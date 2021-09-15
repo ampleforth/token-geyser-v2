@@ -23,6 +23,7 @@ import { UnstakeConfirmModal } from './UnstakeConfirmModal'
 import { UnstakeTxModal } from './UnstakeTxModal'
 import { WithdrawTxMessage } from './WithdrawTxMessage'
 import { WrapperWarning } from './WrapperWarning'
+import { WrapperCheckbox } from './WrapperCheckbox'
 import { FormLabel } from '../FormLabel'
 import { Select } from '../Select'
 import { DisabledInput } from '../DisabledInput'
@@ -34,7 +35,7 @@ import {
 export const GeyserStakeView = () => {
   const [userInput, setUserInput] = useState('')
   const [parsedUserInput, setParsedUserInput] = useState(BigNumber.from('0'))
-  const { selectedGeyserInfo: { geyser: selectedGeyser, stakingTokenInfo, rewardTokenInfo, isWrappedStakingToken }, handleStakeUnstake, handleWrap, geyserAction } = useContext(GeyserContext)
+  const { selectedGeyserInfo: { geyser: selectedGeyser, stakingTokenInfo, rewardTokenInfo, isWrapped }, handleStakeUnstake, handleWrapping, geyserAction } = useContext(GeyserContext)
   const { decimals: stakingTokenDecimals, symbol: stakingTokenSymbol, address: stakingTokenAddress } = stakingTokenInfo
   const { decimals: rewardTokenDecimals, symbol: rewardTokenSymbol, address: rewardTokenAddress } = rewardTokenInfo
   const { signer } = useContext(Web3Context)
@@ -48,6 +49,7 @@ export const GeyserStakeView = () => {
   const [actualStakingTokensFromUnstake, setActualStakingTokensFromUnstake] = useState<BigNumber>(BigNumber.from('0'))
   const [txModalOpen, setTxModalOpen] = useState<boolean>(false)
   const [wrapToken, setWrapToken] = useState<number>(1)
+  const [depositToVault, setDepositToVault] = useState<boolean>(false)
   const stakableAmount = stakingTokenBalance.add(currentStakeable)
 
   const refreshInputAmount = () => {
@@ -156,7 +158,7 @@ export const GeyserStakeView = () => {
           maxValue={stakableAmount}
           skipMaxEnforcement
         />
-        {isWrappedStakingToken ? (<WrapperWarning />) : null}
+        {isWrapped ? (<WrapperWarning />) : null}
         <EstimatedRewards parsedUserInput={parsedUserInput} />
         {!address && <ConnectWalletWarning onClick={selectWallet} />}
         <GeyserInteractionButton
@@ -233,7 +235,10 @@ export const GeyserStakeView = () => {
   return (
     <GeyserStakeViewContainer>
       <FormLabel text="From" />
-      <Select options={tokenOptions} onChange={setWrapToken} selected={wrapToken}/>
+      <Select options={tokenOptions} onChange={(t) => {
+          refreshInputAmount()
+          setWrapToken(t)
+        }} selected={wrapToken}/>
 
       <FormLabel text="To" />
       <DisabledInput value={tokenOptions[1-wrapToken].name}/>
@@ -247,6 +252,10 @@ export const GeyserStakeView = () => {
         maxValue={wrapBalance}
       />
 
+      {isWrap && selectedVault  ? (
+        <WrapperCheckbox checked={depositToVault} onChange={setDepositToVault} />
+      ) : null}
+
       <GeyserInteractionButton
         disabled={!address || parsedUserInput.isZero()}
         onClick={handleGeyserInteraction}
@@ -254,9 +263,14 @@ export const GeyserStakeView = () => {
       />
 
       <SingleTxModal
-          submit={() => handleWrap(stakingTokenInfo.address, underlyingTokenInfo.address, parsedUserInput, wrapToken===1)}
-          txSuccessMessage={
-            <span>Successfully {isWrap ? "wrapped" : "unwrapped"} <b>{userInput} {wrapSymbol}</b>.</span>}
+          submit={() => handleWrapping(
+            stakingTokenInfo.address,
+            underlyingTokenInfo.address,
+            parsedUserInput,
+            isWrap,
+            selectedVault,
+            depositToVault)}
+          txSuccessMessage={<span>Successfully {isWrap ? "wrapped" : "unwrapped"} <b>{userInput} {wrapSymbol}</b>.</span>}
           open={txModalOpen}
           onClose={onCloseTxModal} />
     </GeyserStakeViewContainer>

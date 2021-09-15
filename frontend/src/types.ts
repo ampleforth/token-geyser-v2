@@ -72,9 +72,6 @@ export type WrappedTokenInfo = TokenInfo & {
 
 export type StakingTokenInfo = TokenInfo & {
   price: number
-  // TODO: remove not used
-  // totalSupply: number
-  // marketCap: number
   composition: TokenComposition[]
   wrappedToken: WrappedTokenInfo | null
 }
@@ -85,7 +82,7 @@ export type RewardTokenInfo = TokenInfo & {
 
 export type GeyserInfo = {
   geyser: Geyser | null
-  isWrappedStakingToken: boolean
+  isWrapped: boolean
   stakingTokenInfo: StakingTokenInfo
   rewardTokenInfo: RewardTokenInfo
 }
@@ -126,7 +123,7 @@ export type GeyserConfig = {
   address: string
   stakingToken: StakingToken
   rewardToken: RewardToken
-  isWrappedStakingToken: boolean
+  isWrapped: boolean
 }
 
 export type AdditionalTokenConfig = {

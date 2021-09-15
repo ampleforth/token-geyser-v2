@@ -20,7 +20,7 @@ export const WalletContextProvider: React.FC = ({ children }) => {
   const [underlyingTokenBalance, setWrappedTokenBalance] = useState<BigNumber>(BigNumber.from('0'))
 
   const { signer } = useContext(Web3Context)
-  const { selectedGeyserInfo: { stakingTokenInfo, isWrappedStakingToken } } = useContext(GeyserContext)
+  const { selectedGeyserInfo: { stakingTokenInfo, isWrapped } } = useContext(GeyserContext)
   const underlyingStakingTokenInfo = stakingTokenInfo.wrappedToken as TokenInfo
 
   const getStakingTokenBalance = useCallback(async () => {
@@ -37,7 +37,7 @@ export const WalletContextProvider: React.FC = ({ children }) => {
   }, [stakingTokenInfo?.address, signer])
 
   const getWrappedTokenBalance = useCallback(async () => {
-    if (isWrappedStakingToken && underlyingStakingTokenInfo && underlyingStakingTokenInfo.address && signer) {
+    if (isWrapped && underlyingStakingTokenInfo && underlyingStakingTokenInfo.address && signer) {
       try {
         const balance = await ERC20Balance(underlyingStakingTokenInfo.address, await signer.getAddress(), signer)
         return balance

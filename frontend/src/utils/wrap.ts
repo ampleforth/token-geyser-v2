@@ -17,7 +17,10 @@ export const wrap = async (
   if (allowance.lt(amount)) {
     await (await underlying.approve(wrapperTokenAddress, amount)).wait()
   }
-  return wrapper.depositFor(forAddress, amount) as Promise<TransactionResponse>
+  if (sender.toLowerCase() !== forAddress.toLowerCase()){
+    return wrapper.depositFor(forAddress, amount) as Promise<TransactionResponse>
+  }
+  return wrapper.deposit(amount) as Promise<TransactionResponse>
 }
 
 export const unwrap = async (wrapperTokenAddress: string, amount: BigNumberish, forAddress: string, signer: Signer) => {

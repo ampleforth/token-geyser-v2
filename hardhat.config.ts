@@ -189,7 +189,6 @@ task('create-geyser', 'deploy an instance of Geyser')
       const signer = (await ethers.getSigners())[0]
 
       console.log('Signer', signer.address)
-
       const { PowerSwitchFactory, RewardPoolFactory, VaultFactory, GeyserRegistry } = JSON.parse(
         readFileSync(`${SDK_PATH}/deployments/${network.name}/factories-${factoryVersion}.json`).toString(),
       )
@@ -198,7 +197,6 @@ task('create-geyser', 'deploy an instance of Geyser')
       const geyser = await upgrades.deployProxy(factory, undefined, {
         initializer: false,
       })
-
       console.log('Deploying Geyser')
       console.log('  to', geyser.address)
       console.log('  in', geyser.deployTransaction.hash)

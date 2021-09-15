@@ -278,21 +278,21 @@ export default {
       chainId: 1337,
     },
     goerli: {
-      url: 'https://goerli.infura.io/v3/' + process.env.INFURA_ID,
+      url: `https://goerli.infura.io/v3/${process.env.INFURA_ID}`,
       accounts: {
         mnemonic: process.env.DEV_MNEMONIC || Wallet.createRandom().mnemonic.phrase,
       },
     },
     kovan: {
-      url: 'https://kovan.infura.io/v3/' + process.env.INFURA_ID,
+      url: `https://kovan.infura.io/v3/${process.env.INFURA_ID}`,
       accounts: {
         mnemonic: process.env.DEV_MNEMONIC || Wallet.createRandom().mnemonic.phrase,
       },
     },
     mainnet: {
-      url: 'https://mainnet.infura.io/v3/' + process.env.INFURA_ID,
+      url: `https://mainnet.infura.io/v3/${process.env.INFURA_ID}`,
       accounts: {
-        mnemonic: process.env.PROD_MNEMONIC,
+        mnemonic: process.env.PROD_MNEMONIC || Wallet.createRandom().mnemonic.phrase,
       },
     },
   },

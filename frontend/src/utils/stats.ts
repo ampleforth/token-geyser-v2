@@ -49,7 +49,7 @@ export const defaultVaultStats = (): VaultStats => ({
   rewardTokenBalance: 0,
   vaultTokenBalances: [],
   currentStake: 0,
-  currentStakable: BigNumber.from('0'),
+  currentStakeable: BigNumber.from('0'),
 })
 
 const getGeyserDuration = (geyser: Geyser) => {
@@ -373,7 +373,7 @@ export const getVaultStats = async (
 
   const amount = lock ? lock.amount : '0'
   const currentStake = parseFloat(formatUnits(amount, stakingTokenInfo.decimals))
-  const currentStakable = stakingTokenBalanceInfo.parsedBalance.sub(amount)
+  const currentStakeable = stakingTokenBalanceInfo.parsedBalance.sub(amount)
 
   return {
     id: vaultAddress,
@@ -381,6 +381,6 @@ export const getVaultStats = async (
     rewardTokenBalance: rewardTokenBalanceInfo.balance,
     vaultTokenBalances,
     currentStake,
-    currentStakable,
+    currentStakeable,
   }
 }

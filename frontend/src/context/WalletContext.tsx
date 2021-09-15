@@ -3,25 +3,30 @@ import { createContext, useCallback, useContext, useEffect, useState } from 'rea
 import { ERC20Balance } from '../sdk'
 import { GeyserContext } from './GeyserContext'
 import Web3Context from './Web3Context'
+import {TokenInfo} from '../types'
 
 export const WalletContext = createContext<{
-  walletAmount: BigNumber
-  refreshWalletAmount: () => void
+  stakingTokenBalance: BigNumber
+  underlyingTokenBalance: BigNumber
+  refreshWalletBalances: () => void
 }>({
-  walletAmount: BigNumber.from('0'),
-  refreshWalletAmount: () => {},
+  stakingTokenBalance: BigNumber.from('0'),
+  underlyingTokenBalance: BigNumber.from('0'),
+  refreshWalletBalances: () => {},
 })
 
 export const WalletContextProvider: React.FC = ({ children }) => {
-  const [walletAmount, setWalletAmount] = useState<BigNumber>(BigNumber.from('0'))
-  const { signer } = useContext(Web3Context)
-  const { selectedGeyserInfo: { geyser: selectedGeyser } } = useContext(GeyserContext)
+  const [stakingTokenBalance, setStakingTokenBalance] = useState<BigNumber>(BigNumber.from('0'))
+  const [underlyingTokenBalance, setWrappedTokenBalance] = useState<BigNumber>(BigNumber.from('0'))
 
-  const getWalletAmount = useCallback(async () => {
-    if (selectedGeyser && signer) {
-      const { stakingToken } = selectedGeyser
+  const { signer } = useContext(Web3Context)
+  const { selectedGeyserInfo: { stakingTokenInfo, isWrappedStakingToken } } = useContext(GeyserContext)
+  const underlyingStakingTokenInfo = stakingTokenInfo.wrappedToken as TokenInfo
+
+  const getStakingTokenBalance = useCallback(async () => {
+    if (stakingTokenInfo && stakingTokenInfo.address && signer) {
       try {
-        const balance = await ERC20Balance(stakingToken, await signer.getAddress(), signer)
+        const balance = await ERC20Balance(stakingTokenInfo.address, await signer.getAddress(), signer)
         return balance
       } catch (e) {
         console.error(e)
@@ -29,25 +34,37 @@ export const WalletContextProvider: React.FC = ({ children }) => {
       }
     }
     return BigNumber.from('0')
-  }, [selectedGeyser?.stakingToken, signer])
+  }, [stakingTokenInfo?.address, signer])
 
-  const refreshWalletAmount = async () => {
-    const balance = await getWalletAmount()
-    setWalletAmount(balance)
+  const getWrappedTokenBalance = useCallback(async () => {
+    if (isWrappedStakingToken && underlyingStakingTokenInfo && underlyingStakingTokenInfo.address && signer) {
+      try {
+        const balance = await ERC20Balance(underlyingStakingTokenInfo.address, await signer.getAddress(), signer)
+        return balance
+      } catch (e) {
+        console.error(e)
+        return BigNumber.from('0')
+      }
+    }
+    return BigNumber.from('0')
+  }, [underlyingStakingTokenInfo?.address, signer])
+
+  const refreshWalletBalances = async () => {
+    setStakingTokenBalance(await getStakingTokenBalance())
+    setWrappedTokenBalance(await getWrappedTokenBalance())
   }
 
   useEffect(() => {
     let mounted = true;
     (async () => {
-      const value = await getWalletAmount()
-      if (mounted && value) {
-        setWalletAmount(value)
+      if (mounted) {
+        await refreshWalletBalances()
       }
     })();
     return () => {
       mounted = false
     }
-  }, [getWalletAmount])
+  }, [getStakingTokenBalance, getWrappedTokenBalance])
 
-  return <WalletContext.Provider value={{ walletAmount, refreshWalletAmount }}>{children}</WalletContext.Provider>
+  return <WalletContext.Provider value={{ stakingTokenBalance, underlyingTokenBalance, refreshWalletBalances }}>{children}</WalletContext.Provider>
 }

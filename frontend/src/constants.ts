@@ -54,6 +54,7 @@ export enum StakingToken {
   MOONISWAP_V1,
   BALANCER_V1,
   BALANCER_SMART_POOL_V1,
+  AAVE_V2_AMPL,
 }
 
 // Reward tokens

@@ -208,12 +208,16 @@ task('create-geyser', 'deploy an instance of Geyser')
       console.log('  reward ceiling', ceiling)
       console.log('  reward time', stakingToken)
 
+      // CRITICAL: The ordering of the following transaction can't change for the subgraph to be indexed
+
+      // Note: geyser registry is owned by the ecofund multisig
+      // this script will fail here
+      // the following need to be executed manually
       console.log('Register Geyser Instance')
-
       const geyserRegistry = await ethers.getContractAt('GeyserRegistry', GeyserRegistry.address, signer)
-
       await geyserRegistry.register(geyser.address)
 
+      console.log('initialize geyser')
       await geyser.initialize(
         signer.address,
         RewardPoolFactory.address,
@@ -222,8 +226,8 @@ task('create-geyser', 'deploy an instance of Geyser')
         rewardToken,
         [floor, ceiling, time],
       )
-      console.log('Register Vault Factory')
 
+      console.log('Register Vault Factory')
       await geyser.registerVaultFactory(VaultFactory.address)
     },
   )

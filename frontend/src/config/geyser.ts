@@ -25,7 +25,7 @@ const mockGeyserConfigs: GeyserConfig[] = [
 
 const mainnetGeyserConfigs: GeyserConfig[] = [
   {
-    name: 'Splendid V1 (AAVE aAMPL)',
+    name: 'Splendid Pilot (AAVE aAMPL)',
     address: '0x1Fee4745E70509fBDc718beDf5050F471298c1CE',
     stakingToken: StakingToken.AAVE_V2_AMPL,
     rewardToken: RewardToken.AMPL,

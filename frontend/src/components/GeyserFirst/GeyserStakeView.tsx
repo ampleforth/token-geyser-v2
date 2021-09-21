@@ -162,7 +162,7 @@ export const GeyserStakeView = () => {
         <EstimatedRewards parsedUserInput={parsedUserInput} />
         {!address && <ConnectWalletWarning onClick={selectWallet} />}
         <GeyserInteractionButton
-          disabled={!address || parsedUserInput.isZero()}
+          disabled={!address || parsedUserInput.isZero() || parsedUserInput.gt(stakableAmount)}
           onClick={handleGeyserInteraction}
           displayText="Stake"
         />

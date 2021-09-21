@@ -58,7 +58,8 @@ const getGeyserDuration = (geyser: Geyser) => {
   const schedulesEndTime = rewardSchedules.map(
     (schedule) => parseInt(schedule.start, 10) + parseInt(schedule.duration, 10),
   )
-  return Math.max(...schedulesEndTime.map((endTime) => endTime - now), 0)
+  const lastScheduleEndTimeLeft = Math.max(...schedulesEndTime.map((endTime) => endTime - now))
+  return Math.max(lastScheduleEndTimeLeft, 0)
 }
 
 export const getCalcPeriod = (geyser: Geyser) => {
@@ -276,8 +277,8 @@ const getCurrentMultiplier = async (
     weightedStake += perc * amt
   })
   const fraction = weightedStake / totalStake
-
-  return [minMultiplier, minMultiplier + fraction * (maxMultiplier - minMultiplier), maxMultiplier]
+  const currentMultiplier = minMultiplier + fraction * (maxMultiplier - minMultiplier)
+  return [minMultiplier, currentMultiplier, maxMultiplier]
 }
 
 export const getUserStats = async (

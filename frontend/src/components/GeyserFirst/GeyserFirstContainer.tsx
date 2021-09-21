@@ -2,14 +2,15 @@ import { useContext } from 'react'
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
 import { Overlay } from 'styling/styles'
+import { GeyserAction } from 'types'
 import { GeyserContext } from 'context/GeyserContext'
-import { ToggleView } from 'components/ToggleView'
+import { TabView } from 'components/TabView'
 import { GeyserStakeView } from './GeyserStakeView'
 import { GeyserStatsView } from './GeyserStatsView'
 
 export const GeyserFirstContainer = () => {
-  const { isStakingAction, toggleStakingAction } = useContext(GeyserContext)
-
+  const { geyserAction, updateGeyserAction, selectedGeyserInfo: { isWrapped } } = useContext(GeyserContext)
+  const actions = Object.values(GeyserAction)
   return (
     <Container>
       <Overlay>
@@ -17,7 +18,10 @@ export const GeyserFirstContainer = () => {
       </Overlay>
       <Overlay>
         <ToggleContainer>
-          <ToggleView enabled={isStakingAction} toggle={toggleStakingAction} options={['Stake', 'Unstake']} />
+          <TabView
+            active={actions.indexOf(geyserAction)}
+            onChange={(a) => updateGeyserAction(actions[a])}
+            tabs={isWrapped ? ['Stake', 'Unstake', 'Wrapper'] : ['Stake', 'Unstake']} />
         </ToggleContainer>
         <GeyserStakeView />
       </Overlay>

@@ -7,6 +7,7 @@ dataSources:
     network: mainnet
     source:
       address: '0xFc43803F203e3821213bE687120aD44C8a21A7e7'
+      startBlock: 12838258
       abi: InstanceRegistry
     mapping:
       kind: ethereum/events
@@ -26,6 +27,7 @@ dataSources:
     network: mainnet
     source:
       address: '0x8A09fFA4d4310c7F59DC538a1481D8Ba2214Cef0'
+      startBlock: 12838254
       abi: InstanceRegistry
     mapping:
       kind: ethereum/events
@@ -47,6 +49,7 @@ dataSources:
     network: mainnet
     source:
       address: '0x54e0395CFB4f39beF66DBCd5bD93Cca4E9273D56'
+      startBlock: 11881063
       abi: InstanceRegistry
     mapping:
       kind: ethereum/events
@@ -68,6 +71,7 @@ dataSources:
     network: mainnet
     source:
       address: '0x54e0395CFB4f39beF66DBCd5bD93Cca4E9273D56'
+      startBlock: 11881063
       abi: ERC721
     mapping:
       kind: ethereum/events
@@ -89,6 +93,7 @@ dataSources:
     network: mainnet
     source:
       address: '0x8A09fFA4d4310c7F59DC538a1481D8Ba2214Cef0'
+      startBlock: 12838254
       abi: ERC721
     mapping:
       kind: ethereum/events

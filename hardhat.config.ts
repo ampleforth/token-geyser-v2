@@ -189,7 +189,6 @@ task('create-geyser', 'deploy an instance of Geyser')
       const signer = (await ethers.getSigners())[0]
 
       console.log('Signer', signer.address)
-
       const { PowerSwitchFactory, RewardPoolFactory, VaultFactory, GeyserRegistry } = JSON.parse(
         readFileSync(`${SDK_PATH}/deployments/${network.name}/factories-${factoryVersion}.json`).toString(),
       )
@@ -198,7 +197,6 @@ task('create-geyser', 'deploy an instance of Geyser')
       const geyser = await upgrades.deployProxy(factory, undefined, {
         initializer: false,
       })
-
       console.log('Deploying Geyser')
       console.log('  to', geyser.address)
       console.log('  in', geyser.deployTransaction.hash)
@@ -208,12 +206,16 @@ task('create-geyser', 'deploy an instance of Geyser')
       console.log('  reward ceiling', ceiling)
       console.log('  reward time', stakingToken)
 
+      // CRITICAL: The ordering of the following transaction can't change for the subgraph to be indexed
+
+      // Note: geyser registry is owned by the ecofund multisig
+      // this script will fail here
+      // the following need to be executed manually
       console.log('Register Geyser Instance')
-
       const geyserRegistry = await ethers.getContractAt('GeyserRegistry', GeyserRegistry.address, signer)
-
       await geyserRegistry.register(geyser.address)
 
+      console.log('initialize geyser')
       await geyser.initialize(
         signer.address,
         RewardPoolFactory.address,
@@ -222,8 +224,8 @@ task('create-geyser', 'deploy an instance of Geyser')
         rewardToken,
         [floor, ceiling, time],
       )
-      console.log('Register Vault Factory')
 
+      console.log('Register Vault Factory')
       await geyser.registerVaultFactory(VaultFactory.address)
     },
   )
@@ -276,21 +278,21 @@ export default {
       chainId: 1337,
     },
     goerli: {
-      url: 'https://goerli.infura.io/v3/' + process.env.INFURA_ID,
+      url: `https://goerli.infura.io/v3/${process.env.INFURA_ID}`,
       accounts: {
         mnemonic: process.env.DEV_MNEMONIC || Wallet.createRandom().mnemonic.phrase,
       },
     },
     kovan: {
-      url: 'https://kovan.infura.io/v3/' + process.env.INFURA_ID,
+      url: `https://kovan.infura.io/v3/${process.env.INFURA_ID}`,
       accounts: {
         mnemonic: process.env.DEV_MNEMONIC || Wallet.createRandom().mnemonic.phrase,
       },
     },
     mainnet: {
-      url: 'https://mainnet.infura.io/v3/' + process.env.INFURA_ID,
+      url: `https://mainnet.infura.io/v3/${process.env.INFURA_ID}`,
       accounts: {
-        mnemonic: process.env.PROD_MNEMONIC,
+        mnemonic: process.env.PROD_MNEMONIC || Wallet.createRandom().mnemonic.phrase,
       },
     },
   },

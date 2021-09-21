@@ -3,7 +3,7 @@ import tw from 'twin.macro'
 import rewardSymbol from 'assets/rewardSymbol.svg'
 import { useContext, useEffect, useState } from 'react'
 import { StatsContext } from 'context/StatsContext'
-import { formatWithDecimals } from 'utils/numeral'
+import { safeNumeral } from 'utils/numeral'
 import { BigNumber } from 'ethers'
 import { Tooltip } from 'components/Tooltip'
 import { CardValue, CardLabel } from 'styling/styles'
@@ -22,7 +22,7 @@ export const EstimatedRewards: React.FC<Props> = ({ parsedUserInput }) => {
   useEffect(() => {
     (async () => {
       setRewards(
-        parsedUserInput.isZero() ? '0.00' : formatWithDecimals(`${await computeRewardsFromAdditionalStakes(parsedUserInput)}`, 2)
+        parsedUserInput.isZero() ? '0.00' : safeNumeral(await computeRewardsFromAdditionalStakes(parsedUserInput), '0.00')
       )
     })();
   }, [parsedUserInput])
@@ -43,7 +43,7 @@ export const EstimatedRewards: React.FC<Props> = ({ parsedUserInput }) => {
         <CardValue>
           {rewards} {symbol}{' '}
           <span>
-            {parsedUserInput.gt(0) && calcPeriodInDays > 0 ? `in ${calcPeriodInDays} day${calcPeriodInDays > 1 ? 's' : ''}` : ''}
+            {parsedUserInput.gt(0) && calcPeriodInDays > 0 ? `in ${safeNumeral(calcPeriodInDays, '0')} day${calcPeriodInDays > 1 ? 's' : ''}` : ''}
           </span>
         </CardValue>
       </RewardsTextContainer>

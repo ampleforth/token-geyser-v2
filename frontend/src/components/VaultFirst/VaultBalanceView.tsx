@@ -18,7 +18,7 @@ export const VaultBalanceView = () => {
   // state of the token about to be withdrawn
   const [tokenBalance, setTokenBalance] = useState<VaultTokenBalance>()
   const [modalOpen, setModalOpen] = useState<boolean>(false)
-  const { refreshWalletAmount } = useContext(WalletContext)
+  const { refreshWalletBalances } = useContext(WalletContext)
 
   const confirmWithdraw = (balance: VaultTokenBalance) => {
     setTokenBalance(balance)
@@ -36,7 +36,7 @@ export const VaultBalanceView = () => {
   const onClose = () => {
     setModalOpen(false)
     refreshVaultStats()
-    refreshWalletAmount()
+    refreshWalletBalances()
   }
 
   const columns: Column[] = [

@@ -15,42 +15,38 @@ interface Props {
 
 export const Dropdown: React.FC<Props> = ({ options, optgroups, selectedOption, onChange }) => {
   const renderOptions = (opts: string[]) => (
-    <>
-      {opts.map((option) => (
-        <Listbox.Option
-          key={option}
-          className={({ active }) =>
-            `${active ? 'text-primary' : 'text-gray'}
-                    cursor-default select-none relative py-2 pl-10 pr-4 text-left`
-          }
-          value={option}
-        >
-          {({ selected }) => (
-            <>
-              <span className={`${selected ? 'font-medium' : 'font-normal'} block truncate`}>{option}</span>
-              {selected ? (
-                <span className={`'text-primary' absolute inset-y-0 left-0 flex items-center pl-3`}>
-                  <Img src={checkMark} alt="Selected" />
-                </span>
-              ) : null}
-            </>
-          )}
-        </Listbox.Option>
-      ))}
-    </>
+    opts.map((option) => (
+      <Listbox.Option
+        key={option}
+        className={({ active }) =>
+          `${active ? 'text-primary' : 'text-gray'}
+                  cursor-default select-none relative py-2 pl-10 pr-4 text-left`
+        }
+        value={option}
+      >
+        {({ selected }) => (
+          <>
+            <span className={`${selected ? 'font-medium' : 'font-normal'} block truncate`}>{option}</span>
+            {selected ? (
+              <span className={`'text-primary' absolute inset-y-0 left-0 flex items-center pl-3`}>
+                <Img src={checkMark} alt="Selected" />
+              </span>
+            ) : null}
+          </>
+        )}
+      </Listbox.Option>
+    ))
   )
 
   const renderOptgroups = (groups: { group: string, options: string[] }[]) => (
-    <>
-      {groups.map(({ group, options: opts }) => (
-        <>
-          <Listbox.Option disabled key={group} className="text-gray align-center justify-center flex" value={group}>
-            <span>{group}</span>
-          </Listbox.Option>
-          {renderOptions(opts)}
-        </>
-      ))}
-    </>
+    groups.map(({ group, options: opts }) => (
+      <>
+        <Listbox.Option disabled key={group} className="text-gray align-center justify-center flex" value={group}>
+          <span>{group}</span>
+        </Listbox.Option>
+        {renderOptions(opts)}
+      </>
+    ))
   )
   return (
     <Listbox value={selectedOption} onChange={onChange}>

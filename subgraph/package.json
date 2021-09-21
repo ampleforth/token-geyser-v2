@@ -1,6 +1,6 @@
 {
   "name": "ampleforth-geyser-v2",
-  "license": "UNLICENSED",
+  "license": "GPL-3.0",
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
@@ -10,7 +10,7 @@
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 thegostep/ampleforth-geyser-v2"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "^0.20.1",
+    "@graphprotocol/graph-cli": "^0.21.1",
     "@graphprotocol/graph-ts": "^0.20.1"
   }
 }

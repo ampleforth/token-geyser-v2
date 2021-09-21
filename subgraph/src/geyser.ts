@@ -5,6 +5,9 @@ import { Address, BigInt } from '@graphprotocol/graph-ts'
 import { InstanceAdded } from '../generated/GeyserRegistry/InstanceRegistry'
 import { GeyserTemplate, PowerSwitchTemplate } from '../generated/templates'
 
+// debug
+import { log } from '@graphprotocol/graph-ts'
+
 // handler imports
 import {
   BonusTokenRegistered,
@@ -23,6 +26,7 @@ import { ClaimedReward, Geyser, Lock, RewardPoolBalance, RewardSchedule, PowerSw
 
 // template instantiation
 export function handleNewGeyser(event: InstanceAdded): void {
+  log.info('New geyser added: {}', [event.params.instance.toString()])
   GeyserTemplate.create(event.params.instance)
 }
 

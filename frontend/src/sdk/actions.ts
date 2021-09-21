@@ -154,11 +154,13 @@ export const approveDepositStake = async (
   const vault = new Contract(vaultAddress, config.VaultTemplate.abi, signer)
 
   // calculate stakable balance in the vault
-  let stakableAmountInVault = (await token.balanceOf(vault.address)).sub(await vault.getBalanceDelegated(token.address, geyser.address))
+  let stakableAmountInVault = (await token.balanceOf(vault.address)).sub(
+    await vault.getBalanceDelegated(token.address, geyser.address),
+  )
 
   // The remaining amount gets transferred from the user's wallet to the vault
   const remainingAmountToTransfer = BigNumber.from(amountToStake).sub(stakableAmountInVault)
-  if(remainingAmountToTransfer.gt(0)){
+  if (remainingAmountToTransfer.gt(0)) {
     await (await token.transfer(vault.address, remainingAmountToTransfer)).wait()
   }
 

@@ -3,7 +3,6 @@ import tw from 'twin.macro'
 import { ResponsiveText } from 'styling/styles'
 import { useContext } from 'react'
 import { GeyserContext } from 'context/GeyserContext'
-import { GeyserStatus } from 'types'
 import { Dropdown } from './Dropdown'
 
 export const GeysersList = () => {
@@ -11,15 +10,12 @@ export const GeysersList = () => {
   const handleGeyserChange = (geyserName: string) => selectGeyserByName(geyserName)
 
   const optgroups = (() => {
-    // NOTE: active inactive logic is wrong
-    // FIX ME!
     const activeGeysers = geysers
-      .filter(({ status }) => status !== GeyserStatus.SHUTDOWN)
+      .filter(g => g.active === true)
       .map(({ id }) => getGeyserName(id))
     const inactiveGeysers = geysers
-      .filter(({ status }) => status === GeyserStatus.SHUTDOWN)
+      .filter(g => !(g.active === true))
       .map(({ id }) => getGeyserName(id))
-
     return [
       {
         group: 'Active Geysers',

@@ -11,7 +11,8 @@ Reward distribution contract with time multiplier.
 router: 0x90013fB4D3f9844f930f5dB8DD53CfF38824e3CF
 vaultFactory: 0x8A09fFA4d4310c7F59DC538a1481D8Ba2214Cef0
 vaultTemplate: 0x9F723008Eec3493A31b6fAf7d9fdf3a82322223C
-registry: 0xFc43803F203e3821213bE687120aD44C8a21A7e7
+proxyAdmin: 0xc70F5bc82ccb3de00400814ff8bD406C271db3c4
+geyserRegistry: 0xFc43803F203e3821213bE687120aD44C8a21A7e7
 geysers:
   - poolRef: "SUSHI-ETH-AMPL (Pescadero V2)"
     deployment: '0x56eD0272f99eBD903043399A51794f966D72E526'
@@ -24,6 +25,13 @@ geysers:
 
   - poolRef: "UNI-ETH-AMPL-V2 (Beehive V4)"
     deployment: '0x88F12aE68315A89B885A2f1b0610fE2A9E1720B9'
+
+  - poolRef: "aAMPL (Splendid V1)"
+    deployment: '0x1Fee4745E70509fBDc718beDf5050F471298c1CE'
+
+externalVaultFactoriesWhitelisted:
+  - name: "Crucible"
+    template: "0x54e0395CFB4f39beF66DBCd5bD93Cca4E9273D56"
 ```
 
 ## Install

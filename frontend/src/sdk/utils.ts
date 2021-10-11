@@ -69,17 +69,15 @@ export const signPermission = async (
   const signedPermission = await owner._signTypedData(domain, types, value)
   // return
 
-  const replaceV: any = [];
-  replaceV['00'] = '1b';
-  replaceV['01'] = '1c';
+  const replaceV: any = []
+  replaceV['00'] = '1b'
+  replaceV['01'] = '1c'
 
-  let signedPermissionNew;
+  let signedPermissionNew
   if (replaceV[signedPermission.slice(-2)]) {
-    signedPermissionNew =
-      signedPermission.slice(0, signedPermission.length - 2) +
-      replaceV[signedPermission.slice(-2)];
+    signedPermissionNew = signedPermission.slice(0, signedPermission.length - 2) + replaceV[signedPermission.slice(-2)]
   } else {
-    signedPermissionNew = signedPermission;
+    signedPermissionNew = signedPermission
   }
 
   return signedPermissionNew

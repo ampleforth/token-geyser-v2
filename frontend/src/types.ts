@@ -41,6 +41,7 @@ export type Geyser = {
   unlockedReward: string
   rewardSchedules: RewardSchedule[]
   lastUpdate: string
+  active: boolean
 }
 
 export type Lock = {
@@ -65,11 +66,14 @@ export type TokenComposition = TokenInfo & {
   weight: number
 }
 
+export type WrappedTokenInfo = TokenInfo & {
+  price: number
+}
+
 export type StakingTokenInfo = TokenInfo & {
   price: number
-  totalSupply: number
-  marketCap: number
   composition: TokenComposition[]
+  wrappedToken: WrappedTokenInfo | null
 }
 
 export type RewardTokenInfo = TokenInfo & {
@@ -78,6 +82,7 @@ export type RewardTokenInfo = TokenInfo & {
 
 export type GeyserInfo = {
   geyser: Geyser | null
+  isWrapped: boolean
   stakingTokenInfo: StakingTokenInfo
   rewardTokenInfo: RewardTokenInfo
 }
@@ -102,7 +107,7 @@ export type VaultStats = {
   rewardTokenBalance: number
   vaultTokenBalances: VaultTokenBalance[]
   currentStake: number
-  currentStakable: BigNumber
+  currentStakeable: BigNumber
 }
 
 export type UserStats = {
@@ -118,6 +123,7 @@ export type GeyserConfig = {
   address: string
   stakingToken: StakingToken
   rewardToken: RewardToken
+  isWrapped: boolean
 }
 
 export type AdditionalTokenConfig = {
@@ -137,4 +143,10 @@ export type SignerOrProvider = Signer | providers.Provider
 export type TooltipMessage = {
   title: string
   body: string
+}
+
+export enum GeyserAction {
+  STAKE = 'stake',
+  UNSTAKE = 'unstake',
+  WRAP = 'wrap',
 }

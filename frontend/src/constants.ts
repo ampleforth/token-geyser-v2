@@ -54,6 +54,7 @@ export enum StakingToken {
   MOONISWAP_V1,
   BALANCER_V1,
   BALANCER_SMART_POOL_V1,
+  AAVE_V2_AMPL,
 }
 
 // Reward tokens
@@ -82,7 +83,7 @@ export const GET_APY_STAKE_MSG = () =>
 export const GET_APY_NO_STAKE_MSG = ({ days = '1' }) =>
   `APY is estimated for an avg deposit (20,000 USD) over the next ${days} days. The APY metric does not account for gains or losses from holding liquidity tokens, or gains from liquidity mining rewards distributed by the underlying platform for holding liquidity tokens.`
 
-export const GET_REWARD_MULTIPLIER_MSG = ({ days = '1', multiplier = '1.0' }) =>
+export const GET_REWARD_MULTIPLIER_MSG = ({ days = '30', multiplier = '3.0' }) =>
   `Deposit liquidity tokens for ${days} days to achieve a ${multiplier}x reward multiplier.`
 
 export const GET_CURRENT_REWARDS_MSG = () =>
@@ -105,7 +106,7 @@ export const ALCHEMY_PROJECT_ID = 'geo5oyrZyF7LWPaAt7eoLzxHg76ljgsO'
 export const INFURA_PROJECT_ID = 'dee1a87a734042fcabc2fd116a7b776d'
 
 // Enable withdrawing whole unlocked balance of staking tokens when unstaking
-export const WITHDRAW_UNLOCKED_STAKING_TOKENS_WHEN_UNSTAKING = false
+export const WITHDRAW_UNLOCKED_STAKING_TOKENS_WHEN_UNSTAKING = true
 
 // Enable withdrawing whole unlocked balance of reward tokens when unstaking
-export const WITHDRAW_UNLOCKED_REWARD_TOKENS_WHEN_UNSTAKING = false
+export const WITHDRAW_UNLOCKED_REWARD_TOKENS_WHEN_UNSTAKING = true

@@ -4,25 +4,46 @@ import rewardSymbol from 'assets/rewardSymbol.svg'
 import { useContext, useEffect, useState } from 'react'
 import { StatsContext } from 'context/StatsContext'
 import { safeNumeral } from 'utils/numeral'
-import { BigNumber } from 'ethers'
+import BigNumber from 'bignumber.js'
+import {BigNumber as BigInt} from 'ethers'
 import { Tooltip } from 'components/Tooltip'
 import { CardValue, CardLabel } from 'styling/styles'
 import { GeyserContext } from 'context/GeyserContext'
 import { GET_ESTIMATED_REWARDS_MSG } from '../../constants'
 
 interface Props {
-  parsedUserInput: BigNumber
+  parsedUserInput: BigInt
 }
 
 export const EstimatedRewards: React.FC<Props> = ({ parsedUserInput }) => {
   const [rewards, setRewards] = useState<string>('0.00')
-  const { selectedGeyserInfo: { rewardTokenInfo: { symbol } } } = useContext(GeyserContext)
-  const { computeRewardsFromAdditionalStakes, geyserStats: { calcPeriodInDays } } = useContext(StatsContext)
+  const [deposits, setDeposits] = useState<string>('0')
+  const {
+    selectedGeyserInfo: {
+      rewardTokenInfo: { symbol },
+      stakingTokenInfo: { price: stakingTokenPrice, decimals: stakingTokenDecimals },
+    }
+  } = useContext(GeyserContext)
+  const {
+    computeRewardsFromAdditionalStakes,
+    geyserStats: { calcPeriodInDays },
+    vaultStats: { currentStake }
+  } = useContext(StatsContext)
+
 
   useEffect(() => {
     (async () => {
+      const aggregateDepositUSD = new BigNumber(parsedUserInput.toString())
+        .div(10**stakingTokenDecimals)
+        .plus(currentStake)
+        .times(stakingTokenPrice)
+
       setRewards(
-        parsedUserInput.isZero() ? '0.00' : safeNumeral(await computeRewardsFromAdditionalStakes(parsedUserInput), '0.00')
+        aggregateDepositUSD.eq('0') ? '0.00' : safeNumeral(await computeRewardsFromAdditionalStakes(parsedUserInput), '0.00')
+      )
+
+      setDeposits(
+        aggregateDepositUSD.eq('0') ? '0' : safeNumeral(aggregateDepositUSD.toNumber(), '0')
       )
     })();
   }, [parsedUserInput])
@@ -33,7 +54,7 @@ export const EstimatedRewards: React.FC<Props> = ({ parsedUserInput }) => {
       <Icon src={rewardSymbol} alt="Rewards Symbol" />
       <RewardsTextContainer>
         <CardLabel>
-          Your Estimated Rewards
+          <small>Aggregate Deposit / Estimated Rewards</small>
           <Tooltip
             classNames="my-auto ml-2 normal-case tracking-wide"
             panelClassnames="-translate-x-3/4 xs:left-1/2 xs:-translate-x-1/2"
@@ -41,6 +62,7 @@ export const EstimatedRewards: React.FC<Props> = ({ parsedUserInput }) => {
           />
         </CardLabel>
         <CardValue>
+          {deposits} USD /{' '}
           {rewards} {symbol}{' '}
           <span>
             {parsedUserInput.gt(0) && calcPeriodInDays > 0 ? `in ${safeNumeral(calcPeriodInDays, '0')} day${calcPeriodInDays > 1 ? 's' : ''}` : ''}

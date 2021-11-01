@@ -106,7 +106,7 @@ export const ALCHEMY_PROJECT_ID = 'geo5oyrZyF7LWPaAt7eoLzxHg76ljgsO'
 export const INFURA_PROJECT_ID = 'dee1a87a734042fcabc2fd116a7b776d'
 
 // Enable withdrawing whole unlocked balance of staking tokens when unstaking
-export const WITHDRAW_UNLOCKED_STAKING_TOKENS_WHEN_UNSTAKING = true
+export const WITHDRAW_UNLOCKED_STAKING_TOKENS_WHEN_UNSTAKING = false
 
 // Enable withdrawing whole unlocked balance of reward tokens when unstaking
-export const WITHDRAW_UNLOCKED_REWARD_TOKENS_WHEN_UNSTAKING = true
+export const WITHDRAW_UNLOCKED_REWARD_TOKENS_WHEN_UNSTAKING = false

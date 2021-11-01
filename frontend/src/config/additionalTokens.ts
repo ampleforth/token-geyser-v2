@@ -27,6 +27,11 @@ const mainnetAdditionalTokens = [
     address: '0x6b3595068778dd592e39a122f4f5a5cf09c90fe2',
     enabled: true,
   },
+  {
+    token: 'aave',
+    address: '0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9',
+    enabled: true,
+  },
 ]
 
 export const additionalTokens: AdditionalTokenConfig[] =

@@ -23,7 +23,7 @@ export const useTxStateMachine = (submit: SubmitFunction) => {
       const { response } = currentTxState
       try {
         if (response) {
-          const receipt = await response.wait()
+          const receipt = await response.wait(1)
           setCurrentTxState((txState) => ({ ...txState, receipt, state: TxState.MINED }))
         }
       } catch (e) {

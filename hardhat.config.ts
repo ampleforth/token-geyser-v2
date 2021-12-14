@@ -197,6 +197,7 @@ task('create-geyser', 'deploy an instance of Geyser')
       const geyser = await upgrades.deployProxy(factory, undefined, {
         initializer: false,
       })
+      await geyser.deployTransaction.wait(1)
       console.log('Deploying Geyser')
       console.log('  to', geyser.address)
       console.log('  in', geyser.deployTransaction.hash)
@@ -213,20 +214,22 @@ task('create-geyser', 'deploy an instance of Geyser')
       // the following need to be executed manually
       console.log('Register Geyser Instance')
       const geyserRegistry = await ethers.getContractAt('GeyserRegistry', GeyserRegistry.address, signer)
-      await geyserRegistry.register(geyser.address)
+      await (await geyserRegistry.register(geyser.address)).wait(1)
 
       console.log('initialize geyser')
-      await geyser.initialize(
-        signer.address,
-        RewardPoolFactory.address,
-        PowerSwitchFactory.address,
-        stakingToken,
-        rewardToken,
-        [floor, ceiling, time],
-      )
+      await (
+        await geyser.initialize(
+          signer.address,
+          RewardPoolFactory.address,
+          PowerSwitchFactory.address,
+          stakingToken,
+          rewardToken,
+          [floor, ceiling, time],
+        )
+      ).wait(1)
 
       console.log('Register Vault Factory')
-      await geyser.registerVaultFactory(VaultFactory.address)
+      await (await geyser.registerVaultFactory(VaultFactory.address)).wait(1)
     },
   )
 

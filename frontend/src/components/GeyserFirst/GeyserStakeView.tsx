@@ -39,7 +39,7 @@ export const GeyserStakeView = () => {
   const { decimals: stakingTokenDecimals, symbol: stakingTokenSymbol, address: stakingTokenAddress } = stakingTokenInfo
   const { decimals: rewardTokenDecimals, symbol: rewardTokenSymbol, address: rewardTokenAddress } = rewardTokenInfo
   const { signer } = useContext(Web3Context)
-  const { selectedVault, currentLock, withdrawFromVault, withdrawRewardsFromVault, withdrawUnlockedFromVault } = useContext(VaultContext)
+  const { selectedVault, currentLock, withdrawRewardsFromVault, withdrawUnlockedFromVault } = useContext(VaultContext)
   const { stakingTokenBalance, underlyingTokenBalance, refreshWalletBalances } = useContext(WalletContext)
   const { refreshVaultStats, vaultStats: {currentStakeable} } = useContext(StatsContext)
   const { selectWallet, address } = useContext(Web3Context)
@@ -86,11 +86,11 @@ export const GeyserStakeView = () => {
     }
   }
 
-  const onCloseTxModal = () => {
+  const onCloseTxModal = async () => {
     setTxModalOpen(false)
     refreshInputAmount()
-    refreshWalletBalances()
-    refreshVaultStats()
+    await refreshVaultStats()
+    await refreshWalletBalances()
   }
 
   const withdrawStaking = async () => {
@@ -99,15 +99,17 @@ export const GeyserStakeView = () => {
         const tx = await withdrawUnlockedFromVault(stakingTokenAddress)
         if (tx) {
           const { response, amount } = tx
-          console.log(amount.toString())
           setActualStakingTokensFromUnstake(amount)
           return response
         }
       }
-    } else if (withdrawFromVault) {
+    } else {
       setActualStakingTokensFromUnstake(parsedUserInput)
-      return withdrawFromVault(stakingTokenAddress, parsedUserInput)
     }
+    // else if (withdrawFromVault) {
+    //   setActualStakingTokensFromUnstake(parsedUserInput)
+    //   return withdrawFromVault(stakingTokenAddress, parsedUserInput)
+    // }
     return undefined
   }
 

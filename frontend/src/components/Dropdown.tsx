@@ -40,12 +40,12 @@ export const Dropdown: React.FC<Props> = ({ options, optgroups, selectedOption, 
 
   const renderOptgroups = (groups: { group: string, options: string[] }[]) => (
     groups.map(({ group, options: opts }) => (
-      <>
-        <Listbox.Option disabled key={group} className="text-gray align-center justify-center flex" value={group}>
+      <div key={group}>
+        <Listbox.Option disabled className="text-gray align-center justify-center flex" value={group}>
           <span>{group}</span>
         </Listbox.Option>
         {renderOptions(opts)}
-      </>
+      </div>
     ))
   )
   return (

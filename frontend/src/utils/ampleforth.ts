@@ -13,8 +13,9 @@ export const getTotalRewardShares = async (
   epoch: number,
   decimals: number,
   signerOrProvider: SignerOrProvider,
+  indexBlock: number,
 ) => {
-  const supplyHistory = await getSupplyHistory(policyAddress, epoch, decimals, signerOrProvider)
+  const supplyHistory = await getSupplyHistory(policyAddress, epoch, decimals, signerOrProvider, indexBlock)
   const getShares = (schedule: RewardSchedule) =>
     parseFloat(formatUnits(schedule.rewardAmount, decimals)) / getSupplyOn(parseInt(schedule.start, 10), supplyHistory)
   return rewardSchedules.reduce((acc, schedule) => acc + getShares(schedule), 0)
@@ -35,11 +36,13 @@ export const getSupplyHistory = async (
   epoch: number,
   decimals: number,
   signerOrProvider: SignerOrProvider,
+  indexBlock: number,
 ) =>
   ls.computeAndCache<SupplyInfo[]>(
     async () => {
+      const blocksPerDay = 4 * 60 * 24
       const policy = new Contract(policyAddress, UFRAGMENTS_POLICY_ABI, signerOrProvider)
-      const eventLogs = await loadHistoricalLogs(policy, 'LogRebase')
+      const eventLogs = await loadHistoricalLogs(policy, 'LogRebase', signerOrProvider, indexBlock - blocksPerDay * 7)
       const historyFromLogs: SupplyInfo[] = eventLogs
         .filter((log) => log.args)
         .map((log) => ({

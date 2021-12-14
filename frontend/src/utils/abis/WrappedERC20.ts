@@ -1,4 +1,4 @@
-export const WRAPPED_ERC20 = [
+export const WRAPPED_ERC20_ABI = [
   {
     anonymous: false,
     inputs: [

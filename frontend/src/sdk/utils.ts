@@ -1,9 +1,6 @@
 import { TypedDataField } from '@ethersproject/abstract-signer'
 import { BigNumberish, Contract, providers, Signer, Wallet } from 'ethers'
 import { LogDescription, splitSignature } from 'ethers/lib/utils'
-import mainnetConfig from './deployments/mainnet/factories-latest.json'
-import goerliConfig from './deployments/goerli/factories-latest.json'
-import localhostConfig from './deployments/localhost/factories-latest.json'
 import { TransactionReceipt } from '@ethersproject/providers'
 
 export const loadNetworkConfig = async (signerOrProvider: Signer | providers.Provider) => {
@@ -11,17 +8,16 @@ export const loadNetworkConfig = async (signerOrProvider: Signer | providers.Pro
     ? signerOrProvider.provider?.getNetwork()
     : signerOrProvider.getNetwork())
 
-  switch (network?.name) {
-    case 'mainnet':
-      return mainnetConfig
-    case 'homestead':
-      return mainnetConfig
-    case 'goerli':
-      return goerliConfig
-    case 'localhost':
-      return localhostConfig
-    default:
-      throw new Error(`no network config for ${network?.name}`)
+  let networkName = network?.name
+  if (networkName === 'homestead') {
+    networkName = 'mainnet'
+  }
+
+  try {
+    return require(`./deployments/${networkName}/factories-latest.json`)
+  } catch (e) {
+    console.log(e)
+    throw new Error(`no network config for ${networkName}`)
   }
 }
 

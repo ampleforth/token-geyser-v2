@@ -8,7 +8,7 @@ import { BALANCER_BPOOL_V1_ABI } from './abis/BalancerBPoolV1'
 import { BALANCER_CRP_V1_ABI } from './abis/BalancerCRPV1'
 import { MOONISWAP_V1_PAIR_ABI } from './abis/MooniswapV1Pair'
 import { UNISWAP_V2_PAIR_ABI } from './abis/UniswapV2Pair'
-import { WRAPPED_ERC20 } from './abis/WrappedERC20'
+import { WRAPPED_ERC20_ABI } from './abis/WrappedERC20'
 import { AAVEV2_DEPOSIT_TOKEN } from './abis/AaveV2DepositToken'
 import { getCurrentPrice } from './price'
 import { defaultTokenInfo, getTokenInfo } from './token'
@@ -28,6 +28,8 @@ export const getStakingTokenInfo = async (
   switch (token) {
     case StakingToken.MOCK:
       return getMockLPToken(tokenAddress)
+    case StakingToken.WAMPL:
+      return getBasicToken(tokenAddress, signerOrProvider)
     case StakingToken.UNISWAP_V2:
       return getUniswapV2(tokenAddress, signerOrProvider)
     case StakingToken.SUSHISWAP:
@@ -235,7 +237,7 @@ const getAaveV2 = async (
   signerOrProvider: SignerOrProvider,
 ): Promise<StakingTokenInfo> => {
   const wrapperAddress = toChecksumAddress(wrapperTokenAddress)
-  const wrapperContract = new Contract(wrapperAddress, WRAPPED_ERC20, signerOrProvider)
+  const wrapperContract = new Contract(wrapperAddress, WRAPPED_ERC20_ABI, signerOrProvider)
 
   // aAMPL
   const wrappedAddress = await wrapperContract.underlying()
@@ -285,5 +287,17 @@ const getAaveV2 = async (
       symbol: wrappedInfo.symbol,
       price: baseAssetPrice,
     },
+  }
+}
+
+const getBasicToken = async (tokenAddress: string, signerOrProvider: SignerOrProvider): Promise<StakingTokenInfo> => {
+  const address = toChecksumAddress(tokenAddress)
+  const tokenInfo = await getTokenInfo(address, signerOrProvider)
+  const price = await getCurrentPrice(tokenInfo.symbol)
+  return {
+    ...tokenInfo,
+    price,
+    composition: [],
+    wrappedToken: null,
   }
 }

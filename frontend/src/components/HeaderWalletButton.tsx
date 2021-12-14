@@ -10,15 +10,19 @@ export const HeaderWalletButton = () => {
   const { selectWallet, address } = useContext(Web3Context)
 
   return (
-    <div>
+    <ButtonContainer>
       <Button onClick={selectWallet}>
         <Paragraph autoCapitalize="yes" color={NamedColors.WHITE}>
           {address ? displayAddr(address) : 'CONNECT'}
         </Paragraph>
       </Button>
-    </div>
+    </ButtonContainer>
   )
 }
+
+const ButtonContainer = styled.div`
+  ${tw`w-6/12 flex`}
+`
 
 const Button = styled.button`
   ${tw`w-full px-8 py-4 rounded-bl-2xl float-right bg-radicalRed`}

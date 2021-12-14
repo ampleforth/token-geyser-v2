@@ -11,7 +11,6 @@ import { DAY_IN_SEC } from '../../constants'
 export const GeyserStats = () => {
   const { geyserStats: { duration, totalDeposit, totalRewards }} = useContext(StatsContext)
   const { selectedGeyserInfo: { rewardTokenInfo: { symbol } } } = useContext(GeyserContext)
-
   return (
     <GeyserStatsContainer>
       <Header>Geyser Stats</Header>

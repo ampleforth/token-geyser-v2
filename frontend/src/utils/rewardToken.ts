@@ -16,18 +16,21 @@ export const getRewardTokenInfo = async (
   tokenAddress: string,
   token: RewardToken,
   signerOrProvider: SignerOrProvider,
+  geyserDeployedBlock: number,
 ) => {
   switch (token) {
     case RewardToken.MOCK:
-      return getMockToken(tokenAddress, signerOrProvider)
+      return getBasicToken(tokenAddress, signerOrProvider)
     case RewardToken.AMPL:
-      return getAMPLToken(tokenAddress, signerOrProvider)
+      return getAMPLToken(tokenAddress, signerOrProvider, geyserDeployedBlock)
+    case RewardToken.WAMPL:
+      return getBasicToken(tokenAddress, signerOrProvider)
     default:
       throw new Error(`Handler for ${token} not found`)
   }
 }
 
-const getMockToken = async (tokenAddress: string, signerOrProvider: SignerOrProvider): Promise<RewardTokenInfo> => {
+const getBasicToken = async (tokenAddress: string, signerOrProvider: SignerOrProvider): Promise<RewardTokenInfo> => {
   const tokenInfo = await getTokenInfo(tokenAddress, signerOrProvider)
   const getTotalRewards = async (rewardSchedules: RewardSchedule[]) =>
     rewardSchedules.reduce(
@@ -40,9 +43,15 @@ const getMockToken = async (tokenAddress: string, signerOrProvider: SignerOrProv
   }
 }
 
-const getAMPLToken = async (tokenAddress: string, signerOrProvider: SignerOrProvider): Promise<RewardTokenInfo> => {
+const getAMPLToken = async (
+  tokenAddress: string,
+  signerOrProvider: SignerOrProvider,
+  geyserDeployedBlock: number,
+): Promise<RewardTokenInfo> => {
   const contract = new Contract(tokenAddress, UFRAGMENTS_ABI, signerOrProvider)
   const tokenInfo = await getTokenInfo(tokenAddress, signerOrProvider)
+
+  // define type XCWAMPL for AVAX
   const policyAddress: string = await contract.monetaryPolicy()
   const policy = new Contract(policyAddress, UFRAGMENTS_POLICY_ABI, signerOrProvider)
 
@@ -56,6 +65,7 @@ const getAMPLToken = async (tokenAddress: string, signerOrProvider: SignerOrProv
       epoch,
       tokenInfo.decimals,
       signerOrProvider,
+      geyserDeployedBlock,
     )
     return totalRewardShares * totalSupply
   }

@@ -56,11 +56,7 @@ export const WalletContextProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     let mounted = true;
-    (async () => {
-      if (mounted) {
-        await refreshWalletBalances()
-      }
-    })();
+    setTimeout(() => mounted && refreshWalletBalances(), 250);
     return () => {
       mounted = false
     }

@@ -4,7 +4,7 @@ import { CheckIcon, SelectorIcon } from '@heroicons/react/solid'
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
 
-interface Option {
+export interface Option {
   id: string
   name: string
 }
@@ -23,7 +23,7 @@ const StyledListboxButton = styled(Listbox.Button)`
 
 const StyledListboxOptions = styled(Listbox.Options)`
   ${tw`absolute w-full py-1 mt-1 overflow-auto text-base text-left bg-white rounded-md shadow-lg max-h-60 ring-1 ring-black ring-opacity-5 sm:text-lg`}
-  ${tw`focus:outline-none `}
+  ${tw`focus:outline-none z-10`}
 `
 
 const StyledSelectorIconContainer = styled.span`
@@ -46,7 +46,7 @@ const noOp = () => {}
 
 export const Select: React.FC<Props> = ({selected, options, onChange, disabled}) => (
   <Listbox value={selected} onChange={onChange || noOp} disabled={disabled||false}>
-    <div className="relative mt-1">
+    <div className="relative mt-1 w-full">
       <StyledListboxButton>
         <span className="block truncate">{options[selected].name}</span>
         {!disabled ? (<StyledSelectorIconContainer><StyledSelectorIcon /></StyledSelectorIconContainer>) : null}

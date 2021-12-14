@@ -1,12 +1,10 @@
 import { ApolloClient, InMemoryCache } from '@apollo/client'
-import { GEYSER_SUBGRAPH_ENDPOINT } from '../constants'
+import { getConnectionConfig } from 'config/app'
 
-const uri =
-  process.env.NODE_ENV === 'development'
-    ? 'http://localhost:8000/subgraphs/name/aalavandhan/amplgeyserv2beta'
-    : GEYSER_SUBGRAPH_ENDPOINT
-
-export const client = new ApolloClient({
-  uri,
-  cache: new InMemoryCache(),
-})
+export const makeClient = (networkId: number | null) => {
+  const { graphUrl } = getConnectionConfig(networkId)
+  return new ApolloClient({
+    uri: graphUrl,
+    cache: new InMemoryCache(),
+  })
+}

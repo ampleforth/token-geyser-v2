@@ -23,7 +23,6 @@ export const getTotalRewardShares = async (
 
 export const getSupplyOn = (timestamp: number, supplyHistory: SupplyInfo[]) => {
   if (supplyHistory.length === 0) return 0
-
   let index = supplyHistory.findIndex(({ timestamp: ts }) => timestamp < ts)
   if (index < 0) {
     index = supplyHistory.length

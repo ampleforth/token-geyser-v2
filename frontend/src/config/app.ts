@@ -17,6 +17,7 @@ const networkConfig: NetworkConfig = {
     rpcUrl: `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
     graphUrl: 'https://api.thegraph.com/subgraphs/name/aalavandhan/amplgeyserv2beta',
     explorerUrl: 'https://etherscan.io/tx',
+    indexStartBlock: 7953823,
   },
   [Network.Kovan]: {
     id: Network.Kovan,
@@ -26,6 +27,7 @@ const networkConfig: NetworkConfig = {
     rpcUrl: `https://kovan.infura.io/v3/${INFURA_PROJECT_ID}`,
     graphUrl: 'https://api.thegraph.com/subgraphs/name/aalavandhan/geyserv2-kovan',
     explorerUrl: 'https://kovan.etherscan.io/tx',
+    indexStartBlock: 11666536,
   },
 }
 
@@ -37,7 +39,6 @@ const geyserList: AppGeysersList = {
       stakingToken: StakingToken.AAVE_V2_AMPL,
       rewardToken: RewardToken.AMPL,
       isWrapped: true,
-      deployedBlock: 13220292,
       // staked pool address: 0x1e6bb68acec8fefbd87d192be09bb274170a0548
     },
     {
@@ -46,7 +47,6 @@ const geyserList: AppGeysersList = {
       stakingToken: StakingToken.SUSHISWAP,
       rewardToken: RewardToken.AMPL,
       isWrapped: false,
-      deployedBlock: 12838383,
       // staked pool address: 0xCb2286d9471cc185281c4f763d34A962ED212962
     },
     {
@@ -55,7 +55,6 @@ const geyserList: AppGeysersList = {
       stakingToken: StakingToken.BALANCER_SMART_POOL_V1,
       rewardToken: RewardToken.AMPL,
       isWrapped: false,
-      deployedBlock: 12839549,
       // staked pool address: 0x49F2befF98cE62999792Ec98D0eE4Ad790E7786F
     },
     {
@@ -64,7 +63,6 @@ const geyserList: AppGeysersList = {
       stakingToken: StakingToken.BALANCER_V1,
       rewardToken: RewardToken.AMPL,
       isWrapped: false,
-      deployedBlock: 12839605,
       // staked pool address: 0xa751A143f8fe0a108800Bfb915585E4255C2FE80
     },
     {
@@ -73,7 +71,6 @@ const geyserList: AppGeysersList = {
       stakingToken: StakingToken.UNISWAP_V2,
       rewardToken: RewardToken.AMPL,
       isWrapped: false,
-      deployedBlock: 12839593,
       // staked pool address: 0xc5be99A02C6857f9Eac67BbCE58DF5572498F40c
     },
   ],
@@ -84,7 +81,6 @@ const geyserList: AppGeysersList = {
       stakingToken: StakingToken.WAMPL,
       rewardToken: RewardToken.AMPL,
       isWrapped: false,
-      deployedBlock: 28705101,
     },
   ],
 }

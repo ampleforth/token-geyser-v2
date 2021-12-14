@@ -124,7 +124,6 @@ export type GeyserConfig = {
   stakingToken: StakingToken
   rewardToken: RewardToken
   isWrapped: boolean
-  deployedBlock: number
 }
 
 export type AdditionalTokenConfig = {
@@ -160,6 +159,7 @@ export type ConnectionConfig = {
   rpcUrl: string
   graphUrl: string
   explorerUrl: string
+  indexStartBlock: number
 }
 
 export type NetworkConfig = {

@@ -16,13 +16,13 @@ export const getRewardTokenInfo = async (
   tokenAddress: string,
   token: RewardToken,
   signerOrProvider: SignerOrProvider,
-  geyserDeployedBlock: number,
+  indexStartBlock: number,
 ) => {
   switch (token) {
     case RewardToken.MOCK:
       return getBasicToken(tokenAddress, signerOrProvider)
     case RewardToken.AMPL:
-      return getAMPLToken(tokenAddress, signerOrProvider, geyserDeployedBlock)
+      return getAMPLToken(tokenAddress, signerOrProvider, indexStartBlock)
     case RewardToken.WAMPL:
       return getBasicToken(tokenAddress, signerOrProvider)
     default:
@@ -46,7 +46,7 @@ const getBasicToken = async (tokenAddress: string, signerOrProvider: SignerOrPro
 const getAMPLToken = async (
   tokenAddress: string,
   signerOrProvider: SignerOrProvider,
-  geyserDeployedBlock: number,
+  indexStartBlock: number,
 ): Promise<RewardTokenInfo> => {
   const contract = new Contract(tokenAddress, UFRAGMENTS_ABI, signerOrProvider)
   const tokenInfo = await getTokenInfo(tokenAddress, signerOrProvider)
@@ -65,7 +65,7 @@ const getAMPLToken = async (
       epoch,
       tokenInfo.decimals,
       signerOrProvider,
-      geyserDeployedBlock,
+      indexStartBlock,
     )
     return totalRewardShares * totalSupply
   }

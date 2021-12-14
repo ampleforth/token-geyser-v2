@@ -1,0 +1,7 @@
+{
+    "network": "kovan",
+    "startBlock": 28664756,
+    "geyserRegistry": "0x87D44039dC98D9e44bD3EB49a62E8289b21895E2",
+    "vaultFactory": "0x3fBbe79B510478CaFC58c7d321188AA1f0a7F88c",
+    "crucibleFactory": "0x0000000000000000000000000000000000000000"
+}

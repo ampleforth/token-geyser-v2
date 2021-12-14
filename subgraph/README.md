@@ -3,17 +3,13 @@
 
 ```
 # install
+yarn global add mustache
 yarn
 
-# use subgraph.template.yaml and fill in addresses
-# create subgraph.yaml
+# deploy 
+export GRAPH_AUTH="INSERT_KEY"
 
-yarn codegen
+./scripts/deploy.sh kovan aalavandhan/geyserv2-kovan
 
-yarn build
-
-yarn graph auth --product hosted-service ACCESS_TOKEN
-
-# update deploy command in package.json with the username/graphname "aalavandhan/amplgeyserv2beta"
-yarn deploy
+./scripts/deploy.sh mainnet aalavandhan/amplgeyserv2beta
 ```

@@ -107,7 +107,7 @@ const MessageContainer = styled.div`
   ${tw`mt-2`}
 `
 
-const Message = styled.p`
+const Message = styled.div`
   ${tw`text-sm`}
 `
 

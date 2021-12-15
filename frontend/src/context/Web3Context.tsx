@@ -1,37 +1,36 @@
 import React, { createContext, useCallback, useEffect, useState } from 'react';
 import { API, Wallet } from 'bnc-onboard/dist/src/interfaces';
 import Onboard from 'bnc-onboard';
-import { getDefaultProvider, providers, Signer, utils } from 'ethers';
-import { getConnectionConfig } from 'config/app'
+import { providers, Signer, utils } from 'ethers';
+import { getConnectionConfig, activeNetworks } from 'config/app'
 import { Network, INFURA_PROJECT_ID } from '../constants'
 
-const INFURA_ENDPOINT = `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`
+const DEFAULT_RPC_ENDPOINT = `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`
 const SUPPORTED_WALLETS = [
-  { walletName: 'metamask', preferred: true, rpcUrl: INFURA_ENDPOINT },
+  { walletName: 'metamask', preferred: true, rpcUrl: DEFAULT_RPC_ENDPOINT },
   {
     walletName: 'walletConnect',
     preferred: true,
     infuraKey: INFURA_PROJECT_ID,
   },
   {
-    walletName: 'walletLink', label: 'Coinbase Wallet', preferred: true, rpcUrl: INFURA_ENDPOINT,
+    walletName: 'walletLink', label: 'Coinbase Wallet', preferred: true, rpcUrl: DEFAULT_RPC_ENDPOINT,
   },
-  { walletName: 'wallet.io', preferred: true, rpcUrl: INFURA_ENDPOINT },
-  { walletName: 'imToken', preferred: true, rpcUrl: INFURA_ENDPOINT },
-  { walletName: 'coinbase', preferred: true, rpcUrl: INFURA_ENDPOINT },
-  { walletName: 'status', preferred: true, rpcUrl: INFURA_ENDPOINT },
-  { walletName: 'trust', preferred: true, rpcUrl: INFURA_ENDPOINT },
-  { walletName: 'authereum', preferred: true, rpcUrl: INFURA_ENDPOINT }, // currently getting rate limited
+  { walletName: 'wallet.io', preferred: true, rpcUrl: DEFAULT_RPC_ENDPOINT },
+  { walletName: 'imToken', preferred: true, rpcUrl: DEFAULT_RPC_ENDPOINT },
+  { walletName: 'coinbase', preferred: true, rpcUrl: DEFAULT_RPC_ENDPOINT },
+  { walletName: 'status', preferred: true, rpcUrl: DEFAULT_RPC_ENDPOINT },
+  { walletName: 'trust', preferred: true, rpcUrl: DEFAULT_RPC_ENDPOINT },
+  { walletName: 'authereum', preferred: true, rpcUrl: DEFAULT_RPC_ENDPOINT }, // currently getting rate limited
 ];
 
-class Provider extends providers.Web3Provider {}
+const defaultProvider = new providers.JsonRpcProvider(DEFAULT_RPC_ENDPOINT)
 
 const Web3Context = createContext<{
   address?: string
   wallet: Wallet | null
   onboard?: API
-  provider: Provider | null
-  defaultProvider: providers.Provider
+  provider: providers.Provider
   signer?: Signer
   selectWallet:() => Promise<boolean>
   disconnectWallet:() => Promise<boolean>
@@ -44,8 +43,7 @@ const Web3Context = createContext<{
       selectNetwork: async () => false,
       ready: false,
       wallet: null,
-      provider: null,
-      defaultProvider: getDefaultProvider(),
+      provider: defaultProvider,
       networkId: Network.Mainnet,
     });
 
@@ -75,26 +73,41 @@ const Web3Provider: React.FC = ({ children }: Props) => {
   const [address, setAddress] = useState<string>();
   const [wallet, setWallet] = useState<Wallet | null>(null);
   const [onboard, setOnboard] = useState<API>();
-  const [provider, setProvider] = useState<Provider | null>(null);
+  const [provider, setProvider] = useState<providers.Provider>(defaultProvider);
   const [networkId, setNetworkId] = useState<number>(Network.Mainnet);
-  const [defaultProvider] = useState<providers.Provider>(getDefaultProvider());
   const [signer, setSigner] = useState<Signer>();
   const [ready, setReady] = useState(false);
 
-  const updateWallet = useCallback((newWallet: Wallet) => {
-    setWallet(newWallet);
-    if (newWallet && newWallet.name) localStorage.setItem('selectedWallet', newWallet.name);
-    const ethersProvider = new Provider(newWallet.provider, 'any');
-    // ethersProvider.on('chainChanged', (newNetworkId) => {
-    //   if (newNetworkId && newNetworkId !== networkId) {
-    //     // window.location.reload();
-    //     setNetworkId(newNetworkId);
-    //     // updateWallet(newWallet);
-    //   }
-    // });
-    const rpcSigner = ethersProvider.getSigner();
-    setSigner(rpcSigner);
-    setProvider(ethersProvider);
+  const updateWallet = useCallback(async (newWallet: Wallet) => {
+    if (!newWallet) return;
+    const walletProvider = new providers.Web3Provider(newWallet.provider, 'any');
+    const network = await walletProvider.getNetwork()
+    if(activeNetworks.includes(network.chainId)){
+      const rpcSigner = walletProvider.getSigner();
+      setWallet(newWallet);
+      setSigner(rpcSigner);  
+      if (newWallet && newWallet.name) {
+        localStorage.setItem('selectedWallet', newWallet.name);
+      }
+    } else {
+      setWallet(null);
+      setSigner(undefined);
+    }
+  }, []);
+
+  const updateProvider = useCallback((newNetworkId: number) => {
+    if(activeNetworks.includes(newNetworkId)){
+      const conn = getConnectionConfig(newNetworkId)
+      const rpcProvider = new providers.JsonRpcProvider(conn.rpcUrl, {
+        chainId: conn.networkId,
+        name: conn.ref
+      })
+      setProvider(rpcProvider);
+      setNetworkId(newNetworkId as Network);
+    } else {
+      setProvider(defaultProvider);
+      setNetworkId(Network.Mainnet);
+    }
   }, []);
 
   useEffect(() => {
@@ -104,18 +117,16 @@ const Web3Provider: React.FC = ({ children }: Props) => {
         if (w?.provider?.selectedAddress) {
           updateWallet(w);
         } else {
-          setProvider(null);
           setWallet(null);
+          setSigner(undefined);
         }
       },
       network: (newNetworkId: number) => {
-        if (newNetworkId !== networkId && newNetworkId in Network) {
-          setNetworkId(newNetworkId as Network);
-        }
+        updateProvider(newNetworkId)
       },
     });
     setOnboard(onboardAPI);
-  }, [networkId, updateWallet]);
+  }, [updateWallet, updateProvider]);
 
   const selectWallet = async (): Promise<boolean> => {
     if (!onboard) return false;
@@ -149,21 +160,19 @@ const Web3Provider: React.FC = ({ children }: Props) => {
 
   const selectNetwork = async (newNetworkId: number) => {
     const conn = getConnectionConfig(networkId)
-
     try{
-      if(newNetworkId !== Network.Mainnet){
-        await wallet?.provider?.request({
-          method: "wallet_addEthereumChain",
-          params: [
-            {
-              chainId: utils.hexValue(conn.chainId),
-              chainName: conn.name,
-              rpcUrls: [conn.rpcUrl],
-              blockExplorerUrls: [conn.explorerUrl],
-            },
-          ],
-        });    
-      }
+      await wallet?.provider?.request({
+        method: "wallet_addEthereumChain",
+        params: [
+          {
+            chainId: utils.hexValue(conn.networkId),
+            chainName: conn.ref,
+            rpcUrls: [conn.rpcUrl],
+            blockExplorerUrls: [conn.explorerUrl],
+            nativeCurrency: conn.nativeCurrency,
+          },
+        ],
+      });
     } catch(e) {
       console.log(e)
     }
@@ -187,7 +196,6 @@ const Web3Provider: React.FC = ({ children }: Props) => {
         selectWallet,
         disconnectWallet,
         ready,
-        defaultProvider,
         networkId,
         selectNetwork,
       }}

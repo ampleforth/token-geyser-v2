@@ -16,8 +16,8 @@ export const loadNetworkConfig = async (signerOrProvider: Signer | providers.Pro
   try {
     return require(`./deployments/${networkName}/factories-latest.json`)
   } catch (e) {
-    console.log(e)
-    throw new Error(`no network config for ${networkName}`)
+    console.log(`no network config for ${networkName}`)
+    return require('./deployments/mainnet/factories-latest.json')
   }
 }
 

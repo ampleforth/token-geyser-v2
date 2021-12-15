@@ -151,8 +151,15 @@ export enum GeyserAction {
   WRAP = 'wrap',
 }
 
+export type NativeCurrencyConfig = {
+  name: string
+  symbol: string
+  decimals: number
+}
+
 export type ConnectionConfig = {
   id: Network
+  ref: string
   name: string
   chainId: number
   networkId: number
@@ -160,6 +167,7 @@ export type ConnectionConfig = {
   graphUrl: string
   explorerUrl: string
   indexStartBlock: number
+  nativeCurrency: NativeCurrencyConfig
 }
 
 export type NetworkConfig = {

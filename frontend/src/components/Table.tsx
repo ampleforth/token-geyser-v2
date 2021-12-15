@@ -57,20 +57,18 @@ export const Table: React.FC<Props> = ({ columns, dataSource }) => {
       </TableHead>
       <TableBody>
         {rows.map((row, rowNumber) => (
-          <>
-            <TableRow key={dataSource[rowNumber].key}>
-              {row.map((cell, colNumber) => (
-                <RowCell
-                  key={`${dataSource[rowNumber].key}-${columns[colNumber].key}`}
-                  className={`${getAlignmentClass(columns[colNumber].textAlign || Align.LEFT)} ${getPaddingClass(colNumber, columns.length)}`}
-                >
-                  {cell}
-                </RowCell>
-              ))}
-            </TableRow>
-            {rowNumber !== rows.length - 1 && <Spacer />}
-          </>
+          <TableRow key={dataSource[rowNumber].key}>
+            {row.map((cell, colNumber) => (
+              <RowCell
+                key={`${dataSource[rowNumber].key}-${columns[colNumber].key}`}
+                className={`${getAlignmentClass(columns[colNumber].textAlign || Align.LEFT)} ${getPaddingClass(colNumber, columns.length)}`}
+              >
+                {cell}
+              </RowCell>
+            ))}
+          </TableRow>
         ))}
+        <Spacer/>
       </TableBody>
     </TableContent>
   )

@@ -48,6 +48,7 @@ export const Dropdown: React.FC<Props> = ({ options, optgroups, selectedOption, 
       </div>
     ))
   )
+
   return (
     <Listbox value={selectedOption} onChange={onChange}>
       <OptionsWrapper>

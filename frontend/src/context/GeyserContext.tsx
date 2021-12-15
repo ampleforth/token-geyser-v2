@@ -50,8 +50,8 @@ export const GeyserContext = createContext<{
 })
 
 export const GeyserContextProvider: React.FC = ({ children }) => {
-  const { signer, defaultProvider, networkId } = useContext(Web3Context)
-  const signerOrProvider = signer || defaultProvider
+  const { signer, provider, networkId } = useContext(Web3Context)
+  const signerOrProvider = signer || provider
   // Polling to fetch fresh geyser stats
   const [getGeysers, { loading: geyserLoading, data: geyserData }] = useLazyQuery(GET_GEYSERS, {
     pollInterval: POLL_INTERVAL,

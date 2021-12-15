@@ -157,6 +157,32 @@ task('deploy', 'deploy full set of factory contracts')
     }
   })
 
+task('verify-factories', 'verfires the deployed factories')
+  .addOptionalParam('factoryVersion', 'the factory version', 'latest')
+  .setAction(async ({ factoryVersion }, { ethers, run, network }) => {
+    const { PowerSwitchFactory, RewardPoolFactory, VaultFactory, GeyserRegistry, VaultTemplate } = JSON.parse(
+      readFileSync(`${SDK_PATH}/deployments/${network.name}/factories-${factoryVersion}.json`).toString(),
+    )
+
+    console.log('Verifying source on etherscan')
+    await run('verify:verify', {
+      address: PowerSwitchFactory.address,
+    })
+    await run('verify:verify', {
+      address: RewardPoolFactory.address,
+    })
+    await run('verify:verify', {
+      address: VaultTemplate.address,
+    })
+    await run('verify:verify', {
+      address: VaultFactory.address,
+      constructorArguments: [VaultTemplate.address],
+    })
+    await run('verify:verify', {
+      address: GeyserRegistry.address,
+    })
+  });
+
 task('create-vault', 'deploy an instance of UniversalVault')
   .addOptionalPositionalParam('factoryVersion', 'the factory version', 'latest')
   .setAction(async ({ factoryVersion }, { ethers, run, network }) => {
@@ -198,8 +224,10 @@ task('create-geyser', 'deploy an instance of Geyser')
         initializer: false,
       })
       await geyser.deployTransaction.wait(1)
+      const implementation = await upgrades.getImplementationAddress(geyser.address)
       console.log('Deploying Geyser')
-      console.log('  to', geyser.address)
+      console.log('  to proxy', geyser.address)
+      console.log('  to implementation', implementation)
       console.log('  in', geyser.deployTransaction.hash)
       console.log('  staking token', stakingToken)
       console.log('  reward token', rewardToken)
@@ -272,6 +300,18 @@ task('verify-geyser', 'verify and lock the Geyser template')
     })
   })
 
+const getEtherscanAPIKey = () => {
+  switch (process.env.HARDHAT_NETWORK) {
+    case "mainnet" || "kovan":
+      return process.env.ETHERSCAN_API_KEY;
+    case "avalanche" || "avalanche_fiji":
+      return process.env.SNOWTRACE_API_KEY;
+    default:
+      return "";
+  }
+}
+
+
 // When using a local network, MetaMask assumes a chainId of 1337, even though the default chainId of HardHat is 31337
 // https://github.com/MetaMask/metamask-extension/issues/10290
 export default {
@@ -290,6 +330,12 @@ export default {
       url: `https://kovan.infura.io/v3/${process.env.INFURA_ID}`,
       accounts: {
         mnemonic: process.env.DEV_MNEMONIC || Wallet.createRandom().mnemonic.phrase,
+      },
+    },
+    avalanche: {
+      url: 'https://api.avax.network/ext/bc/C/rpc',
+      accounts: {
+        mnemonic: process.env.PROD_MNEMONIC || Wallet.createRandom().mnemonic.phrase,
       },
     },
     mainnet: {
@@ -316,7 +362,7 @@ export default {
     ],
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_APIKEY,
+    apiKey: getEtherscanAPIKey(),
   },
   mocha: {
     timeout: 100000,

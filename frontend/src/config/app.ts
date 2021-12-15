@@ -1,4 +1,4 @@
-import { Network, RewardToken, StakingToken, INFURA_PROJECT_ID } from '../constants'
+import { Network, RewardToken, StakingToken, ALCHEMY_PROJECT_ID } from '../constants'
 import {
   AppGeysersList,
   NetworkConfig,
@@ -15,7 +15,7 @@ const networkConfig: NetworkConfig = {
     chainId: 1,
     ref: 'mainnet',
     name: 'Ethereum',
-    rpcUrl: `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
+    rpcUrl: `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_PROJECT_ID}`,
     graphUrl: 'https://api.thegraph.com/subgraphs/name/aalavandhan/amplgeyserv2',
     explorerUrl: 'https://etherscan.io/tx',
     indexStartBlock: 7953823,
@@ -31,7 +31,7 @@ const networkConfig: NetworkConfig = {
     chainId: 42,
     ref: 'kovan',
     name: 'Kovan',
-    rpcUrl: `https://kovan.infura.io/v3/${INFURA_PROJECT_ID}`,
+    rpcUrl: `https://eth-kovan.alchemyapi.io/v2/${ALCHEMY_PROJECT_ID}`,
     graphUrl: 'https://api.thegraph.com/subgraphs/name/aalavandhan/geyserv2-kovan',
     explorerUrl: 'https://kovan.etherscan.io/tx',
     indexStartBlock: 11666536,

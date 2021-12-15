@@ -25,6 +25,22 @@ const networkConfig: NetworkConfig = {
       decimals: 18,
     },
   },
+  [Network.Avalanche]: {
+    id: Network.Avalanche,
+    networkId: 43114,
+    chainId: 43114,
+    ref: 'avalanche',
+    name: 'AVAX C-Chain',
+    rpcUrl: 'https://api.avax.network/ext/bc/C/rpc',
+    graphUrl: 'https://api.thegraph.com/subgraphs/name/aalavandhan/geyserv2-avalanche',
+    explorerUrl: 'https://snowtrace.io/tx',
+    indexStartBlock: 4799745,
+    nativeCurrency: {
+      name: 'Avalanche',
+      symbol: 'AVAX',
+      decimals: 18,
+    },
+  },
   [Network.Kovan]: {
     id: Network.Kovan,
     networkId: 42,
@@ -86,6 +102,15 @@ const geyserList: AppGeysersList = {
       // staked pool address: 0xc5be99A02C6857f9Eac67BbCE58DF5572498F40c
     },
   ],
+  [Network.Avalanche]: [
+    {
+      name: 'Avalanche (JOE WAVAX-AMPL)',
+      address: '0x0584042677d469C0B95775368cF1EFfe9cc222F5',
+      stakingToken: StakingToken.UNISWAP_V2,
+      rewardToken: RewardToken.XCAMPLE,
+      isWrapped: false,
+    },
+  ],
   [Network.Kovan]: [
     {
       name: 'Kovan testnet geyser (WAMPL)',
@@ -116,9 +141,10 @@ const additionalTokens: AppAdditionalTokensList = {
     },
   ],
   [Network.Kovan]: [],
+  [Network.Avalanche]: [],
 }
 
-export const activeNetworks: Network[] = [Network.Mainnet]
+export const activeNetworks: Network[] = [Network.Mainnet, Network.Avalanche]
 
 export function getConnectionConfig(networkId: number | null): ConnectionConfig {
   return networkConfig[networkId as Network] || networkConfig[Network.Mainnet]

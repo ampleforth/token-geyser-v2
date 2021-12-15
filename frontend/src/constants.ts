@@ -52,6 +52,7 @@ export enum StakingToken {
   BALANCER_V1,
   BALANCER_SMART_POOL_V1,
   AAVE_V2_AMPL,
+  TRADER_JOE,
 }
 
 // Reward tokens
@@ -61,6 +62,7 @@ export enum RewardToken {
 
   // for mainnet
   AMPL,
+  XCAMPLE,
   WAMPL,
 }
 
@@ -68,6 +70,7 @@ export enum RewardToken {
 export enum Network {
   Mainnet = 1,
   Kovan = 42,
+  Avalanche = 43114,
 }
 
 // subgraph endpoint

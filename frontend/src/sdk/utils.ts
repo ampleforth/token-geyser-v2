@@ -3,15 +3,15 @@ import { BigNumberish, Contract, providers, Signer, Wallet } from 'ethers'
 import { LogDescription, splitSignature } from 'ethers/lib/utils'
 import { TransactionReceipt } from '@ethersproject/providers'
 
+import { getConnectionConfig } from '../config/app'
+
 export const loadNetworkConfig = async (signerOrProvider: Signer | providers.Provider) => {
   const network = await (Signer.isSigner(signerOrProvider)
     ? signerOrProvider.provider?.getNetwork()
     : signerOrProvider.getNetwork())
 
-  let networkName = network?.name
-  if (networkName === 'homestead') {
-    networkName = 'mainnet'
-  }
+  const conn = getConnectionConfig(network?.chainId || null)
+  let networkName = conn.ref
 
   try {
     return require(`./deployments/${networkName}/factories-latest.json`)

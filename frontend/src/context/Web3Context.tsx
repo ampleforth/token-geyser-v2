@@ -24,7 +24,10 @@ const SUPPORTED_WALLETS = [
   { walletName: 'authereum', preferred: true, rpcUrl: DEFAULT_RPC_ENDPOINT }, // currently getting rate limited
 ];
 
-const defaultProvider = new providers.JsonRpcProvider(DEFAULT_RPC_ENDPOINT)
+const defaultProvider = new providers.JsonRpcProvider(DEFAULT_RPC_ENDPOINT, {
+  chainId: 1,
+  name: 'mainnet'
+})
 
 const Web3Context = createContext<{
   address?: string
@@ -81,11 +84,12 @@ const Web3Provider: React.FC = ({ children }: Props) => {
   const updateWallet = useCallback(async (newWallet: Wallet) => {
     if (!newWallet) return;
     const walletProvider = new providers.Web3Provider(newWallet.provider, 'any');
-    const network = await walletProvider.getNetwork()
-    if(activeNetworks.includes(network.chainId)){
-      const rpcSigner = walletProvider.getSigner();
+    const network = await walletProvider.getNetwork();
+    const walletNetworkId = network.chainId;
+    if(activeNetworks.includes(walletNetworkId)){
+      const walletSigner = walletProvider.getSigner();
       setWallet(newWallet);
-      setSigner(rpcSigner);  
+      setSigner(walletSigner);  
       if (newWallet && newWallet.name) {
         localStorage.setItem('selectedWallet', newWallet.name);
       }
@@ -159,7 +163,7 @@ const Web3Provider: React.FC = ({ children }: Props) => {
   };
 
   const selectNetwork = async (newNetworkId: number) => {
-    const conn = getConnectionConfig(networkId)
+    const conn = getConnectionConfig(newNetworkId)
     try{
       await wallet?.provider?.request({
         method: "wallet_addEthereumChain",

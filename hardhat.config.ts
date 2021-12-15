@@ -4,6 +4,7 @@ import '@nomiclabs/hardhat-waffle'
 import '@openzeppelin/hardhat-upgrades'
 import 'hardhat-gas-reporter'
 import 'solidity-coverage'
+import { getImplementationAddress } from '@openzeppelin/upgrades-core'
 
 import { Contract, Signer, Wallet, BigNumber } from 'ethers'
 import { mkdirSync, readFileSync, writeFileSync } from 'fs'
@@ -181,7 +182,7 @@ task('verify-factories', 'verfires the deployed factories')
     await run('verify:verify', {
       address: GeyserRegistry.address,
     })
-  });
+  })
 
 task('create-vault', 'deploy an instance of UniversalVault')
   .addOptionalPositionalParam('factoryVersion', 'the factory version', 'latest')
@@ -224,7 +225,7 @@ task('create-geyser', 'deploy an instance of Geyser')
         initializer: false,
       })
       await geyser.deployTransaction.wait(1)
-      const implementation = await upgrades.getImplementationAddress(geyser.address)
+      const implementation = await getImplementationAddress(ethers.provider, geyser.address)
       console.log('Deploying Geyser')
       console.log('  to proxy', geyser.address)
       console.log('  to implementation', implementation)
@@ -263,9 +264,10 @@ task('create-geyser', 'deploy an instance of Geyser')
 
 task('fund-geyser', 'fund an instance of Geyser')
   .addParam('geyser', 'address of geyser')
-  .addParam('amount', 'amount')
+  .addParam('amount', 'amount in floating point')
+  .addParam('duration', 'time in seconds the program lasts')
   .addOptionalParam('factoryVersion', 'the factory version', 'latest')
-  .setAction(async ({ geyser, amount }, { ethers }) => {
+  .setAction(async ({ geyser, amount, duration }, { ethers }) => {
     const signer = (await ethers.getSigners())[0]
     const geyserContract = await ethers.getContractAt('Geyser', geyser, signer)
     const data = await geyserContract.getGeyserData()
@@ -273,7 +275,7 @@ task('fund-geyser', 'fund an instance of Geyser')
     const rewardToken = await ethers.getContractAt('MockAmpl', rewardTokenAddress, signer)
     const amt = parseUnits(amount, 9)
     await rewardToken.approve(geyser, amt)
-    await geyserContract.connect(signer).fundGeyser(amt, 10000)
+    await geyserContract.connect(signer).fundGeyser(amt, duration)
   })
 
 // currently need to manually run verify command
@@ -302,15 +304,14 @@ task('verify-geyser', 'verify and lock the Geyser template')
 
 const getEtherscanAPIKey = () => {
   switch (process.env.HARDHAT_NETWORK) {
-    case "mainnet" || "kovan":
-      return process.env.ETHERSCAN_API_KEY;
-    case "avalanche" || "avalanche_fiji":
-      return process.env.SNOWTRACE_API_KEY;
+    case 'mainnet' || 'kovan':
+      return process.env.ETHERSCAN_API_KEY
+    case 'avalanche' || 'avalanche_fiji':
+      return process.env.SNOWTRACE_API_KEY
     default:
-      return "";
+      return ''
   }
 }
-
 
 // When using a local network, MetaMask assumes a chainId of 1337, even though the default chainId of HardHat is 31337
 // https://github.com/MetaMask/metamask-extension/issues/10290

@@ -73,10 +73,6 @@ export enum Network {
   Avalanche = 43114,
 }
 
-// subgraph endpoint
-const GEYSER_SUBGRAPH_NAME = 'aalavandhan/amplgeyserv2beta'
-export const GEYSER_SUBGRAPH_ENDPOINT = `https://api.thegraph.com/subgraphs/name/${GEYSER_SUBGRAPH_NAME}`
-
 export const AMPL_LAUNCH_DATE = 1561687200
 export const INITIAL_SUPPLY = 50000000
 

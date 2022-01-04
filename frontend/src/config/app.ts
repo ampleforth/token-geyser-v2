@@ -16,7 +16,7 @@ const networkConfig: NetworkConfig = {
     ref: 'mainnet',
     name: 'Ethereum',
     rpcUrl: `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_PROJECT_ID}`,
-    graphUrl: 'https://api.thegraph.com/subgraphs/name/aalavandhan/amplgeyserv2',
+    graphUrl: 'https://api.thegraph.com/subgraphs/name/aalavandhan/amplgeyserv2beta',
     explorerUrl: 'https://etherscan.io/tx',
     indexStartBlock: 7953823,
     nativeCurrency: {
@@ -144,7 +144,7 @@ const additionalTokens: AppAdditionalTokensList = {
   [Network.Avalanche]: [],
 }
 
-export const activeNetworks: Network[] = [Network.Mainnet, Network.Avalanche]
+export const activeNetworks: Network[] = [Network.Mainnet]
 
 export function getConnectionConfig(networkId: number | null): ConnectionConfig {
   return networkConfig[networkId as Network] || networkConfig[Network.Mainnet]

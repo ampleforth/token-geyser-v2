@@ -53,6 +53,7 @@ export enum StakingToken {
   BALANCER_SMART_POOL_V1,
   AAVE_V2_AMPL,
   TRADER_JOE,
+  PANGOLIN,
 }
 
 // Reward tokens

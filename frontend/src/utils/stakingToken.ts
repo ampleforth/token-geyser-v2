@@ -36,6 +36,8 @@ export const getStakingTokenInfo = async (
       return getSushiswap(tokenAddress, signerOrProvider)
     case StakingToken.TRADER_JOE:
       return getTraderJoe(tokenAddress, signerOrProvider)
+    case StakingToken.PANGOLIN:
+      return getPangolin(tokenAddress, signerOrProvider)
     case StakingToken.MOONISWAP_V1:
       return getMooniswap(tokenAddress, signerOrProvider)
     case StakingToken.BALANCER_V1:
@@ -128,6 +130,9 @@ const getSushiswap = async (tokenAddress: string, signerOrProvider: SignerOrProv
 
 const getTraderJoe = async (tokenAddress: string, signerOrProvider: SignerOrProvider) =>
   uniswapV2Pair(tokenAddress, signerOrProvider, 'TraderJoe', 'JOE')
+
+const getPangolin = async (tokenAddress: string, signerOrProvider: SignerOrProvider) =>
+  uniswapV2Pair(tokenAddress, signerOrProvider, 'Pangolin', 'PNG')
 
 const getMooniswap = async (tokenAddress: string, signerOrProvider: SignerOrProvider): Promise<StakingTokenInfo> => {
   const address = toChecksumAddress(tokenAddress)

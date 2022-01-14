@@ -4,7 +4,7 @@ import '@nomiclabs/hardhat-waffle'
 import '@openzeppelin/hardhat-upgrades'
 import 'hardhat-gas-reporter'
 import 'solidity-coverage'
-import { getImplementationAddress } from '@openzeppelin/upgrades-core'
+import { getAdminAddress, getImplementationAddress } from '@openzeppelin/upgrades-core'
 
 import { Contract, Signer, Wallet, BigNumber } from 'ethers'
 import { mkdirSync, readFileSync, writeFileSync } from 'fs'
@@ -226,9 +226,11 @@ task('create-geyser', 'deploy an instance of Geyser')
       })
       await geyser.deployTransaction.wait(1)
       const implementation = await getImplementationAddress(ethers.provider, geyser.address)
+      const proxyAdmin = await getAdminAddress(ethers.provider, geyser.address)
       console.log('Deploying Geyser')
       console.log('  to proxy', geyser.address)
       console.log('  to implementation', implementation)
+      console.log('  with upgreadability admin', proxyAdmin)
       console.log('  in', geyser.deployTransaction.hash)
       console.log('  staking token', stakingToken)
       console.log('  reward token', rewardToken)
@@ -279,6 +281,7 @@ task('fund-geyser', 'fund an instance of Geyser')
   })
 
 // currently need to manually run verify command
+// ie) the implementation address of the deployed proxy through create-geyser
 // can automate after this issue is closed: https://github.com/OpenZeppelin/openzeppelin-upgrades/issues/290
 task('verify-geyser', 'verify and lock the Geyser template')
   .addPositionalParam('geyserTemplate', 'the geyser template address')

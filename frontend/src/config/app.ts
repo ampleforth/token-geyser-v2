@@ -104,7 +104,7 @@ const geyserList: AppGeysersList = {
   ],
   [Network.Avalanche]: [
     {
-      name: 'AVAX Great Geysir V1 (Pangolin WAVAX-AMPL)',
+      name: 'AVAX Crystaľ Geyser V1 (Pangolin WAVAX-AMPL)',
       address: '0x26645e8513B1D20aDb729E7114eDfA930D411720',
       stakingToken: StakingToken.PANGOLIN,
       rewardToken: RewardToken.XCAMPLE,
@@ -141,7 +141,13 @@ const additionalTokens: AppAdditionalTokensList = {
     },
   ],
   [Network.Kovan]: [],
-  [Network.Avalanche]: [],
+  [Network.Avalanche]: [
+    {
+      token: 'pangolin',
+      address: '0x60781c2586d68229fde47564546784ab3faca982',
+      enabled: true,
+    }
+  ],
 }
 
 export const activeNetworks: Network[] = [Network.Mainnet, Network.Avalanche]

@@ -104,7 +104,7 @@ const geyserList: AppGeysersList = {
   ],
   [Network.Avalanche]: [
     {
-      name: 'AVAX Crystaľ Geyser V1 (Pangolin WAVAX-AMPL)',
+      name: 'AVAX Crystal Geyser V1 (Pangolin WAVAX-AMPL)',
       address: '0x26645e8513B1D20aDb729E7114eDfA930D411720',
       stakingToken: StakingToken.PANGOLIN,
       rewardToken: RewardToken.XCAMPLE,

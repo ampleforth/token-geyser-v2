@@ -303,6 +303,8 @@ task('verify-geyser', 'verify and lock the Geyser template')
     await run('verify:verify', {
       address: contract.address,
     })
+
+    // TODO: verify reward pool
   })
 
 const getEtherscanAPIKey = () => {

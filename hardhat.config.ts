@@ -4,6 +4,7 @@ import '@nomiclabs/hardhat-waffle'
 import '@openzeppelin/hardhat-upgrades'
 import 'hardhat-gas-reporter'
 import 'solidity-coverage'
+import { getAdminAddress, getImplementationAddress } from '@openzeppelin/upgrades-core'
 
 import { Contract, Signer, Wallet, BigNumber } from 'ethers'
 import { mkdirSync, readFileSync, writeFileSync } from 'fs'
@@ -157,6 +158,32 @@ task('deploy', 'deploy full set of factory contracts')
     }
   })
 
+task('verify-factories', 'verfires the deployed factories')
+  .addOptionalParam('factoryVersion', 'the factory version', 'latest')
+  .setAction(async ({ factoryVersion }, { ethers, run, network }) => {
+    const { PowerSwitchFactory, RewardPoolFactory, VaultFactory, GeyserRegistry, VaultTemplate } = JSON.parse(
+      readFileSync(`${SDK_PATH}/deployments/${network.name}/factories-${factoryVersion}.json`).toString(),
+    )
+
+    console.log('Verifying source on etherscan')
+    await run('verify:verify', {
+      address: PowerSwitchFactory.address,
+    })
+    await run('verify:verify', {
+      address: RewardPoolFactory.address,
+    })
+    await run('verify:verify', {
+      address: VaultTemplate.address,
+    })
+    await run('verify:verify', {
+      address: VaultFactory.address,
+      constructorArguments: [VaultTemplate.address],
+    })
+    await run('verify:verify', {
+      address: GeyserRegistry.address,
+    })
+  })
+
 task('create-vault', 'deploy an instance of UniversalVault')
   .addOptionalPositionalParam('factoryVersion', 'the factory version', 'latest')
   .setAction(async ({ factoryVersion }, { ethers, run, network }) => {
@@ -197,8 +224,13 @@ task('create-geyser', 'deploy an instance of Geyser')
       const geyser = await upgrades.deployProxy(factory, undefined, {
         initializer: false,
       })
+      await geyser.deployTransaction.wait(1)
+      const implementation = await getImplementationAddress(ethers.provider, geyser.address)
+      const proxyAdmin = await getAdminAddress(ethers.provider, geyser.address)
       console.log('Deploying Geyser')
-      console.log('  to', geyser.address)
+      console.log('  to proxy', geyser.address)
+      console.log('  to implementation', implementation)
+      console.log('  with upgreadability admin', proxyAdmin)
       console.log('  in', geyser.deployTransaction.hash)
       console.log('  staking token', stakingToken)
       console.log('  reward token', rewardToken)
@@ -213,28 +245,31 @@ task('create-geyser', 'deploy an instance of Geyser')
       // the following need to be executed manually
       console.log('Register Geyser Instance')
       const geyserRegistry = await ethers.getContractAt('GeyserRegistry', GeyserRegistry.address, signer)
-      await geyserRegistry.register(geyser.address)
+      await (await geyserRegistry.register(geyser.address)).wait(1)
 
       console.log('initialize geyser')
-      await geyser.initialize(
-        signer.address,
-        RewardPoolFactory.address,
-        PowerSwitchFactory.address,
-        stakingToken,
-        rewardToken,
-        [floor, ceiling, time],
-      )
+      await (
+        await geyser.initialize(
+          signer.address,
+          RewardPoolFactory.address,
+          PowerSwitchFactory.address,
+          stakingToken,
+          rewardToken,
+          [floor, ceiling, time],
+        )
+      ).wait(1)
 
       console.log('Register Vault Factory')
-      await geyser.registerVaultFactory(VaultFactory.address)
+      await (await geyser.registerVaultFactory(VaultFactory.address)).wait(1)
     },
   )
 
 task('fund-geyser', 'fund an instance of Geyser')
   .addParam('geyser', 'address of geyser')
-  .addParam('amount', 'amount')
+  .addParam('amount', 'amount in floating point')
+  .addParam('duration', 'time in seconds the program lasts')
   .addOptionalParam('factoryVersion', 'the factory version', 'latest')
-  .setAction(async ({ geyser, amount }, { ethers }) => {
+  .setAction(async ({ geyser, amount, duration }, { ethers }) => {
     const signer = (await ethers.getSigners())[0]
     const geyserContract = await ethers.getContractAt('Geyser', geyser, signer)
     const data = await geyserContract.getGeyserData()
@@ -242,10 +277,11 @@ task('fund-geyser', 'fund an instance of Geyser')
     const rewardToken = await ethers.getContractAt('MockAmpl', rewardTokenAddress, signer)
     const amt = parseUnits(amount, 9)
     await rewardToken.approve(geyser, amt)
-    await geyserContract.connect(signer).fundGeyser(amt, 10000)
+    await geyserContract.connect(signer).fundGeyser(amt, duration)
   })
 
 // currently need to manually run verify command
+// ie) the implementation address of the deployed proxy through create-geyser
 // can automate after this issue is closed: https://github.com/OpenZeppelin/openzeppelin-upgrades/issues/290
 task('verify-geyser', 'verify and lock the Geyser template')
   .addPositionalParam('geyserTemplate', 'the geyser template address')
@@ -267,7 +303,20 @@ task('verify-geyser', 'verify and lock the Geyser template')
     await run('verify:verify', {
       address: contract.address,
     })
+
+    // TODO: verify reward pool
   })
+
+const getEtherscanAPIKey = () => {
+  switch (process.env.HARDHAT_NETWORK) {
+    case 'mainnet' || 'kovan':
+      return process.env.ETHERSCAN_API_KEY
+    case 'avalanche' || 'avalanche_fiji':
+      return process.env.SNOWTRACE_API_KEY
+    default:
+      return ''
+  }
+}
 
 // When using a local network, MetaMask assumes a chainId of 1337, even though the default chainId of HardHat is 31337
 // https://github.com/MetaMask/metamask-extension/issues/10290
@@ -287,6 +336,12 @@ export default {
       url: `https://kovan.infura.io/v3/${process.env.INFURA_ID}`,
       accounts: {
         mnemonic: process.env.DEV_MNEMONIC || Wallet.createRandom().mnemonic.phrase,
+      },
+    },
+    avalanche: {
+      url: 'https://api.avax.network/ext/bc/C/rpc',
+      accounts: {
+        mnemonic: process.env.PROD_MNEMONIC || Wallet.createRandom().mnemonic.phrase,
       },
     },
     mainnet: {
@@ -313,7 +368,7 @@ export default {
     ],
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_APIKEY,
+    apiKey: getEtherscanAPIKey(),
   },
   mocha: {
     timeout: 100000,

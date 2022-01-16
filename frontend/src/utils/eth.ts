@@ -1,20 +1,24 @@
-import { Contract, ethers } from 'ethers'
-import { ALCHEMY_PROJECT_ID, INFURA_PROJECT_ID, UFRG_INIT_BLOCK } from '../constants'
+import { Contract, providers, Signer } from 'ethers'
+import { SignerOrProvider } from '../types'
 
-export const getDefaultProvider = () => {
-  if (process.env.NODE_ENV === 'development') {
-    return new ethers.providers.JsonRpcProvider('http://localhost:8545', { name: 'localhost', chainId: 1337 })
-  }
-
-  if (ALCHEMY_PROJECT_ID) {
-    return new ethers.providers.AlchemyProvider('homestead', ALCHEMY_PROJECT_ID)
-  }
-
-  // return ethers.getDefaultProvider(undefined, { infura: INFURA_PROJECT_ID });
-  return ethers.providers.InfuraProvider.getWebSocketProvider('homestead', INFURA_PROJECT_ID)
-}
-
-export const loadHistoricalLogs = async (contract: Contract, eventName: string, startBlock = UFRG_INIT_BLOCK) => {
+export const loadHistoricalLogs = async (
+  contract: Contract,
+  eventName: string,
+  signerOrProvider: SignerOrProvider,
+  startBlock = 0,
+  BLOCKS_PER_PART = 2102400,
+) => {
+  const signer = signerOrProvider as Signer
+  const provider = signerOrProvider as providers.Provider
+  const ethersProvider = signer.provider || provider
+  const endBlock = await ethersProvider.getBlockNumber()
   const filter = contract.filters[eventName]()
-  return contract.queryFilter(filter, startBlock, 'latest')
+  let logs: any[] = []
+  for (let i = startBlock; i <= endBlock; i += BLOCKS_PER_PART) {
+    const partEnd = Math.min(i + BLOCKS_PER_PART, endBlock)
+    const partLogs = await contract.queryFilter(filter, i, partEnd)
+    logs = logs.concat(partLogs)
+    console.log('Loading rebase logs', i, endBlock, partLogs.length)
+  }
+  return logs
 }

@@ -39,14 +39,11 @@ export enum TxState {
   FAILED,
 }
 
-export const EXTERNAL_LINKS: Record<string, string> = {
-  etherscan: 'https://etherscan.io/tx',
-}
-
 // Staking tokens
 export enum StakingToken {
   // for testing
   MOCK,
+  WAMPL,
 
   // for mainnet
   UNISWAP_V2,
@@ -55,6 +52,8 @@ export enum StakingToken {
   BALANCER_V1,
   BALANCER_SMART_POOL_V1,
   AAVE_V2_AMPL,
+  TRADER_JOE,
+  PANGOLIN,
 }
 
 // Reward tokens
@@ -64,14 +63,16 @@ export enum RewardToken {
 
   // for mainnet
   AMPL,
+  XCAMPLE,
+  WAMPL,
 }
 
-// subgraph endpoint
-const GEYSER_SUBGRAPH_NAME = 'aalavandhan/amplgeyserv2beta'
-export const GEYSER_SUBGRAPH_ENDPOINT = `https://api.thegraph.com/subgraphs/name/${GEYSER_SUBGRAPH_NAME}`
-
-// ufragments deploy block number
-export const UFRG_INIT_BLOCK = 7947823
+// Netowrks
+export enum Network {
+  Mainnet = 1,
+  Kovan = 42,
+  Avalanche = 43114,
+}
 
 export const AMPL_LAUNCH_DATE = 1561687200
 export const INITIAL_SUPPLY = 50000000
@@ -109,4 +110,4 @@ export const INFURA_PROJECT_ID = 'dee1a87a734042fcabc2fd116a7b776d'
 export const WITHDRAW_UNLOCKED_STAKING_TOKENS_WHEN_UNSTAKING = false
 
 // Enable withdrawing whole unlocked balance of reward tokens when unstaking
-export const WITHDRAW_UNLOCKED_REWARD_TOKENS_WHEN_UNSTAKING = false
+export const WITHDRAW_UNLOCKED_REWARD_TOKENS_WHEN_UNSTAKING = true

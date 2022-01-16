@@ -4,7 +4,7 @@ import { ModalButton } from "styling/styles"
 
 
 export const ProcessingButton = () => (
-  <DisabledButton disabled isLoading>
+  <DisabledButton disabled>
     Processing
   </DisabledButton>
 )

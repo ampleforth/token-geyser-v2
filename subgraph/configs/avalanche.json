@@ -1,0 +1,7 @@
+{
+    "network": "avalanche",
+    "startBlock": 8279332,
+    "geyserRegistry": "0x60156bB86e9125639c624712a360FD3AbBb52421",
+    "vaultFactory": "0xceD5A1061F5507172059FE760CA2e9F050caBF02",
+    "crucibleFactory": "0x0000000000000000000000000000000000000000"
+}

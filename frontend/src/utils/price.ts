@@ -4,8 +4,10 @@ import * as ls from './cache'
 
 const DEFAULT_PRICES: Record<string, number> = {
   AMPL: 1.0,
+  WAMPL: 30,
   BTC: 50000.0,
   WETH: 320,
+  WAVAX: 80,
   LINK: 5,
   BAL: 10,
   LEND: 0.33,
@@ -22,7 +24,9 @@ const DEFAULT_PRICES: Record<string, number> = {
 const SYMBOL_TO_QUERY: Record<string, string> = {
   WBTC: 'wrapped-bitcoin',
   AMPL: 'ampleforth',
+  WAMPL: 'wrapped-ampleforth',
   WETH: 'ethereum',
+  WAVAX: 'avalanche-2',
   LINK: 'chainlink',
   BAL: 'balancer',
   LEND: 'ethlend',

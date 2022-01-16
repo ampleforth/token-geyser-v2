@@ -1,5 +1,5 @@
 import { BigNumber, providers, Signer } from 'ethers'
-import { RewardToken, StakingToken } from './constants'
+import { RewardToken, StakingToken, Network } from './constants'
 
 type ClaimedReward = {
   id: string
@@ -149,4 +149,35 @@ export enum GeyserAction {
   STAKE = 'stake',
   UNSTAKE = 'unstake',
   WRAP = 'wrap',
+}
+
+export type NativeCurrencyConfig = {
+  name: string
+  symbol: string
+  decimals: number
+}
+
+export type ConnectionConfig = {
+  id: Network
+  ref: string
+  name: string
+  chainId: number
+  networkId: number
+  rpcUrl: string
+  graphUrl: string
+  explorerUrl: string
+  indexStartBlock: number
+  nativeCurrency: NativeCurrencyConfig
+}
+
+export type NetworkConfig = {
+  [key in Network]: ConnectionConfig
+}
+
+export type AppGeysersList = {
+  [key in Network]: GeyserConfig[]
+}
+
+export type AppAdditionalTokensList = {
+  [key in Network]: AdditionalTokenConfig[]
 }

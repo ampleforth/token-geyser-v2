@@ -38,6 +38,7 @@ module.exports = {
     'jsx-a11y/no-noninteractive-element-interactions': 'off',
     'jsx-a11y/interactive-supports-focus': 'off',
     'no-else-return': 'off', // seems to be buggy
+    'no-await-in-loop': 'off',
   },
   settings: {
     'import/resolver': {

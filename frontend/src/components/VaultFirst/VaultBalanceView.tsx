@@ -33,10 +33,10 @@ export const VaultBalanceView = () => {
     return undefined
   }
 
-  const onClose = () => {
+  const onClose = async () => {
     setModalOpen(false)
-    refreshVaultStats()
-    refreshWalletBalances()
+    await refreshVaultStats()
+    await refreshWalletBalances()
   }
 
   const columns: Column[] = [

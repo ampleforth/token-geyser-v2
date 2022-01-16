@@ -4,7 +4,9 @@ import { RewardToken } from '../constants'
 import { RewardSchedule, RewardTokenInfo, SignerOrProvider } from '../types'
 import { UFRAGMENTS_ABI } from './abis/UFragments'
 import { UFRAGMENTS_POLICY_ABI } from './abis/UFragmentsPolicy'
-import { getTotalRewardShares } from './ampleforth'
+import { XC_AMPLE_ABI } from './abis/XCAmple'
+import { XC_CONTROLLER_ABI } from './abis/XCController'
+import { computeAMPLRewardShares } from './ampleforth'
 import { defaultTokenInfo, getTokenInfo } from './token'
 
 export const defaultRewardTokenInfo = (): RewardTokenInfo => ({
@@ -16,18 +18,23 @@ export const getRewardTokenInfo = async (
   tokenAddress: string,
   token: RewardToken,
   signerOrProvider: SignerOrProvider,
+  indexStartBlock: number,
 ) => {
   switch (token) {
     case RewardToken.MOCK:
-      return getMockToken(tokenAddress, signerOrProvider)
+      return getBasicToken(tokenAddress, signerOrProvider)
     case RewardToken.AMPL:
-      return getAMPLToken(tokenAddress, signerOrProvider)
+      return getAMPLToken(tokenAddress, signerOrProvider, indexStartBlock)
+    case RewardToken.XCAMPLE:
+      return getXCAMPLToken(tokenAddress, signerOrProvider, indexStartBlock)
+    case RewardToken.WAMPL:
+      return getBasicToken(tokenAddress, signerOrProvider)
     default:
       throw new Error(`Handler for ${token} not found`)
   }
 }
 
-const getMockToken = async (tokenAddress: string, signerOrProvider: SignerOrProvider): Promise<RewardTokenInfo> => {
+const getBasicToken = async (tokenAddress: string, signerOrProvider: SignerOrProvider): Promise<RewardTokenInfo> => {
   const tokenInfo = await getTokenInfo(tokenAddress, signerOrProvider)
   const getTotalRewards = async (rewardSchedules: RewardSchedule[]) =>
     rewardSchedules.reduce(
@@ -40,9 +47,15 @@ const getMockToken = async (tokenAddress: string, signerOrProvider: SignerOrProv
   }
 }
 
-const getAMPLToken = async (tokenAddress: string, signerOrProvider: SignerOrProvider): Promise<RewardTokenInfo> => {
+const getAMPLToken = async (
+  tokenAddress: string,
+  signerOrProvider: SignerOrProvider,
+  indexStartBlock: number,
+): Promise<RewardTokenInfo> => {
   const contract = new Contract(tokenAddress, UFRAGMENTS_ABI, signerOrProvider)
   const tokenInfo = await getTokenInfo(tokenAddress, signerOrProvider)
+
+  // define type XCWAMPL for AVAX
   const policyAddress: string = await contract.monetaryPolicy()
   const policy = new Contract(policyAddress, UFRAGMENTS_POLICY_ABI, signerOrProvider)
 
@@ -50,12 +63,50 @@ const getAMPLToken = async (tokenAddress: string, signerOrProvider: SignerOrProv
   const epoch = parseInt(await policy.epoch(), 10)
 
   const getTotalRewards = async (rewardSchedules: RewardSchedule[]) => {
-    const totalRewardShares = await getTotalRewardShares(
+    const totalRewardShares = await computeAMPLRewardShares(
       rewardSchedules,
+      tokenAddress,
       policyAddress,
+      false,
       epoch,
       tokenInfo.decimals,
       signerOrProvider,
+      indexStartBlock,
+    )
+    return totalRewardShares * totalSupply
+  }
+
+  return {
+    ...tokenInfo,
+    getTotalRewards,
+  }
+}
+
+const getXCAMPLToken = async (
+  tokenAddress: string,
+  signerOrProvider: SignerOrProvider,
+  indexStartBlock: number,
+): Promise<RewardTokenInfo> => {
+  const token = new Contract(tokenAddress, XC_AMPLE_ABI, signerOrProvider)
+  const tokenInfo = await getTokenInfo(tokenAddress, signerOrProvider)
+
+  // define type XCWAMPL for AVAX
+  const controllerAddress: string = await token.controller()
+  const controller = new Contract(controllerAddress, XC_CONTROLLER_ABI, signerOrProvider)
+
+  const totalSupply = await token.globalAMPLSupply()
+  const epoch = parseInt(await controller.globalAmpleforthEpoch(), 10)
+
+  const getTotalRewards = async (rewardSchedules: RewardSchedule[]) => {
+    const totalRewardShares = await computeAMPLRewardShares(
+      rewardSchedules,
+      tokenAddress,
+      controllerAddress,
+      true,
+      epoch,
+      tokenInfo.decimals,
+      signerOrProvider,
+      indexStartBlock,
     )
     return totalRewardShares * totalSupply
   }

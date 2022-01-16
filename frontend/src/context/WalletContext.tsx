@@ -29,7 +29,8 @@ export const WalletContextProvider: React.FC = ({ children }) => {
         const balance = await ERC20Balance(stakingTokenInfo.address, await signer.getAddress(), signer)
         return balance
       } catch (e) {
-        console.error(e)
+        console.log("wallet balance query error")
+        // console.error(e)
         return BigNumber.from('0')
       }
     }
@@ -42,7 +43,8 @@ export const WalletContextProvider: React.FC = ({ children }) => {
         const balance = await ERC20Balance(underlyingStakingTokenInfo.address, await signer.getAddress(), signer)
         return balance
       } catch (e) {
-        console.error(e)
+        console.log("wallet balance query error")
+        // console.error(e)
         return BigNumber.from('0')
       }
     }
@@ -56,11 +58,7 @@ export const WalletContextProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     let mounted = true;
-    (async () => {
-      if (mounted) {
-        await refreshWalletBalances()
-      }
-    })();
+    setTimeout(() => mounted && refreshWalletBalances(), 250);
     return () => {
       mounted = false
     }

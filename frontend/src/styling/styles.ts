@@ -39,7 +39,7 @@ export const CardLabel = styled.span`
 `
 
 export const CardValue = styled.span`
-  ${tw`flex flex-wrap text-xl whitespace-pre-wrap`}
+  ${tw`flex flex-wrap text-base whitespace-pre-wrap`}
 `
 
 export const ModalButton = styled(Button)`

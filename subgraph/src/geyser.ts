@@ -31,7 +31,12 @@ export function handleNewGeyser(event: InstanceAdded): void {
 }
 
 // event handlers
-function updateRewardPoolBalance(poolAddress: Address, geyserAddress: Address, tokenAddress: Address, timestamp: BigInt): void {
+function updateRewardPoolBalance(
+  poolAddress: Address,
+  geyserAddress: Address,
+  tokenAddress: Address,
+  timestamp: BigInt,
+): void {
   let entity = new RewardPoolBalance(poolAddress.toHex() + '-' + tokenAddress.toHex())
 
   entity.geyser = geyserAddress.toHex()

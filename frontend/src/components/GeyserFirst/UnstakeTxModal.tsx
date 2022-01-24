@@ -53,6 +53,7 @@ export const UnstakeTxModal: React.FC<Props> = ({ open, onClose, unstake, unstak
         <div><SingleTxMessage txStateMachine={unstakeTxStateMachine} successMessage={unstakeSuccessMessage} /></div>
         <div>{withdrawStakingTxMessage(withdrawStakeStateMachine)}</div>
         <div>{withdrawRewardTxMessage(withdrawRewardStateMachine)}</div>
+        <span className="text-gray text-xs"><i>Unlocked tokens can be withdrawn from your vault view at anytime.</i></span>
       </div>
     )
   }

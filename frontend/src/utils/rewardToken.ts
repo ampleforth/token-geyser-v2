@@ -8,9 +8,11 @@ import { XC_AMPLE_ABI } from './abis/XCAmple'
 import { XC_CONTROLLER_ABI } from './abis/XCController'
 import { computeAMPLRewardShares } from './ampleforth'
 import { defaultTokenInfo, getTokenInfo } from './token'
+import { getCurrentPrice } from './price'
 
 export const defaultRewardTokenInfo = (): RewardTokenInfo => ({
   ...defaultTokenInfo(),
+  price: 1,
   getTotalRewards: async () => 0,
 })
 
@@ -36,6 +38,7 @@ export const getRewardTokenInfo = async (
 
 const getBasicToken = async (tokenAddress: string, signerOrProvider: SignerOrProvider): Promise<RewardTokenInfo> => {
   const tokenInfo = await getTokenInfo(tokenAddress, signerOrProvider)
+  const price = await getCurrentPrice(tokenInfo.symbol)
   const getTotalRewards = async (rewardSchedules: RewardSchedule[]) =>
     rewardSchedules.reduce(
       (acc, schedule) => acc + parseFloat(formatUnits(schedule.rewardAmount, tokenInfo.decimals)),
@@ -43,10 +46,12 @@ const getBasicToken = async (tokenAddress: string, signerOrProvider: SignerOrPro
     )
   return {
     ...tokenInfo,
+    price,
     getTotalRewards,
   }
 }
 
+// TODO: use subgraph to get AMPL supply history
 const getAMPLToken = async (
   tokenAddress: string,
   signerOrProvider: SignerOrProvider,
@@ -54,8 +59,8 @@ const getAMPLToken = async (
 ): Promise<RewardTokenInfo> => {
   const contract = new Contract(tokenAddress, UFRAGMENTS_ABI, signerOrProvider)
   const tokenInfo = await getTokenInfo(tokenAddress, signerOrProvider)
+  const price = await getCurrentPrice('AMPL')
 
-  // define type XCWAMPL for AVAX
   const policyAddress: string = await contract.monetaryPolicy()
   const policy = new Contract(policyAddress, UFRAGMENTS_POLICY_ABI, signerOrProvider)
 
@@ -78,6 +83,7 @@ const getAMPLToken = async (
 
   return {
     ...tokenInfo,
+    price,
     getTotalRewards,
   }
 }
@@ -89,6 +95,7 @@ const getXCAMPLToken = async (
 ): Promise<RewardTokenInfo> => {
   const token = new Contract(tokenAddress, XC_AMPLE_ABI, signerOrProvider)
   const tokenInfo = await getTokenInfo(tokenAddress, signerOrProvider)
+  const price = await getCurrentPrice('AMPL')
 
   // define type XCWAMPL for AVAX
   const controllerAddress: string = await token.controller()
@@ -113,6 +120,7 @@ const getXCAMPLToken = async (
 
   return {
     ...tokenInfo,
+    price,
     getTotalRewards,
   }
 }

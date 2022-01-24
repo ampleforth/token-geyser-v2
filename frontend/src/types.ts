@@ -28,6 +28,12 @@ export type RewardSchedule = {
   rewardAmount: string
 }
 
+export type RewardPoolBalance = {
+  id: string
+  token: string
+  balance: string
+}
+
 export type Geyser = {
   id: string
   rewardToken: string
@@ -39,9 +45,13 @@ export type Geyser = {
   scalingCeiling: string
   scalingTime: string
   unlockedReward: string
+  rewardBalance: string
   rewardSchedules: RewardSchedule[]
   lastUpdate: string
   active: boolean
+  bonusTokens: string[]
+  rewardPool: string
+  rewardPoolBalances: RewardPoolBalance[]
 }
 
 export type Lock = {
@@ -77,7 +87,12 @@ export type StakingTokenInfo = TokenInfo & {
 }
 
 export type RewardTokenInfo = TokenInfo & {
+  price: number
   getTotalRewards: (rewardSchedules: RewardSchedule[]) => Promise<number>
+}
+
+export type BonusTokenInfo = TokenInfo & {
+  price: number
 }
 
 export type GeyserInfo = {
@@ -85,6 +100,14 @@ export type GeyserInfo = {
   isWrapped: boolean
   stakingTokenInfo: StakingTokenInfo
   rewardTokenInfo: RewardTokenInfo
+  bonusTokensInfo: BonusTokenInfo[]
+}
+
+export type RewardStats = {
+  name: string
+  symbol: string
+  balance: number
+  value: number
 }
 
 export type GeyserStats = {
@@ -92,6 +115,8 @@ export type GeyserStats = {
   totalDeposit: number
   totalRewards: number
   calcPeriodInDays: number
+  unlockedRewards: number
+  bonusRewards: RewardStats[]
 }
 
 export type VaultTokenBalance = TokenInfo & {
@@ -116,6 +141,7 @@ export type UserStats = {
   minMultiplier: number
   maxMultiplier: number
   currentReward: number
+  currentRewardShare: number
 }
 
 export type GeyserConfig = {

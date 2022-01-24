@@ -15,6 +15,7 @@ import {
   RewardTokenInfo,
   SignerOrProvider,
   StakingTokenInfo,
+  BonusTokenInfo,
   TokenInfo,
   UserStats,
   Vault,
@@ -34,6 +35,7 @@ export const defaultUserStats = (): UserStats => ({
   minMultiplier: 1.0,
   maxMultiplier: 1.0,
   currentReward: 0,
+  currentRewardShare: 0,
 })
 
 export const defaultGeyserStats = (): GeyserStats => ({
@@ -41,6 +43,8 @@ export const defaultGeyserStats = (): GeyserStats => ({
   totalDeposit: 0,
   totalRewards: 0,
   calcPeriodInDays: 0,
+  unlockedRewards: 0,
+  bonusRewards: [],
 })
 
 export const defaultVaultStats = (): VaultStats => ({
@@ -79,6 +83,7 @@ export const getGeyserStats = async (
   geyser: Geyser,
   stakingTokenInfo: StakingTokenInfo,
   rewardTokenInfo: RewardTokenInfo,
+  bonusTokensInfo: BonusTokenInfo[],
 ): Promise<GeyserStats> =>
   ls.computeAndCache<GeyserStats>(
     async () => ({
@@ -87,6 +92,20 @@ export const getGeyserStats = async (
       totalRewards:
         (await rewardTokenInfo.getTotalRewards(geyser.rewardSchedules)) / 10 ** (rewardTokenInfo.decimals || 1),
       calcPeriodInDays: getCalcPeriod(geyser) / DAY_IN_SEC,
+      unlockedRewards: parseFloat(geyser.unlockedReward) / 10 ** (rewardTokenInfo.decimals || 1),
+      bonusRewards:
+        geyser.rewardPoolBalances.length === bonusTokensInfo.length
+          ? geyser.rewardPoolBalances.map((b, i) => {
+              const info = bonusTokensInfo[i]
+              const balance = parseFloat(b.balance) / 10 ** info.decimals
+              return {
+                name: info.name,
+                symbol: info.symbol,
+                balance,
+                value: info.price * balance,
+              }
+            })
+          : [],
     }),
     `${toChecksumAddress(geyser.id)}|stats`,
     GEYSER_STATS_CACHE_TIME_MS,
@@ -182,6 +201,7 @@ export const getUserAPY = async (
   lock: Lock | null,
   stakingTokenInfo: StakingTokenInfo,
   rewardTokenInfo: TokenInfo,
+  bonusTokensInfo: BonusTokenInfo[],
   additionalStakes: BigNumberish,
   signerOrProvider: SignerOrProvider,
 ) => {
@@ -198,10 +218,25 @@ export const getUserAPY = async (
     .add(lock ? lock.amount : '0')
     .toString()
 
-  const inflow = (parseFloat(stakedAmount) / 10 ** stakingTokenDecimals) * stakingTokenPrice
-  const outflow = (Math.round(drip) / 10 ** rewardTokenDecimals) * rewardTokenPrice
+  const inflowReward = parseFloat(formatUnits(stakedAmount, stakingTokenDecimals))
+  const inflow = inflowReward * stakingTokenPrice
+  const outflowReward = parseFloat(formatUnits(Math.round(drip), rewardTokenDecimals))
+  const outflow = outflowReward * rewardTokenPrice
   const periods = YEAR_IN_SEC / calcPeriod
-  return calculateAPY(inflow, outflow, periods)
+
+  const rewardPool = parseFloat(formatUnits(geyser.rewardBalance, rewardTokenDecimals))
+  const rewardShare = outflowReward / rewardPool
+
+  // TODO: data layer should gaurentee that rewardPoolBalances and bonusTokensInfo are inline
+  const outflowWithBonus =
+    outflow +
+    geyser.rewardPoolBalances.reduce((m, b, i) => {
+      const bonusPool = parseFloat(formatUnits(b.balance, bonusTokensInfo[i].decimals))
+      const bonusReward = rewardShare * bonusPool * bonusTokensInfo[i].price
+      return m + bonusReward
+    }, 0)
+
+  return calculateAPY(inflow, outflowWithBonus, periods)
 }
 
 /**
@@ -211,6 +246,7 @@ const getPoolAPY = async (
   geyser: Geyser,
   stakingTokenInfo: StakingTokenInfo,
   rewardTokenInfo: TokenInfo,
+  bonusTokensInfo: BonusTokenInfo[],
   signerOrProvider: SignerOrProvider,
 ) =>
   ls.computeAndCache<number>(
@@ -228,14 +264,25 @@ const getPoolAPY = async (
       const stake = inflowFixedPt.div(stakeTokenPriceBigNum)
 
       const calcPeriod = getCalcPeriod(geyser)
-
       const stakeDripAfterPeriod = await getStakeDrip(geyser, stake, parseInt(scalingTime, 10), signerOrProvider)
-      if (stakeDripAfterPeriod === 0) return 0
 
-      const outflow = parseFloat(formatUnits(Math.round(stakeDripAfterPeriod), rewardTokenDecimals)) * rewardTokenPrice
+      const outflowReward = parseFloat(formatUnits(Math.round(stakeDripAfterPeriod), rewardTokenDecimals))
+      const outflow = outflowReward * rewardTokenPrice
       const periods = YEAR_IN_SEC / calcPeriod
 
-      return calculateAPY(inflow, outflow, periods)
+      const rewardPool = parseFloat(formatUnits(geyser.rewardBalance, rewardTokenDecimals))
+      const rewardShare = outflowReward / rewardPool
+
+      // TODO: data layer should gaurentee that rewardPoolBalances and bonusTokensInfo are inline
+      const outflowWithBonus =
+        outflow +
+        geyser.rewardPoolBalances.reduce((m, b, i) => {
+          const bonusPool = parseFloat(formatUnits(b.balance, bonusTokensInfo[i].decimals))
+          const bonusReward = rewardShare * bonusPool * bonusTokensInfo[i].price
+          return m + bonusReward
+        }, 0)
+
+      return outflowWithBonus === 0 ? 0 : calculateAPY(inflow, outflowWithBonus, periods)
     },
     `${toChecksumAddress(geyser.id)}|poolAPY`,
     GEYSER_STATS_CACHE_TIME_MS,
@@ -287,12 +334,13 @@ export const getUserStats = async (
   lock: Lock | null,
   stakingTokenInfo: StakingTokenInfo,
   rewardTokenInfo: TokenInfo,
+  bonusTokensInfo: BonusTokenInfo[],
   signerOrProvider: SignerOrProvider,
 ): Promise<UserStats> => {
   if (!vault || !lock) {
     return {
       ...defaultUserStats(),
-      apy: await getPoolAPY(geyser, stakingTokenInfo, rewardTokenInfo, signerOrProvider),
+      apy: await getPoolAPY(geyser, stakingTokenInfo, rewardTokenInfo, bonusTokensInfo, signerOrProvider),
     }
   }
   const vaultAddress = toChecksumAddress(vault.id)
@@ -301,9 +349,11 @@ export const getUserStats = async (
   const { amount } = lock
   const currentRewards = await getCurrentVaultReward(vaultAddress, geyserAddress, signerOrProvider)
   const formattedCurrentRewards = parseFloat(formatUnits(currentRewards, rewardTokenDecimals))
+  const formattedTotalRewards = parseFloat(formatUnits(geyser.rewardBalance, rewardTokenDecimals))
+
   const apy = BigNumber.from(amount).isZero()
-    ? await getPoolAPY(geyser, stakingTokenInfo, rewardTokenInfo, signerOrProvider)
-    : await getUserAPY(geyser, lock, stakingTokenInfo, rewardTokenInfo, 0, signerOrProvider)
+    ? await getPoolAPY(geyser, stakingTokenInfo, rewardTokenInfo, bonusTokensInfo, signerOrProvider)
+    : await getUserAPY(geyser, lock, stakingTokenInfo, rewardTokenInfo, bonusTokensInfo, 0, signerOrProvider)
 
   const m = await getCurrentMultiplier(geyser, vault, lock, signerOrProvider)
   return {
@@ -312,6 +362,7 @@ export const getUserStats = async (
     currentMultiplier: m[1],
     maxMultiplier: m[2],
     currentReward: formattedCurrentRewards,
+    currentRewardShare: formattedCurrentRewards / formattedTotalRewards,
   }
 }
 

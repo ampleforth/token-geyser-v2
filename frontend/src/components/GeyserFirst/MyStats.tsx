@@ -7,7 +7,7 @@ import { ResponsiveText } from 'styling/styles'
 import { safeNumeral } from 'utils/numeral'
 import { Tooltip } from 'components/Tooltip'
 import { GeyserStatsBox } from './GeyserStatsBox'
-import { MyStatsBox } from './MyStatsBox'
+import { GeyserMultiStatsBox } from './GeyserMultiStatsBox'
 import {
   GET_APY_NO_STAKE_MSG,
   GET_APY_STAKE_MSG,
@@ -17,9 +17,9 @@ import {
 
 export const MyStats = () => {
   const {
-    userStats: { apy, currentMultiplier, maxMultiplier, currentReward },
+    userStats: { apy, currentMultiplier, maxMultiplier, currentReward, currentRewardShare },
     vaultStats: { currentStake },
-    geyserStats: { calcPeriodInDays},
+    geyserStats: { calcPeriodInDays, bonusRewards},
   } = useContext(StatsContext)
   const {
     selectedGeyserInfo: {
@@ -46,40 +46,50 @@ export const MyStats = () => {
     [currentStake],
   )
 
+  const rewardsToShow = [{value:currentReward, units:rewardTokenSymbol}]
+    .concat(bonusRewards.map(r => ({ value: currentRewardShare * r.balance, units: r.symbol })))
+
   return (
     <MyStatsContainer>
       <Header>
         My Stats <Tooltip classNames="my-auto ml-2 normal-case tracking-wide" panelClassnames='-translate-x-1/4' messages={getTooltipMessages()} />
       </Header>
-      <MyStatsWrapper>
-        <MyStatsBox
-          classNames="sm:my-6"
-          name="APY"
-          value={Math.min(apy, 10000)}
-          units="%"
-          interpolate={(val) => safeNumeral(val, '0.00%').slice(0, val > 100 ? -4 : -1)}
-        />
-        <MyStatsBox
-          name="Reward Multiplier"
-          value={currentMultiplier}
-          units="x"
-          interpolate={(val) => safeNumeral(val, '0.0')}
-        />
-        <MyStatsBox
-          name="Current Rewards"
-          value={currentReward}
-          delim=" "
-          units={rewardTokenSymbol}
-          interpolate={(val) => safeNumeral(val, '0,0.00')}
-        />
-      </MyStatsWrapper>
       <GeyserStatsContainer>
-        <GeyserStatsBox
-          name="Total Staked"
-          value={currentStake * stakingTokenPrice}
-          units="USD"
-          interpolate={(val) => safeNumeral(val, '0,0.00')}
-        />
+        <GeyserStatsBoxContainer>
+          <GeyserStatsBox
+            containerClassName="w-1/2 bg-darkGray sm:rounded-md font-bold text-white"
+            name="APY"
+            value={Math.min(apy, 10000)}
+            units="%"
+            interpolate={(val) => safeNumeral(val, '0.00%').slice(0, val > 100 ? -4 : -1)}
+          />
+          <GeyserStatsBox
+            containerClassName="w-1/2 bg-darkGray sm:rounded-md font-bold text-white"
+            name="Multiplier"
+            value={currentMultiplier}
+            units="x"
+            interpolate={(val) => safeNumeral(val, '0.0')}
+          />
+        </GeyserStatsBoxContainer>
+
+        <GeyserStatsBoxContainer>
+          <GeyserStatsBox
+            containerClassName="w-full sm:bg-paleBlue sm:border sm:border-lightGray sm:rounded-sm"
+            name="Current Stake"
+            value={currentStake * stakingTokenPrice}
+            units="USD"
+            interpolate={(val) => safeNumeral(val, '0,0.00')}
+          />
+        </GeyserStatsBoxContainer>
+
+        <GeyserStatsBoxContainer>
+          <GeyserMultiStatsBox
+            containerClassName="w-full sm:bg-paleBlue sm:border sm:border-lightGray sm:rounded-sm"
+            name="Current Rewards"
+            stats={rewardsToShow}
+            interpolate={(val) => safeNumeral(val, '0.000')}
+          />
+        </GeyserStatsBoxContainer>
       </GeyserStatsContainer>
     </MyStatsContainer>
   )
@@ -87,10 +97,6 @@ export const MyStats = () => {
 
 const MyStatsContainer = styled.div`
   ${tw`px-5 my-5 pr-0 border-r-2 border-lightGray`}
-`
-
-const MyStatsWrapper = styled.div`
-  ${tw`sm:grid sm:grid-cols-3 sm:h-180px`}
 `
 
 const Header = styled.h3`
@@ -101,4 +107,8 @@ const Header = styled.h3`
 const GeyserStatsContainer = styled.div`
   ${tw`mt-4`}
   ${tw`sm:mt-0`}
+`
+
+const GeyserStatsBoxContainer = styled.div`
+  ${tw`flex mt-4 sm:mt-3`}
 `

@@ -16,20 +16,22 @@ interface Props {
 }
 
 export const EstimatedRewards: React.FC<Props> = ({ parsedUserInput }) => {
-  const [rewards, setRewards] = useState<string>('0.00')
-  const [deposits, setDeposits] = useState<string>('0')
+  const [rewards, setRewards] = useState<number>(0.0)
+  const [rewardsShare, setRewardsShare] = useState<number>(0.0)
+  const [deposits, setDeposits] = useState<number>(0.0)
   const {
     selectedGeyserInfo: {
       rewardTokenInfo: { symbol },
       stakingTokenInfo: { price: stakingTokenPrice, decimals: stakingTokenDecimals },
+      bonusTokensInfo,
     }
   } = useContext(GeyserContext)
   const {
     computeRewardsFromAdditionalStakes,
-    geyserStats: { calcPeriodInDays },
+    computeRewardsShareFromAdditionalStakes,
+    geyserStats: { bonusRewards, calcPeriodInDays },
     vaultStats: { currentStake }
   } = useContext(StatsContext)
-
 
   useEffect(() => {
     (async () => {
@@ -39,12 +41,15 @@ export const EstimatedRewards: React.FC<Props> = ({ parsedUserInput }) => {
         .times(stakingTokenPrice)
 
       setRewards(
-        aggregateDepositUSD.eq('0') ? '0.00' : safeNumeral(await computeRewardsFromAdditionalStakes(parsedUserInput), '0.00')
+        aggregateDepositUSD.eq('0') ? 0.00 : await computeRewardsFromAdditionalStakes(parsedUserInput)
+      )
+      setRewardsShare(
+        aggregateDepositUSD.eq('0') ? 0.00 : await computeRewardsShareFromAdditionalStakes(parsedUserInput)
+      )
+      setDeposits(
+        aggregateDepositUSD.eq('0') ? 0.00 : aggregateDepositUSD.toNumber()
       )
 
-      setDeposits(
-        aggregateDepositUSD.eq('0') ? '0' : safeNumeral(aggregateDepositUSD.toNumber(), '0')
-      )
     })();
   }, [parsedUserInput])
 
@@ -62,10 +67,26 @@ export const EstimatedRewards: React.FC<Props> = ({ parsedUserInput }) => {
           />
         </CardLabel>
         <CardValue>
-          {deposits} USD /{' '}
-          {rewards} {symbol}{' '}
+          {safeNumeral(deposits, '0')} USD /{' '}
+          [
+            {' '}
+            {safeNumeral(rewards, '0.00')} {symbol}{' '}
+            {
+              // TODO: assuming bonusRewards.length == bonusTokensInfo.length
+              // this should be guarentted by data layer
+              (bonusRewards.length === bonusTokensInfo.length && bonusRewards.length > 0) ?
+                bonusRewards.map((b, i) => {
+                  const bonusReward = rewardsShare * b.balance
+                  return (
+                    <span key={b.symbol}>
+                      + {safeNumeral(bonusReward, '0.00')} {bonusTokensInfo[i].symbol}{' '}
+                    </span> 
+                  )
+                }) : <></>
+            }
+          ]
           <span>
-            {parsedUserInput.gt(0) && calcPeriodInDays > 0 ? `in ${safeNumeral(calcPeriodInDays, '0')} day${calcPeriodInDays > 1 ? 's' : ''}` : ''}
+            {' '}{parsedUserInput.gt(0) && calcPeriodInDays > 0 ? `in ${safeNumeral(calcPeriodInDays, '0')} day${calcPeriodInDays > 1 ? 's' : ''}` : ''}
           </span>
         </CardValue>
       </RewardsTextContainer>

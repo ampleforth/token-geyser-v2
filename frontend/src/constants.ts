@@ -21,7 +21,7 @@ export const POLL_INTERVAL = 30 * MS_PER_SEC
 export const CONST_CACHE_TIME_MS = YEAR_IN_MS
 
 // geyser stats cache time
-export const GEYSER_STATS_CACHE_TIME_MS = MIN_IN_MS
+export const GEYSER_STATS_CACHE_TIME_MS = 0
 
 export const MOCK_ERC_20_ADDRESS = '0x0165878A594ca255338adfa4d48449f69242Eb8F'
 

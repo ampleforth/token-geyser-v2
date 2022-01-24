@@ -31,13 +31,14 @@ export function handleNewGeyser(event: InstanceAdded): void {
 }
 
 // event handlers
-function updateRewardPoolBalance(poolAddress: Address, geyserAddress: Address, tokenAddress: Address): void {
+function updateRewardPoolBalance(poolAddress: Address, geyserAddress: Address, tokenAddress: Address, timestamp: BigInt): void {
   let entity = new RewardPoolBalance(poolAddress.toHex() + '-' + tokenAddress.toHex())
 
   entity.geyser = geyserAddress.toHex()
   entity.pool = poolAddress
   entity.token = tokenAddress
   entity.balance = ERC20.bind(tokenAddress).balanceOf(poolAddress)
+  entity.lastUpdate = timestamp
 
   entity.save()
 }
@@ -49,12 +50,13 @@ function _updateGeyser(geyser: Geyser, geyserContract: GeyserContract, timestamp
   geyser.totalStake = geyserData.totalStake
   geyser.totalStakeUnits = geyserContract.getCurrentTotalStakeUnits()
   geyser.unlockedReward = geyserContract.getCurrentUnlockedRewards()
+  geyser.rewardBalance = ERC20.bind(geyserData.rewardToken).balanceOf(geyserData.rewardPool)
   geyser.lastUpdate = timestamp
 
   let bonusTokens = geyser.bonusTokens
   for (let index = 0; index < bonusTokens.length; index++) {
     let tokenAddress = bonusTokens.pop() as Address
-    updateRewardPoolBalance(geyserData.rewardPool, geyserAddress, tokenAddress)
+    updateRewardPoolBalance(geyserData.rewardPool, geyserAddress, tokenAddress, timestamp)
   }
 
   geyser.save()

@@ -79,7 +79,7 @@ export const EstimatedRewards: React.FC<Props> = ({ parsedUserInput }) => {
                   const bonusReward = rewardsShare * b.balance
                   return (
                     <span key={b.symbol}>
-                      + {safeNumeral(bonusReward, '0.00')} {bonusTokensInfo[i].symbol}{' '}
+                      +{' '}{safeNumeral(bonusReward, '0.00')} {bonusTokensInfo[i].symbol}{' '}
                     </span> 
                   )
                 }) : <></>

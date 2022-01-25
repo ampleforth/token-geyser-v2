@@ -31,7 +31,7 @@ export const GeyserMultiStatsBox: React.FC<Props> = ({ name, stats, interpolate,
           {s.units}
         </GeyserStatsBoxUnits>
       </GeyserStatsBoxValue>
-      {stats.length > 1 && index !== stats.length-1 ? '+' : ''}
+      {stats.length > 1 && index !== stats.length-1 ? '\u00a0+\u00a0' : ''}
     </React.Fragment>
   ))
   

@@ -11,6 +11,6 @@ export const EtherscanLink: React.FC<Props> = ({ txHash }) => {
   const { networkId } = useContext(Web3Context)
   const {explorerUrl} = getConnectionConfig(networkId)
   return (
-    <a rel="noreferrer" className="text-link" href={`${explorerUrl}/${txHash}`} target="_blank">Etherscan</a>
+    <a rel="noreferrer" className="text-link" href={`${explorerUrl}/${txHash}`} target="_blank">Block explorer</a>
   )
 }

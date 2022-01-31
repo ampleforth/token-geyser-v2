@@ -6,7 +6,7 @@ export const loadHistoricalLogs = async (
   eventName: string,
   signerOrProvider: SignerOrProvider,
   startBlock = 0,
-  BLOCKS_PER_PART = 2102400,
+  BLOCKS_PER_PART = 2102400/2.5,
 ) => {
   const signer = signerOrProvider as Signer
   const provider = signerOrProvider as providers.Provider

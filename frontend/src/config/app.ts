@@ -18,7 +18,6 @@ const networkConfig: NetworkConfig = {
     rpcUrl: `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_PROJECT_ID}`,
     graphUrl: 'https://api.thegraph.com/subgraphs/name/aalavandhan/amplgeyserv2beta',
     explorerUrl: 'https://etherscan.io/tx',
-    indexStartBlock: 7953823,
     nativeCurrency: {
       name: 'Ethereum',
       symbol: 'ETH',
@@ -34,7 +33,6 @@ const networkConfig: NetworkConfig = {
     rpcUrl: 'https://api.avax.network/ext/bc/C/rpc',
     graphUrl: 'https://api.thegraph.com/subgraphs/name/aalavandhan/geyserv2-avalanche',
     explorerUrl: 'https://snowtrace.io/tx',
-    indexStartBlock: 4799745,
     nativeCurrency: {
       name: 'Avalanche',
       symbol: 'AVAX',
@@ -50,7 +48,6 @@ const networkConfig: NetworkConfig = {
     rpcUrl: `https://eth-kovan.alchemyapi.io/v2/${ALCHEMY_PROJECT_ID}`,
     graphUrl: 'https://api.thegraph.com/subgraphs/name/aalavandhan/geyserv2-kovan',
     explorerUrl: 'https://kovan.etherscan.io/tx',
-    indexStartBlock: 11666536,
     nativeCurrency: {
       name: 'KovanEthereum',
       symbol: 'KETH',
@@ -150,16 +147,16 @@ const additionalTokens: AppAdditionalTokensList = {
   ],
 }
 
-export const activeNetworks: Network[] = [Network.Mainnet, Network.Avalanche]
+export const activeNetworks: Network[] = [Network.Kovan, Network.Avalanche]
 
 export function getConnectionConfig(networkId: number | null): ConnectionConfig {
-  return networkConfig[networkId as Network] || networkConfig[Network.Mainnet]
+  return networkConfig[networkId as Network] || networkConfig[Network.Kovan]
 }
 
 export function getGeysersConfigList(networkId: number): GeyserConfig[] {
-  return geyserList[networkId as Network] || geyserList[Network.Mainnet]
+  return geyserList[networkId as Network] || geyserList[Network.Kovan]
 }
 
 export function getAdditionalTokensList(networkId: number): AdditionalTokenConfig[] {
-  return additionalTokens[networkId as Network] || additionalTokens[Network.Mainnet]
+  return additionalTokens[networkId as Network] || additionalTokens[Network.Kovan]
 }

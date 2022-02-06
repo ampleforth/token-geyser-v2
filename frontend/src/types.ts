@@ -192,7 +192,6 @@ export type ConnectionConfig = {
   rpcUrl: string
   graphUrl: string
   explorerUrl: string
-  indexStartBlock: number
   nativeCurrency: NativeCurrencyConfig
 }
 

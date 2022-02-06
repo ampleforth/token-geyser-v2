@@ -20,15 +20,14 @@ export const getRewardTokenInfo = async (
   tokenAddress: string,
   token: RewardToken,
   signerOrProvider: SignerOrProvider,
-  indexStartBlock: number,
 ) => {
   switch (token) {
     case RewardToken.MOCK:
       return getBasicToken(tokenAddress, signerOrProvider)
     case RewardToken.AMPL:
-      return getAMPLToken(tokenAddress, signerOrProvider, indexStartBlock)
+      return getAMPLToken(tokenAddress, signerOrProvider)
     case RewardToken.XCAMPLE:
-      return getXCAMPLToken(tokenAddress, signerOrProvider, indexStartBlock)
+      return getXCAMPLToken(tokenAddress, signerOrProvider)
     case RewardToken.WAMPL:
       return getBasicToken(tokenAddress, signerOrProvider)
     default:
@@ -55,7 +54,6 @@ const getBasicToken = async (tokenAddress: string, signerOrProvider: SignerOrPro
 const getAMPLToken = async (
   tokenAddress: string,
   signerOrProvider: SignerOrProvider,
-  indexStartBlock: number,
 ): Promise<RewardTokenInfo> => {
   const contract = new Contract(tokenAddress, UFRAGMENTS_ABI, signerOrProvider)
   const tokenInfo = await getTokenInfo(tokenAddress, signerOrProvider)
@@ -76,7 +74,6 @@ const getAMPLToken = async (
       epoch,
       tokenInfo.decimals,
       signerOrProvider,
-      indexStartBlock,
     )
     return totalRewardShares * totalSupply
   }
@@ -91,7 +88,6 @@ const getAMPLToken = async (
 const getXCAMPLToken = async (
   tokenAddress: string,
   signerOrProvider: SignerOrProvider,
-  indexStartBlock: number,
 ): Promise<RewardTokenInfo> => {
   const token = new Contract(tokenAddress, XC_AMPLE_ABI, signerOrProvider)
   const tokenInfo = await getTokenInfo(tokenAddress, signerOrProvider)
@@ -113,7 +109,6 @@ const getXCAMPLToken = async (
       epoch,
       tokenInfo.decimals,
       signerOrProvider,
-      indexStartBlock,
     )
     return totalRewardShares * totalSupply
   }

@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@ampleforthorg/sdk@1.0.15":
-  version "1.0.15"
-  resolved "https://registry.yarnpkg.com/@ampleforthorg/sdk/-/sdk-1.0.15.tgz#41bb77487ad6d45704c3233546323a4cd5384871"
-  integrity sha512-D+myJr3WRRcZZlqi33HOzSOQ2Efezw7weKbPIQYiD86z68sDq6NR4XSBjsesKyyIFDDdnMRFDZGGGA5fAmV+9A==
+"@ampleforthorg/sdk@1.0.18":
+  version "1.0.18"
+  resolved "https://registry.yarnpkg.com/@ampleforthorg/sdk/-/sdk-1.0.18.tgz#49d936c4db52d7249a4e293215ee995db1f3b35f"
+  integrity sha512-UavhESOzRKrxWMmGZmiXtobudPGL3jMd1j/MLT4/MCYJqBvDHIBdGn3M5JYqacDv+tqFc1xpm/4mSkLMZzaavQ==
   dependencies:
     "@types/bignumber.js" "^5.0.0"
     "@typescript-eslint/eslint-plugin" "^4.29.0"

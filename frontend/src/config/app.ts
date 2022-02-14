@@ -147,16 +147,16 @@ const additionalTokens: AppAdditionalTokensList = {
   ],
 }
 
-export const activeNetworks: Network[] = [Network.Kovan, Network.Avalanche]
+export const activeNetworks: Network[] = [Network.Mainnet, Network.Avalanche]
 
 export function getConnectionConfig(networkId: number | null): ConnectionConfig {
-  return networkConfig[networkId as Network] || networkConfig[Network.Kovan]
+  return networkConfig[networkId as Network] || networkConfig[Network.Mainnet]
 }
 
 export function getGeysersConfigList(networkId: number): GeyserConfig[] {
-  return geyserList[networkId as Network] || geyserList[Network.Kovan]
+  return geyserList[networkId as Network] || geyserList[Network.Mainnet]
 }
 
 export function getAdditionalTokensList(networkId: number): AdditionalTokenConfig[] {
-  return additionalTokens[networkId as Network] || additionalTokens[Network.Kovan]
+  return additionalTokens[networkId as Network] || additionalTokens[Network.Mainnet]
 }

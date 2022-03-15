@@ -2,7 +2,7 @@ import { TransactionResponse, TransactionReceipt } from '@ethersproject/provider
 import { BigNumber, BigNumberish, Contract, Signer, Wallet } from 'ethers'
 import { randomBytes } from 'ethers/lib/utils'
 import { ERC20_ABI } from './abis'
-import { getBalanceLocked, getClaimedRewardsFromUnstake } from './stats'
+import { getBalanceLocked, getRewardsClaimedFromUnstake } from './stats'
 import { ERC20Balance } from './tokens'
 import { isPermitable, loadNetworkConfig, signPermission, signPermitEIP2612 } from './utils'
 import { toChecksumAddress } from 'web3-utils'
@@ -89,7 +89,7 @@ export const withdrawRewards = async (
   receipt: TransactionReceipt,
   signer: Signer,
 ) => {
-  const claimedRewards = await getClaimedRewardsFromUnstake(receipt, geyserAddress, signer)
+  const claimedRewards = await getRewardsClaimedFromUnstake(receipt, geyserAddress, signer)
   if (!claimedRewards) return null
   const { vault, token, amount } = claimedRewards
   const rewards = BigNumber.from(amount)

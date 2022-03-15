@@ -5,7 +5,10 @@ import { providers, Signer, utils } from 'ethers';
 import { getConnectionConfig, activeNetworks } from 'config/app'
 import { Network, ALCHEMY_PROJECT_ID, INFURA_PROJECT_ID } from '../constants'
 
+// const DEFAULT_RPC_ENDPOINT = `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`
+// ALCHEMY_PROJECT_ID
 const DEFAULT_RPC_ENDPOINT = `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_PROJECT_ID}`
+
 const SUPPORTED_WALLETS = [
   { walletName: 'metamask', preferred: true, rpcUrl: DEFAULT_RPC_ENDPOINT },
   {

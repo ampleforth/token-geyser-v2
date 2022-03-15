@@ -4,7 +4,8 @@ import { toChecksumAddress } from 'web3-utils'
 import { TransactionResponse } from '@ethersproject/providers'
 import { BigNumber, Wallet } from 'ethers'
 import { Geyser, TokenInfo, GeyserConfig, Vault, GeyserInfo, GeyserAction } from 'types'
-import {  getTokenInfo } from 'utils/token'
+import { getTokenInfo } from 'utils/token'
+import { getBonusTokenInfo } from 'utils/bonusToken'
 import { defaultStakingTokenInfo, getStakingTokenInfo } from 'utils/stakingToken'
 import { approveCreateDepositStake, approveDepositStake, unstake } from 'sdk'
 import { wrap, unwrap } from 'utils/wrap'
@@ -12,7 +13,7 @@ import { GET_GEYSERS } from 'queries/geyser'
 import { Centered } from 'styling/styles'
 import { defaultRewardTokenInfo, getRewardTokenInfo } from 'utils/rewardToken'
 import { getGeyserStats } from 'utils/stats'
-import { getGeysersConfigList, getAdditionalTokensList, getConnectionConfig } from 'config/app'
+import { getGeysersConfigList, getAdditionalTokensList } from 'config/app'
 import Web3Context from './Web3Context'
 import { POLL_INTERVAL } from '../constants'
 
@@ -35,6 +36,7 @@ export const GeyserContext = createContext<{
     geyser: null,
     stakingTokenInfo: defaultStakingTokenInfo(),
     rewardTokenInfo: defaultRewardTokenInfo(),
+    bonusTokensInfo: [],
     isWrapped:false
   },
   selectGeyser: () => {},
@@ -61,6 +63,7 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
     geyser: null,
     stakingTokenInfo: defaultStakingTokenInfo(),
     rewardTokenInfo: defaultRewardTokenInfo(),
+    bonusTokensInfo: [],
     isWrapped:false,
   })
 
@@ -121,19 +124,25 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
   const selectGeyser = async (geyser: Geyser) => {
     const geyserAddress = toChecksumAddress(geyser.id)
     const geyserConfigs = getGeysersConfigList(networkId)
-    const conn = getConnectionConfig(networkId)
     const geyserConfig = geyserConfigs.find(config => toChecksumAddress(config.address) === geyserAddress)
     if (!geyserConfig) {
       throw new Error(`Geyser config not found for geyser at ${geyserAddress}`)
     }
     const newStakingTokenInfo = await getStakingTokenInfo(geyser.stakingToken, geyserConfig.stakingToken, signerOrProvider)
-    const newRewardTokenInfo = await getRewardTokenInfo(geyser.rewardToken, geyserConfig.rewardToken, signerOrProvider, conn.indexStartBlock)
+    const newRewardTokenInfo = await getRewardTokenInfo(geyser.rewardToken, geyserConfig.rewardToken, signerOrProvider)
+    const newBonusTokensInfo = [];
+    for(let a = 0; a < geyser.bonusTokens.length; a++) {
+      const bonusToken = await getBonusTokenInfo(geyser.bonusTokens[a], signerOrProvider);
+      newBonusTokensInfo.push(bonusToken);
+    }
+
     setSelectedGeyserConfig(geyserConfig)
     setSelectedGeyserInfo({
       geyser,
       isWrapped: geyserConfig.isWrapped,
       stakingTokenInfo: newStakingTokenInfo,
       rewardTokenInfo: newRewardTokenInfo,
+      bonusTokensInfo: newBonusTokensInfo,
     })
   }
   const selectGeyserById = async (id: string) => {
@@ -172,17 +181,20 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
             geyserConfigs.map(({ address, stakingToken, rewardToken }) => [toChecksumAddress(address), { stakingToken, rewardToken }]))
 
           const geyserTokens = currentGeysers.map(
-            ({ id, stakingToken, rewardToken }) => ({ ...geyserAddressToConfig.get(toChecksumAddress(id))!, stakingTokenAddress: stakingToken, rewardTokenAddress: rewardToken })
+            ({ id, stakingToken, rewardToken }) => ({ 
+              ...geyserAddressToConfig.get(toChecksumAddress(id))!, 
+                stakingTokenAddress: stakingToken, 
+                rewardTokenAddress: rewardToken,
+            })
           )
 
-          const conn = getConnectionConfig(networkId)
           const geyserTokensSet = new Set(currentGeysers.flatMap(({ stakingToken, rewardToken }) => [stakingToken, rewardToken].map(toChecksumAddress)))
-          const rewardTokens = await Promise.all(geyserTokens.map(({ rewardToken, rewardTokenAddress }) => getRewardTokenInfo(rewardTokenAddress, rewardToken, signerOrProvider, conn.indexStartBlock)))
+          const rewardTokens = await Promise.all(geyserTokens.map(({ rewardToken, rewardTokenAddress }) => getRewardTokenInfo(rewardTokenAddress, rewardToken, signerOrProvider)))
           const stakingTokens = await Promise.all(geyserTokens.map(({ stakingToken, stakingTokenAddress }) => getStakingTokenInfo(stakingTokenAddress, stakingToken, signerOrProvider)))
 
           // calculate if geysers are active or not
           const geyserActivityPromise = currentGeysers.map(async (geyser, g) => {
-            const geyserStats = await getGeyserStats(geyser, stakingTokens[g], rewardTokens[g])
+            const geyserStats = await getGeyserStats(geyser, stakingTokens[g], rewardTokens[g], [])
             return geyserStats.duration > 0
           })
           const geyserActivity = await Promise.all(geyserActivityPromise)

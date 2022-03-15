@@ -1,4 +1,4 @@
-import {  BigNumberish } from 'ethers'
+import { BigNumberish } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { toChecksumAddress } from 'web3-utils'
@@ -15,8 +15,10 @@ export const StatsContext = createContext<{
   geyserStats: GeyserStats
   vaultStats: VaultStats
   computeRewardsFromUnstake: (unstakeAmount: BigNumberish) => Promise<number>
+  computeRewardsShareFromUnstake: (unstakeAmount: BigNumberish) => Promise<number>
   computeAPYFromAdditionalStakes: (stakeAmount: BigNumberish) => Promise<number>
   computeRewardsFromAdditionalStakes: (stakeAmount: BigNumberish) => Promise<number>
+  computeRewardsShareFromAdditionalStakes: (stakeAmount: BigNumberish) => Promise<number>
   computeLossFromUnstake1Month: (unstakeAmount: BigNumberish) => Promise<number>
   refreshVaultStats: () => void
 }>({
@@ -24,8 +26,10 @@ export const StatsContext = createContext<{
   geyserStats: defaultGeyserStats(),
   vaultStats: defaultVaultStats(),
   computeRewardsFromUnstake: async () => 0,
+  computeRewardsShareFromUnstake: async () => 0,
   computeAPYFromAdditionalStakes: async () => 0,
   computeRewardsFromAdditionalStakes: async () => 0,
+  computeRewardsShareFromAdditionalStakes: async () => 0,
   computeLossFromUnstake1Month: async () => 0,
   refreshVaultStats: () => {},
 })
@@ -51,10 +55,21 @@ export const StatsContextProvider: React.FC = ({ children }) => {
     return 0
   }
 
+  const computeRewardsShareFromUnstake = async (unstakeAmount: BigNumberish) => {
+    const { geyser: selectedGeyser, rewardTokenInfo } = selectedGeyserInfo
+    const { decimals } = rewardTokenInfo
+    if(selectedGeyser && decimals) {
+      const rewardAmt = await computeRewardsFromUnstake(unstakeAmount)
+      const totalAmt = parseFloat(formatUnits(selectedGeyser.rewardBalance, decimals)) || 0.0
+      return rewardAmt / totalAmt
+    }
+    return 0
+  }
+
   const computeAPYFromAdditionalStakes = async (stakeAmount: BigNumberish) => {
-    const { geyser: selectedGeyser, stakingTokenInfo, rewardTokenInfo } = selectedGeyserInfo
+    const { geyser: selectedGeyser, stakingTokenInfo, rewardTokenInfo, bonusTokensInfo } = selectedGeyserInfo
     if (selectedGeyser) {
-      return getUserAPY(selectedGeyser, currentLock, stakingTokenInfo, rewardTokenInfo, stakeAmount, signer || provider)
+      return getUserAPY(selectedGeyser, currentLock, stakingTokenInfo, rewardTokenInfo, bonusTokensInfo, stakeAmount, signer || provider)
     }
     return 0
   }
@@ -69,6 +84,17 @@ export const StatsContextProvider: React.FC = ({ children }) => {
           : getStakeDrip(selectedGeyser, stakeAmount, geyserStats.duration, signer || provider))
         return parseFloat(formatUnits(Math.round(drip), decimals))
       }
+    }
+    return 0
+  }
+
+  const computeRewardsShareFromAdditionalStakes = async (stakeAmount: BigNumberish) => {
+    const { geyser: selectedGeyser, rewardTokenInfo } = selectedGeyserInfo
+    const { decimals } = rewardTokenInfo
+    if(selectedGeyser && decimals) {
+      const rewardAmt = await computeRewardsFromAdditionalStakes(stakeAmount)
+      const totalAmt = parseFloat(formatUnits(selectedGeyser.rewardBalance, decimals)) || 0.0
+      return rewardAmt / totalAmt
     }
     return 0
   }
@@ -97,13 +123,13 @@ export const StatsContextProvider: React.FC = ({ children }) => {
     let mounted = true;
     (async () => {
       try {
-        const { geyser: selectedGeyser, stakingTokenInfo, rewardTokenInfo } = selectedGeyserInfo
+        const { geyser: selectedGeyser, stakingTokenInfo, rewardTokenInfo, bonusTokensInfo } = selectedGeyserInfo
         if (selectedGeyser && stakingTokenInfo.address && rewardTokenInfo.address) {
-          const newGeyserStats = await getGeyserStats(selectedGeyser, stakingTokenInfo, rewardTokenInfo)
+          const newGeyserStats = await getGeyserStats(selectedGeyser, stakingTokenInfo, rewardTokenInfo, bonusTokensInfo)
           if (mounted) {
             setGeyserStats(newGeyserStats)
           }
-          const newUserStats = await getUserStats(selectedGeyser, selectedVault, currentLock, stakingTokenInfo, rewardTokenInfo, signer || provider)
+          const newUserStats = await getUserStats(selectedGeyser, selectedVault, currentLock, stakingTokenInfo, rewardTokenInfo, bonusTokensInfo, signer || provider)
           if (mounted) {
             setUserStats(newUserStats)
           }
@@ -113,7 +139,7 @@ export const StatsContextProvider: React.FC = ({ children }) => {
           }
         }
       } catch (e) {
-        console.log("stats query error")
+      console.log("stats query error")
         // console.error(e)
       }
     })();
@@ -127,8 +153,10 @@ export const StatsContextProvider: React.FC = ({ children }) => {
         geyserStats,
         vaultStats,
         computeRewardsFromUnstake,
+        computeRewardsShareFromUnstake,
         computeAPYFromAdditionalStakes,
         computeRewardsFromAdditionalStakes,
+        computeRewardsShareFromAdditionalStakes,
         computeLossFromUnstake1Month,
         refreshVaultStats,
       }}

@@ -5,8 +5,8 @@ import * as ls from './cache'
 const DEFAULT_PRICES: Record<string, number> = {
   AMPL: 1.0,
   WAMPL: 30,
-  BTC: 50000.0,
-  WETH: 320,
+  BTC: 40000.0,
+  WETH: 2500,
   WAVAX: 80,
   LINK: 5,
   BAL: 10,
@@ -18,6 +18,7 @@ const DEFAULT_PRICES: Record<string, number> = {
   YFI: 17000,
   NMR: 25,
   USDC: 1,
+  PNG: 0.25,
   'yDAI+yUSDC+yUSDT+yTUSD': 1.1,
 }
 
@@ -37,6 +38,7 @@ const SYMBOL_TO_QUERY: Record<string, string> = {
   YFI: 'yearn-finance',
   NMR: 'numeraire',
   USDC: 'usd-coin',
+  PNG: 'pangolin',
   'yDAI+yUSDC+yUSDT+yTUSD': 'curve-fi-ydai-yusdc-yusdt-ytusd',
 }
 

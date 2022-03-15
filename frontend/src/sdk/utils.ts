@@ -119,19 +119,24 @@ export const signPermitEIP2612 = async (
 
 // utility function to parse an event from a transaction receipt
 // useful when we need to get data from a specific transaction (e.g. getting the actual rewards claimed from unstake)
-export const parseEventFromReceipt = (
+export const parseFirstEventFromReceipt = (
   receipt: TransactionReceipt,
   contract: Contract,
   event: string,
 ): LogDescription | null => {
+  const events = parseAllEventsFromReceipt(receipt, contract, event)
+  return events.length > 0 ? events[0] : null
+}
+
+export const parseAllEventsFromReceipt = (
+  receipt: TransactionReceipt,
+  contract: Contract,
+  event: string,
+): LogDescription[] => {
   const filter = contract.filters[event]
-  if (!filter) return null
+  if (!filter) return []
   const eventFilter = filter()
-  if (!eventFilter || !eventFilter.topics || eventFilter.topics.length === 0) return null
+  if (!eventFilter || !eventFilter.topics || eventFilter.topics.length === 0) return []
   const topicHash = eventFilter.topics[0]
-  const filteredLogs = receipt.logs.filter((log) => log.topics[0] === topicHash)
-  if (filteredLogs.length > 0) {
-    return contract.interface.parseLog(filteredLogs[0])
-  }
-  return null
+  return receipt.logs.filter((log) => log.topics[0] === topicHash).map((l) => contract.interface.parseLog(l))
 }

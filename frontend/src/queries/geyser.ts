@@ -12,6 +12,14 @@ export const GET_GEYSERS = gql`
       scalingCeiling
       scalingTime
       unlockedReward
+      rewardBalance
+      bonusTokens
+      rewardPool
+      rewardPoolBalances(first: 1000) {
+        id
+        token
+        balance
+      }
       rewardSchedules(first: 1000) {
         id
         duration

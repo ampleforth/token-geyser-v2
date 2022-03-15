@@ -15,6 +15,7 @@ type Geyser @entity {
   rewardPool: Bytes!
   rewardPoolBalances: [RewardPoolBalance]! @derivedFrom(field: "geyser")
   unlockedReward: BigInt!
+  rewardBalance: BigInt!
   stakingToken: Bytes!
   rewardToken: Bytes!
   scalingFloor: BigInt!

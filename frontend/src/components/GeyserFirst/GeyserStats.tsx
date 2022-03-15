@@ -6,16 +6,22 @@ import { GeyserContext } from 'context/GeyserContext'
 import { safeNumeral } from 'utils/numeral'
 import { ResponsiveText } from 'styling/styles'
 import { GeyserStatsBox } from './GeyserStatsBox'
+import { GeyserMultiStatsBox } from './GeyserMultiStatsBox'
 import { DAY_IN_SEC } from '../../constants'
 
 export const GeyserStats = () => {
-  const { geyserStats: { duration, totalDeposit, totalRewards }} = useContext(StatsContext)
+  const { geyserStats: { duration, totalDeposit, totalRewards, bonusRewards }} = useContext(StatsContext)
   const { selectedGeyserInfo: { rewardTokenInfo: { symbol } } } = useContext(GeyserContext)
+
+  const rewardsToShow = [{value:totalRewards, units:symbol}]
+    .concat(bonusRewards.map(r => ({ value: r.balance, units: r.symbol })))
+
   return (
     <GeyserStatsContainer>
       <Header>Geyser Stats</Header>
       <GeyserStatsBoxContainer>
         <GeyserStatsBox
+          containerClassName="sm:bg-paleBlue sm:border sm:border-lightGray sm:rounded-sm"
           name="Program Duration"
           value={duration / DAY_IN_SEC}
           units="days left"
@@ -24,6 +30,7 @@ export const GeyserStats = () => {
       </GeyserStatsBoxContainer>
       <GeyserStatsBoxContainer>
         <GeyserStatsBox
+          containerClassName="sm:bg-paleBlue sm:border sm:border-lightGray sm:rounded-sm"
           name="Total Deposits"
           value={totalDeposit}
           units="USD"
@@ -31,10 +38,10 @@ export const GeyserStats = () => {
         />
       </GeyserStatsBoxContainer>
       <GeyserStatsBoxContainer>
-        <GeyserStatsBox
+        <GeyserMultiStatsBox
+          containerClassName="sm:bg-paleBlue sm:border sm:border-lightGray sm:rounded-sm"
           name="Total Rewards"
-          value={totalRewards}
-          units={symbol}
+          stats={rewardsToShow}
           interpolate={(val) => safeNumeral(val, '0,0.00')}
         />
       </GeyserStatsBoxContainer>

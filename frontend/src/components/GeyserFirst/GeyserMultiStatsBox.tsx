@@ -1,49 +1,51 @@
-import { useState } from 'react'
+import React from 'react'
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
-import { useSpring, animated } from 'react-spring'
+import { animated } from 'react-spring'
 import { ResponsiveSubText, ResponsiveText } from 'styling/styles'
+
+interface Stat {
+  value: number
+  units: string
+}
 
 interface Props {
   name: string
-  value: number
-  units: string
+  stats: Stat[]
   from?: number
   interpolate?: (val: number) => string
   containerClassName?: string
 }
 
-export const GeyserStatsBox: React.FC<Props> = ({ name, value: targetValue, units, from, interpolate, containerClassName }) => {
-  const [statsValue, setStatsValue] = useState<string>(interpolate ? interpolate(targetValue) : `${targetValue}`)
+export const GeyserMultiStatsBox: React.FC<Props> = ({ name, stats, interpolate, containerClassName }) => {
 
-  useSpring({
-    val: targetValue,
-    from: { val: from || 0 },
-    onChange: ({ value }) => {
-      setStatsValue(interpolate ? interpolate(value.val) : `${value.val}`)
-    },
-  })
-
+  const displayVal = (v:number):string => interpolate ? interpolate(v) : `${v}`
+  const statsContent = stats.map((s, index) => (
+    <React.Fragment key={s.units}>
+       <GeyserStatsBoxValue>
+        <animated.span>
+          {displayVal(s.value)}
+        </animated.span>
+        {' '}
+        <GeyserStatsBoxUnits>
+          {s.units}
+        </GeyserStatsBoxUnits>
+      </GeyserStatsBoxValue>
+      {stats.length > 1 && index !== stats.length-1 ? '\u00a0+\u00a0' : ''}
+    </React.Fragment>
+  ))
+  
   return (
     <GeyserStatsBoxContainer className={containerClassName}>
       <GeyserStatsBoxLabel>{name}</GeyserStatsBoxLabel>
       <GeyserStatsBoxValueContainer>
-        <GeyserStatsBoxValue>
-          <animated.span>
-            {statsValue}
-          </animated.span>
-          {' '}
-          <GeyserStatsBoxUnits>
-            {units}
-          </GeyserStatsBoxUnits>
-        </GeyserStatsBoxValue>
+        {statsContent}
       </GeyserStatsBoxValueContainer>
     </GeyserStatsBoxContainer>
   )
 }
 
 const GeyserStatsBoxContainer = styled.div`
-  ${tw`h-40px`}
   ${tw`sm:mr-5 sm:p-3 sm:h-72px`}
 `
 

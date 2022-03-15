@@ -39,7 +39,7 @@ export const GeyserStakeView = () => {
   const { decimals: stakingTokenDecimals, symbol: stakingTokenSymbol, address: stakingTokenAddress } = stakingTokenInfo
   const { decimals: rewardTokenDecimals, symbol: rewardTokenSymbol, address: rewardTokenAddress } = rewardTokenInfo
   const { signer } = useContext(Web3Context)
-  const { selectedVault, currentLock, withdrawRewardsFromVault, withdrawUnlockedFromVault } = useContext(VaultContext)
+  const { selectedVault, currentLock, withdrawUnlockedFromVault, rewardAmountClaimedOnUnstake } = useContext(VaultContext)
   const { stakingTokenBalance, underlyingTokenBalance, refreshWalletBalances } = useContext(WalletContext)
   const { refreshVaultStats, vaultStats: {currentStakeable} } = useContext(StatsContext)
   const { selectWallet, address } = useContext(Web3Context)
@@ -106,10 +106,6 @@ export const GeyserStakeView = () => {
     } else {
       setActualStakingTokensFromUnstake(parsedUserInput)
     }
-    // else if (withdrawFromVault) {
-    //   setActualStakingTokensFromUnstake(parsedUserInput)
-    //   return withdrawFromVault(stakingTokenAddress, parsedUserInput)
-    // }
     return undefined
   }
 
@@ -123,13 +119,11 @@ export const GeyserStakeView = () => {
           return response
         }
       }
-    } else if (receipt && withdrawRewardsFromVault) {
-      const tx = await withdrawRewardsFromVault(receipt)
-      if (tx) {
-        const { response, rewards } = tx
-        setActualRewardsFromUnstake(rewards)
-        return response
-      }
+    }
+    if(receipt && rewardAmountClaimedOnUnstake) {
+      setActualRewardsFromUnstake(
+        await rewardAmountClaimedOnUnstake(receipt)
+      )
     }
     return undefined
   }
@@ -139,7 +133,9 @@ export const GeyserStakeView = () => {
   )
 
   const withdrawRewardTxMessage = (txStateMachine: TxStateMachine) => (
-    <WithdrawTxMessage txStateMachine={txStateMachine} symbol={rewardTokenSymbol} amount={formatUnits(actualRewardsFromUnstake, rewardTokenDecimals)} />
+    <WithdrawTxMessage txStateMachine={txStateMachine}
+      symbol={rewardTokenSymbol}
+      amount={formatUnits(actualRewardsFromUnstake, rewardTokenDecimals)} />
   )
 
   if(geyserAction === GeyserAction.STAKE) {

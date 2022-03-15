@@ -18,7 +18,6 @@ const networkConfig: NetworkConfig = {
     rpcUrl: `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_PROJECT_ID}`,
     graphUrl: 'https://api.thegraph.com/subgraphs/name/aalavandhan/amplgeyserv2beta',
     explorerUrl: 'https://etherscan.io/tx',
-    indexStartBlock: 7953823,
     nativeCurrency: {
       name: 'Ethereum',
       symbol: 'ETH',
@@ -34,7 +33,6 @@ const networkConfig: NetworkConfig = {
     rpcUrl: 'https://api.avax.network/ext/bc/C/rpc',
     graphUrl: 'https://api.thegraph.com/subgraphs/name/aalavandhan/geyserv2-avalanche',
     explorerUrl: 'https://snowtrace.io/tx',
-    indexStartBlock: 4799745,
     nativeCurrency: {
       name: 'Avalanche',
       symbol: 'AVAX',
@@ -50,7 +48,6 @@ const networkConfig: NetworkConfig = {
     rpcUrl: `https://eth-kovan.alchemyapi.io/v2/${ALCHEMY_PROJECT_ID}`,
     graphUrl: 'https://api.thegraph.com/subgraphs/name/aalavandhan/geyserv2-kovan',
     explorerUrl: 'https://kovan.etherscan.io/tx',
-    indexStartBlock: 11666536,
     nativeCurrency: {
       name: 'KovanEthereum',
       symbol: 'KETH',
@@ -146,7 +143,7 @@ const additionalTokens: AppAdditionalTokensList = {
       token: 'pangolin',
       address: '0x60781c2586d68229fde47564546784ab3faca982',
       enabled: true,
-    }
+    },
   ],
 }
 

@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { TransactionResponse, TransactionReceipt } from '@ethersproject/providers'
 import { BigNumber } from 'ethers'
 import { withdraw, withdrawRewards, withdrawUnlocked } from 'sdk'
+import { getRewardsClaimedFromUnstake } from 'sdk/stats'
 import { GET_USER_VAULTS } from '../queries/vault'
 import { POLL_INTERVAL } from '../constants'
 import { Lock, Vault } from '../types'
@@ -19,6 +20,7 @@ export const VaultContext = createContext<{
   withdrawFromVault: ((tokenAddress: string, amount: BigNumber) => Promise<TransactionResponse>) | null
   withdrawRewardsFromVault: ((receipt: TransactionReceipt) => Promise<{ response: TransactionResponse, rewards: BigNumber } | null>) | null
   withdrawUnlockedFromVault: ((tokenAddress: string) => Promise<{ response: TransactionResponse, amount: BigNumber } | null>) | null
+  rewardAmountClaimedOnUnstake:  ((receipt: TransactionReceipt) => Promise<BigNumber>) | null
 }>({
   vaults: [],
   selectedVault: null,
@@ -28,6 +30,7 @@ export const VaultContext = createContext<{
   withdrawFromVault: null,
   withdrawRewardsFromVault: null,
   withdrawUnlockedFromVault: null,
+  rewardAmountClaimedOnUnstake: null,
 })
 
 export const VaultContextProvider: React.FC = ({ children }) => {
@@ -45,6 +48,13 @@ export const VaultContextProvider: React.FC = ({ children }) => {
   const selectVaultById = (id: string) => setSelectedVault(vaults.find(vault => vault.id === id) || selectedVault)
   const withdrawFromVault = address && signer && selectedVault
     ? (tokenAddress: string, amount: BigNumber) => withdraw(selectedVault.id, tokenAddress, address, amount, signer)
+    : null
+
+  const rewardAmountClaimedOnUnstake = signer && selectedGeyser
+    ? async (receipt: TransactionReceipt) => {
+      const rewardsClaimed = await getRewardsClaimedFromUnstake(receipt, selectedGeyser.id, signer)
+      return rewardsClaimed ? rewardsClaimed.amount : BigNumber.from("0")
+    }
     : null
 
   const withdrawRewardsFromVault = address && signer && selectedGeyser
@@ -97,6 +107,7 @@ export const VaultContextProvider: React.FC = ({ children }) => {
         withdrawFromVault,
         withdrawRewardsFromVault,
         withdrawUnlockedFromVault,
+        rewardAmountClaimedOnUnstake,
       }}
     >
       {children}

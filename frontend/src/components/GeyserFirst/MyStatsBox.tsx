@@ -54,12 +54,12 @@ const MyStatName = styled.span`
 
 const MyStatValueContainer = styled.div`
   ${tw`flex`}
-  ${tw`sm:rounded-full sm:bg-mediumGray sm:text-white sm:mt-2 sm:py-7 sm:items-center sm:justify-center sm:h-80px sm:w-80px`}
+  ${tw`sm:rounded-md sm:bg-mediumGray sm:text-white sm:mt-2 sm:py-7 sm:items-center sm:justify-center sm:h-80px sm:w-80px px-2`}
 `
 
 const MyStatValue = styled.span`
-  ${tw`w-full text-left sm:text-center`}
-  ${ResponsiveText}
+  ${tw`w-full text-left sm:text-center sm:font-bold`}
+  ${ResponsiveSubText}
 `
 
 const MyStatUnits = styled.span`

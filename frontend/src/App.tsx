@@ -10,7 +10,14 @@ import { WalletContextProvider } from 'context/WalletContext'
 import { StatsContextProvider } from 'context/StatsContext'
 import { DropdownsContainer } from 'components/DropdownsContainer'
 
+import { useEffect } from 'react'
+
 function App() {
+
+  useEffect(() => {
+    localStorage.clear();
+  }, [])
+
   return (
     <AppContextProvider>
       <Web3Provider>

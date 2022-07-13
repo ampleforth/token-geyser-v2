@@ -51,10 +51,7 @@ const getBasicToken = async (tokenAddress: string, signerOrProvider: SignerOrPro
 }
 
 // TODO: use subgraph to get AMPL supply history
-const getAMPLToken = async (
-  tokenAddress: string,
-  signerOrProvider: SignerOrProvider,
-): Promise<RewardTokenInfo> => {
+const getAMPLToken = async (tokenAddress: string, signerOrProvider: SignerOrProvider): Promise<RewardTokenInfo> => {
   const contract = new Contract(tokenAddress, UFRAGMENTS_ABI, signerOrProvider)
   const tokenInfo = await getTokenInfo(tokenAddress, signerOrProvider)
   const price = await getCurrentPrice('AMPL')
@@ -85,10 +82,7 @@ const getAMPLToken = async (
   }
 }
 
-const getXCAMPLToken = async (
-  tokenAddress: string,
-  signerOrProvider: SignerOrProvider,
-): Promise<RewardTokenInfo> => {
+const getXCAMPLToken = async (tokenAddress: string, signerOrProvider: SignerOrProvider): Promise<RewardTokenInfo> => {
   const token = new Contract(tokenAddress, XC_AMPLE_ABI, signerOrProvider)
   const tokenInfo = await getTokenInfo(tokenAddress, signerOrProvider)
   const price = await getCurrentPrice('AMPL')

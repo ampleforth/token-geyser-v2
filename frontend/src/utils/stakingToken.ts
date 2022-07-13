@@ -55,7 +55,6 @@ export const getStakingTokenInfo = async (
   }
 }
 
-
 const getTokenCompositions = async (
   tokenAddresses: string[],
   poolAddress: string,
@@ -74,7 +73,7 @@ const getTokenCompositions = async (
       balance: balanceNumber,
       decimals,
       value: price * balanceNumber,
-      weight:weights[index],
+      weight: weights[index],
     }
   })
   return Promise.all(compositions)
@@ -97,12 +96,11 @@ const getTokenCompositionsWithBalances = async (
       balance: balanceNumber,
       decimals,
       value: price * balanceNumber,
-      weight:weights[index],
+      weight: weights[index],
     }
-  });
+  })
   return Promise.all(compositions)
 }
-
 
 const getMarketCap = (composition: TokenComposition[]) => composition.reduce((m, c) => m + c.value, 0)
 
@@ -212,7 +210,6 @@ const getBalancerV2TokenCompositions = async (
 
   return getTokenCompositionsWithBalances(tokenAddresses, tokenBalances, signerOrProvider, tokenWeights)
 }
-
 
 const getBalancerV1 = async (tokenAddress: string, signerOrProvider: SignerOrProvider): Promise<StakingTokenInfo> => {
   const address = toChecksumAddress(tokenAddress)
@@ -349,7 +346,10 @@ const getBasicToken = async (tokenAddress: string, signerOrProvider: SignerOrPro
   }
 }
 
-const getBalancerWeightedPoolV2 = async (tokenAddress: string, signerOrProvider: SignerOrProvider): Promise<StakingTokenInfo> => {
+const getBalancerWeightedPoolV2 = async (
+  tokenAddress: string,
+  signerOrProvider: SignerOrProvider,
+): Promise<StakingTokenInfo> => {
   const address = toChecksumAddress(tokenAddress)
   const contract = new Contract(address, BALANCER_WEIGHTED_POOL_V2_ABI, signerOrProvider)
 

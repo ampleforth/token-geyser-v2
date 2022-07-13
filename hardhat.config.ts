@@ -307,6 +307,12 @@ task('verify-geyser', 'verify and lock the Geyser template')
     // TODO: verify reward pool
   })
 
+task('lookup-proxy-admin', 'gets the proxy admin of the given contract')
+  .addPositionalParam('address', 'the proxy contract address')
+  .setAction(async ({ address }, { ethers, run, upgrades, network }) => {
+    console.log('Proxy Admin:', await getAdminAddress(ethers.provider, address))
+  })
+
 const getEtherscanAPIKey = () => {
   switch (process.env.HARDHAT_NETWORK) {
     case 'mainnet' || 'kovan':

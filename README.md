@@ -15,20 +15,26 @@ ethereum:
   proxyAdmin: 0xc70F5bc82ccb3de00400814ff8bD406C271db3c4
   geyserRegistry: 0xFc43803F203e3821213bE687120aD44C8a21A7e7
   geysers:
-    - poolRef: "SUSHI-ETH-AMPL (Pescadero V2)"
-      deployment: 0x56eD0272f99eBD903043399A51794f966D72E526
+    - poolRef: "UNI-ETH-AMPL-V2 (Beehive V5)"
+      deployment: 0x5Bc95edc2a05247235dd5D6d1773B8cCB95D083B
 
-    - poolRef: "BAL-SMART-AMPL-USDC (Old Faithful V2)"
-      deployment: 0x914A766578C2397da969b3ca088e3e757249A435
-
-    - poolRef: "WBTC-WETH-AMPL-BPT (Trinity V2)"
-      deployment: 0x0ec93391752ef1A06AA2b83D15c3a5814651C891
-
-    - poolRef: "UNI-ETH-AMPL-V2 (Beehive V4)"
-      deployment: 0x88F12aE68315A89B885A2f1b0610fE2A9E1720B9
+    - poolRef: "WBTC-WETH-AMPL-BPT (Trinity V3)"
+      deployment: 0x13ED22A00576E41B64B686857B484987a3Ad1A3B
 
     - poolRef: "aAMPL (Splendid V1)"
       deployment: 0x1Fee4745E70509fBDc718beDf5050F471298c1CE
+
+    # - poolRef: "WBTC-WETH-AMPL-BPT (Trinity V2)"
+    #   deployment: 0x0ec93391752ef1A06AA2b83D15c3a5814651C891
+
+    # - poolRef: "SUSHI-ETH-AMPL (Pescadero V2)"
+    #   deployment: 0x56eD0272f99eBD903043399A51794f966D72E526
+
+    # - poolRef: "BAL-SMART-AMPL-USDC (Old Faithful V2)"
+    #   deployment: 0x914A766578C2397da969b3ca088e3e757249A435
+
+    # - poolRef: "UNI-ETH-AMPL-V2 (Beehive V4)"
+    #   deployment: 0x88F12aE68315A89B885A2f1b0610fE2A9E1720B9
 
   externalVaultFactoriesWhitelisted:
     - name: "Crucible"

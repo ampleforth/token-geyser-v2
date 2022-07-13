@@ -1,4 +1,4 @@
-import { BigNumber, Contract } from 'ethers'
+import { BigNumber, Contract, constants } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 import { toChecksumAddress } from 'web3-utils'
 import { StakingToken } from '../constants'
@@ -6,6 +6,8 @@ import { ERC20Balance } from '../sdk'
 import { SignerOrProvider, StakingTokenInfo, TokenComposition } from '../types'
 import { BALANCER_BPOOL_V1_ABI } from './abis/BalancerBPoolV1'
 import { BALANCER_CRP_V1_ABI } from './abis/BalancerCRPV1'
+import { BALANCER_WEIGHTED_POOL_V2_ABI } from './abis/BalancerWeightedPoolV2'
+import { BALANCER_VAULT_V2_ABI } from './abis/BalancerVaultV2'
 import { MOONISWAP_V1_PAIR_ABI } from './abis/MooniswapV1Pair'
 import { UNISWAP_V2_PAIR_ABI } from './abis/UniswapV2Pair'
 import { WRAPPED_ERC20_ABI } from './abis/WrappedERC20'
@@ -46,45 +48,61 @@ export const getStakingTokenInfo = async (
       return getBalancerSmartPoolV1(tokenAddress, signerOrProvider)
     case StakingToken.AAVE_V2_AMPL:
       return getAaveV2(tokenAddress, signerOrProvider)
+    case StakingToken.BALANCER_WEIGHTED_POOL_V2:
+      return getBalancerWeightedPoolV2(tokenAddress, signerOrProvider)
     default:
       throw new Error(`Handler for ${token} not found`)
   }
 }
 
-const getTokenComposition = async (
-  tokenAddress: string,
-  stakingTokenAddress: string,
-  signerOrProvider: SignerOrProvider,
-  weight: number,
-): Promise<TokenComposition> => {
-  const { name, symbol, decimals } = await getTokenInfo(tokenAddress, signerOrProvider)
-  const price = await getCurrentPrice(symbol)
-  const balance = await ERC20Balance(tokenAddress, stakingTokenAddress, signerOrProvider)
-
-  const balanceNumber = parseInt(formatUnits(balance as BigNumber, decimals), 10)
-
-  return {
-    address: tokenAddress,
-    name,
-    symbol,
-    balance: balanceNumber,
-    decimals,
-    value: price * balanceNumber,
-    weight,
-  }
-}
 
 const getTokenCompositions = async (
   tokenAddresses: string[],
-  stakingTokenAddress: string,
+  poolAddress: string,
   signerOrProvider: SignerOrProvider,
   weights: number[],
-): Promise<TokenComposition[]> =>
-  Promise.all(
-    tokenAddresses.map((token, index) =>
-      getTokenComposition(token, stakingTokenAddress, signerOrProvider, weights[index]),
-    ),
-  )
+): Promise<TokenComposition[]> => {
+  const compositions = tokenAddresses.map(async (tokenAddress, index) => {
+    const { name, symbol, decimals } = await getTokenInfo(tokenAddress, signerOrProvider)
+    const price = await getCurrentPrice(symbol)
+    const balance = await ERC20Balance(tokenAddress, poolAddress, signerOrProvider)
+    const balanceNumber = parseInt(formatUnits(balance as BigNumber, decimals), 10)
+    return {
+      address: tokenAddress,
+      name,
+      symbol,
+      balance: balanceNumber,
+      decimals,
+      value: price * balanceNumber,
+      weight:weights[index],
+    }
+  })
+  return Promise.all(compositions)
+}
+
+const getTokenCompositionsWithBalances = async (
+  tokenAddresses: string[],
+  balances: string[],
+  signerOrProvider: SignerOrProvider,
+  weights: number[],
+): Promise<TokenComposition[]> => {
+  const compositions = tokenAddresses.map(async (tokenAddress, index) => {
+    const { name, symbol, decimals } = await getTokenInfo(tokenAddress, signerOrProvider)
+    const price = await getCurrentPrice(symbol)
+    const balanceNumber = parseInt(formatUnits(BigNumber.from(balances[index]), decimals), 10)
+    return {
+      address: tokenAddress,
+      name,
+      symbol,
+      balance: balanceNumber,
+      decimals,
+      value: price * balanceNumber,
+      weight:weights[index],
+    }
+  });
+  return Promise.all(compositions)
+}
+
 
 const getMarketCap = (composition: TokenComposition[]) => composition.reduce((m, c) => m + c.value, 0)
 
@@ -174,8 +192,27 @@ const getBalancerTokenCompositions = async (
   )
   const tokenWeights = tokenDenormalizedWeights.map((w) => w / totalDenormalizedWeight)
 
-  return getTokenCompositions(tokenAddresses, address, signerOrProvider, tokenWeights)
+  return getTokenCompositions(tokenAddresses, contract.address, signerOrProvider, tokenWeights)
 }
+
+const getBalancerV2TokenCompositions = async (
+  address: string,
+  signerOrProvider: SignerOrProvider,
+): Promise<TokenComposition[]> => {
+  const contract = new Contract(address, BALANCER_WEIGHTED_POOL_V2_ABI, signerOrProvider)
+  const vault = new Contract(await contract.getVault(), BALANCER_VAULT_V2_ABI, signerOrProvider)
+
+  const r = await vault.getPoolTokens(await contract.getPoolId())
+  const tokenAddresses: string[] = r[0]
+  const tokenBalances: string[] = r[1]
+
+  const totalNormalizedWeight: BigNumber = BigNumber.from(constants.WeiPerEther)
+  const tokenNormalizedWeights: BigNumber[] = await contract.getNormalizedWeights()
+  const tokenWeights = tokenNormalizedWeights.map((w) => w.div(totalNormalizedWeight).toNumber())
+
+  return getTokenCompositionsWithBalances(tokenAddresses, tokenBalances, signerOrProvider, tokenWeights)
+}
+
 
 const getBalancerV1 = async (tokenAddress: string, signerOrProvider: SignerOrProvider): Promise<StakingTokenInfo> => {
   const address = toChecksumAddress(tokenAddress)
@@ -308,6 +345,29 @@ const getBasicToken = async (tokenAddress: string, signerOrProvider: SignerOrPro
     ...tokenInfo,
     price,
     composition: [],
+    wrappedToken: null,
+  }
+}
+
+const getBalancerWeightedPoolV2 = async (tokenAddress: string, signerOrProvider: SignerOrProvider): Promise<StakingTokenInfo> => {
+  const address = toChecksumAddress(tokenAddress)
+  const contract = new Contract(address, BALANCER_WEIGHTED_POOL_V2_ABI, signerOrProvider)
+
+  const { name, symbol, decimals } = await getTokenInfo(address, signerOrProvider)
+
+  const totalSupply: BigNumber = await contract.totalSupply()
+  const totalSupplyNumber = parseFloat(formatUnits(totalSupply, decimals))
+
+  const tokenCompositions = await getBalancerV2TokenCompositions(address, signerOrProvider)
+  const marketCap = getMarketCap(tokenCompositions)
+
+  return {
+    address,
+    decimals,
+    name,
+    symbol,
+    price: marketCap / totalSupplyNumber,
+    composition: tokenCompositions,
     wrappedToken: null,
   }
 }

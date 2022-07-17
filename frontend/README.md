@@ -20,7 +20,7 @@ Jump to
 The following are the main elements that need to be configured prior to deploying
 
 1. [GraphQL Endpoint for subgraph](#graphql-endpoint)
-2. [Environment variable `NODE_ENV`](#process-environment)
+2. [Environment variables `NODE_ENV`, `GRAPH_API_KEY`](#process-environment)
 3. [Geysers configuration](#geyser-specific-configuration)
 4. [List of additional tokens for vault management](#list-of-additional-tokens)
 5. [Infura Project ID](#ethereum-provider)
@@ -36,6 +36,8 @@ The initialization of the GraphQL client can be found under `src/queries/client.
 ## Process Environment
 
 Make sure that the environment variable `NODE_ENV` is set to something other than `development` when deploying to production.
+
+Make sure that `GRAPH_API_KEY` is set to a funded API Key that is unrestricted from using the Ampleforth DAO Subgraph (see https://thegraph.com/docs/en/querying/managing-api-keys/) for using the Graph.
 
 
 ## Geyser Specific Configuration

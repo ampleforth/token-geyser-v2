@@ -54,6 +54,7 @@ export enum StakingToken {
   AAVE_V2_AMPL,
   TRADER_JOE,
   PANGOLIN,
+  BALANCER_WEIGHTED_POOL_V2,
 }
 
 // Reward tokens

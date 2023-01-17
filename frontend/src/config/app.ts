@@ -59,12 +59,22 @@ const networkConfig: NetworkConfig = {
 const geyserList: AppGeysersList = {
   [Network.Mainnet]: [
     {
-      name: 'ETH Beehive V4 (Uniswap ETH-AMPL)',
-      address: '0x88F12aE68315A89B885A2f1b0610fE2A9E1720B9',
+      name: 'ETH Beehive V5 (Uniswap ETH-AMPL)',
+      address: '0x5Bc95edc2a05247235dd5D6d1773B8cCB95D083B',
       stakingToken: StakingToken.UNISWAP_V2,
       rewardToken: RewardToken.AMPL,
       isWrapped: false,
       // staked pool address: 0xc5be99A02C6857f9Eac67BbCE58DF5572498F40c
+    },
+    {
+      name: 'ETH Trinity V3 (Balancer WBTC-WETH-WAMPL)',
+      address: '0x13ED22A00576E41B64B686857B484987a3Ad1A3B',
+      stakingToken: StakingToken.BALANCER_WEIGHTED_POOL_V2,
+      rewardToken: RewardToken.AMPL,
+      isWrapped: false,
+      // staked pool address: 0xd4E2af4507B6B89333441C0c398edfFB40f86f4D
+      // poolID:0xd4e2af4507b6b89333441c0c398edffb40f86f4d0001000000000000000002ab
+      // vault: 0xba12222222228d8ba445958a75a0704d566bf2c8
     },
     {
       name: 'ETH Splendid Pilot (AAVE aAMPL)',
@@ -73,6 +83,14 @@ const geyserList: AppGeysersList = {
       rewardToken: RewardToken.AMPL,
       isWrapped: true,
       // staked pool address: 0x1e6bb68acec8fefbd87d192be09bb274170a0548
+    },
+    {
+      name: 'ETH Beehive V4 (Uniswap ETH-AMPL)',
+      address: '0x88F12aE68315A89B885A2f1b0610fE2A9E1720B9',
+      stakingToken: StakingToken.UNISWAP_V2,
+      rewardToken: RewardToken.AMPL,
+      isWrapped: false,
+      // staked pool address: 0xc5be99A02C6857f9Eac67BbCE58DF5572498F40c
     },
     {
       name: 'ETH Trinity V2 (Balancer BTC-ETH-AMPL)',

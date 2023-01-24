@@ -12,6 +12,8 @@ import { MOONISWAP_V1_PAIR_ABI } from './abis/MooniswapV1Pair'
 import { UNISWAP_V2_PAIR_ABI } from './abis/UniswapV2Pair'
 import { WRAPPED_ERC20_ABI } from './abis/WrappedERC20'
 import { AAVEV2_DEPOSIT_TOKEN } from './abis/AaveV2DepositToken'
+import { ARRAKIS_V1_ABI } from './abis/ArrakisV1'
+import { UNISWAP_V3_POOL_ABI } from './abis/UniswapV3Pool'
 import { getCurrentPrice } from './price'
 import { defaultTokenInfo, getTokenInfo } from './token'
 
@@ -50,6 +52,8 @@ export const getStakingTokenInfo = async (
       return getAaveV2(tokenAddress, signerOrProvider)
     case StakingToken.BALANCER_WEIGHTED_POOL_V2:
       return getBalancerWeightedPoolV2(tokenAddress, signerOrProvider)
+    case StakingToken.ARRAKIS_V1:
+      return getArrakisV1(tokenAddress, signerOrProvider)
     default:
       throw new Error(`Handler for ${token} not found`)
   }
@@ -359,6 +363,36 @@ const getBalancerWeightedPoolV2 = async (
   const totalSupplyNumber = parseFloat(formatUnits(totalSupply, decimals))
 
   const tokenCompositions = await getBalancerV2TokenCompositions(address, signerOrProvider)
+  const marketCap = getMarketCap(tokenCompositions)
+
+  return {
+    address,
+    decimals,
+    name,
+    symbol,
+    price: marketCap / totalSupplyNumber,
+    composition: tokenCompositions,
+    wrappedToken: null,
+  }
+}
+
+const getArrakisV1 = async (
+  tokenAddress: string,
+  signerOrProvider: SignerOrProvider,
+): Promise<StakingTokenInfo> => {
+  const address = toChecksumAddress(tokenAddress)
+  const contract = new Contract(address, ARRAKIS_V1_ABI, signerOrProvider)
+  const uniPool = new Contract(await contract.pool(), UNISWAP_V3_POOL_ABI, signerOrProvider)
+
+  const { name, symbol, decimals } = await getTokenInfo(address, signerOrProvider)
+  const totalSupply: BigNumber = await contract.totalSupply()
+  const totalSupplyNumber = parseFloat(formatUnits(totalSupply, decimals))
+
+  const tokenCompositions = await getTokenCompositionsWithBalances(
+    [await uniPool.token0(), await uniPool.token1()],
+    await contract.getUnderlyingBalances(),
+    signerOrProvider,
+    [0.5, 0.5])
   const marketCap = getMarketCap(tokenCompositions)
 
   return {

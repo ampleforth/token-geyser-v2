@@ -5,9 +5,9 @@ import * as ls from './cache'
 const DEFAULT_PRICES: Record<string, number> = {
   AMPL: 1.0,
   WAMPL: 30,
-  BTC: 40000.0,
-  WETH: 2500,
-  WAVAX: 80,
+  BTC: 20000.0,
+  WETH: 1500,
+  WAVAX: 20,
   LINK: 5,
   BAL: 10,
   LEND: 0.33,
@@ -20,6 +20,7 @@ const DEFAULT_PRICES: Record<string, number> = {
   USDC: 1,
   PNG: 0.25,
   'yDAI+yUSDC+yUSDT+yTUSD': 1.1,
+  SPOT: 1.14,
 }
 
 const SYMBOL_TO_QUERY: Record<string, string> = {
@@ -40,6 +41,7 @@ const SYMBOL_TO_QUERY: Record<string, string> = {
   USDC: 'usd-coin',
   PNG: 'pangolin',
   'yDAI+yUSDC+yUSDT+yTUSD': 'curve-fi-ydai-yusdc-yusdt-ytusd',
+  SPOT: 'spot',
 }
 
 export const getCurrentPrice = async (symbol: string) => {

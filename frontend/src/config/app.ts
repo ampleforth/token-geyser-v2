@@ -59,6 +59,26 @@ const networkConfig: NetworkConfig = {
 const geyserList: AppGeysersList = {
   [Network.Mainnet]: [
     {
+      name: 'ETH Beehive V6 (UniswapV2 ETH-AMPL)',
+      address: '0xfa3A1B55f77D0cEd6706283c16296F8317c70e52',
+      stakingToken: StakingToken.UNISWAP_V2,
+      rewardToken: RewardToken.SPOT,
+      isWrapped: false,
+      poolAddress: "https://app.uniswap.org/#/add/v2/0xD46bA6D942050d489DBd938a2C909A5d5039A161/ETH",
+      // staked pool address: 0xc5be99A02C6857f9Eac67BbCE58DF5572498F40c
+    },
+
+    {
+      name: 'ETH Fly V1 (ArrakisV1 USDC/SPOT)',
+      address: '0xAA17f42C2F28ba8eF1De171C5E8e4EBd3cd5F2Ec',
+      stakingToken: StakingToken.ARRAKIS_V1,
+      rewardToken: RewardToken.SPOT,
+      isWrapped: false,
+      poolAddress: "https://beta.arrakis.finance/vaults/1/0xDF367477C5E596af88E8797c3CDe8E28854cb79c",
+      // staked pool address: 0x7E0C73AF898E1ad50a8eFd7D3A678C23cD90b74C
+    },
+
+    {
       name: 'ETH Beehive V5 (UniswapV2 ETH-AMPL)',
       address: '0x5Bc95edc2a05247235dd5D6d1773B8cCB95D083B',
       stakingToken: StakingToken.UNISWAP_V2,

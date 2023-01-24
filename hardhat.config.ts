@@ -65,9 +65,8 @@ async function createInstance(
 }
 
 task('deploy', 'deploy full set of factory contracts')
-  .addFlag('noVerify')
   .addFlag('mock')
-  .setAction(async ({ noVerify, mock }, { ethers, run, network, upgrades }) => {
+  .setAction(async ({ mock }, { ethers, run, network, upgrades }) => {
     await run('compile')
 
     const signer = (await ethers.getSigners())[0]
@@ -135,27 +134,6 @@ task('deploy', 'deploy full set of factory contracts')
     mkdirSync(path, { recursive: true })
     writeFileSync(path + file, blob)
     writeFileSync(path + latest, blob)
-
-    if (!noVerify) {
-      console.log('Verifying source on etherscan')
-
-      await run('verify:verify', {
-        address: PowerSwitchFactory.address,
-      })
-      await run('verify:verify', {
-        address: RewardPoolFactory.address,
-      })
-      await run('verify:verify', {
-        address: UniversalVault.address,
-      })
-      await run('verify:verify', {
-        address: VaultFactory.address,
-        constructorArguments: [UniversalVault.address],
-      })
-      await run('verify:verify', {
-        address: GeyserRegistry.address,
-      })
-    }
   })
 
 task('verify-factories', 'verfires the deployed factories')
@@ -166,22 +144,32 @@ task('verify-factories', 'verfires the deployed factories')
     )
 
     console.log('Verifying source on etherscan')
-    await run('verify:verify', {
-      address: PowerSwitchFactory.address,
-    })
-    await run('verify:verify', {
-      address: RewardPoolFactory.address,
-    })
-    await run('verify:verify', {
-      address: VaultTemplate.address,
-    })
-    await run('verify:verify', {
-      address: VaultFactory.address,
-      constructorArguments: [VaultTemplate.address],
-    })
-    await run('verify:verify', {
-      address: GeyserRegistry.address,
-    })
+    try{
+      await run('verify:verify', {
+        address: PowerSwitchFactory.address,
+      })
+    } catch(e){}
+    try{
+      await run('verify:verify', {
+        address: RewardPoolFactory.address,
+      })
+    } catch(e){}
+    try{
+      await run('verify:verify', {
+        address: VaultTemplate.address,
+      })
+    } catch(e){}
+    try{
+      await run('verify:verify', {
+        address: VaultFactory.address,
+        constructorArguments: [VaultTemplate.address],
+      })
+    } catch(e){}
+    try{
+      await run('verify:verify', {
+        address: GeyserRegistry.address,
+      })
+    } catch(e){}
   })
 
 task('create-vault', 'deploy an instance of UniversalVault')
@@ -208,9 +196,10 @@ task('create-geyser', 'deploy an instance of Geyser')
   .addParam('floor', 'the floor of reward scaling')
   .addParam('ceiling', 'the ceiling of reward scaling')
   .addParam('time', 'the time of reward scaling in seconds')
+  .addOptionalParam('finalOwner', 'the address of the final owner', '0x')
   .addOptionalParam('factoryVersion', 'the factory version', 'latest')
   .setAction(
-    async ({ factoryVersion, stakingToken, rewardToken, floor, ceiling, time }, { ethers, run, upgrades, network }) => {
+    async ({ factoryVersion, stakingToken, rewardToken, floor, ceiling, time, finalOwner }, { ethers, run, upgrades, network }) => {
       await run('compile')
 
       const signer = (await ethers.getSigners())[0]
@@ -226,17 +215,16 @@ task('create-geyser', 'deploy an instance of Geyser')
       })
       await geyser.deployTransaction.wait(1)
       const implementation = await getImplementationAddress(ethers.provider, geyser.address)
-      const proxyAdmin = await getAdminAddress(ethers.provider, geyser.address)
+      const proxyAdminAddress = await getAdminAddress(ethers.provider, geyser.address)
       console.log('Deploying Geyser')
       console.log('  to proxy', geyser.address)
       console.log('  to implementation', implementation)
-      console.log('  with upgreadability admin', proxyAdmin)
+      console.log('  with upgreadability admin', proxyAdminAddress)
       console.log('  in', geyser.deployTransaction.hash)
       console.log('  staking token', stakingToken)
       console.log('  reward token', rewardToken)
       console.log('  reward floor', floor)
       console.log('  reward ceiling', ceiling)
-      console.log('  reward time', stakingToken)
 
       // CRITICAL: The ordering of the following transaction can't change for the subgraph to be indexed
 
@@ -261,6 +249,15 @@ task('create-geyser', 'deploy an instance of Geyser')
 
       console.log('Register Vault Factory')
       await (await geyser.registerVaultFactory(VaultFactory.address)).wait(1)
+
+      if(finalOwner !== "0x") {
+        console.log('Transfer ownership')
+        const powerSwitch = await ethers.getContractAt('@openzeppelin/contracts/access/Ownable.sol:Ownable', await geyser.getPowerSwitch())
+        const proxyAdmin = await ethers.getContractAt('@openzeppelin/contracts/access/Ownable.sol:Ownable', proxyAdminAddress)
+        await (await powerSwitch.transferOwnership(finalOwner)).wait(1)
+        await (await geyser.transferOwnership(finalOwner)).wait(1)
+        await (await proxyAdmin.transferOwnership(finalOwner)).wait(1)
+      }
     },
   )
 
@@ -315,7 +312,7 @@ task('lookup-proxy-admin', 'gets the proxy admin of the given contract')
 
 const getEtherscanAPIKey = () => {
   switch (process.env.HARDHAT_NETWORK) {
-    case 'mainnet' || 'kovan':
+    case 'mainnet' || 'kovan' || 'goerli':
       return process.env.ETHERSCAN_API_KEY
     case 'avalanche' || 'avalanche_fiji':
       return process.env.SNOWTRACE_API_KEY
@@ -335,13 +332,13 @@ export default {
     goerli: {
       url: `https://goerli.infura.io/v3/${process.env.INFURA_ID}`,
       accounts: {
-        mnemonic: process.env.DEV_MNEMONIC || Wallet.createRandom().mnemonic.phrase,
+        mnemonic: process.env.PROD_MNEMONIC || Wallet.createRandom().mnemonic.phrase,
       },
     },
     kovan: {
       url: `https://kovan.infura.io/v3/${process.env.INFURA_ID}`,
       accounts: {
-        mnemonic: process.env.DEV_MNEMONIC || Wallet.createRandom().mnemonic.phrase,
+        mnemonic: process.env.PROD_MNEMONIC || Wallet.createRandom().mnemonic.phrase,
       },
     },
     avalanche: {
@@ -375,7 +372,8 @@ export default {
     ],
   },
   etherscan: {
-    apiKey: getEtherscanAPIKey(),
+    // apiKey: getEtherscanAPIKey(),
+    apiKey: process.env.ETHERSCAN_API_KEY,
   },
   mocha: {
     timeout: 100000,

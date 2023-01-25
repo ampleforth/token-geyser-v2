@@ -1,7 +1,7 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/dist/src/signer-with-address'
 import { expect } from 'chai'
 import { Contract, Wallet } from 'ethers'
-import { ethers } from 'hardhat'
+import { ethers, network } from 'hardhat'
 import { createInstance, deployContract, ETHER, signPermission } from './utils'
 
 enum DelegateType {
@@ -17,6 +17,7 @@ describe('UniversalVault', function () {
   let factory: Contract, vault: Contract
 
   before(async function () {
+    await network.provider.send("hardhat_reset");
     // prepare signers
     accounts = await ethers.getSigners()
     admin = accounts[0]
@@ -27,6 +28,10 @@ describe('UniversalVault', function () {
       to: owner.address,
       value: (await delegate.getBalance()).mul(9).div(10),
     })
+  })
+
+  after(async function(){
+    await network.provider.send("hardhat_reset");
   })
 
   beforeEach(async function () {

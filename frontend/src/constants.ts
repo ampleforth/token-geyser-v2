@@ -55,6 +55,7 @@ export enum StakingToken {
   TRADER_JOE,
   PANGOLIN,
   BALANCER_WEIGHTED_POOL_V2,
+  ARRAKIS_V1,
 }
 
 // Reward tokens
@@ -66,6 +67,7 @@ export enum RewardToken {
   AMPL,
   XCAMPLE,
   WAMPL,
+  SPOT,
 }
 
 // Netowrks

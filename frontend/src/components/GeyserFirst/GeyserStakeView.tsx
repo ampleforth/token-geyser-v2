@@ -35,7 +35,7 @@ import {
 export const GeyserStakeView = () => {
   const [userInput, setUserInput] = useState('')
   const [parsedUserInput, setParsedUserInput] = useState(BigNumber.from('0'))
-  const { selectedGeyserInfo: { geyser: selectedGeyser, stakingTokenInfo, rewardTokenInfo, isWrapped }, handleStakeUnstake, handleWrapping, geyserAction } = useContext(GeyserContext)
+  const { selectedGeyserInfo: { geyser: selectedGeyser, stakingTokenInfo, rewardTokenInfo, isWrapped, poolAddress }, handleStakeUnstake, handleWrapping, geyserAction } = useContext(GeyserContext)
   const { decimals: stakingTokenDecimals, symbol: stakingTokenSymbol, address: stakingTokenAddress } = stakingTokenInfo
   const { decimals: rewardTokenDecimals, symbol: rewardTokenSymbol, address: rewardTokenAddress } = rewardTokenInfo
   const { signer } = useContext(Web3Context)
@@ -147,6 +147,7 @@ export const GeyserStakeView = () => {
           decimals={stakingTokenDecimals}
           symbol={stakingTokenSymbol}
           isStakingAction
+          poolAddress={poolAddress}
         />
         <PositiveInput
           placeholder="Enter amount"
@@ -183,6 +184,7 @@ export const GeyserStakeView = () => {
           decimals={stakingTokenDecimals}
           symbol={stakingTokenSymbol}
           isStakingAction={false}
+          poolAddress={poolAddress}
         />
         <PositiveInput
           placeholder="Enter amount"

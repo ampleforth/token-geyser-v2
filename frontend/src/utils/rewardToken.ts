@@ -30,6 +30,8 @@ export const getRewardTokenInfo = async (
       return getXCAMPLToken(tokenAddress, signerOrProvider)
     case RewardToken.WAMPL:
       return getBasicToken(tokenAddress, signerOrProvider)
+    case RewardToken.SPOT:
+      return getBasicToken(tokenAddress, signerOrProvider)
     default:
       throw new Error(`Handler for ${token} not found`)
   }

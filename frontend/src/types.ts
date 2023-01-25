@@ -98,6 +98,7 @@ export type BonusTokenInfo = TokenInfo & {
 export type GeyserInfo = {
   geyser: Geyser | null
   isWrapped: boolean
+  poolAddress?: string
   stakingTokenInfo: StakingTokenInfo
   rewardTokenInfo: RewardTokenInfo
   bonusTokensInfo: BonusTokenInfo[]
@@ -150,6 +151,7 @@ export type GeyserConfig = {
   stakingToken: StakingToken
   rewardToken: RewardToken
   isWrapped: boolean
+  poolAddress?: string
 }
 
 export type AdditionalTokenConfig = {

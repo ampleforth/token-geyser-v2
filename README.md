@@ -15,14 +15,20 @@ ethereum:
   proxyAdmin: 0xc70F5bc82ccb3de00400814ff8bD406C271db3c4
   geyserRegistry: 0xFc43803F203e3821213bE687120aD44C8a21A7e7
   geysers:
-    - poolRef: "UNI-ETH-AMPL-V2 (Beehive V5)"
-      deployment: 0x5Bc95edc2a05247235dd5D6d1773B8cCB95D083B
+    - poolRef: "UNI-ETH-AMPL-V2 (Beehive V6)"
+      deployment: 0xfa3A1B55f77D0cEd6706283c16296F8317c70e52
 
-    - poolRef: "WBTC-WETH-AMPL-BPT (Trinity V3)"
-      deployment: 0x13ED22A00576E41B64B686857B484987a3Ad1A3B
+    - poolRef: "Arrakis Vault V1 USDC/SPOT (RAKIS-35) (Fly V1)"
+      deployment: 0xAA17f42C2F28ba8eF1De171C5E8e4EBd3cd5F2Ec
 
-    - poolRef: "aAMPL (Splendid V1)"
-      deployment: 0x1Fee4745E70509fBDc718beDf5050F471298c1CE
+    # - poolRef: "UNI-ETH-AMPL-V2 (Beehive V5)"
+    #   deployment: 0x5Bc95edc2a05247235dd5D6d1773B8cCB95D083B
+
+    # - poolRef: "WBTC-WETH-AMPL-BPT (Trinity V3)"
+    #   deployment: 0x13ED22A00576E41B64B686857B484987a3Ad1A3B
+
+    # - poolRef: "aAMPL (Splendid V1)"
+    #   deployment: 0x1Fee4745E70509fBDc718beDf5050F471298c1CE
 
     # - poolRef: "WBTC-WETH-AMPL-BPT (Trinity V2)"
     #   deployment: 0x0ec93391752ef1A06AA2b83D15c3a5814651C891

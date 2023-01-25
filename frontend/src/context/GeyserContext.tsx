@@ -140,6 +140,7 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
     setSelectedGeyserInfo({
       geyser,
       isWrapped: geyserConfig.isWrapped,
+      poolAddress: geyserConfig.poolAddress,
       stakingTokenInfo: newStakingTokenInfo,
       rewardTokenInfo: newRewardTokenInfo,
       bonusTokensInfo: newBonusTokensInfo,

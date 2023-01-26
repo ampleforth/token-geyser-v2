@@ -42,7 +42,7 @@ const getBasicToken = async (tokenAddress: string, signerOrProvider: SignerOrPro
   const price = await getCurrentPrice(tokenInfo.symbol)
   const getTotalRewards = async (rewardSchedules: RewardSchedule[]) =>
     rewardSchedules.reduce(
-      (acc, schedule) => acc + parseFloat(formatUnits(schedule.rewardAmount, tokenInfo.decimals)),
+      (acc, schedule) => acc + parseFloat(formatUnits(schedule.rewardAmount, 0)),
       0,
     )
   return {

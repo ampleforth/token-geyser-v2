@@ -14,6 +14,10 @@ import { parseUnits } from 'ethers/lib/utils'
 
 const SDK_PATH = './sdk'
 
+// Loads env variables from .env file
+import * as dotenv from "dotenv";
+dotenv.config();
+
 async function deployContract(
   name: string,
   getContractFactory: Function,
@@ -329,30 +333,24 @@ export default {
       allowUnlimitedContractSize: true,
       chainId: 1337,
     },
+    ganache: {
+      url: "http://127.0.0.1:8545",
+      chainId: 1337,
+    },
     goerli: {
-      url: `https://goerli.infura.io/v3/${process.env.INFURA_ID}`,
+      url: `https://eth-goerli.g.alchemy.com/v2/${process.env.ALCHEMY_SECRET}`,
       accounts: {
         mnemonic: process.env.PROD_MNEMONIC || Wallet.createRandom().mnemonic.phrase,
       },
-    },
-    kovan: {
-      url: `https://kovan.infura.io/v3/${process.env.INFURA_ID}`,
-      accounts: {
-        mnemonic: process.env.PROD_MNEMONIC || Wallet.createRandom().mnemonic.phrase,
-      },
-    },
-    avalanche: {
-      url: 'https://api.avax.network/ext/bc/C/rpc',
-      accounts: {
-        mnemonic: process.env.PROD_MNEMONIC || Wallet.createRandom().mnemonic.phrase,
-      },
+      gasMultiplier: 1.03,
+      allowUnlimitedContractSize: true,
     },
     mainnet: {
-      url: `https://mainnet.infura.io/v3/${process.env.INFURA_ID}`,
+      url: `https://mainnet.infura.io/v3/${process.env.INFURA_SECRET}`,
       accounts: {
         mnemonic: process.env.PROD_MNEMONIC || Wallet.createRandom().mnemonic.phrase,
       },
-      gasMultiplier: 1.05,
+      gasMultiplier: 1.03,
     },
   },
   solidity: {

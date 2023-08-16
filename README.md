@@ -15,11 +15,17 @@ ethereum:
   proxyAdmin: 0xc70F5bc82ccb3de00400814ff8bD406C271db3c4
   geyserRegistry: 0xFc43803F203e3821213bE687120aD44C8a21A7e7
   geysers:
-    - poolRef: "UNI-ETH-AMPL-V2 (Beehive V6)"
-      deployment: 0xfa3A1B55f77D0cEd6706283c16296F8317c70e52
+    - poolRef: "UNI-ETH-AMPL-V2 (Beehive V7)"
+      deployment: 0x5Ec6f02D0b657E4a56d6020Bc21F19f2Ca13EcA9
 
-    - poolRef: "Arrakis Vault V1 USDC/SPOT (RAKIS-35) (Fly V1)"
-      deployment: 0xAA17f42C2F28ba8eF1De171C5E8e4EBd3cd5F2Ec
+    - poolRef: "Arrakis Vault V1 USDC/SPOT (RAKIS-35) (Fly V2)"
+      deployment: 0x392b58F407Efe1681a2EBB470600Bc2146D231a2
+
+    # - poolRef: "UNI-ETH-AMPL-V2 (Beehive V6)"
+    #   deployment: 0xfa3A1B55f77D0cEd6706283c16296F8317c70e52
+
+    # - poolRef: "Arrakis Vault V1 USDC/SPOT (RAKIS-35) (Fly V1)"
+    #   deployment: 0xAA17f42C2F28ba8eF1De171C5E8e4EBd3cd5F2Ec
 
     # - poolRef: "UNI-ETH-AMPL-V2 (Beehive V5)"
     #   deployment: 0x5Bc95edc2a05247235dd5D6d1773B8cCB95D083B

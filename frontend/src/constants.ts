@@ -68,6 +68,7 @@ export enum RewardToken {
   XCAMPLE,
   WAMPL,
   SPOT,
+  FORTH,
 }
 
 // Netowrks

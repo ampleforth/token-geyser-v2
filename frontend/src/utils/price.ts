@@ -21,6 +21,7 @@ const DEFAULT_PRICES: Record<string, number> = {
   PNG: 0.25,
   'yDAI+yUSDC+yUSDT+yTUSD': 1.1,
   SPOT: 1.14,
+  FORTH: 2.5,
 }
 
 const SYMBOL_TO_QUERY: Record<string, string> = {
@@ -42,6 +43,7 @@ const SYMBOL_TO_QUERY: Record<string, string> = {
   PNG: 'pangolin',
   'yDAI+yUSDC+yUSDT+yTUSD': 'curve-fi-ydai-yusdc-yusdt-ytusd',
   SPOT: 'spot',
+  FORTH: 'ampleforth-governance-token',
 }
 
 export const getCurrentPrice = async (symbol: string) => {

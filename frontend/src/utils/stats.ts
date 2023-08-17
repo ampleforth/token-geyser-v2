@@ -220,11 +220,11 @@ export const getUserAPY = async (
 
   const inflowReward = parseFloat(formatUnits(stakedAmount, stakingTokenDecimals))
   const inflow = inflowReward * stakingTokenPrice
-  const outflowReward = parseFloat(formatUnits(Math.round(drip), rewardTokenDecimals))
+  const outflowReward = drip / 10 ** rewardTokenDecimals
   const outflow = outflowReward * rewardTokenPrice
   const periods = YEAR_IN_SEC / calcPeriod
 
-  const rewardPool = parseFloat(formatUnits(geyser.rewardBalance, rewardTokenDecimals))
+  const rewardPool = parseFloat(geyser.rewardBalance) / 10 ** rewardTokenDecimals
   const rewardShare = outflowReward / rewardPool
 
   // TODO: data layer should gaurentee that rewardPoolBalances and bonusTokensInfo are inline
@@ -266,7 +266,7 @@ const getPoolAPY = async (
       const calcPeriod = getCalcPeriod(geyser)
       const stakeDripAfterPeriod = await getStakeDrip(geyser, stake, parseInt(scalingTime, 10), signerOrProvider)
 
-      const outflowReward = parseFloat(formatUnits(Math.round(stakeDripAfterPeriod), rewardTokenDecimals))
+      const outflowReward = stakeDripAfterPeriod / 10 ** rewardTokenDecimals
       const outflow = outflowReward * rewardTokenPrice
       const periods = YEAR_IN_SEC / calcPeriod
 

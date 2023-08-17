@@ -17,7 +17,7 @@ describe('UniversalVault', function () {
   let factory: Contract, vault: Contract
 
   before(async function () {
-    await network.provider.send("hardhat_reset");
+    await network.provider.send('hardhat_reset')
     // prepare signers
     accounts = await ethers.getSigners()
     admin = accounts[0]
@@ -30,8 +30,8 @@ describe('UniversalVault', function () {
     })
   })
 
-  after(async function(){
-    await network.provider.send("hardhat_reset");
+  after(async function () {
+    await network.provider.send('hardhat_reset')
   })
 
   beforeEach(async function () {

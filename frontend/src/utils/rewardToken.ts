@@ -41,12 +41,9 @@ export const getRewardTokenInfo = async (
 
 const getBasicToken = async (tokenAddress: string, signerOrProvider: SignerOrProvider): Promise<RewardTokenInfo> => {
   const tokenInfo = await getTokenInfo(tokenAddress, signerOrProvider)
-const price = await getCurrentPrice(tokenInfo.symbol)
+  const price = await getCurrentPrice(tokenInfo.symbol)
   const getTotalRewards = async (rewardSchedules: RewardSchedule[]) =>
-    rewardSchedules.reduce(
-      (acc, schedule) => acc + parseFloat(formatUnits(schedule.rewardAmount, 0)),
-      0,
-    )
+    rewardSchedules.reduce((acc, schedule) => acc + parseFloat(formatUnits(schedule.rewardAmount, 0)), 0)
   return {
     ...tokenInfo,
     price,
@@ -58,7 +55,7 @@ const price = await getCurrentPrice(tokenInfo.symbol)
 const getAMPLToken = async (tokenAddress: string, signerOrProvider: SignerOrProvider): Promise<RewardTokenInfo> => {
   const contract = new Contract(tokenAddress, UFRAGMENTS_ABI, signerOrProvider)
   const tokenInfo = await getTokenInfo(tokenAddress, signerOrProvider)
-const price = await getCurrentPrice('AMPL')
+  const price = await getCurrentPrice('AMPL')
 
   const policyAddress: string = await contract.monetaryPolicy()
   const policy = new Contract(policyAddress, UFRAGMENTS_POLICY_ABI, signerOrProvider)
@@ -89,7 +86,7 @@ const price = await getCurrentPrice('AMPL')
 const getXCAMPLToken = async (tokenAddress: string, signerOrProvider: SignerOrProvider): Promise<RewardTokenInfo> => {
   const token = new Contract(tokenAddress, XC_AMPLE_ABI, signerOrProvider)
   const tokenInfo = await getTokenInfo(tokenAddress, signerOrProvider)
-const price = await getCurrentPrice('AMPL')
+  const price = await getCurrentPrice('AMPL')
 
   // define type XCWAMPL for AVAX
   const controllerAddress: string = await token.controller()

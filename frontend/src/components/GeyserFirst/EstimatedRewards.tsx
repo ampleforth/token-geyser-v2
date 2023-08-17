@@ -39,7 +39,6 @@ export const EstimatedRewards: React.FC<Props> = ({ parsedUserInput }) => {
         .div(10**stakingTokenDecimals)
         .plus(currentStake)
         .times(stakingTokenPrice)
-
       setRewards(
         aggregateDepositUSD.eq('0') ? 0.00 : await computeRewardsFromAdditionalStakes(parsedUserInput)
       )

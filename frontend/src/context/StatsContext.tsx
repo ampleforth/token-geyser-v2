@@ -82,7 +82,7 @@ export const StatsContextProvider: React.FC = ({ children }) => {
         const drip = await (currentLock
           ? getUserDrip(selectedGeyser, currentLock, stakeAmount, geyserStats.duration, signer || provider)
           : getStakeDrip(selectedGeyser, stakeAmount, geyserStats.duration, signer || provider))
-        return parseFloat(formatUnits(Math.round(drip), decimals))
+        return drip / (10 ** decimals)
       }
     }
     return 0

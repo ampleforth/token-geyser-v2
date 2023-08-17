@@ -15,8 +15,8 @@ import { parseUnits } from 'ethers/lib/utils'
 const SDK_PATH = './sdk'
 
 // Loads env variables from .env file
-import * as dotenv from "dotenv";
-dotenv.config();
+import * as dotenv from 'dotenv'
+dotenv.config()
 
 async function deployContract(
   name: string,
@@ -148,32 +148,32 @@ task('verify-factories', 'verfires the deployed factories')
     )
 
     console.log('Verifying source on etherscan')
-    try{
+    try {
       await run('verify:verify', {
         address: PowerSwitchFactory.address,
       })
-    } catch(e){}
-    try{
+    } catch (e) {}
+    try {
       await run('verify:verify', {
         address: RewardPoolFactory.address,
       })
-    } catch(e){}
-    try{
+    } catch (e) {}
+    try {
       await run('verify:verify', {
         address: VaultTemplate.address,
       })
-    } catch(e){}
-    try{
+    } catch (e) {}
+    try {
       await run('verify:verify', {
         address: VaultFactory.address,
         constructorArguments: [VaultTemplate.address],
       })
-    } catch(e){}
-    try{
+    } catch (e) {}
+    try {
       await run('verify:verify', {
         address: GeyserRegistry.address,
       })
-    } catch(e){}
+    } catch (e) {}
   })
 
 task('create-vault', 'deploy an instance of UniversalVault')
@@ -203,7 +203,10 @@ task('create-geyser', 'deploy an instance of Geyser')
   .addOptionalParam('finalOwner', 'the address of the final owner', '0x')
   .addOptionalParam('factoryVersion', 'the factory version', 'latest')
   .setAction(
-    async ({ factoryVersion, stakingToken, rewardToken, floor, ceiling, time, finalOwner }, { ethers, run, upgrades, network }) => {
+    async (
+      { factoryVersion, stakingToken, rewardToken, floor, ceiling, time, finalOwner },
+      { ethers, run, upgrades, network },
+    ) => {
       await run('compile')
 
       const signer = (await ethers.getSigners())[0]
@@ -254,10 +257,16 @@ task('create-geyser', 'deploy an instance of Geyser')
       console.log('Register Vault Factory')
       await (await geyser.registerVaultFactory(VaultFactory.address)).wait(1)
 
-      if(finalOwner !== "0x") {
+      if (finalOwner !== '0x') {
         console.log('Transfer ownership')
-        const powerSwitch = await ethers.getContractAt('@openzeppelin/contracts/access/Ownable.sol:Ownable', await geyser.getPowerSwitch())
-        const proxyAdmin = await ethers.getContractAt('@openzeppelin/contracts/access/Ownable.sol:Ownable', proxyAdminAddress)
+        const powerSwitch = await ethers.getContractAt(
+          '@openzeppelin/contracts/access/Ownable.sol:Ownable',
+          await geyser.getPowerSwitch(),
+        )
+        const proxyAdmin = await ethers.getContractAt(
+          '@openzeppelin/contracts/access/Ownable.sol:Ownable',
+          proxyAdminAddress,
+        )
         await (await powerSwitch.transferOwnership(finalOwner)).wait(1)
         await (await geyser.transferOwnership(finalOwner)).wait(1)
         await (await proxyAdmin.transferOwnership(finalOwner)).wait(1)
@@ -334,7 +343,7 @@ export default {
       chainId: 1337,
     },
     ganache: {
-      url: "http://127.0.0.1:8545",
+      url: 'http://127.0.0.1:8545',
       chainId: 1337,
     },
     goerli: {

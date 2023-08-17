@@ -376,10 +376,7 @@ const getBalancerWeightedPoolV2 = async (
   }
 }
 
-const getArrakisV1 = async (
-  tokenAddress: string,
-  signerOrProvider: SignerOrProvider,
-): Promise<StakingTokenInfo> => {
+const getArrakisV1 = async (tokenAddress: string, signerOrProvider: SignerOrProvider): Promise<StakingTokenInfo> => {
   const address = toChecksumAddress(tokenAddress)
   const contract = new Contract(address, ARRAKIS_V1_ABI, signerOrProvider)
   const uniPool = new Contract(await contract.pool(), UNISWAP_V3_POOL_ABI, signerOrProvider)
@@ -392,7 +389,8 @@ const getArrakisV1 = async (
     [await uniPool.token0(), await uniPool.token1()],
     await contract.getUnderlyingBalances(),
     signerOrProvider,
-    [0.5, 0.5])
+    [0.5, 0.5],
+  )
   const marketCap = getMarketCap(tokenCompositions)
 
   return {

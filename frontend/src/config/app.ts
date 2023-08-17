@@ -64,7 +64,7 @@ const geyserList: AppGeysersList = {
       stakingToken: StakingToken.UNISWAP_V2,
       rewardToken: RewardToken.FORTH,
       isWrapped: false,
-      poolAddress: "https://app.uniswap.org/#/add/v2/0xD46bA6D942050d489DBd938a2C909A5d5039A161/ETH",
+      poolAddress: 'https://app.uniswap.org/#/add/v2/0xD46bA6D942050d489DBd938a2C909A5d5039A161/ETH',
       // staked pool address: 0xc5be99A02C6857f9Eac67BbCE58DF5572498F40c
     },
 
@@ -74,7 +74,7 @@ const geyserList: AppGeysersList = {
       stakingToken: StakingToken.ARRAKIS_V1,
       rewardToken: RewardToken.FORTH,
       isWrapped: false,
-      poolAddress: "https://beta.arrakis.finance/vaults/1/0xDF367477C5E596af88E8797c3CDe8E28854cb79c",
+      poolAddress: 'https://beta.arrakis.finance/vaults/1/0xDF367477C5E596af88E8797c3CDe8E28854cb79c',
       // staked pool address: 0x7E0C73AF898E1ad50a8eFd7D3A678C23cD90b74C
     },
 
@@ -84,7 +84,7 @@ const geyserList: AppGeysersList = {
       stakingToken: StakingToken.UNISWAP_V2,
       rewardToken: RewardToken.SPOT,
       isWrapped: false,
-      poolAddress: "https://app.uniswap.org/#/add/v2/0xD46bA6D942050d489DBd938a2C909A5d5039A161/ETH",
+      poolAddress: 'https://app.uniswap.org/#/add/v2/0xD46bA6D942050d489DBd938a2C909A5d5039A161/ETH',
       // staked pool address: 0xc5be99A02C6857f9Eac67BbCE58DF5572498F40c
     },
 
@@ -94,7 +94,7 @@ const geyserList: AppGeysersList = {
       stakingToken: StakingToken.ARRAKIS_V1,
       rewardToken: RewardToken.SPOT,
       isWrapped: false,
-      poolAddress: "https://beta.arrakis.finance/vaults/1/0xDF367477C5E596af88E8797c3CDe8E28854cb79c",
+      poolAddress: 'https://beta.arrakis.finance/vaults/1/0xDF367477C5E596af88E8797c3CDe8E28854cb79c',
       // staked pool address: 0x7E0C73AF898E1ad50a8eFd7D3A678C23cD90b74C
     },
 
@@ -104,7 +104,7 @@ const geyserList: AppGeysersList = {
       stakingToken: StakingToken.UNISWAP_V2,
       rewardToken: RewardToken.AMPL,
       isWrapped: false,
-      poolAddress: "https://app.uniswap.org/#/add/v2/0xD46bA6D942050d489DBd938a2C909A5d5039A161/ETH",
+      poolAddress: 'https://app.uniswap.org/#/add/v2/0xD46bA6D942050d489DBd938a2C909A5d5039A161/ETH',
       // staked pool address: 0xc5be99A02C6857f9Eac67BbCE58DF5572498F40c
     },
     {
@@ -113,7 +113,7 @@ const geyserList: AppGeysersList = {
       stakingToken: StakingToken.BALANCER_WEIGHTED_POOL_V2,
       rewardToken: RewardToken.AMPL,
       isWrapped: false,
-      poolAddress: "https://app.balancer.fi/#/pool/0xd4e2af4507b6b89333441c0c398edffb40f86f4d0001000000000000000002ab",
+      poolAddress: 'https://app.balancer.fi/#/pool/0xd4e2af4507b6b89333441c0c398edffb40f86f4d0001000000000000000002ab',
       // staked pool address: 0xd4E2af4507B6B89333441C0c398edfFB40f86f4D
       // poolID:0xd4e2af4507b6b89333441c0c398edffb40f86f4d0001000000000000000002ab
       // vault: 0xba12222222228d8ba445958a75a0704d566bf2c8
@@ -124,7 +124,8 @@ const geyserList: AppGeysersList = {
       stakingToken: StakingToken.AAVE_V2_AMPL,
       rewardToken: RewardToken.AMPL,
       isWrapped: true,
-      poolAddress: "https://app.aave.com/reserve-overview/?underlyingAsset=0xd46ba6d942050d489dbd938a2c909a5d5039a161&marketName=proto_mainnet",
+      poolAddress:
+        'https://app.aave.com/reserve-overview/?underlyingAsset=0xd46ba6d942050d489dbd938a2c909a5d5039a161&marketName=proto_mainnet',
       // staked pool address: 0x1e6bb68acec8fefbd87d192be09bb274170a0548
     },
     {
@@ -167,7 +168,7 @@ const geyserList: AppGeysersList = {
       stakingToken: StakingToken.PANGOLIN,
       rewardToken: RewardToken.XCAMPLE,
       isWrapped: false,
-      poolAddress: "https://info.pangolin.exchange/#/pair/0xe36ae366692acbf696715b6bddce0938398dd991",
+      poolAddress: 'https://info.pangolin.exchange/#/pair/0xe36ae366692acbf696715b6bddce0938398dd991',
     },
   ],
   [Network.Kovan]: [

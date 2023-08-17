@@ -38,7 +38,7 @@ export const GeyserStakeView = () => {
   const { selectedGeyserInfo: { geyser: selectedGeyser, stakingTokenInfo, rewardTokenInfo, isWrapped, poolAddress }, handleStakeUnstake, handleWrapping, geyserAction } = useContext(GeyserContext)
   const { decimals: stakingTokenDecimals, symbol: stakingTokenSymbol, address: stakingTokenAddress } = stakingTokenInfo
   const { decimals: rewardTokenDecimals, symbol: rewardTokenSymbol, address: rewardTokenAddress } = rewardTokenInfo
-  const { signer } = useContext(Web3Context)
+  // const { signer } = useContext(Web3Context)
   const { selectedVault, currentLock, withdrawUnlockedFromVault, rewardAmountClaimedOnUnstake } = useContext(VaultContext)
   const { stakingTokenBalance, underlyingTokenBalance, refreshWalletBalances } = useContext(WalletContext)
   const { refreshVaultStats, vaultStats: {currentStakeable} } = useContext(StatsContext)
@@ -81,7 +81,7 @@ export const GeyserStakeView = () => {
 
   const handleOnChange = (value: string, decimals: number) => {
     setUserInput(value)
-    if (selectedGeyser && signer) {
+    if (selectedGeyser) {
       setParsedUserInput(parseUnits(amountOrZero(value).toString(), decimals))
     }
   }

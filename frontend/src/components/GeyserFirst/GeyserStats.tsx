@@ -10,11 +10,18 @@ import { GeyserMultiStatsBox } from './GeyserMultiStatsBox'
 import { DAY_IN_SEC } from '../../constants'
 
 export const GeyserStats = () => {
-  const { geyserStats: { duration, totalDeposit, totalRewards, bonusRewards }} = useContext(StatsContext)
-  const { selectedGeyserInfo: { rewardTokenInfo: { symbol } } } = useContext(GeyserContext)
+  const {
+    geyserStats: { duration, totalDeposit, totalRewards, bonusRewards },
+  } = useContext(StatsContext)
+  const {
+    selectedGeyserInfo: {
+      rewardTokenInfo: { symbol },
+    },
+  } = useContext(GeyserContext)
 
-  const rewardsToShow = [{value:totalRewards, units:symbol}]
-    .concat(bonusRewards.map(r => ({ value: r.balance, units: r.symbol })))
+  const rewardsToShow = [{ value: totalRewards, units: symbol }].concat(
+    bonusRewards.map((r) => ({ value: r.balance, units: r.symbol })),
+  )
 
   return (
     <GeyserStatsContainer>
@@ -55,7 +62,7 @@ const GeyserStatsContainer = styled.div`
 
 const Header = styled.h3`
   ${ResponsiveText}
-  ${tw`uppercase flex font-medium text-radicalRed`}
+  ${tw`uppercase flex font-medium text-white`}
   ${tw`sm:pl-3`}
 `
 

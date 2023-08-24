@@ -25,7 +25,7 @@ const ButtonContainer = styled.div`
 `
 
 const Button = styled.button`
-  ${tw`w-full px-8 py-4 rounded-bl-2xl float-right bg-radicalRed`}
+  ${tw`w-full px-8 py-4 rounded-bl-2xl float-right bg-basePink`}
   ${tw`sm:px-14 sm:py-5`}
   ${tw`hover:bg-amaranth`}
 `

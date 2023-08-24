@@ -9,25 +9,33 @@ import { GeyserStakeView } from './GeyserStakeView'
 import { GeyserStatsView } from './GeyserStatsView'
 
 export const GeyserFirstContainer = () => {
-  const { geyserAction, updateGeyserAction, selectedGeyserInfo: { isWrapped } } = useContext(GeyserContext)
+  const {
+    geyserAction,
+    updateGeyserAction,
+    selectedGeyserInfo: { isWrapped },
+  } = useContext(GeyserContext)
   const actions = Object.values(GeyserAction)
   return (
     <Container>
-      <Overlay>
+      <StyledOverlay>
         <GeyserStatsView />
-      </Overlay>
-      <Overlay>
+      </StyledOverlay>
+      <StyledOverlay>
         <ToggleContainer>
           <TabView
             active={actions.indexOf(geyserAction)}
             onChange={(a) => updateGeyserAction(actions[a])}
-            tabs={isWrapped ? ['Stake', 'Unstake', 'Wrapper'] : ['Stake', 'Unstake']} />
+            tabs={isWrapped ? ['Stake', 'Unstake', 'Wrapper'] : ['Stake', 'Unstake']}
+          />
         </ToggleContainer>
         <GeyserStakeView />
-      </Overlay>
+      </StyledOverlay>
     </Container>
   )
 }
+const StyledOverlay = styled(Overlay)`
+  ${tw`bg-basePurple`}
+`
 
 const Container = styled.div`
   ${tw`text-center m-auto my-4 flex flex-col flex-wrap w-full`}

@@ -35,13 +35,22 @@ import {
 export const GeyserStakeView = () => {
   const [userInput, setUserInput] = useState('')
   const [parsedUserInput, setParsedUserInput] = useState(BigNumber.from('0'))
-  const { selectedGeyserInfo: { geyser: selectedGeyser, stakingTokenInfo, rewardTokenInfo, isWrapped, poolAddress }, handleStakeUnstake, handleWrapping, geyserAction } = useContext(GeyserContext)
+  const {
+    selectedGeyserInfo: { geyser: selectedGeyser, stakingTokenInfo, rewardTokenInfo, isWrapped, poolAddress },
+    handleStakeUnstake,
+    handleWrapping,
+    geyserAction,
+  } = useContext(GeyserContext)
   const { decimals: stakingTokenDecimals, symbol: stakingTokenSymbol, address: stakingTokenAddress } = stakingTokenInfo
   const { decimals: rewardTokenDecimals, symbol: rewardTokenSymbol, address: rewardTokenAddress } = rewardTokenInfo
   // const { signer } = useContext(Web3Context)
-  const { selectedVault, currentLock, withdrawUnlockedFromVault, rewardAmountClaimedOnUnstake } = useContext(VaultContext)
+  const { selectedVault, currentLock, withdrawUnlockedFromVault, rewardAmountClaimedOnUnstake } =
+    useContext(VaultContext)
   const { stakingTokenBalance, underlyingTokenBalance, refreshWalletBalances } = useContext(WalletContext)
-  const { refreshVaultStats, vaultStats: {currentStakeable} } = useContext(StatsContext)
+  const {
+    refreshVaultStats,
+    vaultStats: { currentStakeable },
+  } = useContext(StatsContext)
   const { selectWallet, address } = useContext(Web3Context)
   const currentStakeAmount = BigNumber.from(currentLock ? currentLock.amount : '0')
   const [unstakeConfirmModalOpen, setUnstakeConfirmModalOpen] = useState<boolean>(false)
@@ -62,9 +71,9 @@ export const GeyserStakeView = () => {
   }, [geyserAction])
 
   const handleGeyserInteraction = () => {
-    if(geyserAction === GeyserAction.STAKE){
+    if (geyserAction === GeyserAction.STAKE) {
       setTxModalOpen(true)
-    } else if(geyserAction === GeyserAction.UNSTAKE){
+    } else if (geyserAction === GeyserAction.UNSTAKE) {
       setUnstakeConfirmModalOpen(true)
     } else {
       setTxModalOpen(true)
@@ -120,25 +129,29 @@ export const GeyserStakeView = () => {
         }
       }
     }
-    if(receipt && rewardAmountClaimedOnUnstake) {
-      setActualRewardsFromUnstake(
-        await rewardAmountClaimedOnUnstake(receipt)
-      )
+    if (receipt && rewardAmountClaimedOnUnstake) {
+      setActualRewardsFromUnstake(await rewardAmountClaimedOnUnstake(receipt))
     }
     return undefined
   }
 
   const withdrawStakingTxMessage = (txStateMachine: TxStateMachine) => (
-    <WithdrawTxMessage txStateMachine={txStateMachine} symbol={stakingTokenSymbol} amount={formatUnits(actualStakingTokensFromUnstake, stakingTokenDecimals)} />
+    <WithdrawTxMessage
+      txStateMachine={txStateMachine}
+      symbol={stakingTokenSymbol}
+      amount={formatUnits(actualStakingTokensFromUnstake, stakingTokenDecimals)}
+    />
   )
 
   const withdrawRewardTxMessage = (txStateMachine: TxStateMachine) => (
-    <WithdrawTxMessage txStateMachine={txStateMachine}
+    <WithdrawTxMessage
+      txStateMachine={txStateMachine}
       symbol={rewardTokenSymbol}
-      amount={formatUnits(actualRewardsFromUnstake, rewardTokenDecimals)} />
+      amount={formatUnits(actualRewardsFromUnstake, rewardTokenDecimals)}
+    />
   )
 
-  if(geyserAction === GeyserAction.STAKE) {
+  if (geyserAction === GeyserAction.STAKE) {
     return (
       <GeyserStakeViewContainer>
         <UserBalance
@@ -157,7 +170,7 @@ export const GeyserStakeView = () => {
           maxValue={stakableAmount}
           skipMaxEnforcement
         />
-        {isWrapped ? (<WrapperWarning />) : null}
+        {isWrapped ? <WrapperWarning /> : null}
         <EstimatedRewards parsedUserInput={parsedUserInput} />
         {!address && <ConnectWalletWarning onClick={selectWallet} />}
         <GeyserInteractionButton
@@ -167,15 +180,21 @@ export const GeyserStakeView = () => {
         />
         <SingleTxModal
           submit={() => handleStakeUnstake(selectedVault, parsedUserInput)}
-          txSuccessMessage={<span>Successfully staked <b>{userInput} {stakingTokenSymbol}</b>.</span>}
+          txSuccessMessage={
+            <span>
+              Successfully staked{' '}
+              <b>
+                {userInput} {stakingTokenSymbol}
+              </b>
+              .
+            </span>
+          }
           open={txModalOpen}
           onClose={onCloseTxModal}
         />
       </GeyserStakeViewContainer>
     )
-  }
-
-  else if(geyserAction === GeyserAction.UNSTAKE) {
+  } else if (geyserAction === GeyserAction.UNSTAKE) {
     return (
       <GeyserStakeViewContainer>
         <UserBalance
@@ -189,7 +208,7 @@ export const GeyserStakeView = () => {
         <PositiveInput
           placeholder="Enter amount"
           value={userInput}
-          onChange={(n)=> handleOnChange(n, stakingTokenDecimals)}
+          onChange={(n) => handleOnChange(n, stakingTokenDecimals)}
           precision={stakingTokenDecimals}
           maxValue={currentStakeAmount}
         />
@@ -209,7 +228,15 @@ export const GeyserStakeView = () => {
         <UnstakeTxModal
           open={txModalOpen}
           unstake={() => handleStakeUnstake(selectedVault, parsedUserInput)}
-          unstakeSuccessMessage={<span>Successfully unstaked <b>{userInput} {stakingTokenSymbol}</b>.</span>}
+          unstakeSuccessMessage={
+            <span>
+              Successfully unstaked{' '}
+              <b>
+                {userInput} {stakingTokenSymbol}
+              </b>
+              .
+            </span>
+          }
           onClose={onCloseTxModal}
           withdrawStaking={withdrawStaking}
           withdrawStakingTxMessage={withdrawStakingTxMessage}
@@ -222,26 +249,30 @@ export const GeyserStakeView = () => {
 
   const underlyingTokenInfo = stakingTokenInfo.wrappedToken as TokenInfo
   const tokenOptions = [
-    {id: stakingTokenInfo.address, name: `${stakingTokenInfo.name} (${stakingTokenInfo.symbol})`},
-    {id: underlyingTokenInfo.address, name: `${underlyingTokenInfo.name} (${underlyingTokenInfo.symbol})`},
+    { id: stakingTokenInfo.address, name: `${stakingTokenInfo.name} (${stakingTokenInfo.symbol})` },
+    { id: underlyingTokenInfo.address, name: `${underlyingTokenInfo.name} (${underlyingTokenInfo.symbol})` },
   ]
 
   // wrapToken == 0 from: ubAToken to aToken (unwrap)
   // wrapToken == 1 from: aToken to ubAToken (wrap)
-  const isWrap = (wrapToken === 1)
+  const isWrap = wrapToken === 1
   const wrapBalance = isWrap ? underlyingTokenBalance : stakingTokenBalance
   const wrapDecimals = isWrap ? underlyingTokenInfo.decimals : stakingTokenInfo.decimals
   const wrapSymbol = isWrap ? underlyingTokenInfo.symbol : stakingTokenInfo.symbol
   return (
     <GeyserStakeViewContainer>
       <FormLabel text="From" />
-      <Select options={tokenOptions} onChange={(t) => {
+      <Select
+        options={tokenOptions}
+        onChange={(t) => {
           refreshInputAmount()
           setWrapToken(t)
-        }} selected={wrapToken}/>
+        }}
+        selected={wrapToken}
+      />
 
       <FormLabel text="To" />
-      <DisabledInput value={tokenOptions[1-wrapToken].name}/>
+      <DisabledInput value={tokenOptions[1 - wrapToken].name} />
 
       <FormLabel text="Amount" />
       <PositiveInput
@@ -252,27 +283,37 @@ export const GeyserStakeView = () => {
         maxValue={wrapBalance}
       />
 
-      {isWrap && selectedVault  ? (
-        <WrapperCheckbox checked={depositToVault} onChange={setDepositToVault} />
-      ) : null}
+      {isWrap && selectedVault ? <WrapperCheckbox checked={depositToVault} onChange={setDepositToVault} /> : null}
 
       <GeyserInteractionButton
         disabled={!address || parsedUserInput.isZero()}
         onClick={handleGeyserInteraction}
-        displayText={isWrap ? "Wrap" : "Unwrap"}
+        displayText={isWrap ? 'Wrap' : 'Unwrap'}
       />
 
       <SingleTxModal
-          submit={() => handleWrapping(
+        submit={() =>
+          handleWrapping(
             stakingTokenInfo.address,
             underlyingTokenInfo.address,
             parsedUserInput,
             isWrap,
             selectedVault,
-            depositToVault)}
-          txSuccessMessage={<span>Successfully {isWrap ? "wrapped" : "unwrapped"} <b>{userInput} {wrapSymbol}</b>.</span>}
-          open={txModalOpen}
-          onClose={onCloseTxModal} />
+            depositToVault,
+          )
+        }
+        txSuccessMessage={
+          <span>
+            Successfully {isWrap ? 'wrapped' : 'unwrapped'}{' '}
+            <b>
+              {userInput} {wrapSymbol}
+            </b>
+            .
+          </span>
+        }
+        open={txModalOpen}
+        onClose={onCloseTxModal}
+      />
     </GeyserStakeViewContainer>
   )
 }

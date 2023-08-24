@@ -2,7 +2,7 @@ import { AppContext } from 'context/AppContext'
 import { useContext } from 'react'
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
-import logo from 'assets/logo.svg'
+import logo from 'assets/wordmark-seamless.svg'
 import { Mode } from '../constants'
 import { HeaderWalletButton } from './HeaderWalletButton'
 import { HeaderToggle } from './HeaderToggle'
@@ -14,8 +14,8 @@ export const Header = () => {
     <Container>
       <LeftContainer>
         <LogoSpan>
-          <img src={logo} alt="Seamless" />
-        </LogoSpan>{' '}
+          <LogoImage src={logo} alt="Seamless" />
+        </LogoSpan>
       </LeftContainer>
       <MiddleContainer>
         <HeaderToggle enabled={mode === Mode.VAULTS} toggle={toggleMode} options={['Geyser View', 'Vault View']} />
@@ -28,8 +28,12 @@ export const Header = () => {
   )
 }
 
+const LogoImage = styled.img`
+  ${tw`w-auto h-48 -my-16`}
+`
+
 const Container = styled.div`
-  ${tw`shadow-sm flex flex-wrap py-1 -mt-1 h-fit`}
+  ${tw`shadow-sm flex flex-wrap py-1 -mt-1 h-fit bg-baseBlue text-white`}
 `
 
 const LogoSpan = styled.span`

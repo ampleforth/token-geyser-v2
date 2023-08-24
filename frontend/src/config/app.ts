@@ -82,7 +82,7 @@ const geyserList: AppGeysersList = {
       stakingToken: StakingToken.MOCK,
       rewardToken: RewardToken.MOCK,
       isWrapped: false,
-    }
+    },
   ],
 }
 

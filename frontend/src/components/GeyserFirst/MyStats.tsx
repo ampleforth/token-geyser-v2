@@ -19,7 +19,7 @@ export const MyStats = () => {
   const {
     userStats: { apy, currentMultiplier, maxMultiplier, currentReward, currentRewardShare },
     vaultStats: { currentStake },
-    geyserStats: { calcPeriodInDays, bonusRewards},
+    geyserStats: { calcPeriodInDays, bonusRewards },
   } = useContext(StatsContext)
   const {
     selectedGeyserInfo: {
@@ -32,11 +32,17 @@ export const MyStats = () => {
     () => [
       {
         title: 'APY',
-        body: currentStake > 0 ? GET_APY_STAKE_MSG() : GET_APY_NO_STAKE_MSG({ days: safeNumeral(calcPeriodInDays||30, '0.0') }),
+        body:
+          currentStake > 0
+            ? GET_APY_STAKE_MSG()
+            : GET_APY_NO_STAKE_MSG({ days: safeNumeral(calcPeriodInDays || 30, '0.0') }),
       },
       {
         title: 'Reward Multiplier',
-        body: GET_REWARD_MULTIPLIER_MSG({ days: safeNumeral(calcPeriodInDays||30, '0.0'), multiplier: safeNumeral(maxMultiplier||3, '0.0') }),
+        body: GET_REWARD_MULTIPLIER_MSG({
+          days: safeNumeral(calcPeriodInDays || 30, '0.0'),
+          multiplier: safeNumeral(maxMultiplier || 3, '0.0'),
+        }),
       },
       {
         title: 'Current Rewards',
@@ -46,13 +52,19 @@ export const MyStats = () => {
     [currentStake],
   )
 
-  const rewardsToShow = [{value:currentReward, units:rewardTokenSymbol}]
-    .concat(bonusRewards.map(r => ({ value: currentRewardShare * r.balance, units: r.symbol })))
+  const rewardsToShow = [{ value: currentReward, units: rewardTokenSymbol }].concat(
+    bonusRewards.map((r) => ({ value: currentRewardShare * r.balance, units: r.symbol })),
+  )
 
   return (
     <MyStatsContainer>
       <Header>
-        My Stats <Tooltip classNames="my-auto ml-2 normal-case tracking-wide" panelClassnames='-translate-x-1/4' messages={getTooltipMessages()} />
+        My Stats{' '}
+        <Tooltip
+          classNames="my-auto ml-2 normal-case tracking-wide bg-basePurple"
+          panelClassnames="-translate-x-1/4"
+          messages={getTooltipMessages()}
+        />
       </Header>
       <GeyserStatsContainer>
         <GeyserStatsBoxContainer>
@@ -101,7 +113,7 @@ const MyStatsContainer = styled.div`
 
 const Header = styled.h3`
   ${ResponsiveText}
-  ${tw`uppercase flex text-radicalRed font-medium sm:pl-3`}
+  ${tw`uppercase flex text-white font-medium sm:pl-3`}
 `
 
 const GeyserStatsContainer = styled.div`

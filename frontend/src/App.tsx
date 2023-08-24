@@ -11,11 +11,11 @@ import { StatsContextProvider } from 'context/StatsContext'
 import { DropdownsContainer } from 'components/DropdownsContainer'
 
 import { useEffect } from 'react'
+import BottomFooter from 'components/BottomFooter'
 
 function App() {
-
   useEffect(() => {
-    localStorage.clear();
+    localStorage.clear()
   }, [])
 
   return (
@@ -26,10 +26,13 @@ function App() {
             <VaultContextProvider>
               <WalletContextProvider>
                 <StatsContextProvider>
-                  <Header />
-                  <DropdownsContainer />
-                  <Body />
-                  <Footer />
+                  <div className="flex flex-col gap-8">
+                    <Header />
+                    <DropdownsContainer />
+                    <Body />
+                    <Footer />
+                    <BottomFooter />
+                  </div>
                 </StatsContextProvider>
               </WalletContextProvider>
             </VaultContextProvider>

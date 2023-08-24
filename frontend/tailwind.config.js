@@ -15,7 +15,8 @@ module.exports = {
     fontFamily: {
       times: ['Times\\ New\\ Roman'],
     },
-    colors: { // TODO
+    colors: {
+      // TODO
       primary: '#912DFF',
       secondary: '#FFFFFF',
       lightGray: '#DDDDDD',
@@ -30,6 +31,11 @@ module.exports = {
       radicalRed: '#FF2D55',
       paleBlue: '#F9F9F9',
       '0D23EE': '#0D23EE',
+      baseBlue: '#0053FE',
+      basePurple: '#613EFC',
+      basePink: '#FF6ED7',
+      baseTurquoise: '#00F6FF',
+      baseYellow: '#FEFB02',
     },
     container: {
       center: true,

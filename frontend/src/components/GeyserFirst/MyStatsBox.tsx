@@ -14,7 +14,15 @@ interface Props {
   classNames?: string
 }
 
-export const MyStatsBox: React.FC<Props> = ({ classNames, name, units, delim, value: targetValue, from, interpolate }) => {
+export const MyStatsBox: React.FC<Props> = ({
+  classNames,
+  name,
+  units,
+  delim,
+  value: targetValue,
+  from,
+  interpolate,
+}) => {
   const [statsValue, setStatsValue] = useState<string>(interpolate(targetValue))
 
   useSpring({
@@ -27,9 +35,7 @@ export const MyStatsBox: React.FC<Props> = ({ classNames, name, units, delim, va
 
   return (
     <MyStatContainer>
-      <MyStatName className={classNames}>
-        {name}
-      </MyStatName>
+      <MyStatName className={classNames}>{name}</MyStatName>
       <MyStatValueContainer>
         <MyStatValue>
           <animated.span>{statsValue}</animated.span>

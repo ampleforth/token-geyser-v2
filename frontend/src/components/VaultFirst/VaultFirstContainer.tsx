@@ -13,10 +13,10 @@ export const VaultFirstContainer = () => (
 )
 
 const Title = styled(CardLabel)`
-  ${tw`text-xl p-5 text-left font-normal`}
+  ${tw`text-xl p-5 text-left font-normal text-white`}
 `
 
 const Container = styled.div`
-  ${tw`text-center m-auto flex flex-wrap w-full flex-col`}
+  ${tw`text-center m-auto flex flex-wrap w-full flex-col bg-basePurple rounded-md`}
   ${tw`sm:w-sm`}
 `

@@ -35,7 +35,7 @@ export const Ellipsis = css`
 // typography
 
 export const CardLabel = styled.span`
-  ${tw`flex capitalize text-gray font-light`}
+  ${tw`flex capitalize text-white font-light`}
 `
 
 export const CardValue = styled.span`

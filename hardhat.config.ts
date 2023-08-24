@@ -75,6 +75,8 @@ task('deploy', 'deploy full set of factory contracts')
 
     const signer = (await ethers.getSigners())[0]
 
+    // console.log(network)
+
     console.log('Signer', signer.address)
 
     const timestamp = (await signer.provider?.getBlock('latest'))?.timestamp
@@ -95,9 +97,42 @@ task('deploy', 'deploy full set of factory contracts')
       await deployMockAmpl(signer, ethers.getContractFactory, upgrades.deployProxy)
     }
 
+    // // Used to recover from fail deploy
+    // const PowerSwitchFactory = await ethers.getContractAt(
+    //   'PowerSwitchFactory',
+    //   '0x510393Bac3905781086CdfA879d4cBF4F7901629',
+    //   signer,
+    // )
+    // const RewardPoolFactory = await ethers.getContractAt(
+    //   'RewardPoolFactory',
+    //   '0x6aE1d838327499fD42A708F1CeA8CE3b8D7975e4',
+    //   signer,
+    // )
+    // const UniversalVault = await ethers.getContractAt(
+    //   'UniversalVault',
+    //   '0x5C8884839B77383154E732021580F82F41998Fa6',
+    //   signer,
+    // )
+    // const VaultFactory = await ethers.getContractAt(
+    //   'VaultFactory',
+    //   '0x9E1fbFEf5508eCB4A45632CE638A44a160E4979D',
+    //   signer,
+    // )
+    // const GeyserRegistry = await ethers.getContractAt(
+    //   'GeyserRegistry',
+    //   '0xC4AB03ee92f0e08211b55015b6aCA64CbaEbA382',
+    //   signer,
+    // )
+    // const RouterV1 = await ethers.getContractAt('RouterV1', '0xb21bEF79929Fa34F75f81e866a13714DE473ffe2', signer)
+
     console.log('Locking template')
 
-    await UniversalVault.initializeLock()
+    let nonce = await signer.getTransactionCount()
+    if (network.name === 'base-goerli') {
+      nonce = nonce + 1
+    }
+
+    await UniversalVault.initializeLock({ nonce: nonce })
 
     const path = `${SDK_PATH}/deployments/${network.name}/`
     const file = `factories-${timestamp}.json`
@@ -195,8 +230,8 @@ task('create-vault', 'deploy an instance of UniversalVault')
   })
 
 task('create-geyser', 'deploy an instance of Geyser')
-  .addParam('stakingToken', 'the staking token')
-  .addParam('rewardToken', 'the reward token')
+  .addParam('stakingtoken', 'the staking token')
+  .addParam('rewardtoken', 'the reward token')
   .addParam('floor', 'the floor of reward scaling')
   .addParam('ceiling', 'the ceiling of reward scaling')
   .addParam('time', 'the time of reward scaling in seconds')
@@ -204,7 +239,7 @@ task('create-geyser', 'deploy an instance of Geyser')
   .addOptionalParam('factoryVersion', 'the factory version', 'latest')
   .setAction(
     async (
-      { factoryVersion, stakingToken, rewardToken, floor, ceiling, time, finalOwner },
+      { factoryVersion, stakingtoken, rewardtoken, floor, ceiling, time, finalOwner },
       { ethers, run, upgrades, network },
     ) => {
       await run('compile')
@@ -228,8 +263,8 @@ task('create-geyser', 'deploy an instance of Geyser')
       console.log('  to implementation', implementation)
       console.log('  with upgreadability admin', proxyAdminAddress)
       console.log('  in', geyser.deployTransaction.hash)
-      console.log('  staking token', stakingToken)
-      console.log('  reward token', rewardToken)
+      console.log('  staking token', stakingtoken)
+      console.log('  reward token', rewardtoken)
       console.log('  reward floor', floor)
       console.log('  reward ceiling', ceiling)
 
@@ -248,8 +283,8 @@ task('create-geyser', 'deploy an instance of Geyser')
           signer.address,
           RewardPoolFactory.address,
           PowerSwitchFactory.address,
-          stakingToken,
-          rewardToken,
+          stakingtoken,
+          rewardtoken,
           [floor, ceiling, time],
         )
       ).wait(1)
@@ -279,7 +314,7 @@ task('fund-geyser', 'fund an instance of Geyser')
   .addParam('amount', 'amount in floating point')
   .addParam('duration', 'time in seconds the program lasts')
   .addOptionalParam('factoryVersion', 'the factory version', 'latest')
-  .setAction(async ({ geyser, amount, duration }, { ethers }) => {
+  .setAction(async ({ geyser, amount, duration }, { ethers, network }) => {
     const signer = (await ethers.getSigners())[0]
     const geyserContract = await ethers.getContractAt('Geyser', geyser, signer)
     const data = await geyserContract.getGeyserData()
@@ -287,7 +322,13 @@ task('fund-geyser', 'fund an instance of Geyser')
     const rewardToken = await ethers.getContractAt('MockAmpl', rewardTokenAddress, signer)
     const amt = parseUnits(amount, 9)
     await rewardToken.approve(geyser, amt)
-    await geyserContract.connect(signer).fundGeyser(amt, duration)
+
+    let nonce = await signer.getTransactionCount()
+    if (network.name === 'base-goerli') {
+      nonce = nonce + 1
+    }
+
+    await geyserContract.connect(signer).fundGeyser(amt, duration, { nonce: nonce })
   })
 
 // currently need to manually run verify command
@@ -323,12 +364,14 @@ task('lookup-proxy-admin', 'gets the proxy admin of the given contract')
     console.log('Proxy Admin:', await getAdminAddress(ethers.provider, address))
   })
 
-const getEtherscanAPIKey = () => {
+const getScanAPIKey = () => {
   switch (process.env.HARDHAT_NETWORK) {
     case 'mainnet' || 'kovan' || 'goerli':
       return process.env.ETHERSCAN_API_KEY
     case 'avalanche' || 'avalanche_fiji':
       return process.env.SNOWTRACE_API_KEY
+    case 'base-mainnet' || 'base-goerli':
+      return process.env.BASESCAN_API_KEY
     default:
       return ''
   }
@@ -338,7 +381,17 @@ const getEtherscanAPIKey = () => {
 // https://github.com/MetaMask/metamask-extension/issues/10290
 export default {
   networks: {
+    localhost: {
+      forking: {
+        url: `https://base.gateway.tenderly.co/${process.env.TENDERLY_PROJECT_ID}`,
+        enabled: true,
+      },
+    },
     hardhat: {
+      forking: {
+        url: `https://base.gateway.tenderly.co/${process.env.TENDERLY_PROJECT_ID}`,
+        enabled: true,
+      },
       allowUnlimitedContractSize: true,
       chainId: 1337,
     },
@@ -361,15 +414,16 @@ export default {
       },
       gasMultiplier: 1.03,
     },
-    "base-mainnet": {
-      url: `https://base.gateway.tenderly.co/${process.env.TENDERLY_PROJECT_ID}`,
-      accounts: [process.env.WALLET_KEY as string],
-      gasMultiplier: 1.03,
-    },
-    "base-goerli": {
+    // "base-mainnet": {
+    //   url: `https://base.gateway.tenderly.co/${process.env.TENDERLY_PROJECT_ID}`,
+    //   accounts: [process.env.BASE_PROD_PRIVATE_KEY as string],
+    //   gasPrice: 1000000000,
+    // },
+    'base-goerli': {
       url: `https://base-goerli.gateway.tenderly.co/${process.env.TENDERLY_PROJECT_ID}`,
-      accounts: [process.env.WALLET_KEY as string],
-      gasMultiplier: 1.03,
+      accounts: [process.env.BASE_TESTNET_PRIVATE_KEY as string],
+      gasPrice: 1000000000,
+      gasMultiplier: 1.1,
     },
   },
   solidity: {
@@ -389,8 +443,8 @@ export default {
     ],
   },
   etherscan: {
-    // apiKey: getEtherscanAPIKey(),
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: getScanAPIKey(),
+    // apiKey: process.env.ETHERSCAN_API_KEY,
   },
   mocha: {
     timeout: 100000,

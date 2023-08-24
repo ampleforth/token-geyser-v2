@@ -5,6 +5,9 @@
   "license": "GPL-3.0",
   "author": "dev-support@ampleforth.org",
   "main": "dist/index.js",
+  "engines": {
+    "node": "18.x"
+  },
   "scripts": {
     "compile": "yarn hardhat compile",
     "test": "yarn hardhat test",

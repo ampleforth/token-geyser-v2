@@ -361,6 +361,16 @@ export default {
       },
       gasMultiplier: 1.03,
     },
+    "base-mainnet": {
+      url: `https://base.gateway.tenderly.co/${process.env.TENDERLY_PROJECT_ID}`,
+      accounts: [process.env.WALLET_KEY as string],
+      gasMultiplier: 1.03,
+    },
+    "base-goerli": {
+      url: `https://base-goerli.gateway.tenderly.co/${process.env.TENDERLY_PROJECT_ID}`,
+      accounts: [process.env.WALLET_KEY as string],
+      gasMultiplier: 1.03,
+    },
   },
   solidity: {
     compilers: [

@@ -1,0 +1,8 @@
+{
+    "network": "base",
+    // TODO
+    // "startBlock": 12797939,
+    // "geyserRegistry": "0xFc43803F203e3821213bE687120aD44C8a21A7e7",
+    // "vaultFactory": "0x8A09fFA4d4310c7F59DC538a1481D8Ba2214Cef0",
+    "crucibleFactory": "0x0000000000000000000000000000000000000000"
+}

@@ -3,19 +3,13 @@ import { API, Wallet } from 'bnc-onboard/dist/src/interfaces';
 import Onboard from 'bnc-onboard';
 import { providers, Signer, utils } from 'ethers';
 import { getConnectionConfig, activeNetworks } from 'config/app'
-import { Network, ALCHEMY_PROJECT_ID, INFURA_PROJECT_ID } from '../constants'
+import { Network, TENDERLY_PROJECT_ID } from '../constants'
 
-// const DEFAULT_RPC_ENDPOINT = `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`
-// ALCHEMY_PROJECT_ID
-const DEFAULT_RPC_ENDPOINT = `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_PROJECT_ID}`
+// TENDERLY_PROJECT_ID
+const DEFAULT_RPC_ENDPOINT = `https://base.gateway.tenderly.co/${TENDERLY_PROJECT_ID}`
 
 const SUPPORTED_WALLETS = [
   { walletName: 'metamask', preferred: true, rpcUrl: DEFAULT_RPC_ENDPOINT },
-  {
-    walletName: 'walletConnect',
-    preferred: true,
-    infuraKey: INFURA_PROJECT_ID,
-  },
   {
     walletName: 'walletLink', label: 'Coinbase Wallet', preferred: true, rpcUrl: DEFAULT_RPC_ENDPOINT,
   },
@@ -50,7 +44,7 @@ const Web3Context = createContext<{
       ready: false,
       wallet: null,
       provider: defaultProvider,
-      networkId: Network.Mainnet,
+      networkId: Network.Base,
     });
 
 interface Subscriptions {
@@ -80,7 +74,7 @@ const Web3Provider: React.FC = ({ children }: Props) => {
   const [wallet, setWallet] = useState<Wallet | null>(null);
   const [onboard, setOnboard] = useState<API>();
   const [provider, setProvider] = useState<providers.Provider>(defaultProvider);
-  const [networkId, setNetworkId] = useState<number>(Network.Mainnet);
+  const [networkId, setNetworkId] = useState<number>(Network.Base);
   const [signer, setSigner] = useState<Signer>();
   const [ready, setReady] = useState(false);
 
@@ -113,7 +107,7 @@ const Web3Provider: React.FC = ({ children }: Props) => {
       setNetworkId(newNetworkId as Network);
     } else {
       setProvider(defaultProvider);
-      setNetworkId(Network.Mainnet);
+      setNetworkId(Network.Base);
     }
   }, []);
 

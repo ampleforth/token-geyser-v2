@@ -46,16 +46,10 @@ export enum StakingToken {
   WAMPL,
 
   // for mainnet
-  UNISWAP_V2,
-  SUSHISWAP,
-  MOONISWAP_V1,
-  BALANCER_V1,
-  BALANCER_SMART_POOL_V1,
-  AAVE_V2_AMPL,
-  TRADER_JOE,
-  PANGOLIN,
-  BALANCER_WEIGHTED_POOL_V2,
-  ARRAKIS_V1,
+  // TODO
+  SEAM,
+  BASESWAP,
+  SEAMLESS_ATOKEN,
 }
 
 // Reward tokens
@@ -64,22 +58,14 @@ export enum RewardToken {
   MOCK,
 
   // for mainnet
-  AMPL,
-  XCAMPLE,
-  WAMPL,
-  SPOT,
-  FORTH,
+  SEAM,
 }
 
 // Netowrks
 export enum Network {
-  Mainnet = 1,
-  Kovan = 42,
-  Avalanche = 43114,
+  Base = 8453,
+  BaseTestNet = 84531,
 }
-
-export const AMPL_LAUNCH_DATE = 1561687200
-export const INITIAL_SUPPLY = 50000000
 
 // tooltip messages
 export const GET_APY_STAKE_MSG = () =>
@@ -104,11 +90,8 @@ export enum Align {
   CENTER,
 }
 
-// Alchemy
-export const ALCHEMY_PROJECT_ID = 'geo5oyrZyF7LWPaAt7eoLzxHg76ljgsO'
-
-// Infura
-export const INFURA_PROJECT_ID = 'dee1a87a734042fcabc2fd116a7b776d'
+// Tenderly
+export const TENDERLY_PROJECT_ID = '1SVyxsO1IHL8NHPgMyQmuF';
 
 // Enable withdrawing whole unlocked balance of staking tokens when unstaking
 export const WITHDRAW_UNLOCKED_STAKING_TOKENS_WHEN_UNSTAKING = false

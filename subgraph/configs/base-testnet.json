@@ -1,0 +1,7 @@
+{
+    "network": "base-testnet",
+    "startBlock": 8819122,
+    "geyserRegistry": "0xC4AB03ee92f0e08211b55015b6aCA64CbaEbA382",
+    "vaultFactory": "0x9E1fbFEf5508eCB4A45632CE638A44a160E4979D",
+    "crucibleFactory": "0x0000000000000000000000000000000000000000"
+}

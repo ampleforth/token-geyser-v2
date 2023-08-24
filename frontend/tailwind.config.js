@@ -15,7 +15,7 @@ module.exports = {
     fontFamily: {
       times: ['Times\\ New\\ Roman'],
     },
-    colors: {
+    colors: { // TODO
       primary: '#912DFF',
       secondary: '#FFFFFF',
       lightGray: '#DDDDDD',

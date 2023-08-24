@@ -2,6 +2,7 @@ import { AppContext } from 'context/AppContext'
 import { useContext } from 'react'
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
+import logo from 'assets/logo.svg'
 import { Mode } from '../constants'
 import { HeaderWalletButton } from './HeaderWalletButton'
 import { HeaderToggle } from './HeaderToggle'
@@ -12,7 +13,9 @@ export const Header = () => {
   return (
     <Container>
       <LeftContainer>
-        <LogoSpan><a href="https://www.ampleforth.org/dapps">Λ</a></LogoSpan>
+        <LogoSpan>
+          <img src={logo} alt="Seamless" />
+        </LogoSpan>{' '}
       </LeftContainer>
       <MiddleContainer>
         <HeaderToggle enabled={mode === Mode.VAULTS} toggle={toggleMode} options={['Geyser View', 'Vault View']} />

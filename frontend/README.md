@@ -42,8 +42,8 @@ Make sure that the environment variable `NODE_ENV` is set to something other tha
 
 ### List of Geysers
 
-Under `src/config/geyser.ts`, it is possible to add or remove geysers that will be shown in the UI.
-To add a geyser, append an object with the following properties to the `mainnetGeyserConfig` object:
+Under `src/config/app.ts`, it is possible to add or remove geysers that will be shown in the UI.
+To add a geyser, append an object with the following properties to the `geyserList` object:
 
 ```
 name: string
@@ -173,7 +173,7 @@ const mainnetAdditionalTokens = [
 
 ## Ethereum Provider
 
-To use Infura as provider, replace the value of `INFURA_PROJECT_ID` under `src/constants.ts` with your Infura Project ID. This is only used for mainnet.
+To use Infura as provider, replace the value of `TENDERLY_PROJECT_ID` under `src/constants.ts` with your Infura Project ID. This is only used for mainnet.
 
 ## Stats
 
@@ -233,6 +233,7 @@ those are the places where the `chainId` are explicitly set when in dev mode to 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ### `yarn start`
+`SKIP_PREFLIGHT_CHECK=true NODE_OPTIONS=--openssl-legacy-provider yarn start`
 
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.

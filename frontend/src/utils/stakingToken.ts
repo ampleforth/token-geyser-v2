@@ -48,10 +48,8 @@ const getMockLPToken = async (tokenAddress: string): Promise<StakingTokenInfo> =
   }
 }
 
-const getAaveV3 = async (
-  wrapperTokenAddress: string,
-  signerOrProvider: SignerOrProvider,
-): Promise<StakingTokenInfo> => getAaveV2(wrapperTokenAddress, signerOrProvider)
+const getAaveV3 = async (wrapperTokenAddress: string, signerOrProvider: SignerOrProvider): Promise<StakingTokenInfo> =>
+  getAaveV2(wrapperTokenAddress, signerOrProvider)
 
 const getAaveV2 = async (
   wrapperTokenAddress: string,

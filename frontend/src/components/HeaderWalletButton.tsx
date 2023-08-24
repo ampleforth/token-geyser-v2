@@ -24,8 +24,9 @@ const ButtonContainer = styled.div`
   ${tw`w-6/12 flex`}
 `
 
+// const pink = `bg-basePink hover:bg-[#FF6ED7/50]`
 const Button = styled.button`
   ${tw`w-full px-8 py-4 rounded-bl-2xl float-right bg-basePink`}
   ${tw`sm:px-14 sm:py-5`}
-  ${tw`hover:bg-amaranth`}
+  ${tw`hover:bg-[#FF6ED750]`}
 `

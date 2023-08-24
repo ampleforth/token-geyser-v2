@@ -91,7 +91,7 @@ export enum Align {
 }
 
 // Tenderly
-export const TENDERLY_PROJECT_ID = '1SVyxsO1IHL8NHPgMyQmuF';
+export const TENDERLY_PROJECT_ID = '1SVyxsO1IHL8NHPgMyQmuF'
 
 // Enable withdrawing whole unlocked balance of staking tokens when unstaking
 export const WITHDRAW_UNLOCKED_STAKING_TOKENS_WHEN_UNSTAKING = false

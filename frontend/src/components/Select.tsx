@@ -12,14 +12,14 @@ export interface Option {
 interface Props {
   selected: number
   options: Option[]
-  onChange?: (option:number) => void
+  onChange?: (option: number) => void
   disabled?: boolean
 }
 
 const StyledListboxButton = styled(Listbox.Button)`
-    ${tw`relative w-full mt-2 mb-2 py-2 pl-3 pr-10 text-left bg-white rounded-md shadow-md sm:text-lg shadow-none flex flex-row border border-gray h-fit mb-3 mt-1 rounded-md`}
-    ${tw`cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-opacity-75 focus-visible:ring-white focus-visible:ring-offset-primary focus-visible:ring-offset-2 focus-visible:border-primary`}
-  `
+  ${tw`relative w-full mt-2 mb-2 py-2 pl-3 pr-10 text-left bg-white rounded-md shadow-md sm:text-lg shadow-none flex flex-row border border-gray h-fit mb-3 mt-1 rounded-md`}
+  ${tw`cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-opacity-75 focus-visible:ring-white focus-visible:ring-offset-primary focus-visible:ring-offset-2 focus-visible:border-primary`}
+`
 
 const StyledListboxOptions = styled(Listbox.Options)`
   ${tw`absolute w-full py-1 mt-1 overflow-auto text-base text-left bg-white rounded-md shadow-lg max-h-60 ring-1 ring-black ring-opacity-5 sm:text-lg`}
@@ -44,33 +44,34 @@ const StyledCheckIcon = styled(CheckIcon)`
 
 const noOp = () => {}
 
-export const Select: React.FC<Props> = ({selected, options, onChange, disabled}) => (
-  <Listbox value={selected} onChange={onChange || noOp} disabled={disabled||false}>
+export const Select: React.FC<Props> = ({ selected, options, onChange, disabled }) => (
+  <Listbox value={selected} onChange={onChange || noOp} disabled={disabled || false}>
     <div className="relative mt-1 w-full">
       <StyledListboxButton>
         <span className="block truncate">{options[selected].name}</span>
-        {!disabled ? (<StyledSelectorIconContainer><StyledSelectorIcon /></StyledSelectorIconContainer>) : null}
+        {!disabled ? (
+          <StyledSelectorIconContainer>
+            <StyledSelectorIcon />
+          </StyledSelectorIconContainer>
+        ) : null}
       </StyledListboxButton>
-      <Transition
-        as={Fragment}
-        leave="transition ease-in duration-100"
-        leaveFrom="opacity-100"
-        leaveTo="opacity-0"
-      >
+      <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
         <StyledListboxOptions>
           {options.map((o, i) => (
             <Listbox.Option
               key={o.id}
-              className={({ active }) =>`cursor-default relative py-2 pl-10 pr-4 ${active ? 'bg-lightGray' : null}`}
+              className={({ active }) => `cursor-default relative py-2 pl-10 pr-4 ${active ? 'bg-lightGray' : null}`}
               value={i}
             >
-              {({selected: optionSelected}) => (
+              {({ selected: optionSelected }) => (
                 <>
-                  <span className={`block truncate ${optionSelected ? 'font-medium' : 'font-normal'}`}>
+                  <span className={`text-black block truncate ${optionSelected ? 'font-medium' : 'font-normal'}`}>
                     {o.name}
                   </span>
                   {optionSelected ? (
-                    <StyledCheckIconContainer><StyledCheckIcon /></StyledCheckIconContainer>
+                    <StyledCheckIconContainer>
+                      <StyledCheckIcon />
+                    </StyledCheckIconContainer>
                   ) : null}
                 </>
               )}

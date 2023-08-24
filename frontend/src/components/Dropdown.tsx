@@ -8,13 +8,13 @@ import { Fragment } from 'react'
 // needs one of options or optgroups
 interface Props {
   options?: string[]
-  optgroups?: { group: string, options: string[] }[]
+  optgroups?: { group: string; options: string[] }[]
   selectedOption: string
   onChange: (arg0: string) => void
 }
 
 export const Dropdown: React.FC<Props> = ({ options, optgroups, selectedOption, onChange }) => {
-  const renderOptions = (opts: string[]) => (
+  const renderOptions = (opts: string[]) =>
     opts.map((option) => (
       <Listbox.Option
         key={option}
@@ -36,9 +36,8 @@ export const Dropdown: React.FC<Props> = ({ options, optgroups, selectedOption, 
         )}
       </Listbox.Option>
     ))
-  )
 
-  const renderOptgroups = (groups: { group: string, options: string[] }[]) => (
+  const renderOptgroups = (groups: { group: string; options: string[] }[]) =>
     groups.map(({ group, options: opts }) => (
       <div key={group}>
         <Listbox.Option disabled className="text-gray align-center justify-center flex" value={group}>
@@ -47,7 +46,6 @@ export const Dropdown: React.FC<Props> = ({ options, optgroups, selectedOption, 
         {renderOptions(opts)}
       </div>
     ))
-  )
 
   return (
     <Listbox value={selectedOption} onChange={onChange}>

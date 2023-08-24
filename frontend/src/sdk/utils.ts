@@ -3,7 +3,7 @@ import { BigNumberish, Contract, providers, Signer, Wallet } from 'ethers'
 import { LogDescription, splitSignature } from 'ethers/lib/utils'
 import { TransactionReceipt } from '@ethersproject/providers'
 
-import { getConnectionConfig } from '../config/app'
+import { getConnectionConfig } from '../frontend/src/config/app'
 
 export const loadNetworkConfig = async (signerOrProvider: Signer | providers.Provider) => {
   const network = await (Signer.isSigner(signerOrProvider)

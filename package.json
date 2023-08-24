@@ -6,7 +6,7 @@
   "author": "dev-support@ampleforth.org",
   "main": "dist/index.js",
   "engines": {
-    "node": "18.x"
+    "node": "16.x"
   },
   "scripts": {
     "compile": "yarn hardhat compile",

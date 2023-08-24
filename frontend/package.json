@@ -31,9 +31,12 @@
     "web-vitals": "^1.0.1",
     "web3": "^1.3.5"
   },
+  "engines": {
+    "node": "16.x"
+  },
   "scripts": {
-    "start": "craco start",
-    "build": "craco build",
+    "start": "craco start --openssl-legacy-provider",
+    "build": "craco build --openssl-legacy-provider",
     "test": "craco test",
     "eject": "react-scripts eject",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",

@@ -1,7 +1,5 @@
 # token-geyser-v2
 
-[![Tests](https://github.com/ampleforth/token-geyser-v2/workflows/CI/badge.svg)](https://github.com/ampleforth/token-geyser-v2/actions) [![Coverage Status](https://coveralls.io/repos/github/ampleforth/token-geyser-v2/badge.svg?t=HP4Dtq)](https://coveralls.io/github/ampleforth/token-geyser-v2)
-
 Reward distribution contract with time multiplier.
 
 ## Live Deployments
@@ -15,10 +13,10 @@ ethereum:
   proxyAdmin: 0xc70F5bc82ccb3de00400814ff8bD406C271db3c4
   geyserRegistry: 0xFc43803F203e3821213bE687120aD44C8a21A7e7
   geysers:
-    - poolRef: "UNI-ETH-AMPL-V2 (Beehive V7)"
+    - poolRef: 'UNI-ETH-AMPL-V2 (Beehive V7)'
       deployment: 0x5Ec6f02D0b657E4a56d6020Bc21F19f2Ca13EcA9
 
-    - poolRef: "Arrakis Vault V1 USDC/SPOT (RAKIS-35) (Fly V2)"
+    - poolRef: 'Arrakis Vault V1 USDC/SPOT (RAKIS-35) (Fly V2)'
       deployment: 0x392b58F407Efe1681a2EBB470600Bc2146D231a2
 
     # - poolRef: "UNI-ETH-AMPL-V2 (Beehive V6)"
@@ -49,7 +47,7 @@ ethereum:
     #   deployment: 0x88F12aE68315A89B885A2f1b0610fE2A9E1720B9
 
   externalVaultFactoriesWhitelisted:
-    - name: "Crucible"
+    - name: 'Crucible'
       template: 0x54e0395CFB4f39beF66DBCd5bD93Cca4E9273D56
 
 avalanche:
@@ -60,9 +58,9 @@ avalanche:
   proxyAdmin: 0x5396479b65ed39360Ba6C16f6D7c9fd357674534
   geyserRegistry: 0x60156bB86e9125639c624712a360FD3AbBb52421
   geysers:
-    - poolRef: "PNG-AVAX-ETH-AMPL (The great geysir V1)"
+    - poolRef: 'PNG-AVAX-ETH-AMPL (The great geysir V1)'
       deployment: 0x26645e8513B1D20aDb729E7114eDfA930D411720
-  externalVaultFactoriesWhitelisted: [ ]
+  externalVaultFactoriesWhitelisted: []
 ```
 
 ## Install

@@ -45,6 +45,7 @@ const SYMBOL_TO_QUERY: Record<string, string> = {
   'yDAI+yUSDC+yUSDT+yTUSD': 'curve-fi-ydai-yusdc-yusdt-ytusd',
   SPOT: 'spot',
   FORTH: 'ampleforth-governance-token',
+  SEAM: 'seam',
   // TODO
 }
 

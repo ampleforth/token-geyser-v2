@@ -28,7 +28,7 @@ const networkConfig: NetworkConfig = {
     id: Network.BaseTestNet,
     networkId: 84531,
     chainId: 84531,
-    ref: 'base goerli',
+    ref: 'base-goerli',
     name: 'Base Goerli',
     rpcUrl: `https://base-goerli.gateway.tenderly.co/${TENDERLY_PROJECT_ID}`,
     graphUrl: 'https://api.studio.thegraph.com/query/51577/seamless-geyser/version/latest',

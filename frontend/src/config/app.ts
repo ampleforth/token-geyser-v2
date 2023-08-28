@@ -93,7 +93,7 @@ const geyserList: AppGeysersList = {
     {
       name: 'USDC aToken - SEAM',
       address: '0xc8Ae4370818c4566E5993E7Dd9429D217330FE26',
-      stakingToken: StakingToken.MOCK,
+      stakingToken: StakingToken.WAMPL,
       rewardToken: RewardToken.SEAM,
       isWrapped: false,
     },

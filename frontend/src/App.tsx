@@ -1,7 +1,6 @@
 import { AppContextProvider } from 'context/AppContext'
 import { Body } from 'components/Body'
 import { Header } from 'components/Header'
-import { Footer } from 'components/Footer'
 import { VaultContextProvider } from 'context/VaultContext'
 import { GeyserContextProvider } from 'context/GeyserContext'
 import { Web3Provider } from 'context/Web3Context'
@@ -26,11 +25,10 @@ function App() {
             <VaultContextProvider>
               <WalletContextProvider>
                 <StatsContextProvider>
-                  <div className="flex flex-col gap-8">
+                  <div className="flex flex-col gap-4">
                     <Header />
                     <DropdownsContainer />
                     <Body />
-                    <Footer />
                     <BottomFooter />
                   </div>
                 </StatsContextProvider>

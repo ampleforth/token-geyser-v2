@@ -1,22 +1,45 @@
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
 
+const FOOTER_LINKS = [
+  {
+    href: 'https://seamlessprotocol.medium.com/seamless-protocol-terms-of-use-f9d75a855fb3',
+    label: 'Terms',
+    key: 'Terms',
+  },
+  {
+    href: 'https://seamlessprotocol.medium.com/seamless-privacy-policy-2ebfda169143',
+    label: 'Privacy',
+    key: 'Privacy',
+  },
+  {
+    href: 'https://docs.seamlessprotocol.com/overview/introduction-to-seamless-protocol',
+    label: 'Docs',
+    key: 'Docs',
+  },
+  {
+    href: 'https://docs.seamlessprotocol.com/overview/faq',
+    label: 'FAQ',
+    key: 'FAQ',
+  },
+  {
+    href: 'https://onchainsummer.xyz/base',
+    label: 'BASE | Onchain Summer',
+    key: 'Base',
+  },
+]
+
 const FOOTER_ICONS = [
+  {
+    href: 'https://t.me/seamless_protocol',
+    icon: 'telegram.svg',
+    title: 'Telegram',
+  },
   {
     href: 'https://twitter.com/seamlessfi',
     icon: 'twitter.svg',
     title: 'Twitter',
   },
-  // {
-  //   href: 'https://discord.com/invite/seamless',
-  //   icon: <DiscordIcon />,
-  //   title: 'Discord',
-  // },
-  // {
-  //   href: 'https://github.com/seamless',
-  //   icon: < />,
-  //   title: 'Telegram',
-  // },
   {
     href: 'https://github.com/seamless-protocol/',
     icon: 'gh.svg',
@@ -27,8 +50,12 @@ const FOOTER_ICONS = [
 const BottomFooter = () => (
   <FooterContainer>
     <LinkContainer>
-      <div className="">Base | Onchain Summer</div>
       <div className="flex gap-4">
+        {FOOTER_LINKS.map((link) => (
+          <div className="">{link.label}</div>
+        ))}
+      </div>
+      <div className="flex gap-2">
         {FOOTER_ICONS.map((icon) => (
           <a href={icon.href} key={icon.title}>
             <img src={icon.icon} alt="" height={12} />
@@ -40,7 +67,7 @@ const BottomFooter = () => (
 )
 
 const FooterContainer = styled.div`
-  ${tw`fixed bottom-0 left-0 w-full h-16 bg-basePink text-white text-center`}
+  ${tw`w-full h-14 bg-basePink text-white text-center text-xs`}
 `
 
 const LinkContainer = styled.div`

@@ -67,7 +67,7 @@ const BottomFooter = () => (
 )
 
 const FooterContainer = styled.div`
-  ${tw`w-full h-14 bg-basePink text-white text-center text-xs`}
+  ${tw`fixed bottom-0 left-0 w-full h-14 bg-basePink text-white text-center text-xs`}
 `
 
 const LinkContainer = styled.div`

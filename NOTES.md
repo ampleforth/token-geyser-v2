@@ -40,7 +40,7 @@ npx hardhat --network base-goerli create-geyser --stakingtoken 0xf4781a935Fe1F17
 npx hardhat --network base-goerli create-geyser --stakingtoken 0x6a3639B76cfA1C47f7d4794c87cA791A8294AFC8 --rewardtoken 0x980d0cbb2e314c496b808cac88a8a4e8893161e1  --floor 10000000 --ceiling 1000000000 --time 3600
 
 # new weth aToken
-npx hardhat --network base-goerli create-geyser --stakingtoken 0x2311D94F5a407D1AA3D8400a7dECF8E2324A033D --rewardtoken 0x980d0cbb2e314c496b808cac88a8a4e8893161e1  --floor 1000000000 --ceiling 100000000000 --time 3600
+npx hardhat --network base-goerli create-geyser --stakingtoken 0x4fc8603DAFFA1391F31c1F55b45d54E1424D6C82 --rewardtoken 0x980d0cbb2e314c496b808cac88a8a4e8893161e1  --floor 10000000000000000 --ceiling 100000000000000000000 --time 3600
 ```
 
 The following deposits 1 million reward tokens (with 1e18) decimals. The deploy script scales by 1e9, then internally the contract scaled by 1000. An amount of `100000000000 = 1e11` will scale to `1e23`. Can change the way scripts work.
@@ -49,9 +49,9 @@ The following deposits 1 million reward tokens (with 1e18) decimals. The deploy 
 # old weth
 npx hardhat --network base-goerli fund-geyser --geyser 0x74d0a42e4578F19Ab79ab5a948F5588bb655023E --amount 100000000000 --duration 31536000
 
-# usdc geyser (changed parseUnits since it has wierd math)
+# usdc geyser (changed parseUnits inside fund-geyser command on the fly due to lower decimals)
 npx hardhat --network base-goerli fund-geyser --geyser 0xc8Ae4370818c4566E5993E7Dd9429D217330FE26 --amount 1 --duration 31536000
 
 # new weth
-npx hardhat --network base-goerli fund-geyser --geyser 0x3C7012982B05B26F91FCafece4Cf4759fcFBC43B --amount 10000000 --duration 31536000
+npx hardhat --network base-goerli fund-geyser --geyser 0x1887f68767aC948c5d4AD94A95062D5Fe47CbA90 --amount 1000000 --duration 31536000
 ```

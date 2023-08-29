@@ -85,7 +85,7 @@ const geyserList: AppGeysersList = {
     },
     {
       name: 'WETH aToken - SEAM',
-      address: '0x3C7012982B05B26F91FCafece4Cf4759fcFBC43B',
+      address: '0x1887f68767aC948c5d4AD94A95062D5Fe47CbA90',
       stakingToken: StakingToken.SEAMLESS_ATOKEN,
       rewardToken: RewardToken.SEAM,
       isWrapped: true,

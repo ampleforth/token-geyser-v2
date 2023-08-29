@@ -33,7 +33,7 @@ const LogoImage = styled.img`
 `
 
 const Container = styled.div`
-  ${tw`shadow-sm flex flex-wrap py-1 -mt-1 h-fit bg-baseBlue text-white`}
+  ${tw`shadow-sm flex flex-wrap py-1 -mt-1 h-fit bg-header text-white`}
 `
 
 const LogoSpan = styled.span`

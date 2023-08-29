@@ -104,7 +104,7 @@ export const VaultBalanceView = () => {
 }
 
 const Container = styled.div`
-  ${tw`m-4 text-white`}
+  ${tw`m-4 text-black`}
 `
 
 const ButtonText = styled.span`

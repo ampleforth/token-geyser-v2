@@ -61,7 +61,7 @@ export const MyStats = () => {
       <Header>
         My Stats{' '}
         <Tooltip
-          classNames="my-auto ml-2 normal-case tracking-wide bg-basePurple"
+          classNames="my-auto ml-2 normal-case tracking-wide bg-white"
           panelClassnames="-translate-x-1/4"
           messages={getTooltipMessages()}
         />
@@ -69,14 +69,14 @@ export const MyStats = () => {
       <GeyserStatsContainer>
         <GeyserStatsBoxContainer>
           <GeyserStatsBox
-            containerClassName="w-1/2 sm:bg-darkGray sm:rounded-md font-bold sm:text-white"
+            containerClassName="w-1/2 sm:bg-darkGray sm:rounded-md font-bold sm:text-black"
             name="APY"
             value={Math.min(apy, 10000)}
             units="%"
             interpolate={(val) => safeNumeral(val, '0.00%').slice(0, val > 100 ? -4 : -1)}
           />
           <GeyserStatsBox
-            containerClassName="w-1/2 sm:bg-darkGray sm:rounded-md font-bold sm:text-white"
+            containerClassName="w-1/2 sm:bg-darkGray sm:rounded-md font-bold sm:text-black"
             name="Multiplier"
             value={currentMultiplier}
             units="x"
@@ -113,7 +113,7 @@ const MyStatsContainer = styled.div`
 
 const Header = styled.h3`
   ${ResponsiveText}
-  ${tw`uppercase flex text-white font-medium sm:pl-3`}
+  ${tw`uppercase flex text-black font-medium sm:pl-3`}
 `
 
 const GeyserStatsContainer = styled.div`

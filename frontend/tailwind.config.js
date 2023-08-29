@@ -31,10 +31,10 @@ module.exports = {
       radicalRed: '#FF2D55',
       paleBlue: '#F9F9F9',
       '0D23EE': '#0D23EE',
-      baseBlue: '#0053FE',
+      header: '#0C356A',
       basePurple: '#613EFC',
-      basePink: '#FF6ED7',
-      baseTurquoise: '#00F6FF',
+      footer: '#890596',
+      baseTurquoise: '#F8F0E5',
       baseYellow: '#FEFB02',
     },
     container: {

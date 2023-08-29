@@ -34,7 +34,7 @@ export const GeyserFirstContainer = () => {
   )
 }
 const StyledOverlay = styled(Overlay)`
-  ${tw`bg-basePurple`}
+  ${tw`bg-white text-black`}
 `
 
 const Container = styled.div`

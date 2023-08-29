@@ -13,7 +13,7 @@ export const HeaderToggle: React.FC<Props> = ({ enabled, toggle, options }) => (
   <Switch.Group>
     <div className="flex items-center">
       <SwitchLabel className="mr-4">{options[0]}</SwitchLabel>
-      <Switchy className={enabled ? 'bg-primary' : 'bg-basePink'} checked={enabled} onChange={toggle}>
+      <Switchy className={enabled ? 'bg-primary' : 'bg-footer'} checked={enabled} onChange={toggle}>
         <span
           className={`${
             enabled ? 'translate-x-3' : 'translate-x-0'

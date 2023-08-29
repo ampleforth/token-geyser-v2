@@ -92,7 +92,7 @@ export const EstimatedRewards: React.FC<Props> = ({ parsedUserInput }) => {
 }
 
 const EstimatedRewardsContainer = styled.div`
-  ${tw`h-120px shadow-all-xs my-6 border border-lightGray rounded flex flex-row tracking-wide text-white`}
+  ${tw`h-120px shadow-all-xs my-6 border border-lightGray rounded flex flex-row tracking-wide text-black`}
 `
 
 const ColoredDiv = styled.div`

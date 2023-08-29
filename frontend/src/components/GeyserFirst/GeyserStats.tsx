@@ -62,7 +62,7 @@ const GeyserStatsContainer = styled.div`
 
 const Header = styled.h3`
   ${ResponsiveText}
-  ${tw`uppercase flex font-medium text-white`}
+  ${tw`uppercase flex font-medium text-black`}
   ${tw`sm:pl-3`}
 `
 

@@ -69,14 +69,14 @@ export const MyStats = () => {
       <GeyserStatsContainer>
         <GeyserStatsBoxContainer>
           <GeyserStatsBox
-            containerClassName="w-1/2 sm:bg-darkGray sm:rounded-md font-bold sm:text-black"
+            containerClassName="w-1/2 sm:rounded-md font-bold sm:text-black"
             name="APY"
             value={Math.min(apy, 10000)}
             units="%"
             interpolate={(val) => safeNumeral(val, '0.00%').slice(0, val > 100 ? -4 : -1)}
           />
           <GeyserStatsBox
-            containerClassName="w-1/2 sm:bg-darkGray sm:rounded-md font-bold sm:text-black"
+            containerClassName="w-1/2 sm:rounded-md font-bold sm:text-black"
             name="Multiplier"
             value={currentMultiplier}
             units="x"

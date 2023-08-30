@@ -67,7 +67,8 @@ const BottomFooter = () => (
 )
 
 const FooterContainer = styled.div`
-  ${tw`fixed bottom-0 left-0 w-full h-14 bg-footer text-white text-center text-xs`}
+  ${tw`fixed bottom-0 left-0 w-full h-14 text-white text-center text-xs`}
+  background: linear-gradient(248.86deg, #506ff3 1%, #cdf3a2 15%, #21e1e1 30%, #d69bdf 50%, #506ff3 81%);
 `
 
 const LinkContainer = styled.div`

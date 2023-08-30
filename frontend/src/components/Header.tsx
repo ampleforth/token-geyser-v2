@@ -33,7 +33,8 @@ const LogoImage = styled.img`
 `
 
 const Container = styled.div`
-  ${tw`shadow-sm flex flex-wrap py-1 -mt-1 h-fit bg-header text-white`}
+  ${tw`shadow-sm flex flex-wrap py-1 -mt-1 h-fit text-white`}
+  background: linear-gradient(248.86deg, #cdf3a2 5%, #21e1e1 15%, #d69bdf 40%, #506ff3 91%);
 `
 
 const LogoSpan = styled.span`

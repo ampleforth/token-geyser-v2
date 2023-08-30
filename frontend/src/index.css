@@ -31,3 +31,11 @@ code {
 .bn-onboard-custom {
   z-index: 100;
 }
+
+.footerGradient {
+  background: linear-gradient(248.86deg, #506ff3 1%, #cdf3a2 15%, #21e1e1 30%, #d69bdf 50%, #506ff3 81%);
+}
+
+.seamlessGradient {
+  background: linear-gradient(248.86deg, #cdf3a2 5%, #21e1e1 15%, #d69bdf 40%, #506ff3 91%);
+}

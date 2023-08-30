@@ -14,11 +14,13 @@ export const Header = () => {
     <Container>
       <LeftContainer>
         <LogoSpan>
-          <LogoImage src={logo} alt="Seamless" />
+          <a href="https://www.seamlessprotocol.com">
+            <LogoImage src={logo} alt="Seamless" />
+          </a>
         </LogoSpan>
       </LeftContainer>
       <MiddleContainer>
-        <HeaderToggle enabled={mode === Mode.VAULTS} toggle={toggleMode} options={['Geyser View', 'Vault View']} />
+        <HeaderToggle enabled={mode === Mode.VAULTS} toggle={toggleMode} options={['Single Farm View', 'Asset View']} />
       </MiddleContainer>
       <RightContainer>
         <HeaderNetworkSelect />

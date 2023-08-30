@@ -19,11 +19,11 @@ export const GeysersList = () => {
     const inactiveGeysers = geysers.filter((g) => !(g.active === true)).map(({ id }) => getGeyserName(id))
     return [
       {
-        group: 'Active Geysers',
+        group: 'Active Farms',
         options: activeGeysers,
       },
       {
-        group: 'Inactive Geysers',
+        group: 'Inactive Farms',
         options: inactiveGeysers,
       },
     ]
@@ -34,7 +34,7 @@ export const GeysersList = () => {
       {geysers.length > 0 && (
         <GeysersListContainer>
           <Heading>
-            <Label>Geyser</Label>
+            <Label>Farms</Label>
           </Heading>
           <Dropdown
             optgroups={optgroups}

@@ -25,7 +25,7 @@ export const GeyserStats = () => {
 
   return (
     <GeyserStatsContainer>
-      <Header>Geyser Stats</Header>
+      <Header>Farm Stats</Header>
       <GeyserStatsBoxContainer>
         <GeyserStatsBox
           containerClassName="sm:bg-paleBlue sm:border sm:border-lightGray sm:rounded-sm"

@@ -17,7 +17,7 @@ export const HeaderToggle: React.FC<Props> = ({ enabled, toggle, options }) => (
         <span
           className={`${
             enabled ? 'translate-x-3' : 'translate-x-0'
-          } inline-block w-5 h-5 transform bg-purple border border-lightBlack rounded-full transition-transform`}
+          } inline-block w-5 h-5 transform bg-purpleColor border border-lightBlack rounded-full transition-transform`}
         />
       </Switchy>
       <SwitchLabel className="ml-4">{options[1]}</SwitchLabel>

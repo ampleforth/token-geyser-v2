@@ -11,7 +11,7 @@ interface Props {
 
 export const TabView: React.FC<Props> = ({ active, tabs, onChange }) => {
   const StyledTabList = styled(Tab.List)`
-    ${tw`bg-purple relative rounded m-auto flex border`}
+    ${tw`relative rounded m-auto flex border`}
   `
 
   const StyledTab = styled(Tab)`
@@ -33,7 +33,7 @@ export const TabView: React.FC<Props> = ({ active, tabs, onChange }) => {
     <Tab.Group onChange={onChange}>
       <StyledTabList className="h-14">
         {tabs.map((t, i) => (
-          <StyledFlexTab key={t} className={`${active === i ? 'bg-white text-darkGray' : 'text-white'}`}>
+          <StyledFlexTab key={t} className={`${active === i ? 'bg-purpleColor text-white' : 'text-darkGray'}`}>
             {t}
           </StyledFlexTab>
         ))}

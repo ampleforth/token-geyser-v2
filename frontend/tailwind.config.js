@@ -32,7 +32,7 @@ module.exports = {
       paleBlue: '#F9F9F9',
       '0D23EE': '#0D23EE',
       header: '#0C356A',
-      purple: '#A459D1',
+      purpleColor: '#A459D1',
       footer: '#890596',
       cream: '#F8F0E5',
     },

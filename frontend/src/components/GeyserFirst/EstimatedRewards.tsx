@@ -55,7 +55,7 @@ export const EstimatedRewards: React.FC<Props> = ({ parsedUserInput }) => {
         <CardLabel>
           <small>Aggregate Deposit / Estimated Rewards</small>
           <Tooltip
-            classNames="my-auto ml-2 normal-case tracking-wide bg-basePurple"
+            classNames="my-auto ml-2 normal-case tracking-wide"
             panelClassnames="-translate-x-3/4 xs:left-1/2 xs:-translate-x-1/2"
             messages={[{ title: 'Estimated Rewards', body: GET_ESTIMATED_REWARDS_MSG() }]}
           />
@@ -96,7 +96,8 @@ const EstimatedRewardsContainer = styled.div`
 `
 
 const ColoredDiv = styled.div`
-  ${tw`rounded-l-sm h-full bg-baseYellow w-4`}
+  ${tw`rounded-l-sm h-full w-4`}
+  background: linear-gradient(248.86deg, #506FF3 10%, #D69BDD 40%,  #21E1E1 61%,  #CDF3A2 91%);
 `
 
 const Icon = styled.img`

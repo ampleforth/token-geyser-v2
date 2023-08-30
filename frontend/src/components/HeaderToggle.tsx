@@ -13,11 +13,11 @@ export const HeaderToggle: React.FC<Props> = ({ enabled, toggle, options }) => (
   <Switch.Group>
     <div className="flex items-center">
       <SwitchLabel className="mr-4">{options[0]}</SwitchLabel>
-      <Switchy className={enabled ? 'bg-primary' : 'bg-footer'} checked={enabled} onChange={toggle}>
+      <Switchy className="bg-cream" checked={enabled} onChange={toggle}>
         <span
           className={`${
             enabled ? 'translate-x-3' : 'translate-x-0'
-          } inline-block w-5 h-5 transform bg-white border border-lightBlack rounded-full transition-transform`}
+          } inline-block w-5 h-5 transform bg-purple border border-lightBlack rounded-full transition-transform`}
         />
       </Switchy>
       <SwitchLabel className="ml-4">{options[1]}</SwitchLabel>

@@ -4,20 +4,19 @@ import styled from 'styled-components/macro'
 import tw from 'twin.macro'
 
 interface Props {
-  active:number
+  active: number
   tabs: string[]
-  onChange: (tab:number) => void
+  onChange: (tab: number) => void
 }
 
 export const TabView: React.FC<Props> = ({ active, tabs, onChange }) => {
-
   const StyledTabList = styled(Tab.List)`
-    ${tw`bg-darkGray relative rounded m-auto flex border border-darkGray`}
+    ${tw`bg-purple relative rounded m-auto flex border`}
   `
 
   const StyledTab = styled(Tab)`
-    ${tw`outline-none  focus:outline-none`}
-    ${tw`font-bold uppercase z-10 h-full block rounded self-center`}
+    ${tw`outline-none  focus:outline-none border border-darkGray border-opacity-50`}
+    ${tw`font-bold uppercase z-10 h-full block self-center`}
   `
 
   const FlexTabWidth2 = styled(StyledTab)`
@@ -33,8 +32,11 @@ export const TabView: React.FC<Props> = ({ active, tabs, onChange }) => {
   return (
     <Tab.Group onChange={onChange}>
       <StyledTabList className="h-14">
-        {tabs.map((t, i) => (<StyledFlexTab key={t}
-          className={`${active === i ? 'bg-white text-darkGray' : 'text-gray'}`}>{t}</StyledFlexTab>))}
+        {tabs.map((t, i) => (
+          <StyledFlexTab key={t} className={`${active === i ? 'bg-white text-darkGray' : 'text-white'}`}>
+            {t}
+          </StyledFlexTab>
+        ))}
       </StyledTabList>
     </Tab.Group>
   )

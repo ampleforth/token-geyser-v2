@@ -32,10 +32,9 @@ module.exports = {
       paleBlue: '#F9F9F9',
       '0D23EE': '#0D23EE',
       header: '#0C356A',
-      basePurple: '#613EFC',
+      purple: '#A459D1',
       footer: '#890596',
-      baseTurquoise: '#F8F0E5',
-      baseYellow: '#FEFB02',
+      cream: '#F8F0E5',
     },
     container: {
       center: true,

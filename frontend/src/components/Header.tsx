@@ -8,6 +8,8 @@ import { HeaderWalletButton } from './HeaderWalletButton'
 import { HeaderToggle } from './HeaderToggle'
 import { HeaderNetworkSelect } from './HeaderNetworkSelect'
 
+const SEAMLESS_INTERFACE_URL = `https://interface-chi-lemon.vercel.app`
+
 export const Header = () => {
   const { mode, toggleMode } = useContext(AppContext)
   return (
@@ -18,6 +20,17 @@ export const Header = () => {
             <LogoImage src={logo} alt="Seamless" />
           </a>
         </LogoSpan>
+        <LinkContainer>
+          <a href={`${SEAMLESS_INTERFACE_URL}`}>
+            <span className="text-white text-sm font-bold">Dashboard</span>{' '}
+          </a>
+          <a href={`${SEAMLESS_INTERFACE_URL}/markets`}>
+            <span className="text-white text-sm font-bold">Markets</span>
+          </a>
+          <div>
+            <span className="text-white text-sm font-bold underline cursor-pointer offset-4">Farms</span>
+          </div>
+        </LinkContainer>
       </LeftContainer>
       <MiddleContainer>
         <HeaderToggle enabled={mode === Mode.VAULTS} toggle={toggleMode} options={['Single Farm View', 'Asset View']} />
@@ -31,7 +44,11 @@ export const Header = () => {
 }
 
 const LogoImage = styled.img`
-  ${tw`w-auto h-48 -my-16`}
+  ${tw`w-full h-36 -my-16 -ml-2 sm:ml-0`}
+`
+
+const LinkContainer = styled.div`
+  ${tw`flex flex-wrap justify-center gap-1 sm:flex-col md:flex-row md:gap-2 lg:gap-4 xl:gap-8`}
 `
 
 const Container = styled.div`
@@ -41,11 +58,10 @@ const Container = styled.div`
 const LogoSpan = styled.span`
   font-family: 'Coromont Garamond';
   ${tw`ml-2 p-3 text-3xl`}
-  ${tw`header-wrap:ml-20`}
 `
 
 const LeftContainer = styled.div`
-  ${tw`flex w-auto`}
+  ${tw`flex w-auto justify-center items-center md:gap-2 lg:gap-4 xl:gap-8 `}
   ${tw`header-wrap:w-4/12`}
 `
 

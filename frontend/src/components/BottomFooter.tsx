@@ -52,12 +52,14 @@ const BottomFooter = () => (
     <LinkContainer>
       <div className="flex gap-4">
         {FOOTER_LINKS.map((link) => (
-          <div className="">{link.label}</div>
+          <a href={link.href} key={link.key} target="_blank" rel="noreferrer">
+            <div className="">{link.label}</div>
+          </a>
         ))}
       </div>
       <div className="flex gap-2">
         {FOOTER_ICONS.map((icon) => (
-          <a href={icon.href} key={icon.title}>
+          <a href={icon.href} key={icon.title} target="_blank" rel="noreferrer">
             <img src={icon.icon} alt="" height={12} />
           </a>
         ))}

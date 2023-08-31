@@ -28,7 +28,7 @@ export const Header = () => {
             <span className="text-white text-sm font-bold">Markets</span>
           </a>
           <div>
-            <span className="text-white text-sm font-bold underline cursor-pointer offset-4">Farms</span>
+            <span className="text-white text-sm font-bold underline cursor-pointer">Farms</span>
           </div>
         </LinkContainer>
       </LeftContainer>

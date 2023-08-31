@@ -43,7 +43,7 @@ npx hardhat --network base-goerli create-geyser --stakingtoken 0x6a3639B76cfA1C4
 npx hardhat --network base-goerli create-geyser --stakingtoken 0x4fc8603DAFFA1391F31c1F55b45d54E1424D6C82 --rewardtoken 0x980d0cbb2e314c496b808cac88a8a4e8893161e1  --floor 10000000000000000 --ceiling 100000000000000000000 --time 3600
 ```
 
-The following deposits 1 million reward tokens (with 1e18) decimals. The deploy script scales by 1e9, then internally the contract scaled by 1000. An amount of `100000000000 = 1e11` will scale to `1e23`. Can change the way scripts work.
+**The following deposits 1 million reward tokens (with 1e18) decimals. The deploy script scales by 1e9, then internally the contract scaled by 1000. An amount of `100000000000 = 1e11` will scale to `1e23`. Can change the way scripts work.**
 
 ```bash
 # old weth
@@ -56,7 +56,7 @@ npx hardhat --network base-goerli fund-geyser --geyser 0xc8Ae4370818c4566E5993E7
 npx hardhat --network base-goerli fund-geyser --geyser 0x1887f68767aC948c5d4AD94A95062D5Fe47CbA90 --amount 1000000 --duration 31536000
 ```
 
-## Tenderly: Base mainnet fork
+## Tenderly: Base fork v2
 
 Deploy factories:
 
@@ -64,24 +64,24 @@ Deploy factories:
 $ npx hardhat deploy --network tenderly
 
 Deploying PowerSwitchFactory
-  to 0x91D2409B5a4434863221795E009f064d90E8e056
-  in 0x67027a68a73b53e3a543b749b7a76dd20864ac6da08d1b3975cc57ae2d83d87b
+  to 0xE0B1c72863dE480B1A9B0b92750deCFd494D8480
+  in 0x740d9310403e54f34af489209737f6786b1419af946d3318c749ebb4c43c8b58
 Deploying RewardPoolFactory
-  to 0x46469a3ABf2Ccac3c7249d6540c7eccdF5646496
-  in 0xf91bb96ef77246e7f636a2278e030e5ee1efbc524b2a57512d7d622b20c7b414
+  to 0x91D2409B5a4434863221795E009f064d90E8e056
+  in 0xaa1410d2a02ba99dc65cd95037d14ed4fee27c0f7e2ebe61ac2fbe203ac4a135
 Deploying UniversalVault
-  to 0xa1Ed2275F3a4aB09EFC94B94F50D9e73b22D2e9F
-  in 0x6fb8d6376c45429c00148e4f4a0400a2d66c474660ebb8af953b7366e66b732e
+  to 0x46469a3ABf2Ccac3c7249d6540c7eccdF5646496
+  in 0xd30ad163d093a07646cf3fc2bc18cbd6d7b5ba55e28b654d212b7763ec59bc5f
 Deploying VaultFactory
-  to 0x5780092FcA7BA471Bd58480Ea83A487649C57772
-  in 0x2ba2cb23bcdca56ef04ed67d10359e232c9ed1cd7039200069040ff6e216b08c
+  to 0xa1Ed2275F3a4aB09EFC94B94F50D9e73b22D2e9F
+  in 0x21537c4fb41c6dbf43c2406aa6ba75ea430c309b5d09529ac8369ee8048f087d
 Deploying GeyserRegistry
-  to 0xA576981bd534e229390B68fc8c0f0BCF101F6103
-  in 0xf2545dcac44ba8b7d781a9651429d2636c7d684a3709c76516d720c0ccdb6a5c
+  to 0x5780092FcA7BA471Bd58480Ea83A487649C57772
+  in 0x43812881af793ff69f394d474902dbaab0824dc90781daa597f20e4b9444398a
 Deploying RouterV1
-  to 0xFe8a29e3c239153249802a05541565b9111c4904
-  in 0xd4207cf11554d3543c9f6d4b4786dfe4cd74286d7bd1e34e23239c85ff89634e
-Saving config to ./sdk/deployments/tenderly/factories-1693428080.json
+  to 0xA576981bd534e229390B68fc8c0f0BCF101F6103
+  in 0xef1d848594b8be780d171df1f956546006cb7211b0aa5534f44f73b17faac34e
+Saving config to ./sdk/deployments/tenderly/factories-1693507365.json
 ```
 
 Create vault:
@@ -90,28 +90,50 @@ Create vault:
 $ npx hardhat create-vault --network tenderly
 
 Deploying UniversalVault
-  to 0xd799bB70C37D4029Cb39917E4B2CA13873CB0Eab
-  in 0xfc048c2a16466b0724b7144d97dafc95a80cfb703327350d5ff904b4c18c1501
+  to 0x41A5f26bd28c8576884b89e869ff7D0C7B06F59D
+  in 0xe0683f5aef462f13e2f8001c2d94606ab9b0a97f862ce070d86e20ed71ea5eae
 ```
 
 ### Impersonate `SEAM` and `USDC`
 
-Acquire funds in our tenderly fork of Base mainnet. Seam at `0x178898686f23a50ccac17962df41395484804a6b`:
+Acquire funds in our tenderly fork of Base mainnet. Seam at `0x178898686F23a50CCAC17962df41395484804a6B`:
 
 ```bash
 npx hardhat mint-token --network tenderly --token 0x178898686f23a50ccac17962df41395484804a6b --admin 0x1099a1b84678493bc6c6f737aa3ffe5bcf488bf9 --destination 0xB232B987FB0AC10A31faAa01F45408cA58D28253 --amount 10000
 ```
 
+Check for SEAM assets:
+
+```bash
+npx hardhat check-balance --network tenderly --token 0x178898686f23a50ccac17962df41395484804a6b
+```
+
 ### WETH Geyser
 
 ```bash
-$ tbd
+$ npx hardhat --network tenderly create-geyser --stakingtoken 0x91366f8dD9F4191F6310318813D548EeAc4aA740 --rewardtoken 0x178898686f23a50ccac17962df41395484804a6b  --floor 1000000000000000000 --ceiling 10000000000000000000 --time 3600
+
+Deploying Geyser
+  to proxy 0x5C8884839B77383154E732021580F82F41998Fa6
+  to implementation 0x510393Bac3905781086CdfA879d4cBF4F7901629
+  with upgreadability admin 0x6aE1d838327499fD42A708F1CeA8CE3b8D7975e4
+  in 0x9a04025ed14de3e96255f1ddc0a3819bb2f06c8a5646ca1e086619b746c41112
+  staking token 0x91366f8dD9F4191F6310318813D548EeAc4aA740
+  reward token 0x178898686F23a50CCAC17962df41395484804a6B
+  reward floor 1000000000000000000
+  reward ceiling 10000000000000000000
+Register Geyser Instance
+initialize geyser
+Register Vault Factory
 ```
 
-Fund geyser:
+Fund geyser, refer to bold section above for decimals:
 
 ```bash
-$ tbd
+$ npx hardhat --network tenderly fund-geyser --geyser 0x5C8884839B77383154E732021580F82F41998Fa6 --amount 100000000000 --duration 31536000
+
+
+[tbd]
 ```
 
 ### USDC Geyser

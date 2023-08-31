@@ -10,7 +10,10 @@ import { Contract, Signer, Wallet, BigNumber } from 'ethers'
 import { mkdirSync, readFileSync, writeFileSync } from 'fs'
 import { HardhatUserConfig, task } from 'hardhat/config'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/dist/src/signer-with-address'
-import { parseUnits } from 'ethers/lib/utils'
+import { BytesLike, parseUnits } from 'ethers/lib/utils'
+import { HttpNetworkUserConfig } from 'hardhat/types'
+import { impersonateAccount, setBalance } from "@nomicfoundation/hardhat-network-helpers";
+
 
 const SDK_PATH = './sdk'
 
@@ -227,6 +230,51 @@ task('create-vault', 'deploy an instance of UniversalVault')
     const vaultFactory = await ethers.getContractAt('VaultFactory', VaultFactory.address, signer)
 
     await createInstance('UniversalVault', vaultFactory, ethers.getContractAt, signer)
+  })
+
+task('mint-token', 'mints token impersonating the owner')
+  .addParam('token', 'the toke to mint')
+  .addParam('admin', 'the admin to impersonate')
+  .addParam('destination', 'the address to fund')
+  .addParam('amount', 'scaled in decimals')
+  .setAction(async ({ token, admin, destination, amount }, { ethers, run, network }) => {
+    const accounts = await ethers.getSigners()
+    const signer = accounts[0]
+
+    const rewardTokenContractAccess = await ethers.getContractAt([
+      'function hasRole(bytes32 role, address account) public view returns (bool)',
+      'function MINTER_ROLE() public pure returns (bytes32)',
+      'function mint(address account, uint256 amount) external'
+    ], token, signer)
+    const rewardTokenContract = await ethers.getContractAt('ERC20', token, signer)
+
+    const config = network.config as HttpNetworkUserConfig
+
+    const mintRole = await rewardTokenContractAccess.MINTER_ROLE(); 
+    const hasMintRole = await rewardTokenContractAccess.hasRole(mintRole, admin);
+    if (!hasMintRole) {
+      console.log("Not and admin.")
+      return;
+    }
+
+    if (network.name && network.name.toLowerCase() === "tenderly") {
+      if (config.url !== undefined) {
+        ethers.provider = new ethers.providers.JsonRpcProvider(config.url);
+      }
+
+      const balanceAccounts = accounts.map(a => a.address);
+      balanceAccounts.push(admin);
+      await ethers.provider.send("tenderly_setBalance", [
+          balanceAccounts,
+          ethers.utils.hexValue(ethers.utils.parseUnits("10000", "ether").toHexString()),
+      ]);
+    } else {
+      await impersonateAccount(admin);
+      await setBalance(admin, ethers.utils.parseEther("100"));
+    }
+
+    const decimals = await rewardTokenContract.decimals();
+    await rewardTokenContractAccess.connect(admin).mint(destination, ethers.utils.parseUnits("10000", decimals));
   })
 
 task('create-geyser', 'deploy an instance of Geyser')

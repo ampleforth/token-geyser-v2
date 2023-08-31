@@ -94,11 +94,15 @@ Deploying UniversalVault
   in 0xfc048c2a16466b0724b7144d97dafc95a80cfb703327350d5ff904b4c18c1501
 ```
 
+### Impersonate `SEAM` and `USDC`
+
+Acquire funds in our tenderly fork of Base mainnet. Seam at `0x178898686f23a50ccac17962df41395484804a6b`:
+
+```bash
+npx hardhat mint-token --network tenderly --token 0x178898686f23a50ccac17962df41395484804a6b --admin 0x1099a1b84678493bc6c6f737aa3ffe5bcf488bf9 --destination 0xB232B987FB0AC10A31faAa01F45408cA58D28253 --amount 10000
+```
+
 ### WETH Geyser
-
-Need to inpersonate `SEAM` admin and mint `SEAM` into deploy wallet.
-
-Create geyser using `SEAM` as rewardtoken `0x178898686f23a50ccac17962df41395484804a6b`:
 
 ```bash
 $ tbd
@@ -112,4 +116,4 @@ $ tbd
 
 ### USDC Geyser
 
-Need to inpersonate `USDC` admin and mint `USDC` into deploy wallet.
+tbd

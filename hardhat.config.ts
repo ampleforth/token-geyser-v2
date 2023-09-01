@@ -446,9 +446,9 @@ task('wrap-and-stake', 'fund an instance of Geyser')
   .addParam('vault', 'address of universal vault')
   .addParam('amount', 'amount in raw decimals')
   .setAction(async ({ unbutton, geyser, vault, amount }, { ethers, network }) => {
-    if (network.name && network.name.toLowerCase() === 'tenderly') { 
+    if (network.name && network.name.toLowerCase() !== 'tenderly') {
       console.log('not on tenderly')
-      return;
+      return
     }
 
     const signer = (await ethers.getSigners())[0]

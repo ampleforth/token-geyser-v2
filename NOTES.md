@@ -127,10 +127,12 @@ initialize geyser
 Register Vault Factory
 ```
 
-Before funding the geyser, we must allow the geyser to transfer our non-transferrable reward token:
+Before funding the geyser, we must allow the ourselves and the geyser to transfer our non-transferrable reward token:
 
 ```bash
 $ npx hardhat allow-transfer --network tenderly --token 0x178898686f23a50ccac17962df41395484804a6b --admin 0x1099a1b84678493bc6c6f737aa3ffe5bcf488bf9 --target 0xB232B987FB0AC10A31faAa01F45408cA58D28253
+
+$ npx hardhat allow-transfer --network tenderly --token 0x178898686f23a50ccac17962df41395484804a6b --admin 0x1099a1b84678493bc6c6f737aa3ffe5bcf488bf9 --target 0x5C8884839B77383154E732021580F82F41998Fa6
 ```
 
 Fund geyser, refer to bold section above for decimals:

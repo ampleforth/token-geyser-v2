@@ -306,7 +306,7 @@ task('allow-transfer', 'allows transfer of token')
       [
         'function hasRole(bytes32 role, address account) public view returns (bool)',
         'function TRANSFER_ROLE() public pure returns (bytes32)',
-        'function grantRole(bytes32 role, address account) public'
+        'function grantRole(bytes32 role, address account) public',
       ],
       token,
       signer,
@@ -334,9 +334,10 @@ task('allow-transfer', 'allows transfer of token')
 
       const adminSigner = ethers.provider.getSigner(admin)
       await rewardTokenContractAccess.connect(adminSigner).grantRole(transferRole, target)
+    } else {
+      console.log('Already has transfer role')
     }
   })
-
 
 task('create-geyser', 'deploy an instance of Geyser')
   .addParam('stakingtoken', 'the staking token')

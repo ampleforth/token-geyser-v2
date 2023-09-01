@@ -143,6 +143,12 @@ $ npx hardhat --network tenderly fund-geyser --geyser 0x5C8884839B77383154E73202
 [tbd]
 ```
 
+Now test a deposit:
+
+```bash
+npx hardhat --network tenderly wrap-and-stake --unbutton 0x91366f8dD9F4191F6310318813D548EeAc4aA740 --geyser 0x5C8884839B77383154E732021580F82F41998Fa6 --vault 0x46469a3ABf2Ccac3c7249d6540c7eccdF5646496 --amount 100000000000000000
+```
+
 ### USDC Geyser
 
 tbd

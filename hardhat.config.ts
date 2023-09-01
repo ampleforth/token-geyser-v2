@@ -13,6 +13,7 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/dist/src/signer-wit
 import { BytesLike, parseUnits } from 'ethers/lib/utils'
 import { HttpNetworkUserConfig } from 'hardhat/types'
 import { impersonateAccount, setBalance } from '@nomicfoundation/hardhat-network-helpers'
+import { signPermission } from './frontend/src/sdk/utils'
 
 const SDK_PATH = './sdk'
 
@@ -76,8 +77,6 @@ task('deploy', 'deploy full set of factory contracts')
     await run('compile')
 
     const signer = (await ethers.getSigners())[0]
-
-    // console.log(network)
 
     console.log('Signer', signer.address)
 
@@ -439,6 +438,50 @@ task('fund-geyser', 'fund an instance of Geyser')
     }
 
     await geyserContract.connect(signer).fundGeyser(amt, duration)
+  })
+
+task('wrap-and-stake', 'fund an instance of Geyser')
+  .addParam('unbutton', 'address of ub contract')
+  .addParam('geyser', 'address of geyser')
+  .addParam('vault', 'address of universal vault')
+  .addParam('amount', 'amount in raw decimals')
+  .setAction(async ({ unbutton, geyser, vault, amount }, { ethers, network }) => {
+    const signer = (await ethers.getSigners())[0]
+
+    const wallet = new ethers.Wallet(process.env.BASE_TESTNET_PRIVATE_KEY as BytesLike, ethers.provider)
+
+    const unbuttonContract = await ethers.getContractAt([
+      'function underlying() external view returns (address)',
+      'function deposit(uint256 uAmount) external returns (uint256)',
+      'function withdraw(uint256 uAmount) external returns (uint256)',
+      'function balanceOf(address account) external view returns (uint256)'
+    ], unbutton, signer)
+
+    const underlying = await unbuttonContract.connect(signer).underlying()
+    console.log(`Unbutton Underlying: ${underlying}`)
+
+    const underlyingContract = await ethers.getContractAt([
+      'function balanceOf(address account) external view returns (uint256)',
+      'function approve(address spender, uint256 value) external returns (bool)'
+    ], underlying, signer)
+    const underlyingBalance = await underlyingContract.balanceOf(signer.address)
+    console.log(`Underlying balance: ${underlyingBalance}`)
+    
+    await underlyingContract.approve(unbuttonContract.address, amount)
+    await unbuttonContract.connect(signer).deposit(amount);
+
+    const geyserUbBalanceBefore = await unbuttonContract.balanceOf(geyser)
+    console.log(`Geyser Unbuttoned balance before: ${geyserUbBalanceBefore}`)
+
+    const geyserContract = await ethers.getContractAt('Geyser', geyser, signer)
+    const vaultContract = await ethers.getContractAt('UniversalVault', vault, signer)
+
+    const permission = await signPermission('Lock', vaultContract, wallet, geyserContract.address, unbuttonContract.address, amount)
+    // fails here: permission string is returned (follows front end logic)
+    await geyserContract.stake(vaultContract.address, ethers.BigNumber.from(amount), permission);
+    
+    const geyserUbBalanceAfter = await unbuttonContract.balanceOf(geyser)
+    console.log(`Geyser Unbuttoned balance after: ${geyserUbBalanceAfter}`)
   })
 
 // currently need to manually run verify command

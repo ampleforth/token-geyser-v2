@@ -232,6 +232,7 @@ task('create-vault', 'deploy an instance of UniversalVault')
   })
 
 task('mint-token', 'mints token impersonating the owner')
+  .addParam('token', 'the token to mint')
   .addParam('admin', 'the admin to impersonate')
   .addParam('destination', 'the address to fund')
   .addParam('amount', 'scaled in decimals')
@@ -267,18 +268,17 @@ task('mint-token', 'mints token impersonating the owner')
       balanceAccounts.push(admin)
       await ethers.provider.send('tenderly_setBalance', [
         balanceAccounts,
-        ethers.utils.hexValue(ethers.utils.parseUnits('10000', 'ether').toHexString()),
+        ethers.utils.hexValue(ethers.utils.parseUnits('10', 'ether').toHexString()),
       ])
     } else {
       await impersonateAccount(admin)
       await setBalance(admin, ethers.utils.parseEther('100'))
     }
 
-    const adminSigner = ethers.provider.getSigner(admin);
+    const adminSigner = ethers.provider.getSigner(admin)
 
     const decimals = await rewardTokenContract.decimals()
     const finalAmount = ethers.utils.parseUnits('1000', decimals)
-    console.log(finalAmount)
     await rewardTokenContractAccess.connect(adminSigner).mint(destination, finalAmount)
   })
 
@@ -293,6 +293,50 @@ task('check-balance', 'checks balance of minted token')
     const balance = await rewardTokenContract.balanceOf(signer.address)
     console.log(`${signer.address} has a balance of: ${balance}`)
   })
+
+task('allow-transfer', 'allows transfer of token')
+  .addParam('token', 'the toke to mint')
+  .addParam('admin', 'admin')
+  .addParam('target', 'address to allow')
+  .setAction(async ({ token, admin, target }, { ethers, run, network }) => {
+    const accounts = await ethers.getSigners()
+    const signer = accounts[0]
+
+    const rewardTokenContractAccess = await ethers.getContractAt(
+      [
+        'function hasRole(bytes32 role, address account) public view returns (bool)',
+        'function TRANSFER_ROLE() public pure returns (bytes32)',
+        'function grantRole(bytes32 role, address account) public'
+      ],
+      token,
+      signer,
+    )
+    const transferRole = await rewardTokenContractAccess.TRANSFER_ROLE()
+    const hasTransferRole = await rewardTokenContractAccess.hasRole(transferRole, signer.address)
+    if (!hasTransferRole) {
+      const config = network.config as HttpNetworkUserConfig
+
+      if (network.name && network.name.toLowerCase() === 'tenderly') {
+        if (config.url !== undefined) {
+          ethers.provider = new ethers.providers.JsonRpcProvider(config.url)
+        }
+
+        const balanceAccounts = accounts.map((a) => a.address)
+        balanceAccounts.push(admin)
+        await ethers.provider.send('tenderly_setBalance', [
+          balanceAccounts,
+          ethers.utils.hexValue(ethers.utils.parseUnits('10', 'ether').toHexString()),
+        ])
+      } else {
+        await impersonateAccount(admin)
+        await setBalance(admin, ethers.utils.parseEther('100'))
+      }
+
+      const adminSigner = ethers.provider.getSigner(admin)
+      await rewardTokenContractAccess.connect(adminSigner).grantRole(transferRole, target)
+    }
+  })
+
 
 task('create-geyser', 'deploy an instance of Geyser')
   .addParam('stakingtoken', 'the staking token')
@@ -384,19 +428,16 @@ task('fund-geyser', 'fund an instance of Geyser')
     const geyserContract = await ethers.getContractAt('Geyser', geyser, signer)
     const data = await geyserContract.getGeyserData()
     const { rewardToken: rewardTokenAddress } = data
-    console.log(rewardTokenAddress)
     const rewardToken = await ethers.getContractAt('MockAmpl', rewardTokenAddress, signer)
     const amt = parseUnits(amount, 9)
     await rewardToken.approve(geyser, amt)
-
-    console.log("HERE")
 
     let nonce = await signer.getTransactionCount()
     if (network.name === 'base-goerli') {
       nonce = nonce + 1
     }
 
-    await geyserContract.connect(signer).fundGeyser(amt, duration, { nonce: nonce })
+    await geyserContract.connect(signer).fundGeyser(amt, duration)
   })
 
 // currently need to manually run verify command

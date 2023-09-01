@@ -99,13 +99,13 @@ Deploying UniversalVault
 Acquire funds in our tenderly fork of Base mainnet. Seam at `0x178898686F23a50CCAC17962df41395484804a6B`:
 
 ```bash
-npx hardhat mint-token --network tenderly --token 0x178898686f23a50ccac17962df41395484804a6b --admin 0x1099a1b84678493bc6c6f737aa3ffe5bcf488bf9 --destination 0xB232B987FB0AC10A31faAa01F45408cA58D28253 --amount 10000
+$ npx hardhat mint-token --network tenderly --token 0x178898686f23a50ccac17962df41395484804a6b --admin 0x1099a1b84678493bc6c6f737aa3ffe5bcf488bf9 --destination 0xB232B987FB0AC10A31faAa01F45408cA58D28253 --amount 10000
 ```
 
 Check for SEAM assets:
 
 ```bash
-npx hardhat check-balance --network tenderly --token 0x178898686f23a50ccac17962df41395484804a6b
+$ npx hardhat check-balance --network tenderly --token 0x178898686f23a50ccac17962df41395484804a6b
 ```
 
 ### WETH Geyser
@@ -127,11 +127,16 @@ initialize geyser
 Register Vault Factory
 ```
 
+Before funding the geyser, we must allow the geyser to transfer our non-transferrable reward token:
+
+```bash
+$ npx hardhat allow-transfer --network tenderly --token 0x178898686f23a50ccac17962df41395484804a6b --admin 0x1099a1b84678493bc6c6f737aa3ffe5bcf488bf9 --target 0xB232B987FB0AC10A31faAa01F45408cA58D28253
+```
+
 Fund geyser, refer to bold section above for decimals:
 
 ```bash
 $ npx hardhat --network tenderly fund-geyser --geyser 0x5C8884839B77383154E732021580F82F41998Fa6 --amount 100000000000 --duration 31536000
-
 
 [tbd]
 ```
@@ -139,3 +144,7 @@ $ npx hardhat --network tenderly fund-geyser --geyser 0x5C8884839B77383154E73202
 ### USDC Geyser
 
 tbd
+
+## Mainnet
+
+**NOTE**: Part of `create-geyser` task will need to be run manually

@@ -35,6 +35,7 @@ module.exports = {
       purpleColor: '#A459D1',
       footer: '#890596',
       cream: '#F8F0E5',
+      lightBlue: '#3AB0FF',
     },
     container: {
       center: true,

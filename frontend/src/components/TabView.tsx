@@ -33,7 +33,7 @@ export const TabView: React.FC<Props> = ({ active, tabs, onChange }) => {
     <Tab.Group onChange={onChange}>
       <StyledTabList className="h-14">
         {tabs.map((t, i) => (
-          <StyledFlexTab key={t} className={`${active === i ? 'bg-purpleColor text-white' : 'text-darkGray'}`}>
+          <StyledFlexTab key={t} className={`${active === i ? 'bg-lightBlue text-white' : 'text-darkGray'}`}>
             {t}
           </StyledFlexTab>
         ))}

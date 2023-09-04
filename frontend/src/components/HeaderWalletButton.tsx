@@ -26,7 +26,7 @@ const ButtonContainer = styled.div`
 
 // const pink = `bg-footer hover:bg-[#FF6ED7/50]`
 const Button = styled.button`
-  ${tw`w-full px-8 py-4 rounded-bl-2xl float-right bg-footer`}
+  ${tw`w-full px-8 py-4 rounded-bl-2xl float-right bg-lightBlue`}
   ${tw`sm:px-14 sm:py-5`}
   ${tw`hover:bg-[#FF6ED750]`}
 `

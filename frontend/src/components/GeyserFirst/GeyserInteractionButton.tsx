@@ -14,7 +14,6 @@ export const GeyserInteractionButton: React.FC<Props> = ({ onClick, displayText,
 )
 
 const Button = styled.button`
-  ${tw`h-16 border-2 rounded-lg text-secondary uppercase font-semibold`};
-  ${tw`hover:border-primary hover:bg-secondary hover:text-primary`}
+  ${tw`h-16 border-2 rounded-lg text-secondary uppercase font-semibold bg-lightBlue`};
   ${tw`disabled:bg-lightGray disabled:cursor-not-allowed disabled:border-none disabled:text-white`}
 `

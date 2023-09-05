@@ -322,14 +322,14 @@ task('mint-reward-token', 'mints reward token (non-transferrable) impersonating 
   })
 
 task('check-balance', 'checks balance of minted token')
-  .addParam('token', 'the toke to mint')
+  .addParam('token', 'the token to mint')
   .setAction(async ({ token }, { ethers, run, network }) => {
     const accounts = await ethers.getSigners()
     const signer = accounts[0]
 
-    const rewardTokenContract = await ethers.getContractAt('ERC20', token, signer)
+    const tokenContract = await ethers.getContractAt('ERC20', token, signer)
 
-    const balance = await rewardTokenContract.balanceOf(signer.address)
+    const balance = await tokenContract.balanceOf(signer.address)
     console.log(`${signer.address} has a balance of: ${balance}`)
   })
 
@@ -351,7 +351,7 @@ task('allow-transfer', 'allows transfer of token')
       signer,
     )
     const transferRole = await rewardTokenContractAccess.TRANSFER_ROLE()
-    const hasTransferRole = await rewardTokenContractAccess.hasRole(transferRole, signer.address)
+    const hasTransferRole = await rewardTokenContractAccess.hasRole(transferRole, target)
     if (!hasTransferRole) {
       const config = network.config as HttpNetworkUserConfig
 
@@ -373,6 +373,7 @@ task('allow-transfer', 'allows transfer of token')
 
       const adminSigner = ethers.provider.getSigner(admin)
       await rewardTokenContractAccess.connect(adminSigner).grantRole(transferRole, target)
+      console.log(`Granted transfer role to ${target}`)
     } else {
       console.log('Already has transfer role')
     }
@@ -461,16 +462,18 @@ task('create-geyser', 'deploy an instance of Geyser')
 task('fund-geyser', 'fund an instance of Geyser')
   .addParam('geyser', 'address of geyser')
   .addParam('amount', 'amount in floating point')
+  .addParam('decimals', 'decimals of reward/funding token')
   .addParam('duration', 'time in seconds the program lasts')
   .addOptionalParam('factoryVersion', 'the factory version', 'latest')
-  .setAction(async ({ geyser, amount, duration }, { ethers, network }) => {
+  .setAction(async ({ geyser, amount, decimals, duration }, { ethers, network }) => {
     const signer = (await ethers.getSigners())[0]
     const geyserContract = await ethers.getContractAt('Geyser', geyser, signer)
     const data = await geyserContract.getGeyserData()
     const { rewardToken: rewardTokenAddress } = data
     const rewardToken = await ethers.getContractAt('MockAmpl', rewardTokenAddress, signer)
-    const amt = parseUnits(amount, 9)
+    const amt = parseUnits(amount, decimals)
     await rewardToken.approve(geyser, amt)
+    console.log(`Funding Geyser with amount: ${amt}`)
 
     let nonce = await signer.getTransactionCount()
     if (network.name === 'base-goerli') {

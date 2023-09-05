@@ -8,7 +8,7 @@ import { HeaderWalletButton } from './HeaderWalletButton'
 import { HeaderToggle } from './HeaderToggle'
 import { HeaderNetworkSelect } from './HeaderNetworkSelect'
 
-const SEAMLESS_INTERFACE_URL = `https://interface-chi-lemon.vercel.app`
+const SEAMLESS_INTERFACE_URL = `https://app.seamlessprotocol.com`
 
 export const Header = () => {
   const { mode, toggleMode } = useContext(AppContext)

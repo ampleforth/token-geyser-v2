@@ -94,15 +94,15 @@ Deploying UniversalVault
   in 0xe0683f5aef462f13e2f8001c2d94606ab9b0a97f862ce070d86e20ed71ea5eae
 ```
 
-### Impersonate `SEAM` and `USDC`
+### Impersonate `OG Points`
 
-Acquire funds in our tenderly fork of Base mainnet. Seam at `0x178898686F23a50CCAC17962df41395484804a6B`:
+Acquire funds in our tenderly fork of Base mainnet. `OG Points` at `0x178898686F23a50CCAC17962df41395484804a6B`:
 
 ```bash
-$ npx hardhat mint-token --network tenderly --token 0x178898686f23a50ccac17962df41395484804a6b --admin 0x1099a1b84678493bc6c6f737aa3ffe5bcf488bf9 --destination 0xB232B987FB0AC10A31faAa01F45408cA58D28253 --amount 10000
+$ npx hardhat mint-reward-token --network tenderly --token 0x178898686f23a50ccac17962df41395484804a6b --admin 0x1099a1b84678493bc6c6f737aa3ffe5bcf488bf9 --destination 0xB232B987FB0AC10A31faAa01F45408cA58D28253 --amount 10000
 ```
 
-Check for SEAM assets:
+Check for `OG Points` assets:
 
 ```bash
 $ npx hardhat check-balance --network tenderly --token 0x178898686f23a50ccac17962df41395484804a6b
@@ -151,7 +151,17 @@ npx hardhat --network tenderly wrap-and-stake --unbutton 0x91366f8dD9F4191F63103
 
 ### USDC Geyser
 
-tbd
+Assumes geyser factories & vaults are set up, and minted `OG Points` through impersonation in the instructions above. We need to impersonate and mint `USDC`:
+
+```bash
+$ npx hardhat mint-erc20-token --network tenderly --token 0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca --admin 0x4200000000000000000000000000000000000010 --destination 0xB232B987FB0AC10A31faAa01F45408cA58D28253 --amount 1000000
+```
+
+Check for `USDC` assets:
+
+```bash
+$ npx hardhat check-balance --network tenderly --token 0x178898686f23a50ccac17962df41395484804a6b
+```
 
 ## Mainnet
 

@@ -230,7 +230,47 @@ task('create-vault', 'deploy an instance of UniversalVault')
     await createInstance('UniversalVault', vaultFactory, ethers.getContractAt, signer)
   })
 
-task('mint-token', 'mints token impersonating the owner')
+task('mint-erc20-token', 'mints token impersonating the owner')
+  .addParam('token', 'the token to mint')
+  .addParam('admin', 'the admin to impersonate')
+  .addParam('destination', 'the address to fund')
+  .addParam('amount', 'scaled in decimals')
+  .setAction(async ({ token, destination, admin, amount }, { ethers, run, network }) => {
+    const accounts = await ethers.getSigners()
+    const signer = accounts[0]
+
+    const tokenContractMint = await ethers.getContractAt([
+      'function mint(address account, uint256 amount) external',
+    ], token, signer)
+    const tokenContract = await ethers.getContractAt('ERC20', token, signer)
+
+    const config = network.config as HttpNetworkUserConfig
+
+    if (network.name && network.name.toLowerCase() === 'tenderly') {
+      if (config.url !== undefined) {
+        ethers.provider = new ethers.providers.JsonRpcProvider(config.url)
+      }
+
+      const balanceAccounts = accounts.map((a) => a.address)
+      balanceAccounts.push(admin)
+      await ethers.provider.send('tenderly_setBalance', [
+        balanceAccounts,
+        ethers.utils.hexValue(ethers.utils.parseUnits('10', 'ether').toHexString()),
+      ])
+    } else {
+      await impersonateAccount(admin)
+      await setBalance(admin, ethers.utils.parseEther('100'))
+    }
+
+    const adminSigner = ethers.provider.getSigner(admin)
+
+    const decimals = await tokenContract.decimals()
+    console.log('decimals', decimals)
+    const finalAmount = ethers.utils.parseUnits(amount, decimals)
+    await tokenContractMint.connect(adminSigner).mint(destination, finalAmount)
+  })
+
+task('mint-reward-token', 'mints reward token (non-transferrable) impersonating the owner')
   .addParam('token', 'the token to mint')
   .addParam('admin', 'the admin to impersonate')
   .addParam('destination', 'the address to fund')
@@ -277,7 +317,7 @@ task('mint-token', 'mints token impersonating the owner')
     const adminSigner = ethers.provider.getSigner(admin)
 
     const decimals = await rewardTokenContract.decimals()
-    const finalAmount = ethers.utils.parseUnits('1000', decimals)
+    const finalAmount = ethers.utils.parseUnits(amount, decimals)
     await rewardTokenContractAccess.connect(adminSigner).mint(destination, finalAmount)
   })
 

@@ -73,7 +73,7 @@ coverage.json
 coverage/
 coverageEnv/
 
-.openzeppelin
+.openzeppelin/*.json
 .vscode
 cache
 artifacts
@@ -94,3 +94,6 @@ flattened
 
 # user scripts
 scripts.sh
+
+# allow
+!.openzeppelin/unknown-8453.json

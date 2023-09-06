@@ -16,23 +16,34 @@ export const Header = () => {
     <Container>
       <LeftContainer>
         <LogoSpan>
-          <a href="https://www.seamlessprotocol.com">
+          <a href={SEAMLESS_INTERFACE_URL}>
             <LogoImage src={logo} alt="Seamless" />
           </a>
         </LogoSpan>
-        <LinkContainer>
+        <LeftLinkContainer>
           <a href={`${SEAMLESS_INTERFACE_URL}`}>
-            <span className="text-white text-sm font-bold">Dashboard</span>{' '}
+            <span className="text-white text-[6px] font-bold md:text-sm">Dashboard</span>
           </a>
           <a href={`${SEAMLESS_INTERFACE_URL}/markets`}>
-            <span className="text-white text-sm font-bold">Markets</span>
+            <span className="text-white text-[6px] font-bold md:text-sm">Markets</span>
           </a>
           <div>
-            <span className="text-white text-sm font-bold underline cursor-pointer">Farms</span>
+            <span className="text-white text-[6px] font-bold underline cursor-pointer md:text-sm">Farms</span>
           </div>
-        </LinkContainer>
+        </LeftLinkContainer>
       </LeftContainer>
       <MiddleContainer>
+        <MiddleLinkContainer>
+          <a href={`${SEAMLESS_INTERFACE_URL}`}>
+            <span className="text-white text-[6px] font-bold md:text-sm">Dashboard</span>
+          </a>
+          <a href={`${SEAMLESS_INTERFACE_URL}/markets`}>
+            <span className="text-white text-[6px] font-bold md:text-sm">Markets</span>
+          </a>
+          <div>
+            <span className="text-white text-[6px] font-bold underline cursor-pointer md:text-sm">Farms</span>
+          </div>
+        </MiddleLinkContainer>
         <HeaderToggle enabled={mode === Mode.VAULTS} toggle={toggleMode} options={['Single Farm View', 'Asset View']} />
       </MiddleContainer>
       <RightContainer>
@@ -48,7 +59,15 @@ const LogoImage = styled.img`
 `
 
 const LinkContainer = styled.div`
-  ${tw`flex flex-wrap justify-center gap-1 sm:flex-col md:flex-row md:gap-2 lg:gap-4 xl:gap-8`}
+  ${tw`flex flex-wrap justify-center gap-1 md:flex-col md:flex-row md:gap-2 lg:gap-4 xl:gap-8`}
+`
+
+const LeftLinkContainer = styled(LinkContainer)`
+  ${tw`hidden lg:flex`}
+`
+
+const MiddleLinkContainer = styled(LinkContainer)`
+  ${tw`lg:hidden`}
 `
 
 const Container = styled.div`
@@ -66,8 +85,8 @@ const LeftContainer = styled.div`
 `
 
 const MiddleContainer = styled.div`
-  ${tw`flex flex-col xl:flex-row items-center justify-center w-full order-3 py-6`}
-  ${tw`header-wrap:py-0 header-wrap:max-w-830px header-wrap:mx-auto header-wrap:order-2 header-wrap:w-1/3 xl:w-4/12`}
+  ${tw`flex flex-col xl:flex-row items-center justify-center w-full order-3 py-2 gap-4`}
+  ${tw`header-wrap:py-0 header-wrap:max-w-[830px] header-wrap:mx-auto header-wrap:order-2 header-wrap:w-1/3 xl:w-4/12`}
 `
 const RightContainer = styled.div`
   ${tw`ml-auto order-2 w-auto flex flex-wrap`}

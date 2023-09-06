@@ -1,12 +1,13 @@
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
 
-interface Props {
-}
+interface Props {}
 
 export const WrapperWarning: React.FC<Props> = () => (
   <FlexDiv>
-    <Text><b>NOTE:</b> Liquidity token needs to be wrapped before staking</Text>
+    <Text>
+      <b>NOTE:</b> You must use the Wrapper button to make your asset compatible with the staking farms
+    </Text>
   </FlexDiv>
 )
 

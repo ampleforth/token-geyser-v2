@@ -388,11 +388,11 @@ task('create-geyser', 'deploy an instance of Geyser')
   .addParam('floor', 'the floor of reward scaling')
   .addParam('ceiling', 'the ceiling of reward scaling')
   .addParam('time', 'the time of reward scaling in seconds')
-  .addOptionalParam('finalOwner', 'the address of the final owner', '0x')
+  .addOptionalParam('finalowner', 'the address of the final owner', '0x')
   .addOptionalParam('factoryVersion', 'the factory version', 'latest')
   .setAction(
     async (
-      { factoryVersion, stakingtoken, rewardtoken, floor, ceiling, time, finalOwner },
+      { factoryVersion, stakingtoken, rewardtoken, floor, ceiling, time, finalowner },
       { ethers, run, upgrades, network },
     ) => {
       await run('compile')
@@ -445,7 +445,7 @@ task('create-geyser', 'deploy an instance of Geyser')
       console.log('Register Vault Factory')
       await (await geyser.registerVaultFactory(VaultFactory.address)).wait(1)
 
-      if (finalOwner !== '0x') {
+      if (finalowner !== '0x') {
         console.log('Transfer ownership')
         const powerSwitch = await ethers.getContractAt(
           '@openzeppelin/contracts/access/Ownable.sol:Ownable',
@@ -455,12 +455,36 @@ task('create-geyser', 'deploy an instance of Geyser')
           '@openzeppelin/contracts/access/Ownable.sol:Ownable',
           proxyAdminAddress,
         )
-        await (await powerSwitch.transferOwnership(finalOwner)).wait(1)
-        await (await geyser.transferOwnership(finalOwner)).wait(1)
-        await (await proxyAdmin.transferOwnership(finalOwner)).wait(1)
+        await (await powerSwitch.transferOwnership(finalowner)).wait(1)
+        await (await geyser.transferOwnership(finalowner)).wait(1)
+        await (await proxyAdmin.transferOwnership(finalowner)).wait(1)
       }
     },
   )
+
+task('get-owners', 'gets the owner of the given contract')
+  .addParam('geyser', 'address of geyser')
+  .addParam('proxyadmin', 'address of geyser')
+  .setAction(async ({ geyser, proxyadmin }, { ethers, run, upgrades, network }) => {
+    const signer = (await ethers.getSigners())[0]
+    const geyserContract = await ethers.getContractAt('Geyser', geyser, signer)
+
+    const powerSwitch = await ethers.getContractAt(
+      '@openzeppelin/contracts/access/Ownable.sol:Ownable',
+      await geyserContract.getPowerSwitch(),
+    )
+    const proxyAdmin = await ethers.getContractAt(
+      '@openzeppelin/contracts/access/Ownable.sol:Ownable',
+      proxyadmin,
+    )
+
+    const powerSwitchOwner = await powerSwitch.owner()
+    console.log(`powerSwitchOwner: ${powerSwitchOwner}`)
+    const geyserOwner = await geyserContract.owner()
+    console.log(`geyserOwner: ${geyserOwner}`)
+    const proxyAdminOwner = await proxyAdmin.owner()
+    console.log(`proxyAdminOwner: ${proxyAdminOwner}`)
+  })
 
 task('fund-geyser', 'fund an instance of Geyser')
   .addParam('geyser', 'address of geyser')

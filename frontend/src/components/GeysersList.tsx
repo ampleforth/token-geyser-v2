@@ -17,16 +17,19 @@ export const GeysersList = () => {
   const optgroups = (() => {
     const activeGeysers = geysers.filter((g) => g.active === true).map(({ id }) => getGeyserName(id))
     const inactiveGeysers = geysers.filter((g) => !(g.active === true)).map(({ id }) => getGeyserName(id))
-    return [
+    const farms = [
       {
         group: 'Active Farms',
         options: activeGeysers,
       },
-      {
+    ]
+
+    if (inactiveGeysers.length > 0)
+      farms.push({
         group: 'Inactive Farms',
         options: inactiveGeysers,
-      },
-    ]
+      })
+    return farms
   })()
 
   return (

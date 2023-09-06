@@ -25,7 +25,7 @@ export const getStakingTokenInfo = async (
       return getMockLPToken(tokenAddress)
     case StakingToken.WAMPL:
       return getBasicToken(tokenAddress, signerOrProvider)
-    case StakingToken.SEAM:
+    case StakingToken.OG_POINTS:
       return getBasicToken(tokenAddress, signerOrProvider)
     // TODO
     case StakingToken.SEAMLESS_ATOKEN:

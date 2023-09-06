@@ -159,7 +159,7 @@ Check for `USDC` assets:
 $ npx hardhat check-balance --network tenderly --token 0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca
 ```
 
-Now, assuming we have a wrapped aToken contract (grab address from aave front end), we create the geyser:
+Now, assuming we have a wrapped aToken contract we create the geyser:
 
 ```bash
 $ npx hardhat --network tenderly create-geyser --stakingtoken 0xf84e14984Dccf4D27267f597dC4BF74b334015b7 --rewardtoken 0x178898686f23a50ccac17962df41395484804a6b  --floor 50 --ceiling 100 --time 15552000
@@ -192,6 +192,81 @@ $ npx hardhat --network tenderly fund-geyser --geyser 0xc240964354AC1283e1E518cc
 
 Now test a deposit by running the frontend with subgraph node... More on this later
 
-## Mainnet
+## Base Mainnet
 
-**NOTE**: Part of `create-geyser` task will need to be run manually
+Deploy factories:
+
+```bash
+$ npx hardhat deploy --network base-mainnet
+
+Deploying PowerSwitchFactory
+  to 0x272b77C7316daE8675beb5710d124f635f073E01
+  in 0xfdc22932534a78a91f3a09822ce516637cee21ac2b18302f82e1e22f642992f8
+Deploying RewardPoolFactory
+  to 0x56908a201Eb6a4c4A35B833e5e9749650228FF5e
+  in 0x77bfee6e6e2732ca915107294a368cd088709a52c3511e11ececbf5b2f9c537f
+Deploying UniversalVault
+  to 0xe8Bb3FC413114EfbAeeECbb16A96CDdE4938AF77
+  in 0x0a2a00f6c5717e531ca75726d7e89bb2c0723ff46fc2e453e8f66754118a12de
+Deploying VaultFactory
+  to 0x40292D35b48Ff625C648c2A7F0c9e42cd07cd0B0
+  in 0x64b9e16cd01995b7ba1cc8c239548e04e3e2451b0b7daa2dd72329b41c9cf1c6
+Deploying GeyserRegistry
+  to 0xD5815fC3D736120d07a1fA92bA743c1167dA89d8
+  in 0xf5e6b1ee4981b75c5678f06ff058e67137abf51b9e1c7d45cf457a76d58c2db9
+Deploying RouterV1
+  to 0x59a11C2f543790b8ce1A2DC46C4ad08A4536BdC8
+  in 0x0faafbfe465602e321b979fadce88b6975d6900b2e8c5cf011198e3f3af90ee5
+Locking template
+Saving config to ./sdk/deployments/base-mainnet/factories-1694025457.json
+```
+
+Create vault:
+
+```bash
+$ npx hardhat --network base-mainnet create-vault
+
+Deploying UniversalVault
+  to 0x9fF9536D993D3f398B51ca9148a1d7F8eBaC4280
+  in 0xe36690dd801814dcfb6ea9517866add2067a425f1b54ead3728b8d44d074bfb0
+```
+
+Create wsUSDbC geyser:
+
+```bash
+$ npx hardhat --network base-mainnet create-geyser --stakingtoken 0x7A595538b91D40B411A32a9c6668D8f63c130f0c --rewardtoken 0x5607718c64334eb5174CB2226af891a6ED82c7C6 --floor 50 --ceiling 100 --time 15552000 --finalOwner 0xA1b5f2cc9B407177CD8a4ACF1699fa0b99955A22
+
+Deploying Geyser
+  to proxy 0xac42efBd7A86464Ff2B9d3C2FBdc622A77c7B3EC
+  to implementation 0x52EfbBD14c5a4059E2108734E5d746aD19160564
+  with upgreadability admin 0xaC6D0e95c84329B6AF75C0D58c9b34A85Ee521a9
+  in 0x17d7c3ac4de38b8a463c63b8a6132bdd8e006e5e75acfbfb0f6135c5feb66542
+  staking token 0x7A595538b91D40B411A32a9c6668D8f63c130f0c
+  reward token 0x5607718c64334eb5174CB2226af891a6ED82c7C6
+  reward floor 50
+  reward ceiling 100
+Register Geyser Instance
+initialize geyser
+Register Vault Factory
+Transfer ownership
+```
+
+Create wsWETH geyser:
+
+```bash
+$ npx hardhat --network base-mainnet create-geyser --stakingtoken 0xAf72867FB2bFBb55FD44773733a7bc03963f701f --rewardtoken 0x5607718c64334eb5174CB2226af891a6ED82c7C6 --floor 50 --ceiling 100 --time 15552000 --finalowner 0xA1b5f2cc9B407177CD8a4ACF1699fa0b99955A22
+
+Deploying Geyser
+  to proxy 0x9f5AF07189B4aE59845D36a2b0562478870fa915
+  to implementation 0x52EfbBD14c5a4059E2108734E5d746aD19160564
+  with upgreadability admin 0xaC6D0e95c84329B6AF75C0D58c9b34A85Ee521a9
+  in 0x659de54f13953f61943666a250e4b5fe9b85acd101273963724de0ba3a4cb59f
+  staking token 0xAf72867FB2bFBb55FD44773733a7bc03963f701f
+  reward token 0x5607718c64334eb5174CB2226af891a6ED82c7C6
+  reward floor 50
+  reward ceiling 100
+Register Geyser Instance
+initialize geyser
+Register Vault Factory
+Transfer ownership
+```

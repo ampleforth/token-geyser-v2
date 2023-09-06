@@ -9,6 +9,4 @@ yarn codegen
 
 yarn build
 
-yarn graph deploy \
-	--product hosted-service \
-	--access-token $GRAPH_AUTH $2
+yarn graph deploy --studio  seamless-farms

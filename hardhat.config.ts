@@ -638,12 +638,12 @@ export default {
       url: '`https://rpc.tenderly.co/fork/${process.env.TENDERLY_FORK_ID}`',
       accounts: [(process.env.BASE_TESTNET_PRIVATE_KEY as string) ?? 'BASE_TESTNET_PRIVATE_KEY'],
     },
-    base: {
+    'base-mainnet': {
       url: 'https://rpc.ankr.com/base',
       accounts: [(process.env.BASE_PROD_PRIVATE_KEY as string) ?? 'BASE_PROD_PRIVATE_KEY'],
       gasPrice: 1000000000,
     },
-    baseGoerli: {
+    'base-goerli': {
       url: 'https://rpc.ankr.com/base_goerli',
       accounts: [(process.env.BASE_TESTNET_PRIVATE_KEY as string) ?? 'BASE_TESTNET_PRIVATE_KEY'],
       gasPrice: 1000000000,
@@ -668,12 +668,12 @@ export default {
   },
   etherscan: {
     apiKey: {
-      base: (process.env.BASESCAN_API_KEY as string) ?? 'BASESCAN_API_KEY',
-      baseGoerli: "don't need one",
+      'base-mainnet': (process.env.BASESCAN_API_KEY as string) ?? 'BASESCAN_API_KEY',
+      'base-goerli': "don't need one",
     },
     customChains: [
       {
-        network: 'base',
+        network: 'base-mainnet',
         chainId: 8453,
         urls: {
           apiURL: 'https://api.basescan.org/api',
@@ -681,7 +681,7 @@ export default {
         },
       },
       {
-        network: 'baseGoerli',
+        network: 'base-goerli',
         chainId: 84531,
         urls: {
           apiURL: 'https://api-goerli.basescan.org/api',

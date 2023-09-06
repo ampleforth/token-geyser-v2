@@ -18,7 +18,7 @@ export const getRewardTokenInfo = async (
   switch (token) {
     case RewardToken.MOCK:
       return getBasicToken(tokenAddress, signerOrProvider)
-    case RewardToken.SEAM:
+    case RewardToken.OG_POINTS:
       return getBasicToken(tokenAddress, signerOrProvider)
     default:
       throw new Error(`Handler for ${token} not found`)

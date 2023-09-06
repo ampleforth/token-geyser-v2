@@ -22,7 +22,7 @@ const DEFAULT_PRICES: Record<string, number> = {
   'yDAI+yUSDC+yUSDT+yTUSD': 1.1,
   SPOT: 1.14,
   FORTH: 2.5,
-  SEAM: 0,
+  'OG Points': 0,
 }
 
 const SYMBOL_TO_QUERY: Record<string, string> = {
@@ -45,7 +45,7 @@ const SYMBOL_TO_QUERY: Record<string, string> = {
   'yDAI+yUSDC+yUSDT+yTUSD': 'curve-fi-ydai-yusdc-yusdt-ytusd',
   SPOT: 'spot',
   FORTH: 'ampleforth-governance-token',
-  SEAM: 'seam',
+  'OG Points': 'og-points',
   // TODO
 }
 

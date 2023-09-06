@@ -99,7 +99,17 @@ yarn coverage
 # Run solidity gas usage report
 yarn profile
 ```
+## Verify 
 
+https://hardhat.org/hardhat-runner/plugins/nomicfoundation-hardhat-verify
+
+https://docs.base.org/base-camp/docs/hardhat-verify/hardhat-verify-sbs/
+
+```
+npx hardhat verify --network {base | baseGoerl} {contractAddress} {param1} {params2} ...
+# eg. for PowerSwitch which has no params 
+# npx hardhat verify --network baseGoerli 0x1e183605197899029FCD2915C851eCC9653c7802
+```
 ## License
 
 [GNU General Public License v3.0 (c) 2020 Fragments, Inc.](./LICENSE)

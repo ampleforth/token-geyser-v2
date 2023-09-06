@@ -12,7 +12,11 @@ interface IPowerSwitch {
 
     /* data types */
 
-    enum State {Online, Offline, Shutdown}
+    enum State {
+        Online,
+        Offline,
+        Shutdown
+    }
 
     /* admin functions */
 

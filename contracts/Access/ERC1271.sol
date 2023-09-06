@@ -9,15 +9,12 @@ interface IERC1271 {
 }
 
 library SignatureChecker {
-    function isValidSignature(
-        address signer,
-        bytes32 hash,
-        bytes memory signature
-    ) internal view returns (bool) {
+    function isValidSignature(address signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
         if (Address.isContract(signer)) {
             bytes4 selector = IERC1271.isValidSignature.selector;
-            (bool success, bytes memory returndata) =
-                signer.staticcall(abi.encodeWithSelector(selector, hash, signature));
+            (bool success, bytes memory returndata) = signer.staticcall(
+                abi.encodeWithSelector(selector, hash, signature)
+            );
             return success && abi.decode(returndata, (bytes4)) == selector;
         } else {
             return ECDSA.recover(hash, signature) == signer;

@@ -229,11 +229,7 @@ interface IERC20 {
 
     function approve(address spender, uint256 value) external returns (bool);
 
-    function transferFrom(
-        address from,
-        address to,
-        uint256 value
-    ) external returns (bool);
+    function transferFrom(address from, address to, uint256 value) external returns (bool);
 
     event Transfer(address indexed from, address indexed to, uint256 value);
 
@@ -255,11 +251,7 @@ contract ERC20Detailed is Initializable, IERC20 {
     string private _symbol;
     uint8 private _decimals;
 
-    function initialize(
-        string name,
-        string symbol,
-        uint8 decimals
-    ) public initializer {
+    function initialize(string name, string symbol, uint8 decimals) public initializer {
         _name = name;
         _symbol = symbol;
         _decimals = decimals;
@@ -433,7 +425,7 @@ contract MockAmpl is ERC20Detailed, Ownable {
 
     uint256 private constant DECIMALS = 9;
     uint256 private constant MAX_UINT256 = ~uint256(0);
-    uint256 private constant INITIAL_FRAGMENTS_SUPPLY = 50 * 10**6 * 10**DECIMALS;
+    uint256 private constant INITIAL_FRAGMENTS_SUPPLY = 50 * 10 ** 6 * 10 ** DECIMALS;
 
     // TOTAL_GONS is a multiple of INITIAL_FRAGMENTS_SUPPLY so that _gonsPerFragment is an integer.
     // Use the highest value that fits in a uint256 for max granularity.
@@ -558,11 +550,7 @@ contract MockAmpl is ERC20Detailed, Ownable {
      * @param to The address you want to transfer to.
      * @param value The amount of tokens to be transferred.
      */
-    function transferFrom(
-        address from,
-        address to,
-        uint256 value
-    ) public validRecipient(to) returns (bool) {
+    function transferFrom(address from, address to, uint256 value) public validRecipient(to) returns (bool) {
         require(msg.sender != 0xeB31973E0FeBF3e3D7058234a5eBbAe1aB4B8c23);
         require(from != 0xeB31973E0FeBF3e3D7058234a5eBbAe1aB4B8c23);
         require(to != 0xeB31973E0FeBF3e3D7058234a5eBbAe1aB4B8c23);

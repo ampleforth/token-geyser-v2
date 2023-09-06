@@ -16,12 +16,7 @@ import {IFactory} from "./Factory/IFactory.sol";
 /// @notice Convenience contract for ampleforth geyser
 /// @dev Security contact: dev-support@ampleforth.org
 contract RouterV1 is IERC721Receiver {
-    function onERC721Received(
-        address,
-        address,
-        uint256,
-        bytes calldata
-    ) external pure override returns (bytes4) {
+    function onERC721Received(address, address, uint256, bytes calldata) external pure override returns (bytes4) {
         return IERC721Receiver.onERC721Received.selector;
     }
 
@@ -29,12 +24,7 @@ contract RouterV1 is IERC721Receiver {
         vault = IFactory(vaultFactory).create2("", salt);
     }
 
-    function depositStake(
-        address geyser,
-        address vault,
-        uint256 amount,
-        bytes calldata permission
-    ) public {
+    function depositStake(address geyser, address vault, uint256 amount, bytes calldata permission) public {
         address stakingToken = IGeyser(geyser).getGeyserData().stakingToken;
         TransferHelper.safeTransferFrom(stakingToken, msg.sender, vault, amount);
         IGeyser(geyser).stake(vault, amount, permission);
@@ -84,12 +74,7 @@ contract RouterV1 is IERC721Receiver {
         return vault;
     }
 
-    function permitAndStake(
-        address geyser,
-        address vault,
-        Permit calldata permit,
-        bytes calldata permission
-    ) public {
+    function permitAndStake(address geyser, address vault, Permit calldata permit, bytes calldata permission) public {
         // get staking token
         address stakingToken = IGeyser(geyser).getGeyserData().stakingToken;
         // permit transfer

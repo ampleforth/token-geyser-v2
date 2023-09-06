@@ -20,11 +20,7 @@ library ProxyFactory {
         return proxy;
     }
 
-    function _create2(
-        address logic,
-        bytes memory data,
-        bytes32 salt
-    ) internal returns (address proxy) {
+    function _create2(address logic, bytes memory data, bytes32 salt) internal returns (address proxy) {
         // deploy clone
         proxy = Clones.cloneDeterministic(logic, salt);
 

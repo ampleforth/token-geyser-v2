@@ -35,25 +35,13 @@ interface IUniversalVault {
 
     /* user functions */
 
-    function lock(
-        address token,
-        uint256 amount,
-        bytes calldata permission
-    ) external;
+    function lock(address token, uint256 amount, bytes calldata permission) external;
 
-    function unlock(
-        address token,
-        uint256 amount,
-        bytes calldata permission
-    ) external;
+    function unlock(address token, uint256 amount, bytes calldata permission) external;
 
     function rageQuit(address delegate, address token) external returns (bool notified, string memory error);
 
-    function transferERC20(
-        address token,
-        address to,
-        uint256 amount
-    ) external;
+    function transferERC20(address token, address to, uint256 amount) external;
 
     function transferETH(address to, uint256 amount) external payable;
 
@@ -297,12 +285,10 @@ contract UniversalVault is IUniversalVault, EIP712("UniversalVault", "1.0.0"), E
     /// token transfer: none
     /// @param delegate Address of delegate
     /// @param token Address of token being unlocked
-    function rageQuit(address delegate, address token)
-        external
-        override
-        onlyOwner
-        returns (bool notified, string memory error)
-    {
+    function rageQuit(
+        address delegate,
+        address token
+    ) external override onlyOwner returns (bool notified, string memory error) {
         // get lock id
         bytes32 lockID = calculateLockID(delegate, token);
 
@@ -341,11 +327,7 @@ contract UniversalVault is IUniversalVault, EIP712("UniversalVault", "1.0.0"), E
     /// @param token Address of token being transferred
     /// @param to Address of the recipient
     /// @param amount Amount of tokens to transfer
-    function transferERC20(
-        address token,
-        address to,
-        uint256 amount
-    ) external override onlyOwner {
+    function transferERC20(address token, address to, uint256 amount) external override onlyOwner {
         // check for sufficient balance
         require(
             IERC20(token).balanceOf(address(this)) >= getBalanceLocked(token).add(amount),

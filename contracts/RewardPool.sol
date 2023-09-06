@@ -8,11 +8,7 @@ import {TransferHelper} from "@uniswap/lib/contracts/libraries/TransferHelper.so
 import {Powered} from "./PowerSwitch/Powered.sol";
 
 interface IRewardPool {
-    function sendERC20(
-        address token,
-        address to,
-        uint256 value
-    ) external;
+    function sendERC20(address token, address to, uint256 value) external;
 
     function rescueERC20(address[] calldata tokens, address recipient) external;
 }
@@ -39,11 +35,7 @@ contract RewardPool is IRewardPool, Powered, Ownable {
     /// @param token address The token to send
     /// @param to address The recipient to send to
     /// @param value uint256 Amount of tokens to send
-    function sendERC20(
-        address token,
-        address to,
-        uint256 value
-    ) external override onlyOwner onlyOnline {
+    function sendERC20(address token, address to, uint256 value) external override onlyOwner onlyOnline {
         TransferHelper.safeTransfer(token, to, value);
     }
 

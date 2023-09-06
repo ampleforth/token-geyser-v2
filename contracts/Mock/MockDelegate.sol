@@ -4,7 +4,12 @@ pragma solidity 0.7.6;
 import {IRageQuit, IUniversalVault} from "../UniversalVault.sol";
 
 contract MockDelegate is IRageQuit {
-    enum DelegateType {Succeed, Revert, RevertWithMessage, OOG}
+    enum DelegateType {
+        Succeed,
+        Revert,
+        RevertWithMessage,
+        OOG
+    }
 
     DelegateType private _delegateType;
 
@@ -24,21 +29,11 @@ contract MockDelegate is IRageQuit {
         }
     }
 
-    function lock(
-        address vault,
-        address token,
-        uint256 amount,
-        bytes memory permission
-    ) external {
+    function lock(address vault, address token, uint256 amount, bytes memory permission) external {
         IUniversalVault(vault).lock(token, amount, permission);
     }
 
-    function unlock(
-        address vault,
-        address token,
-        uint256 amount,
-        bytes memory permission
-    ) external {
+    function unlock(address vault, address token, uint256 amount, bytes memory permission) external {
         IUniversalVault(vault).unlock(token, amount, permission);
     }
 }

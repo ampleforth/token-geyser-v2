@@ -1,5 +1,5 @@
 import '@nomiclabs/hardhat-ethers'
-import '@nomiclabs/hardhat-etherscan'
+import '@nomicfoundation/hardhat-verify'
 import '@nomiclabs/hardhat-waffle'
 import '@openzeppelin/hardhat-upgrades'
 import 'hardhat-gas-reporter'
@@ -13,6 +13,7 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/dist/src/signer-wit
 import { BytesLike, parseUnits } from 'ethers/lib/utils'
 import { HttpNetworkUserConfig } from 'hardhat/types'
 import { impersonateAccount, setBalance } from '@nomicfoundation/hardhat-network-helpers'
+
 import { signPermission } from './frontend/src/sdk/utils'
 
 const SDK_PATH = './sdk'
@@ -239,9 +240,11 @@ task('mint-erc20-token', 'mints token impersonating the owner')
     const accounts = await ethers.getSigners()
     const signer = accounts[0]
 
-    const tokenContractMint = await ethers.getContractAt([
-      'function mint(address account, uint256 amount) external',
-    ], token, signer)
+    const tokenContractMint = await ethers.getContractAt(
+      ['function mint(address account, uint256 amount) external'],
+      token,
+      signer,
+    )
     const tokenContract = await ethers.getContractAt('ERC20', token, signer)
 
     const config = network.config as HttpNetworkUserConfig
@@ -656,17 +659,17 @@ export default {
     },
     tenderly: {
       chainId: 3030, // using same avee deploy chainId on tenderly
-      url: `https://rpc.tenderly.co/fork/${process.env.TENDERLY_FORK_ID}`,
-      accounts: [process.env.BASE_TESTNET_PRIVATE_KEY as string],
+      url: '`https://rpc.tenderly.co/fork/${process.env.TENDERLY_FORK_ID}`',
+      accounts: [(process.env.BASE_TESTNET_PRIVATE_KEY as string) ?? 'BASE_TESTNET_PRIVATE_KEY'],
     },
-    "base-mainnet": {
-      url: `https://base.gateway.tenderly.co/${process.env.TENDERLY_PROJECT_ID}`,
-      accounts: [process.env.BASE_PROD_PRIVATE_KEY as string],
+    'base-mainnet': {
+      url: 'https://rpc.ankr.com/base',
+      accounts: [(process.env.BASE_PROD_PRIVATE_KEY as string) ?? 'BASE_PROD_PRIVATE_KEY'],
       gasPrice: 1000000000,
     },
     'base-goerli': {
-      url: `https://base-goerli.gateway.tenderly.co/${process.env.TENDERLY_PROJECT_ID}`,
-      accounts: [process.env.BASE_TESTNET_PRIVATE_KEY as string],
+      url: 'https://rpc.ankr.com/base_goerli',
+      accounts: [(process.env.BASE_TESTNET_PRIVATE_KEY as string) ?? 'BASE_TESTNET_PRIVATE_KEY'],
       gasPrice: 1000000000,
       gasMultiplier: 1.1,
     },
@@ -688,8 +691,28 @@ export default {
     ],
   },
   etherscan: {
-    apiKey: getScanAPIKey(),
-    // apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: {
+      'base-mainnet': (process.env.BASESCAN_API_KEY as string) ?? 'BASESCAN_API_KEY',
+      'base-goerli': "don't need one",
+    },
+    customChains: [
+      {
+        network: 'base-mainnet',
+        chainId: 8453,
+        urls: {
+          apiURL: 'https://api.basescan.org/api',
+          browserURL: 'https://basescan.org',
+        },
+      },
+      {
+        network: 'base-goerli',
+        chainId: 84531,
+        urls: {
+          apiURL: 'https://api-goerli.basescan.org/api',
+          browserURL: 'https://goerli.basescan.org',
+        },
+      },
+    ],
   },
   mocha: {
     timeout: 100000,

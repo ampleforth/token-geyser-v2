@@ -16,7 +16,7 @@ const networkConfig: NetworkConfig = {
     ref: 'base',
     name: 'Base',
     rpcUrl: `https://base.gateway.tenderly.co/${TENDERLY_PROJECT_ID}`,
-    graphUrl: '', // TODO
+    graphUrl: 'https://api.studio.thegraph.com/query/52170/seamless-farms/version/latest',
     explorerUrl: 'https://basescan.org/tx',
     nativeCurrency: {
       name: 'Ethereum',
@@ -43,6 +43,20 @@ const networkConfig: NetworkConfig = {
 
 const geyserList: AppGeysersList = {
   [Network.Base]: [
+    {
+      name: 'wsWETH - OG Points',
+      address: '0x9f5AF07189B4aE59845D36a2b0562478870fa915',
+      stakingToken: StakingToken.SEAMLESS_ATOKEN,
+      rewardToken: RewardToken.OG_POINTS,
+      isWrapped: true,
+    },
+    {
+      name: 'wsUSDbC - OG Points',
+      address: '0xac42efBd7A86464Ff2B9d3C2FBdc622A77c7B3EC',
+      stakingToken: StakingToken.SEAMLESS_ATOKEN,
+      rewardToken: RewardToken.OG_POINTS,
+      isWrapped: true,
+    },
     // TODO
     // {
     //   name: 'ETH Beehive V7 (UniswapV2 ETH-AMPL)',
@@ -93,9 +107,9 @@ const geyserList: AppGeysersList = {
     {
       name: 'USDC aToken - OG Points',
       address: '0xc8Ae4370818c4566E5993E7Dd9429D217330FE26',
-      stakingToken: StakingToken.WAMPL,
+      stakingToken: StakingToken.SEAMLESS_ATOKEN,
       rewardToken: RewardToken.OG_POINTS,
-      isWrapped: false,
+      isWrapped: true,
     },
   ],
 }

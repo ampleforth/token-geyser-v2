@@ -1,5 +1,5 @@
 {
-    "network": "base-mainnet",
+    "network": "base",
     "startBlock": 3618058,
     "geyserRegistry": "0xD5815fC3D736120d07a1fA92bA743c1167dA89d8",
     "vaultFactory": "0x40292D35b48Ff625C648c2A7F0c9e42cd07cd0B0",

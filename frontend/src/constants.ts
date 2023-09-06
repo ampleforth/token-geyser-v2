@@ -44,10 +44,10 @@ export enum StakingToken {
   // for testing
   MOCK,
   WAMPL,
+  OG_POINTS,
 
   // for mainnet
   // TODO
-  SEAM,
   BASESWAP,
   SEAMLESS_ATOKEN,
 }
@@ -58,7 +58,7 @@ export enum RewardToken {
   MOCK,
 
   // for mainnet
-  SEAM,
+  OG_POINTS,
 }
 
 // Netowrks

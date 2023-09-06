@@ -11,7 +11,7 @@ interface Props {
 
 export const HeaderToggle: React.FC<Props> = ({ enabled, toggle, options }) => (
   <Switch.Group>
-    <div className="flex items-center">
+    <div className="flex items-center text-center">
       <SwitchLabel className="mr-4">{options[0]}</SwitchLabel>
       <Switchy className="bg-cream" checked={enabled} onChange={toggle}>
         <span

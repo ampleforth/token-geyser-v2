@@ -109,7 +109,7 @@ const geyserList: AppGeysersList = {
       address: '0xc8Ae4370818c4566E5993E7Dd9429D217330FE26',
       stakingToken: StakingToken.SEAMLESS_ATOKEN,
       rewardToken: RewardToken.OG_POINTS,
-      isWrapped: true,
+      isWrapped: false,
     },
   ],
 }

@@ -20,7 +20,7 @@ export const Dropdown: React.FC<Props> = ({ options, optgroups, selectedOption, 
         key={option}
         className={({ active }) =>
           `${active ? 'text-primary' : 'text-gray'}
-                  cursor-default select-none relative py-2 pl-10 pr-4 text-left cursor-pointer`
+                  select-none relative py-2 pl-10 pr-4 text-left cursor-pointer`
         }
         value={option}
       >

@@ -25,8 +25,8 @@ const SUPPORTED_WALLETS = [
 ]
 
 const defaultProvider = new providers.JsonRpcProvider(DEFAULT_RPC_ENDPOINT, {
-  chainId: 1,
-  name: 'mainnet',
+  chainId: 8453,
+  name: 'base',
 })
 
 const Web3Context = createContext<{

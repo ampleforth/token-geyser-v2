@@ -18,6 +18,12 @@ export const getTokenInfo = async (
         symbol: await ERC20Symbol(address, signerOrProvider),
         decimals: await ERC20Decimals(address, signerOrProvider),
       }
+
+      // todo this aint great
+      if (value.symbol === 'wsUSDbC') {
+        value.decimals = 6
+      }
+
       return value
     },
     `${address}|tokenInfo`,

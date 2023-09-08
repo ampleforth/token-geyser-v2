@@ -196,7 +196,7 @@ export const StatsContextProvider: React.FC = ({ children }) => {
         }
       } catch (e) {
         console.log('stats query error')
-        // console.error(e)
+        console.error(e)
       }
     })()
     return () => {

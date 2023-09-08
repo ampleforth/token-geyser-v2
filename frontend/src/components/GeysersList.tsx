@@ -19,14 +19,14 @@ export const GeysersList = () => {
     const inactiveGeysers = geysers.filter((g) => !(g.active === true)).map(({ id }) => getGeyserName(id))
     const farms = [
       {
-        group: 'Active Farms',
+        group: '',
         options: activeGeysers,
       },
     ]
 
     if (inactiveGeysers.length > 0)
       farms.push({
-        group: 'Inactive Farms',
+        group: '',
         options: inactiveGeysers,
       })
     return farms

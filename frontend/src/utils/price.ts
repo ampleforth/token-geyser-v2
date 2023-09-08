@@ -22,7 +22,7 @@ const DEFAULT_PRICES: Record<string, number> = {
   'yDAI+yUSDC+yUSDT+yTUSD': 1.1,
   SPOT: 1.14,
   FORTH: 2.5,
-  'OG Points': 0,
+  USDbC: 1,
 }
 
 const SYMBOL_TO_QUERY: Record<string, string> = {
@@ -45,7 +45,7 @@ const SYMBOL_TO_QUERY: Record<string, string> = {
   'yDAI+yUSDC+yUSDT+yTUSD': 'curve-fi-ydai-yusdc-yusdt-ytusd',
   SPOT: 'spot',
   FORTH: 'ampleforth-governance-token',
-  'OG Points': 'og-points',
+  USDbC: 'bridged-usd-coin-base',
   // TODO
 }
 

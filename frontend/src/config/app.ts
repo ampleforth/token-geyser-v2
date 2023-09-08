@@ -44,14 +44,14 @@ const networkConfig: NetworkConfig = {
 const geyserList: AppGeysersList = {
   [Network.Base]: [
     {
-      name: 'wsWETH - OG Points',
+      name: 'Staking Farm for ETH Suppliers',
       address: '0x9f5AF07189B4aE59845D36a2b0562478870fa915',
       stakingToken: StakingToken.SEAMLESS_ATOKEN,
       rewardToken: RewardToken.OG_POINTS,
       isWrapped: true,
     },
     {
-      name: 'wsUSDbC - OG Points',
+      name: 'Staking Farm for USDbC Suppliers',
       address: '0xac42efBd7A86464Ff2B9d3C2FBdc622A77c7B3EC',
       stakingToken: StakingToken.SEAMLESS_ATOKEN,
       rewardToken: RewardToken.OG_POINTS,

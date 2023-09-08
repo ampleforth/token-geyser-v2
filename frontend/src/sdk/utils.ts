@@ -13,6 +13,10 @@ export const loadNetworkConfig = async (signerOrProvider: Signer | providers.Pro
   const conn = getConnectionConfig(network?.chainId || null)
   let networkName = conn.ref
 
+  if (networkName === 'base') {
+    networkName = 'base-mainnet'
+  }
+
   try {
     return require(`./deployments/${networkName}/factories-latest.json`)
   } catch (e) {

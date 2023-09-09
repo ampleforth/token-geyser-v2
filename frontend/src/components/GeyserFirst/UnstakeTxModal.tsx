@@ -20,7 +20,17 @@ interface Props {
   withdrawRewardTxMessage: (TxStateMachine: TxStateMachine) => ReactNode
 }
 
-export const UnstakeTxModal: React.FC<Props> = ({ open, onClose, unstake, unstakeSuccessMessage, withdrawStaking, withdrawReward, withdrawStakingTxMessage, withdrawRewardTxMessage, children }) => {
+export const UnstakeTxModal: React.FC<Props> = ({
+  open,
+  onClose,
+  unstake,
+  unstakeSuccessMessage,
+  withdrawStaking,
+  withdrawReward,
+  withdrawStakingTxMessage,
+  withdrawRewardTxMessage,
+  children,
+}) => {
   const unstakeTxStateMachine = useTxStateMachine(unstake)
   const withdrawStakeStateMachine = useTxStateMachine(withdrawStaking)
   const withdrawRewardStateMachine = useTxStateMachine(withdrawReward)
@@ -50,10 +60,14 @@ export const UnstakeTxModal: React.FC<Props> = ({ open, onClose, unstake, unstak
       return <SingleTxMessage txStateMachine={unstakeTxStateMachine} successMessage={unstakeSuccessMessage} />
     return (
       <div className="flex flex-col space-y-2">
-        <div><SingleTxMessage txStateMachine={unstakeTxStateMachine} successMessage={unstakeSuccessMessage} /></div>
+        <div>
+          <SingleTxMessage txStateMachine={unstakeTxStateMachine} successMessage={unstakeSuccessMessage} />
+        </div>
         <div>{withdrawStakingTxMessage(withdrawStakeStateMachine)}</div>
         <div>{withdrawRewardTxMessage(withdrawRewardStateMachine)}</div>
-        <span className="text-gray text-xs"><i>Unlocked tokens can be withdrawn from your vault view at anytime.</i></span>
+        <span className="text-gray text-xs">
+          <i>Unlocked tokens can be withdrawn from your assets view at anytime.</i>
+        </span>
       </div>
     )
   }
@@ -61,25 +75,22 @@ export const UnstakeTxModal: React.FC<Props> = ({ open, onClose, unstake, unstak
   const isProcessing = () => {
     const processingStates = new Set([TxState.PENDING, TxState.SUBMITTED])
     const unstakeProcessing = processingStates.has(unstakeTxStateMachine.state)
-    const withdrawProcessing = (unstakeTxStateMachine.state === TxState.MINED) && [withdrawStakeStateMachine, withdrawRewardStateMachine].filter(({ state }) => processingStates.has(state)).length > 0
+    const withdrawProcessing =
+      unstakeTxStateMachine.state === TxState.MINED &&
+      [withdrawStakeStateMachine, withdrawRewardStateMachine].filter(({ state }) => processingStates.has(state))
+        .length > 0
     return unstakeProcessing || withdrawProcessing
   }
 
   return (
     <Modal onClose={onClose} open={open} disableClose={isProcessing()}>
-      <Modal.Title>
-        Processing Transaction
-      </Modal.Title>
+      <Modal.Title>Processing Transaction</Modal.Title>
       <Modal.Body>
         {getModalBody()}
         {children}
       </Modal.Body>
       <Modal.Footer>
-        {isProcessing() ? (
-          <ProcessingButton />
-        ) : (
-          <ModalButton onClick={onClose}> Close </ModalButton>
-        )}
+        {isProcessing() ? <ProcessingButton /> : <ModalButton onClick={onClose}> Close </ModalButton>}
       </Modal.Footer>
     </Modal>
   )

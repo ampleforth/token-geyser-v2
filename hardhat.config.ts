@@ -659,7 +659,7 @@ export default {
     },
     tenderly: {
       chainId: 3030, // using same avee deploy chainId on tenderly
-      url: '`https://rpc.tenderly.co/fork/${process.env.TENDERLY_FORK_ID}`',
+      url: `https://rpc.tenderly.co/fork/${process.env.TENDERLY_FORK_ID}`,
       accounts: [(process.env.BASE_TESTNET_PRIVATE_KEY as string) ?? 'BASE_TESTNET_PRIVATE_KEY'],
     },
     'base-mainnet': {

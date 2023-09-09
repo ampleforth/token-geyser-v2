@@ -192,6 +192,37 @@ $ npx hardhat --network tenderly fund-geyser --geyser 0xc240964354AC1283e1E518cc
 
 Now test a deposit by running the frontend with subgraph node... More on this later
 
+### USDC Geyser (redeploy fixed decimals)
+
+```bash
+$ npx hardhat --network tenderly create-geyser --stakingtoken 0xD3C0a1B34ef8B5d38cc10694Fe5ABd3D1353eB61 --rewardtoken 0x178898686f23a50ccac17962df41395484804a6b  --floor 50 --ceiling 100 --time 15552000
+
+Deploying Geyser
+  to proxy 0xaf9B41Db8356D1431047d89caEC153398D1d2c99
+  to implementation 0x510393Bac3905781086CdfA879d4cBF4F7901629
+  with upgreadability admin 0x6aE1d838327499fD42A708F1CeA8CE3b8D7975e4
+  in 0xbc157743ef6e8a8f597b1de0adb4f215f87cdcb83b8e2305bf5f86b4d9c3cd03
+  staking token 0xD3C0a1B34ef8B5d38cc10694Fe5ABd3D1353eB61
+  reward token 0x178898686f23a50ccac17962df41395484804a6b
+  reward floor 50
+  reward ceiling 100
+Register Geyser Instance
+initialize geyser
+Register Vault Factory
+```
+
+Allow the new geyser to transfer `OG Points`. We should already have transfer role for ourselves from section above:
+
+```bash
+$ npx hardhat allow-transfer --network tenderly --token 0x178898686f23a50ccac17962df41395484804a6b --admin 0x1099a1b84678493bc6c6f737aa3ffe5bcf488bf9 --target 0xaf9B41Db8356D1431047d89caEC153398D1d2c99
+```
+
+Now fund the geyser:
+
+```bash
+$ npx hardhat --network tenderly fund-geyser --geyser 0xaf9B41Db8356D1431047d89caEC153398D1d2c99 --amount 622080 --decimals 18 --duration 2592000
+```
+
 ## Base Mainnet
 
 Deploy factories:

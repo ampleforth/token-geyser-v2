@@ -283,7 +283,7 @@ export const GeyserStakeView = () => {
         maxValue={wrapBalance}
       />
 
-      {isWrap && selectedVault ? <WrapperCheckbox checked={depositToVault} onChange={setDepositToVault} /> : null}
+      {isWrap ? <WrapperCheckbox checked={depositToVault} onChange={setDepositToVault} /> : null}
 
       <GeyserInteractionButton
         disabled={!address || parsedUserInput.isZero()}

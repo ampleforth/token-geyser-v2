@@ -27,7 +27,12 @@ export const getRewardTokenInfo = async (
 
 const getBasicToken = async (tokenAddress: string, signerOrProvider: SignerOrProvider): Promise<RewardTokenInfo> => {
   const tokenInfo = await getTokenInfo(tokenAddress, signerOrProvider)
-  const price = await getCurrentPrice(tokenInfo.symbol)
+  let price
+  if (tokenInfo.symbol === 'OG Points') {
+    price = 1
+  } else {
+    price = await getCurrentPrice(tokenInfo.symbol)
+  }
   const getTotalRewards = async (rewardSchedules: RewardSchedule[]) =>
     rewardSchedules.reduce((acc, schedule) => acc + parseFloat(formatUnits(schedule.rewardAmount, 0)), 0)
   return {

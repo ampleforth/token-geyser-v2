@@ -23,9 +23,9 @@ const FOOTER_LINKS = [
     key: 'FAQ',
   },
   {
-    href: 'https://onchainsummer.xyz/base',
-    label: 'BASE | Onchain Summer',
-    key: 'Base',
+    href: 'https://bridge.base.org/',
+    label: 'Base Bridge',
+    key: 'Bridge',
   },
 ]
 

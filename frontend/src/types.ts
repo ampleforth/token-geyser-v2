@@ -170,7 +170,7 @@ export type SignerOrProvider = Signer | providers.Provider
 
 export type TooltipMessage = {
   title: string
-  body: string
+  body: JSX.Element | string
 }
 
 export enum GeyserAction {

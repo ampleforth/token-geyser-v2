@@ -68,11 +68,30 @@ export enum Network {
 }
 
 // tooltip messages
-export const GET_APY_STAKE_MSG = () =>
-  'APY is estimated for your current deposits till the end of this program. The APY metric does not account for gains or losses from holding liquidity tokens, or gains from liquidity mining rewards distributed by the underlying platform for holding liquidity tokens.'
+export const GET_APY_STAKE_MSG = () => (
+  <div>
+    APY is estimated for your current deposits till the end of this program. The APY metric does not account for gains
+    or losses from holding liquidity tokens, or gains from liquidity mining rewards distributed by the underlying
+    platform for holding liquidity tokens.
+    <br />
+    For the OG Points Geysers, APY refers solely to the annualized rate of earning OG Points for your participation in
+    the Seamless ecosystem. OG Points are on-chain, nontransferable utility points that have no monetary value, cannot
+    be traded or transferred among holders, and cannot be exchanged for cash or any other type of monetary value, they
+    represent participation in the Seamless ecosystem only. No other rewards are offered hereby.
+  </div>
+)
 
-export const GET_APY_NO_STAKE_MSG = ({ days = '1' }) =>
-  `APY is estimated for an avg deposit (20,000 USD) over the next ${days} days. The APY metric does not account for gains or losses from holding liquidity tokens, or gains from liquidity mining rewards distributed by the underlying platform for holding liquidity tokens.`
+export const GET_APY_NO_STAKE_MSG = ({ days = '1' }) => (
+  <div>
+    APY is estimated for an avg deposit (20,000 USD) over the next ${days} days. The APY metric does not account for
+    gains or losses from holding liquidity tokens, or gains from liquidity mining rewards distributed by the underlying
+    platform for holding liquidity tokens. <br />
+    For the OG Points Geysers, APY refers solely to the annualized rate of earning OG Points for your participation in
+    the Seamless ecosystem. OG Points are on-chain, nontransferable utility points that have no monetary value, cannot
+    be traded or transferred among holders, and cannot be exchanged for cash or any other type of monetary value, they
+    represent participation in the Seamless ecosystem only. No other rewards are offered hereby.
+  </div>
+)
 
 export const GET_REWARD_MULTIPLIER_MSG = ({ days = '30', multiplier = '3.0' }) =>
   `Deposit liquidity tokens for ${days} days to achieve a ${multiplier}x reward multiplier.`

@@ -37,7 +37,7 @@ export const GeysersList = () => {
       {geysers.length > 0 && (
         <GeysersListContainer>
           <Heading>
-            <Label>Farms</Label>
+            <Label>Staking Farms</Label>
           </Heading>
           <Dropdown
             optgroups={optgroups}

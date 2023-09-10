@@ -1,4 +1,5 @@
 import styled from 'styled-components/macro'
+
 import tw from 'twin.macro'
 
 const FOOTER_LINKS = [
@@ -34,6 +35,11 @@ const FOOTER_ICONS = [
     href: 'https://t.me/seamless_protocol',
     icon: 'telegram.svg',
     title: 'Telegram',
+  },
+  {
+    href: 'https://discord.gg/urQPJu3CKt',
+    icon: 'discord.svg',
+    title: 'Discord',
   },
   {
     href: 'https://twitter.com/seamlessfi',

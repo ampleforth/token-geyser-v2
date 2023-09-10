@@ -28,7 +28,7 @@ export const Header = () => {
             <span className="text-white text-[6px] font-bold md:text-sm">Markets</span>
           </a>
           <div>
-            <span className="text-white text-[6px] font-bold underline cursor-pointer md:text-sm">Farms</span>
+            <span className="text-white text-[6px] font-bold underline cursor-pointer md:text-sm">Staking Farms</span>
           </div>
         </LeftLinkContainer>
       </LeftContainer>
@@ -41,7 +41,7 @@ export const Header = () => {
             <span className="text-white text-[6px] font-bold md:text-sm">Markets</span>
           </a>
           <div>
-            <span className="text-white text-[6px] font-bold underline cursor-pointer md:text-sm">Farms</span>
+            <span className="text-white text-[6px] font-bold underline cursor-pointer md:text-sm">Staking Farms</span>
           </div>
         </MiddleLinkContainer>
         <HeaderToggle enabled={mode === Mode.VAULTS} toggle={toggleMode} options={['Single Farm View', 'Asset View']} />

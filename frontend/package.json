@@ -8,6 +8,7 @@
     "@craco/craco": "^6.1.2",
     "@headlessui/react": "^1.4.1",
     "@heroicons/react": "^1.0.4",
+    "@sentry/react": "^7.68.0",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
@@ -36,12 +37,13 @@
   },
   "scripts": {
     "start": "craco start --openssl-legacy-provider",
-    "build": "craco build --openssl-legacy-provider",
+    "build": "craco build --openssl-legacy-provider && [object Object] run sentry:sourcemaps",
     "test": "craco test",
     "eject": "react-scripts eject",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
     "lint": "eslint src --ext .ts,.tsx",
-    "prettify": "prettier --write ."
+    "prettify": "prettier --write .",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org seamless-978d47163 --project javascript-react ./build && sentry-cli sourcemaps upload --org seamless-978d47163 --project javascript-react ./build"
   },
   "browserslist": {
     "production": [

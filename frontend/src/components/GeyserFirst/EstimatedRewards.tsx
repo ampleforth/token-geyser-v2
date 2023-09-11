@@ -61,7 +61,7 @@ export const EstimatedRewards: React.FC<Props> = ({ parsedUserInput }) => {
           />
         </CardLabel>
         <CardValue>
-          {safeNumeral(deposits, '0')} USD / [ {safeNumeral(rewards, '0.00')} {symbol}{' '}
+          {safeNumeral(deposits, '0')} / [ {safeNumeral(rewards, '0.00')} {symbol}{' '}
           {
             // TODO: assuming bonusRewards.length == bonusTokensInfo.length
             // this should be guarentted by data layer

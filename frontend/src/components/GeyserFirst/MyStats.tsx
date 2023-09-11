@@ -21,6 +21,7 @@ export const MyStats = () => {
     vaultStats: { currentStake },
     geyserStats: { calcPeriodInDays, bonusRewards },
   } = useContext(StatsContext)
+
   const {
     selectedGeyserInfo: {
       rewardTokenInfo: { symbol: rewardTokenSymbol },

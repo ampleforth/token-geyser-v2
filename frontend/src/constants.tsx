@@ -74,9 +74,10 @@ export const GET_APY_STAKE_MSG = () => (
     or losses from holding liquidity tokens, or gains from liquidity mining rewards distributed by the underlying
     platform for holding liquidity tokens.
     <br />
-    For the OG Points Geysers, APY refers solely to the annualized rate of earning OG Points for your participation in
-    the Seamless ecosystem. OG Points are on-chain, nontransferable utility points that have no monetary value, cannot
-    be traded or transferred among holders, and cannot be exchanged for cash or any other type of monetary value, they
+    <br />
+    For the OG Points Farms, APY refers solely to the annualized rate of earning OG Points for your participation in the
+    Seamless ecosystem. OG Points are on-chain, nontransferable utility points that have no monetary value, cannot be
+    traded or transferred among holders, and cannot be exchanged for cash or any other type of monetary value, they
     represent participation in the Seamless ecosystem only. No other rewards are offered hereby.
   </div>
 )
@@ -85,10 +86,12 @@ export const GET_APY_NO_STAKE_MSG = ({ days = '1' }) => (
   <div>
     APY is estimated for an avg deposit (20,000 USD) over the next ${days} days. The APY metric does not account for
     gains or losses from holding liquidity tokens, or gains from liquidity mining rewards distributed by the underlying
-    platform for holding liquidity tokens. <br />
-    For the OG Points Geysers, APY refers solely to the annualized rate of earning OG Points for your participation in
-    the Seamless ecosystem. OG Points are on-chain, nontransferable utility points that have no monetary value, cannot
-    be traded or transferred among holders, and cannot be exchanged for cash or any other type of monetary value, they
+    platform for holding liquidity tokens.
+    <br />
+    <br />
+    For the OG Points Farms, APY refers solely to the annualized rate of earning OG Points for your participation in the
+    Seamless ecosystem. OG Points are on-chain, nontransferable utility points that have no monetary value, cannot be
+    traded or transferred among holders, and cannot be exchanged for cash or any other type of monetary value, they
     represent participation in the Seamless ecosystem only. No other rewards are offered hereby.
   </div>
 )

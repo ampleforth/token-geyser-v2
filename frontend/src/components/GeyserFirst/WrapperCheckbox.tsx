@@ -1,5 +1,6 @@
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
+import { WrapperWarning } from './WrapperWarning'
 
 interface Props {
   checked: boolean
@@ -10,7 +11,7 @@ export const WrapperCheckbox: React.FC<Props> = (/* { checked, onChange } */) =>
   <FlexDiv>
     <Text /* onClick={() => onChange(!checked)} */>
       {/* <Input type="checkbox" checked={checked} onChange={() => {}} /> */}
-      After wrapping is completed, go to the Stake button to finish staking.
+      {WrapperWarning()}
     </Text>
   </FlexDiv>
 )

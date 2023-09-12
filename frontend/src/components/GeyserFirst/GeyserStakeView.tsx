@@ -22,7 +22,7 @@ import { UnstakeSummary } from './UnstakeSummary'
 import { UnstakeConfirmModal } from './UnstakeConfirmModal'
 import { UnstakeTxModal } from './UnstakeTxModal'
 import { WithdrawTxMessage } from './WithdrawTxMessage'
-import { WrapperWarning } from './WrapperWarning'
+import { StakingWarning } from './WrapperWarning'
 import { WrapperCheckbox } from './WrapperCheckbox'
 import { FormLabel } from '../FormLabel'
 import { Select } from '../Select'
@@ -170,7 +170,7 @@ export const GeyserStakeView = () => {
           maxValue={stakableAmount}
           skipMaxEnforcement
         />
-        {isWrapped ? <WrapperWarning /> : null}
+        {isWrapped ? <StakingWarning /> : null}
         <EstimatedRewards parsedUserInput={parsedUserInput} />
         {!address && <ConnectWalletWarning onClick={selectWallet} />}
         <GeyserInteractionButton

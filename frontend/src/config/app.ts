@@ -1,4 +1,4 @@
-import { Network, StakingToken, RewardToken, TENDERLY_PROJECT_ID } from '../constants'
+import { Network, StakingToken, RewardToken, TENDERLY_PROJECT_ID, DEFAULT_RPC_ENDPOINT } from '../constants'
 import {
   AppGeysersList,
   NetworkConfig,
@@ -15,8 +15,7 @@ const networkConfig: NetworkConfig = {
     chainId: 8453,
     ref: 'base',
     name: 'Base',
-    rpcUrl: 'https://mainnet.base.org',
-    // rpcUrl: `https://base.gateway.tenderly.co/${TENDERLY_PROJECT_ID}`,
+    rpcUrl: DEFAULT_RPC_ENDPOINT,
     graphUrl: 'https://api.studio.thegraph.com/query/52170/seamless-farms/version/latest',
     explorerUrl: 'https://basescan.org/tx',
     nativeCurrency: {

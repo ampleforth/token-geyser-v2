@@ -3,11 +3,7 @@ import { API, Wallet } from 'bnc-onboard/dist/src/interfaces'
 import Onboard from 'bnc-onboard'
 import { providers, Signer, utils } from 'ethers'
 import { getConnectionConfig, activeNetworks } from 'config/app'
-import { Network } from '../constants'
-
-// TENDERLY_PROJECT_ID
-// const DEFAULT_RPC_ENDPOINT = `https://mainnet.base.gateway.tenderly.co/${TENDERLY_PROJECT_ID}`
-const DEFAULT_RPC_ENDPOINT = `https://mainnet.base.org/`
+import { Network, DEFAULT_RPC_ENDPOINT } from '../constants'
 
 const SUPPORTED_WALLETS = [
   { walletName: 'metamask', preferred: true, rpcUrl: DEFAULT_RPC_ENDPOINT },

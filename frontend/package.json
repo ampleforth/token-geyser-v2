@@ -37,7 +37,7 @@
   },
   "scripts": {
     "start": "craco start --openssl-legacy-provider",
-    "build": "craco build --openssl-legacy-provider && [object Object] run sentry:sourcemaps",
+    "build": "craco build --openssl-legacy-provider",
     "test": "craco test",
     "eject": "react-scripts eject",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",

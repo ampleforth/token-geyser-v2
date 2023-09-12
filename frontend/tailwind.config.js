@@ -36,6 +36,7 @@ module.exports = {
       footer: '#890596',
       cream: '#F8F0E5',
       lightBlue: '#3AB0FF',
+      surface: '#77037B',
     },
     container: {
       center: true,

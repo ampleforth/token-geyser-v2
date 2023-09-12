@@ -6,7 +6,8 @@ interface Props {}
 export const WrapperWarning: React.FC<Props> = () => (
   <FlexDiv>
     <Text>
-      <b>NOTE:</b> You must use the Wrapper button to make your asset compatible with the staking farms
+      <span className="tracking-tigher mt-2 flex font-bold ml-5 sm:ml-0 sm:text-3xl text-2xl text-surface">NOTE:</span>{' '}
+      You must use the Wrapper button to make your asset compatible with the staking farms
     </Text>
   </FlexDiv>
 )

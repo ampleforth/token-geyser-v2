@@ -8,7 +8,6 @@ const DEFAULT_PRICES: Record<string, number> = {
   USDC: 1,
 
   USDbC: 1,
-  'OG Points': 1,
 }
 
 const SYMBOL_TO_QUERY: Record<string, string> = {
@@ -17,8 +16,6 @@ const SYMBOL_TO_QUERY: Record<string, string> = {
   USDC: 'usd-coin',
 
   USDbC: 'bridged-usd-coin-base',
-  'OG Points': 'og-points',
-  // TODO
 }
 
 export const getCurrentPrice = async (symbol: string) => {
@@ -27,6 +24,9 @@ export const getCurrentPrice = async (symbol: string) => {
 
   try {
     const query = SYMBOL_TO_QUERY[symbol]
+    if (symbol === 'OG Points') {
+      return 1
+    }
     if (!query) {
       throw new Error(`Can't fetch price for ${symbol}`)
     }

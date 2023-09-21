@@ -115,7 +115,7 @@ export enum Align {
 // Tenderly
 export const TENDERLY_PROJECT_ID = '1SVyxsO1IHL8NHPgMyQmuF'
 
-export const DEFAULT_RPC_ENDPOINT = `https://mainnet.base.gateway.tenderly.co/${TENDERLY_PROJECT_ID}`
+export const DEFAULT_RPC_ENDPOINT = `https://rpc.ankr.com/base`
 // const DEFAULT_RPC_ENDPOINT = `https://mainnet.base.org/`
 
 // Enable withdrawing whole unlocked balance of staking tokens when unstaking

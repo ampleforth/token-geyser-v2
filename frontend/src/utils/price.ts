@@ -1,4 +1,3 @@
-import CGApi from 'coingecko-api'
 import { HOUR_IN_MS } from '../constants'
 import * as ls from './cache'
 
@@ -46,30 +45,18 @@ const SYMBOL_TO_QUERY: Record<string, string> = {
   FORTH: 'ampleforth-governance-token',
 }
 
+const URL = "https://web-api.ampleforth.org/util/get-price"
+
 export const getCurrentPrice = async (symbol: string) => {
   const cacheKey = `geyser|${symbol}|spot`
   const TTL = HOUR_IN_MS
 
   try {
-    const query = SYMBOL_TO_QUERY[symbol]
-    if (!query) {
-      throw new Error(`Can't fetch price for ${symbol}`)
-    }
+    const response = await fetch(`${URL}?symbol=${symbol}`);
+    const price = await response.json();
 
     return await ls.computeAndCache<number>(
-      async () => {
-        const client = new CGApi()
-        const reqTimeoutSec = 10
-        const p: any = await Promise.race([
-          client.simple.price({
-            ids: [query],
-            vs_currencies: ['usd'],
-          }),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('request timeout')), reqTimeoutSec * 1000)),
-        ])
-        const price = p.data[query].usd
-        return price as number
-      },
+      async () => price as number,
       cacheKey,
       TTL,
     )

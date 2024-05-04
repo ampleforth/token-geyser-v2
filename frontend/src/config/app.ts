@@ -69,6 +69,16 @@ const geyserList: AppGeysersList = {
     },
 
     {
+      name: 'ETH Great Geyser V1 (Charm USDC/SPOT)',
+      address: '0x7B2e9353D3Bf71d9f9246B1291eE29DFB11B32C7',
+      stakingToken: StakingToken.CHARM_V1,
+      rewardToken: RewardToken.FORTH,
+      isWrapped: false,
+      poolAddress: 'https://alpha.charm.fi/vault/0x2dcaff0f75765d7867887fc402b71c841b3a4bfb-1',
+      // staked pool address: 0x898adc9aa0c23dce3fed6456c34dbe2b57784325
+    },
+
+    {
       name: 'ETH Fly V2 (ArrakisV1 USDC/SPOT)',
       address: '0x392b58F407Efe1681a2EBB470600Bc2146D231a2',
       stakingToken: StakingToken.ARRAKIS_V1,

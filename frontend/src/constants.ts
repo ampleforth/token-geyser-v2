@@ -56,6 +56,7 @@ export enum StakingToken {
   PANGOLIN,
   BALANCER_WEIGHTED_POOL_V2,
   ARRAKIS_V1,
+  CHARM_V1
 }
 
 // Reward tokens

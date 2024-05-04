@@ -13,6 +13,7 @@ import { UNISWAP_V2_PAIR_ABI } from './abis/UniswapV2Pair'
 import { WRAPPED_ERC20_ABI } from './abis/WrappedERC20'
 import { AAVEV2_DEPOSIT_TOKEN } from './abis/AaveV2DepositToken'
 import { ARRAKIS_V1_ABI } from './abis/ArrakisV1'
+import { CHARM_V1_ABI } from './abis/CharmV1'
 import { UNISWAP_V3_POOL_ABI } from './abis/UniswapV3Pool'
 import { getCurrentPrice } from './price'
 import { defaultTokenInfo, getTokenInfo } from './token'
@@ -54,6 +55,8 @@ export const getStakingTokenInfo = async (
       return getBalancerWeightedPoolV2(tokenAddress, signerOrProvider)
     case StakingToken.ARRAKIS_V1:
       return getArrakisV1(tokenAddress, signerOrProvider)
+    case StakingToken.CHARM_V1:
+      return getCharmV1(tokenAddress, signerOrProvider)
     default:
       throw new Error(`Handler for ${token} not found`)
   }
@@ -388,6 +391,36 @@ const getArrakisV1 = async (tokenAddress: string, signerOrProvider: SignerOrProv
   const tokenCompositions = await getTokenCompositionsWithBalances(
     [await uniPool.token0(), await uniPool.token1()],
     await contract.getUnderlyingBalances(),
+    signerOrProvider,
+    [0.5, 0.5],
+  )
+  const marketCap = getMarketCap(tokenCompositions)
+
+  return {
+    address,
+    decimals,
+    name,
+    symbol,
+    price: marketCap / totalSupplyNumber,
+    composition: tokenCompositions,
+    wrappedToken: null,
+  }
+}
+
+const getCharmV1 = async (tokenAddress: string, signerOrProvider: SignerOrProvider): Promise<StakingTokenInfo> => {
+  const address = toChecksumAddress(tokenAddress)
+  const contract = new Contract(address, CHARM_V1_ABI, signerOrProvider)
+
+  const { name, symbol, decimals } = await getTokenInfo(address, signerOrProvider)
+  const totalSupply: BigNumber = await contract.totalSupply()
+  const totalSupplyNumber = parseFloat(formatUnits(totalSupply, decimals))
+
+  const vaultData = await fetch(`https://web-api.ampleforth.org/lp/charm-vault-info?chainID=1&vaultAddress=${tokenAddress}`);
+  const vault = await vaultData.json();
+
+  const tokenCompositions = await getTokenCompositionsWithBalances(
+    [await contract.token0(), await contract.token1()],
+    [vault.total0, vault.total1],
     signerOrProvider,
     [0.5, 0.5],
   )

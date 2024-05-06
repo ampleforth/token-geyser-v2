@@ -23,27 +23,27 @@ const DEFAULT_PRICES: Record<string, number> = {
   FORTH: 2.5,
 }
 
-const SYMBOL_TO_QUERY: Record<string, string> = {
-  WBTC: 'wrapped-bitcoin',
-  AMPL: 'ampleforth',
-  WAMPL: 'wrapped-ampleforth',
-  WETH: 'ethereum',
-  WAVAX: 'avalanche-2',
-  LINK: 'chainlink',
-  BAL: 'balancer',
-  LEND: 'ethlend',
-  COMP: 'compound-governance-token',
-  MKR: 'maker',
-  CRV: 'curve-dao-token',
-  BZRX: 'bzx-protocol',
-  YFI: 'yearn-finance',
-  NMR: 'numeraire',
-  USDC: 'usd-coin',
-  PNG: 'pangolin',
-  'yDAI+yUSDC+yUSDT+yTUSD': 'curve-fi-ydai-yusdc-yusdt-ytusd',
-  SPOT: 'spot',
-  FORTH: 'ampleforth-governance-token',
-}
+// const SYMBOL_TO_QUERY: Record<string, string> = {
+//   WBTC: 'wrapped-bitcoin',
+//   AMPL: 'ampleforth',
+//   WAMPL: 'wrapped-ampleforth',
+//   WETH: 'ethereum',
+//   WAVAX: 'avalanche-2',
+//   LINK: 'chainlink',
+//   BAL: 'balancer',
+//   LEND: 'ethlend',
+//   COMP: 'compound-governance-token',
+//   MKR: 'maker',
+//   CRV: 'curve-dao-token',
+//   BZRX: 'bzx-protocol',
+//   YFI: 'yearn-finance',
+//   NMR: 'numeraire',
+//   USDC: 'usd-coin',
+//   PNG: 'pangolin',
+//   'yDAI+yUSDC+yUSDT+yTUSD': 'curve-fi-ydai-yusdc-yusdt-ytusd',
+//   SPOT: 'spot',
+//   FORTH: 'ampleforth-governance-token',
+// }
 
 const URL = "https://web-api.ampleforth.org/util/get-price"
 

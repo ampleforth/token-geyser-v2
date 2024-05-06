@@ -18,8 +18,11 @@ ethereum:
     - poolRef: "UNI-ETH-AMPL-V2 (Beehive V7)"
       deployment: 0x5Ec6f02D0b657E4a56d6020Bc21F19f2Ca13EcA9
 
-    - poolRef: "Arrakis Vault V1 USDC/SPOT (RAKIS-35) (Fly V2)"
-      deployment: 0x392b58F407Efe1681a2EBB470600Bc2146D231a2
+    - poolRef: "CHARM-SPOT-USDC (Great geyser V1)"
+      deployment: 0x7B2e9353D3Bf71d9f9246B1291eE29DFB11B32C7
+
+    # - poolRef: "Arrakis Vault V1 USDC/SPOT (RAKIS-35) (Fly V2)"
+    #   deployment: 0x392b58F407Efe1681a2EBB470600Bc2146D231a2
 
     # - poolRef: "UNI-ETH-AMPL-V2 (Beehive V6)"
     #   deployment: 0xfa3A1B55f77D0cEd6706283c16296F8317c70e52

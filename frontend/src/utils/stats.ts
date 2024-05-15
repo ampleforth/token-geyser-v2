@@ -33,7 +33,7 @@ export const defaultUserStats = (): UserStats => ({
   apy: 0,
   currentMultiplier: 1.0,
   minMultiplier: 1.0,
-  maxMultiplier: 1.0,
+  maxMultiplier: 3.0,
   currentReward: 0,
   currentRewardShare: 0,
 })
@@ -323,7 +323,7 @@ const getCurrentMultiplier = async (
     const perc = Math.min(now - ts, st) / st
     weightedStake += perc * amt
   })
-  const fraction = weightedStake / totalStake
+  const fraction = (geyserVaultData.stakes.length > 0) ? weightedStake / totalStake : 0
   const currentMultiplier = minMultiplier + fraction * (maxMultiplier - minMultiplier)
   return [minMultiplier, currentMultiplier, maxMultiplier]
 }

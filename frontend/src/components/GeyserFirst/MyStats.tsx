@@ -32,7 +32,7 @@ export const MyStats = () => {
     () => [
       {
         title: 'APY',
-        body: currentStake > 0 ? GET_APY_STAKE_MSG() : GET_APY_NO_STAKE_MSG({ days: safeNumeral(calcPeriodInDays||30, '0.0') }),
+        body: currentStake > 0 ? GET_APY_STAKE_MSG() : GET_APY_NO_STAKE_MSG(),
       },
       {
         title: 'Reward Multiplier',

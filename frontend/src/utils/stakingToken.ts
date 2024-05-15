@@ -412,15 +412,13 @@ const getCharmV1 = async (tokenAddress: string, signerOrProvider: SignerOrProvid
   const contract = new Contract(address, CHARM_V1_ABI, signerOrProvider)
 
   const { name, symbol, decimals } = await getTokenInfo(address, signerOrProvider)
+  const poolBals = await contract.getTotalAmounts()
   const totalSupply: BigNumber = await contract.totalSupply()
   const totalSupplyNumber = parseFloat(formatUnits(totalSupply, decimals))
 
-  const vaultData = await fetch(`https://web-api.ampleforth.org/lp/charm-vault-info?chainID=1&vaultAddress=${tokenAddress}`);
-  const vault = await vaultData.json();
-
   const tokenCompositions = await getTokenCompositionsWithBalances(
     [await contract.token0(), await contract.token1()],
-    [vault.total0, vault.total1],
+    poolBals,
     signerOrProvider,
     [0.5, 0.5],
   )

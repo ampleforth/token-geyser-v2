@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@ampleforthorg/sdk": "1.0.32",
+    "@ampleforthorg/sdk": "1.0.33",
     "@apollo/client": "^3.3.16",
     "@craco/craco": "^6.1.2",
     "@headlessui/react": "^1.4.1",

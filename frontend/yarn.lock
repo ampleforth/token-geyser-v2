@@ -7,10 +7,10 @@
   resolved "https://registry.yarnpkg.com/@0no-co/graphql.web/-/graphql.web-1.0.7.tgz#c7a762c887b3482a79ffa68f63de5e96059a62e4"
   integrity sha512-E3Qku4mTzdrlwVWGPxklDnME5ANrEGetvYw4i2GCRlppWXXE4QD66j7pwb8HelZwS6LnqEChhrSOGCXpbiu6MQ==
 
-"@ampleforthorg/sdk@1.0.32":
-  version "1.0.32"
-  resolved "https://registry.yarnpkg.com/@ampleforthorg/sdk/-/sdk-1.0.32.tgz#04df04c69a388b0e18531222c29baa59ed288963"
-  integrity sha512-q05O05sc8cd/pW+nuh7WsqCKT4rcw/ff+FI9JUtcl4q4R0VL2VGhIn8+RIUQMkRfeDI4huFduRL1RrdWkaEBRg==
+"@ampleforthorg/sdk@1.0.33":
+  version "1.0.33"
+  resolved "https://registry.yarnpkg.com/@ampleforthorg/sdk/-/sdk-1.0.33.tgz#736cd6efdb52ae407eb0cd0df742c60a3696b0b5"
+  integrity sha512-5yDqqZYiZo8AWUltX/zeHql0CCp2oOapGJeBFHnTBcKnSWWKbrRCnXlu7T/LGerRo1ETEYSXb+BYJwx448pOmw==
   dependencies:
     "@types/bignumber.js" "^5.0.0"
     "@typescript-eslint/eslint-plugin" "^4.29.0"

@@ -5,11 +5,7 @@ import { RewardSchedule, SignerOrProvider } from '../types'
 import * as ls from './cache'
 import { DAY_IN_MS } from '../constants'
 
-const AMPLEFORTH_CORE_GRAPHQL_ENDPOINT = "https://web-api.ampleforth.org/graph-cache/ampleforth-core"
-const getClient = (chainId) => {
-  const endpoint = (chainId === 1) ? AMPLEFORTH_CORE_GRAPHQL_ENDPOINT : queries.graphHostedURL(chainId);
-  return queries.initializeClient(endpoint)
-}
+const getClient = (chainId) => queries.initializeClient(queries.graphHostedURL(chainId))
 
 const loadXCRebasesFromCache = async (controller: entities.XCController, chainId: number) =>
   ls.computeAndCache<entities.XCRebaseData[]>(

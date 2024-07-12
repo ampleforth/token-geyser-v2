@@ -11,7 +11,7 @@ Jump to
 
 ## Known Workarounds
 
-- `let mounted = true` in `useEffect` is a workaround for supressing the warning saying that a state update on an unmounted component is not possible: https://stackoverflow.com/questions/53949393/cant-perform-a-react-state-update-on-an-unmounted-component
+- `let mounted = true` in `useEffect` is a workaround for suppressing the warning saying that a state update on an unmounted component is not possible: https://stackoverflow.com/questions/53949393/cant-perform-a-react-state-update-on-an-unmounted-component
 -  react-spring has a bug where floating point numbers are casted as integers on re-render (e.g. '1.0' gets shown as '1' on re-render). This is a temporary work-around, see https://github.com/pmndrs/react-spring/issues/1564
 - Opening a modal right after closing a previous one can mess up the `overflow-y` of the page. As a workaround, there is a delay before the second modal is opened (see the function `handleConfirmUnstake` under `src/components/GeyserStakeView.tsx`)
 

@@ -15,7 +15,7 @@ import {
 
 /* 
 
-  Dev note: This test file suffers from indeterminancy based on timestamp manipulation.
+  Dev note: This test file suffers from indeterminacy based on timestamp manipulation.
 
   If you are encountering tests which fail unexpectedly, make sure increaseTime() is 
   correctly setting the timestamp of the next block.

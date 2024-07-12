@@ -190,8 +190,8 @@ interface IGeyser is IRageQuit {
 /// - Online:
 ///     Geyser is operating normally, all functions are enabled
 /// - Offline:
-///     Geyser is temporarely disabled for maintenance
-///     User deposits and withdrawls are disabled, ragequit remains enabled
+///     Geyser is temporarily disabled for maintenance
+///     User deposits and withdrawals are disabled, ragequit remains enabled
 ///     Users can withdraw their stake through rageQuit() but forego their pending reward
 ///     Should only be used when downtime required for an upgrade
 /// - Shutdown:

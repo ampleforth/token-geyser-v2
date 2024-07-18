@@ -93,3 +93,6 @@ flattened
 
 # user scripts
 scripts.sh
+
+# python
+.python-version

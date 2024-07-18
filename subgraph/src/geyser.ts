@@ -18,11 +18,22 @@ import {
   Staked,
   Unstaked,
 } from '../generated/templates/GeyserTemplate/GeyserContract'
-import { EmergencyShutdown, PowerOff, PowerOn } from '../generated/templates/PowerSwitchTemplate/PowerSwitchContract'
+import {
+  EmergencyShutdown,
+  PowerOff,
+  PowerOn,
+} from '../generated/templates/PowerSwitchTemplate/PowerSwitchContract'
 import { ERC20 } from '../generated/templates/GeyserTemplate/ERC20'
 
 // entity imports
-import { ClaimedReward, Geyser, Lock, RewardPoolBalance, RewardSchedule, PowerSwitch } from '../generated/schema'
+import {
+  ClaimedReward,
+  Geyser,
+  Lock,
+  RewardPoolBalance,
+  RewardSchedule,
+  PowerSwitch,
+} from '../generated/schema'
 
 // template instantiation
 export function handleNewGeyser(event: InstanceAdded): void {
@@ -53,8 +64,18 @@ function _updateGeyser(geyser: Geyser, geyserContract: GeyserContract, timestamp
   let geyserAddress = Address.fromHexString(geyser.id) as Address
 
   geyser.totalStake = geyserData.totalStake
-  geyser.totalStakeUnits = geyserContract.getCurrentTotalStakeUnits()
-  geyser.unlockedReward = geyserContract.getCurrentUnlockedRewards()
+  let tryTotalStakeUnits = geyserContract.try_getCurrentTotalStakeUnits()
+  if (!tryTotalStakeUnits.reverted) {
+    geyser.totalStakeUnits = tryTotalStakeUnits.value
+  } else {
+    log.warning('Failed to get totalStakeUnits for geyser: {}', [geyser.id])
+  }
+  let tryUnlockedReward = geyserContract.try_getCurrentUnlockedRewards()
+  if (!tryUnlockedReward.reverted) {
+    geyser.unlockedReward = tryUnlockedReward.value
+  } else {
+    log.warning('Failed to get unlockedReward for geyser: {}', [geyser.id])
+  }
   geyser.rewardBalance = ERC20.bind(geyserData.rewardToken).balanceOf(geyserData.rewardPool)
   geyser.lastUpdate = timestamp
 
@@ -134,7 +155,11 @@ function updateVaultStake(geyserAddress: Address, vaultAddress: Address, timesta
   let geyserContract = GeyserContract.bind(geyserAddress)
 
   let lock = new Lock(
-    vaultAddress.toHex() + '-' + geyserAddress.toHex() + '-' + geyserContract.getGeyserData().stakingToken.toHex(),
+    vaultAddress.toHex() +
+      '-' +
+      geyserAddress.toHex() +
+      '-' +
+      geyserContract.getGeyserData().stakingToken.toHex(),
   )
   lock.geyser = geyserAddress.toHex()
   lock.vault = vaultAddress.toHex()

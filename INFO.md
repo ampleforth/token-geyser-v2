@@ -4,7 +4,7 @@
 
 - RouterV1 mints vaults, so it needs to be a `IERC721Receiver` and implement `onERC721Received`.
 - Added the `depositStake` contract function that does the same thing as the existing `create2VaultAndStake` function, except it doesn't create a vault.
-- Fixed a bug relating to the logic for when to update partially unstaked stake in `unstakeAndClaim` of the Geyser contract. See lines 895-901 in `contracts/Geyser.sol` for a description of the change.
+- Fixed a bug relating to the logic for when to update a partially unstaked stake in `unstakeAndClaim` of the Geyser contract. See lines 895-901 in `contracts/Geyser.sol` for a description of the change.
 
 ## Subgraph Changes
 

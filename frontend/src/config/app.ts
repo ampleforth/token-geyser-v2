@@ -39,33 +39,29 @@ const networkConfig: NetworkConfig = {
       decimals: 18,
     },
   },
-  [Network.Kovan]: {
-    id: Network.Kovan,
-    networkId: 42,
-    chainId: 42,
-    ref: 'kovan',
-    name: 'Kovan',
-    rpcUrl: `https://eth-kovan.alchemyapi.io/v2/${ALCHEMY_PROJECT_ID}`,
-    graphUrl: 'https://api.thegraph.com/subgraphs/name/aalavandhan/geyserv2-kovan',
-    explorerUrl: 'https://kovan.etherscan.io/tx',
-    nativeCurrency: {
-      name: 'KovanEthereum',
-      symbol: 'KETH',
-      decimals: 18,
-    },
-  },
 }
 
 const geyserList: AppGeysersList = {
   [Network.Mainnet]: [
+
     {
-      name: 'ETH Beehive V7 (UniswapV2 ETH-AMPL)',
-      address: '0x5Ec6f02D0b657E4a56d6020Bc21F19f2Ca13EcA9',
-      stakingToken: StakingToken.UNISWAP_V2,
+      name: 'ETH Crystal V1 (Charm WETH/WAMPL)',
+      address: '0xEac308Fa45A9b64cfb6965e8d1237B39016862e3',
+      stakingToken: StakingToken.CHARM_V1,
       rewardToken: RewardToken.FORTH,
       isWrapped: false,
-      poolAddress: 'https://app.uniswap.org/#/add/v2/0xD46bA6D942050d489DBd938a2C909A5d5039A161/ETH',
-      // staked pool address: 0xc5be99A02C6857f9Eac67BbCE58DF5572498F40c
+      poolAddress: 'https://alpha.charm.fi/ethereum/vault/0x9658b5bdcad59dd0b7b936d955e5df81ea2b4dcb',
+      // staked pool address: 0x0c2b6bf7322a3cceb47c7ba74f2c75a19f530f11
+    },
+
+    {
+      name: 'ETH Steamboat V1 (BillBroker USDC/SPOT)',
+      address: '0xF0a45FA4fBec33A2A51E08058bEA92761c08D7D5',
+      stakingToken: StakingToken.BILL_BROKER,
+      rewardToken: RewardToken.FORTH,
+      isWrapped: false,
+      poolAddress: 'http://app.spot.cash/broker',
+      // staked pool address: 0xA088Aef966CAD7fE0B38e28c2E07590127Ab4ccB
     },
 
     {
@@ -74,8 +70,18 @@ const geyserList: AppGeysersList = {
       stakingToken: StakingToken.CHARM_V1,
       rewardToken: RewardToken.FORTH,
       isWrapped: false,
-      poolAddress: 'https://alpha.charm.fi/vault/0x2dcaff0f75765d7867887fc402b71c841b3a4bfb-1',
+      poolAddress: 'https://alpha.charm.fi/ethereum/vault/0x2dcaff0f75765d7867887fc402b71c841b3a4bfb',
       // staked pool address: 0x898adc9aa0c23dce3fed6456c34dbe2b57784325
+    },
+
+    {
+      name: 'ETH Beehive V7 (UniswapV2 ETH-AMPL)',
+      address: '0x5Ec6f02D0b657E4a56d6020Bc21F19f2Ca13EcA9',
+      stakingToken: StakingToken.UNISWAP_V2,
+      rewardToken: RewardToken.FORTH,
+      isWrapped: false,
+      poolAddress: 'https://app.uniswap.org/#/add/v2/0xD46bA6D942050d489DBd938a2C909A5d5039A161/ETH',
+      // staked pool address: 0xc5be99A02C6857f9Eac67BbCE58DF5572498F40c
     },
 
     {
@@ -181,15 +187,6 @@ const geyserList: AppGeysersList = {
       poolAddress: 'https://info.pangolin.exchange/#/pair/0xe36ae366692acbf696715b6bddce0938398dd991',
     },
   ],
-  [Network.Kovan]: [
-    {
-      name: 'Kovan testnet geyser (WAMPL)',
-      address: '0xc92b6032a39b996054d7e1825abb273ef335d8e2',
-      stakingToken: StakingToken.WAMPL,
-      rewardToken: RewardToken.AMPL,
-      isWrapped: false,
-    },
-  ],
 }
 
 const additionalTokens: AppAdditionalTokensList = {
@@ -210,7 +207,6 @@ const additionalTokens: AppAdditionalTokensList = {
       enabled: true,
     },
   ],
-  [Network.Kovan]: [],
   [Network.Avalanche]: [
     {
       token: 'pangolin',

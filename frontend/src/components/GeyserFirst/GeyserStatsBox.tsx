@@ -13,7 +13,14 @@ interface Props {
   containerClassName?: string
 }
 
-export const GeyserStatsBox: React.FC<Props> = ({ name, value: targetValue, units, from, interpolate, containerClassName }) => {
+export const GeyserStatsBox: React.FC<Props> = ({
+  name,
+  value: targetValue,
+  units,
+  from,
+  interpolate,
+  containerClassName,
+}) => {
   const [statsValue, setStatsValue] = useState<string>(interpolate ? interpolate(targetValue) : `${targetValue}`)
 
   useSpring({
@@ -29,13 +36,7 @@ export const GeyserStatsBox: React.FC<Props> = ({ name, value: targetValue, unit
       <GeyserStatsBoxLabel>{name}</GeyserStatsBoxLabel>
       <GeyserStatsBoxValueContainer>
         <GeyserStatsBoxValue>
-          <animated.span>
-            {statsValue}
-          </animated.span>
-          {' '}
-          <GeyserStatsBoxUnits>
-            {units}
-          </GeyserStatsBoxUnits>
+          <animated.span>{statsValue}</animated.span> <GeyserStatsBoxUnits>{units}</GeyserStatsBoxUnits>
         </GeyserStatsBoxValue>
       </GeyserStatsBoxValueContainer>
     </GeyserStatsBoxContainer>

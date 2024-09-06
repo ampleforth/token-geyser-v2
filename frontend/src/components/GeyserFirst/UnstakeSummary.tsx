@@ -20,22 +20,24 @@ export const UnstakeSummary: React.FC<Props> = ({ userInput, parsedUserInput }) 
       stakingTokenInfo: { symbol: stakingTokenSymbol, price: stakingTokenPrice },
     },
   } = useContext(GeyserContext)
-  const { geyserStats: {bonusRewards}, computeRewardsFromUnstake, computeRewardsShareFromUnstake } = useContext(StatsContext)
+  const {
+    geyserStats: { bonusRewards },
+    computeRewardsFromUnstake,
+    computeRewardsShareFromUnstake,
+  } = useContext(StatsContext)
 
   const [rewardAmount, setRewardAmount] = useState<number>(0.0)
   const [rewardsShare, setRewardsShare] = useState<number>(0.0)
 
   const unstakeUSD = parseFloat(userInput) * stakingTokenPrice
-  const rewardUSD = rewardAmount * rewardTokenPrice + 
-    bonusRewards.reduce((m,b) => m+(rewardsShare * b.value), 0)
+  const rewardUSD = rewardAmount * rewardTokenPrice + bonusRewards.reduce((m, b) => m + rewardsShare * b.value, 0)
 
   useEffect(() => {
-    (async () => {
+    ;(async () => {
       setRewardAmount(await computeRewardsFromUnstake(parsedUserInput))
       setRewardsShare(await computeRewardsShareFromUnstake(parsedUserInput))
-    })();
+    })()
   }, [parsedUserInput])
-
 
   return (
     <Container>
@@ -43,14 +45,10 @@ export const UnstakeSummary: React.FC<Props> = ({ userInput, parsedUserInput }) 
         <Content>
           <Label>
             Amount to Unstake
-            {
-              unstakeUSD > 0 ? (
-                <small>&nbsp;({safeNumeral(unstakeUSD, '0.00')} USD)</small>
-              ) : <></>
-            }
+            {unstakeUSD > 0 ? <small>&nbsp;({safeNumeral(unstakeUSD, '0.00')} USD)</small> : <></>}
           </Label>
           <Value>
-            <Amount>{formatWithDecimals(amountOrZero(userInput).toString())}{' '}</Amount>
+            <Amount>{formatWithDecimals(amountOrZero(userInput).toString())} </Amount>
             <span>{stakingTokenSymbol}</span>
           </Value>
         </Content>
@@ -59,25 +57,19 @@ export const UnstakeSummary: React.FC<Props> = ({ userInput, parsedUserInput }) 
         <Content>
           <Label>
             Rewards to Claim
-            {
-              rewardUSD > 0 ? (
-                <small>&nbsp;({safeNumeral(rewardUSD, '0.00')} USD)</small>
-              ) : <></>
-            }
+            {rewardUSD > 0 ? <small>&nbsp;({safeNumeral(rewardUSD, '0.00')} USD)</small> : <></>}
           </Label>
           <Value>
-            <Amount>{safeNumeral(rewardAmount, '0.000')}{' '}</Amount>
+            <Amount>{safeNumeral(rewardAmount, '0.000')} </Amount>
             <span>{rewardTokenSymbol}</span>
           </Value>
 
-          {
-            bonusRewards.map(b => (
-              <Value key={b.symbol}>
-                <Amount>{safeNumeral(rewardsShare * b.balance, '0.000')}{' '}</Amount>
-                <span>{b.symbol}</span>
-              </Value>
-            ))
-          }
+          {bonusRewards.map((b) => (
+            <Value key={b.symbol}>
+              <Amount>{safeNumeral(rewardsShare * b.balance, '0.000')} </Amount>
+              <span>{b.symbol}</span>
+            </Value>
+          ))}
         </Content>
       </SummaryCard>
     </Container>

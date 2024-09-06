@@ -1,6 +1,7 @@
 # token-geyser-v2-ui
 
 Jump to
+
 - [Known workarounds](#known-workarounds)
 - [Required Setup](#required-setup)
 - [Stats Calculation](#stats)
@@ -12,7 +13,7 @@ Jump to
 ## Known Workarounds
 
 - `let mounted = true` in `useEffect` is a workaround for suppressing the warning saying that a state update on an unmounted component is not possible: https://stackoverflow.com/questions/53949393/cant-perform-a-react-state-update-on-an-unmounted-component
--  react-spring has a bug where floating point numbers are casted as integers on re-render (e.g. '1.0' gets shown as '1' on re-render). This is a temporary work-around, see https://github.com/pmndrs/react-spring/issues/1564
+- react-spring has a bug where floating point numbers are casted as integers on re-render (e.g. '1.0' gets shown as '1' on re-render). This is a temporary work-around, see https://github.com/pmndrs/react-spring/issues/1564
 - Opening a modal right after closing a previous one can mess up the `overflow-y` of the page. As a workaround, there is a delay before the second modal is opened (see the function `handleConfirmUnstake` under `src/components/GeyserStakeView.tsx`)
 
 ## Required Setup
@@ -25,7 +26,6 @@ The following are the main elements that need to be configured prior to deployin
 4. [List of additional tokens for vault management](#list-of-additional-tokens)
 5. [Infura Project ID](#ethereum-provider)
 
-
 ## GraphQL Endpoint
 
 To make sure that the application can fetch data from the subgraph,
@@ -36,7 +36,6 @@ The initialization of the GraphQL client can be found under `src/queries/client.
 ## Process Environment
 
 Make sure that the environment variable `NODE_ENV` is set to something other than `development` when deploying to production.
-
 
 ## Geyser Specific Configuration
 
@@ -69,6 +68,7 @@ and write a function that will return `Promise<StakingTokenInfo>`.
 Say we want to add a new staking token called `LP`. The following changes will need to be made:
 
 Under `src/constants.ts`
+
 ```
 export enum StakingToken {
   ...
@@ -77,6 +77,7 @@ export enum StakingToken {
 ```
 
 Under `src/utils/stakingToken.ts`
+
 ```
 export const getStakingTokenInfo = async (...) => {
   ...
@@ -113,6 +114,7 @@ and write a function that will return `Promise<RewardTokenInfo>`.
 Say we want to add a new reward token called `REW`. The following changes will need to be made:
 
 Under `src/constants.ts`
+
 ```
 export enum RewardToken {
   ...
@@ -121,6 +123,7 @@ export enum RewardToken {
 ```
 
 Under `src/rewardToken.ts`
+
 ```
 export const getRewardTokenInfo = async (...) => {
   ...
@@ -161,6 +164,7 @@ Note that it is assumed that the token is an ERC20 token.
 Say we want to show the `WETH` balance of users' vaults. The following changes will need to be made:
 
 Under `src/config/additionalTokens.ts`
+
 ```
 const mainnetAdditionalTokens = [
   ...
@@ -203,7 +207,6 @@ A user can manage their vaults through the vault management view. This view will
 
 It is possible for the user to withdraw the unlocked balance of a token from their vault to their wallet through this view.
 
-
 ## Withdraw Unlocked Balance When Unstaking
 
 One edge case that comes up in the current unstake flow is that the staking tokens might be staked into different geyser programs (maybe external ones). If that is the case, then unstaking, say, 5 tokens from a geyser does not always imply that 5 tokens will be unlocked after the unstaking. As it currently stands, if this scenario were to arise, the transaction to withdraw the staking tokens will fail, and the user can withdraw the actual unlocked balance from their vault using the vault management view.
@@ -211,11 +214,13 @@ One edge case that comes up in the current unstake flow is that the staking toke
 However, the functionality to withdraw exactly the unlocked balance is implemented in the code, but it is simply not used. If the decision is to enable this functionality, the following changes are required:
 
 To withdraw the entire unlocked balance of staking tokens after unstaking, under `src/constants.ts`, set `WITHDRAW_UNLOCKED_STAKING_TOKENS_WHEN_UNSTAKING` to `true`
+
 ```
 export const WITHDRAW_UNLOCKED_STAKING_TOKENS_WHEN_UNSTAKING = true
 ```
 
 To withdraw the entire unlocked balance of reward tokens after unstaking, under `src/constants.ts`, set `WITHDRAW_UNLOCKED_REWARD_TOKENS_WHEN_UNSTAKING` to `true`
+
 ```
 export const WITHDRAW_UNLOCKED_REWARD_TOKENS_WHEN_UNSTAKING = true
 ```
@@ -271,7 +276,7 @@ You can learn more in the [Create React App documentation](https://facebook.gith
 
 To learn React, check out the [React documentation](https://reactjs.org/).
 
-***
+---
 
 ## Deployment
 

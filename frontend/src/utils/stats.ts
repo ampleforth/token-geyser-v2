@@ -1,6 +1,6 @@
 import { BigNumber, BigNumberish } from 'ethers'
 import { toChecksumAddress } from 'web3-utils'
-import { formatUnits } from 'ethers/lib/utils'
+import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import {
   getGeyserVaultData,
   getBalanceLocked,
@@ -257,11 +257,8 @@ const getPoolAPY = async (
       if (!rewardTokenSymbol) return 0
       const rewardTokenPrice = await getCurrentPrice(rewardTokenInfo.symbol)
 
-      const inflow = 20000.0 // avg_deposit: 20,000 USD
-      const inflowDecimals = BigNumber.from((10 ** stakingTokenDecimals).toString())
-      const inflowFixedPt = BigNumber.from(inflow).mul(inflowDecimals)
-      const stakeTokenPriceBigNum = BigNumber.from(Math.round(stakingTokenPrice))
-      const stake = inflowFixedPt.div(stakeTokenPriceBigNum)
+      const inflowUsd = 20000.0 // avg_deposit: 20,000 USD
+      const stake = parseUnits((inflowUsd / stakingTokenPrice).toFixed(18), stakingTokenDecimals)
 
       const calcPeriod = getCalcPeriod(geyser)
       const stakeDripAfterPeriod = await getStakeDrip(geyser, stake, parseInt(scalingTime, 10), signerOrProvider)
@@ -281,8 +278,7 @@ const getPoolAPY = async (
           const bonusReward = rewardShare * bonusPool * bonusTokensInfo[i].price
           return m + bonusReward
         }, 0)
-
-      return outflowWithBonus === 0 ? 0 : calculateAPY(inflow, outflowWithBonus, periods)
+      return outflowWithBonus === 0 ? 0 : calculateAPY(inflowUsd, outflowWithBonus, periods)
     },
     `${toChecksumAddress(geyser.id)}|poolAPY`,
     GEYSER_STATS_CACHE_TIME_MS,
@@ -323,7 +319,7 @@ const getCurrentMultiplier = async (
     const perc = Math.min(now - ts, st) / st
     weightedStake += perc * amt
   })
-  const fraction = (geyserVaultData.stakes.length > 0) ? weightedStake / totalStake : 0
+  const fraction = geyserVaultData.stakes.length > 0 ? weightedStake / totalStake : 0
   const currentMultiplier = minMultiplier + fraction * (maxMultiplier - minMultiplier)
   return [minMultiplier, currentMultiplier, maxMultiplier]
 }

@@ -2,12 +2,14 @@ import styled from 'styled-components/macro'
 import tw from 'twin.macro'
 
 interface Props {
-  text:string
+  text: string
 }
 
-export const FormLabel: React.FC<Props> = ({text}) => (
+export const FormLabel: React.FC<Props> = ({ text }) => (
   <FlexDiv>
-    <Text><b>{text}:</b></Text>
+    <Text>
+      <b>{text}:</b>
+    </Text>
   </FlexDiv>
 )
 

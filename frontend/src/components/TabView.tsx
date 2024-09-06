@@ -4,13 +4,12 @@ import styled from 'styled-components/macro'
 import tw from 'twin.macro'
 
 interface Props {
-  active:number
+  active: number
   tabs: string[]
-  onChange: (tab:number) => void
+  onChange: (tab: number) => void
 }
 
 export const TabView: React.FC<Props> = ({ active, tabs, onChange }) => {
-
   const StyledTabList = styled(Tab.List)`
     ${tw`bg-darkGray relative rounded m-auto flex border border-darkGray`}
   `
@@ -33,8 +32,11 @@ export const TabView: React.FC<Props> = ({ active, tabs, onChange }) => {
   return (
     <Tab.Group onChange={onChange}>
       <StyledTabList className="h-14">
-        {tabs.map((t, i) => (<StyledFlexTab key={t}
-          className={`${active === i ? 'bg-white text-darkGray' : 'text-gray'}`}>{t}</StyledFlexTab>))}
+        {tabs.map((t, i) => (
+          <StyledFlexTab key={t} className={`${active === i ? 'bg-white text-darkGray' : 'text-gray'}`}>
+            {t}
+          </StyledFlexTab>
+        ))}
       </StyledTabList>
     </Tab.Group>
   )

@@ -19,7 +19,7 @@ export const MyStats = () => {
   const {
     userStats: { apy, currentMultiplier, maxMultiplier, currentReward, currentRewardShare },
     vaultStats: { currentStake },
-    geyserStats: { calcPeriodInDays, bonusRewards},
+    geyserStats: { calcPeriodInDays, bonusRewards },
   } = useContext(StatsContext)
   const {
     selectedGeyserInfo: {
@@ -36,7 +36,10 @@ export const MyStats = () => {
       },
       {
         title: 'Reward Multiplier',
-        body: GET_REWARD_MULTIPLIER_MSG({ days: safeNumeral(calcPeriodInDays||30, '0.0'), multiplier: safeNumeral(maxMultiplier||3, '0.0') }),
+        body: GET_REWARD_MULTIPLIER_MSG({
+          days: safeNumeral(calcPeriodInDays || 30, '0.0'),
+          multiplier: safeNumeral(maxMultiplier || 3, '0.0'),
+        }),
       },
       {
         title: 'Current Rewards',
@@ -46,13 +49,19 @@ export const MyStats = () => {
     [currentStake],
   )
 
-  const rewardsToShow = [{value:currentReward, units:rewardTokenSymbol}]
-    .concat(bonusRewards.map(r => ({ value: currentRewardShare * r.balance, units: r.symbol })))
+  const rewardsToShow = [{ value: currentReward, units: rewardTokenSymbol }].concat(
+    bonusRewards.map((r) => ({ value: currentRewardShare * r.balance, units: r.symbol })),
+  )
 
   return (
     <MyStatsContainer>
       <Header>
-        My Stats <Tooltip classNames="my-auto ml-2 normal-case tracking-wide" panelClassnames='-translate-x-1/4' messages={getTooltipMessages()} />
+        My Stats{' '}
+        <Tooltip
+          classNames="my-auto ml-2 normal-case tracking-wide"
+          panelClassnames="-translate-x-1/4"
+          messages={getTooltipMessages()}
+        />
       </Header>
       <GeyserStatsContainer>
         <GeyserStatsBoxContainer>

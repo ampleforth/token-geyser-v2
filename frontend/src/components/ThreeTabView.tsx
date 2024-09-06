@@ -11,7 +11,7 @@ interface Props {
 
 export const ThreeTabView: React.FC<Props> = ({ enabled, toggle, options }) => (
   <Switch className="w-full" checked={!enabled} onChange={toggle}>
-    <SwitchContainer className='h-14'>
+    <SwitchContainer className="h-14">
       <SwitchOptionOne className={!enabled ? 'text-gray' : 'text-darkGray'}>{options[0]}</SwitchOptionOne>
       <span
         className={`block h-full w-1/3 rounded transition duration-300 ease-in-out transform ${

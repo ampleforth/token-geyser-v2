@@ -9,7 +9,11 @@ import { GeyserStakeView } from './GeyserStakeView'
 import { GeyserStatsView } from './GeyserStatsView'
 
 export const GeyserFirstContainer = () => {
-  const { geyserAction, updateGeyserAction, selectedGeyserInfo: { isWrapped } } = useContext(GeyserContext)
+  const {
+    geyserAction,
+    updateGeyserAction,
+    selectedGeyserInfo: { isWrapped },
+  } = useContext(GeyserContext)
   const actions = Object.values(GeyserAction)
   return (
     <Container>
@@ -21,7 +25,8 @@ export const GeyserFirstContainer = () => {
           <TabView
             active={actions.indexOf(geyserAction)}
             onChange={(a) => updateGeyserAction(actions[a])}
-            tabs={isWrapped ? ['Stake', 'Unstake', 'Wrapper'] : ['Stake', 'Unstake']} />
+            tabs={isWrapped ? ['Stake', 'Unstake', 'Wrapper'] : ['Stake', 'Unstake']}
+          />
         </ToggleContainer>
         <GeyserStakeView />
       </Overlay>

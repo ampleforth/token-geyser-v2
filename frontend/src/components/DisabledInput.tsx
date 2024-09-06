@@ -7,7 +7,7 @@ interface Props extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onCha
 
 export const DisabledInput: React.FC<Props> = (props) => (
   <Container>
-    <Input {...props} disabled  />
+    <Input {...props} disabled />
   </Container>
 )
 

@@ -37,7 +37,7 @@
     "eject": "react-scripts eject",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
     "lint": "eslint src --ext .ts,.tsx",
-    "prettify": "prettier --write ."
+    "format": "prettier --write ."
   },
   "browserslist": {
     "production": [

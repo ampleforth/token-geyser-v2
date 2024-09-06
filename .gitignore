@@ -96,3 +96,6 @@ scripts.sh
 
 # python
 .python-version
+
+# yarn
+.yarn/install-state.gz

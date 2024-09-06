@@ -3,7 +3,7 @@ import { createContext, useCallback, useContext, useEffect, useState } from 'rea
 import { ERC20Balance } from '../sdk'
 import { GeyserContext } from './GeyserContext'
 import Web3Context from './Web3Context'
-import {TokenInfo} from '../types'
+import { TokenInfo } from '../types'
 
 export const WalletContext = createContext<{
   stakingTokenBalance: BigNumber
@@ -20,7 +20,9 @@ export const WalletContextProvider: React.FC = ({ children }) => {
   const [underlyingTokenBalance, setWrappedTokenBalance] = useState<BigNumber>(BigNumber.from('0'))
 
   const { signer } = useContext(Web3Context)
-  const { selectedGeyserInfo: { stakingTokenInfo, isWrapped } } = useContext(GeyserContext)
+  const {
+    selectedGeyserInfo: { stakingTokenInfo, isWrapped },
+  } = useContext(GeyserContext)
   const underlyingStakingTokenInfo = stakingTokenInfo.wrappedToken as TokenInfo
 
   const getStakingTokenBalance = useCallback(async () => {
@@ -29,7 +31,7 @@ export const WalletContextProvider: React.FC = ({ children }) => {
         const balance = await ERC20Balance(stakingTokenInfo.address, await signer.getAddress(), signer)
         return balance
       } catch (e) {
-        console.log("wallet balance query error")
+        console.log('wallet balance query error')
         // console.error(e)
         return BigNumber.from('0')
       }
@@ -43,7 +45,7 @@ export const WalletContextProvider: React.FC = ({ children }) => {
         const balance = await ERC20Balance(underlyingStakingTokenInfo.address, await signer.getAddress(), signer)
         return balance
       } catch (e) {
-        console.log("wallet balance query error")
+        console.log('wallet balance query error')
         // console.error(e)
         return BigNumber.from('0')
       }
@@ -57,12 +59,16 @@ export const WalletContextProvider: React.FC = ({ children }) => {
   }
 
   useEffect(() => {
-    let mounted = true;
-    setTimeout(() => mounted && refreshWalletBalances(), 250);
+    let mounted = true
+    setTimeout(() => mounted && refreshWalletBalances(), 250)
     return () => {
       mounted = false
     }
   }, [getStakingTokenBalance, getWrappedTokenBalance])
 
-  return <WalletContext.Provider value={{ stakingTokenBalance, underlyingTokenBalance, refreshWalletBalances }}>{children}</WalletContext.Provider>
+  return (
+    <WalletContext.Provider value={{ stakingTokenBalance, underlyingTokenBalance, refreshWalletBalances }}>
+      {children}
+    </WalletContext.Provider>
+  )
 }

@@ -1,6 +1,6 @@
 import { BigNumber, BigNumberish } from 'ethers'
 import { toChecksumAddress } from 'web3-utils'
-import { formatUnits } from 'ethers/lib/utils'
+import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import {
   getGeyserVaultData,
   getBalanceLocked,

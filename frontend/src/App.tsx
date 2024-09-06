@@ -13,9 +13,8 @@ import { DropdownsContainer } from 'components/DropdownsContainer'
 import { useEffect } from 'react'
 
 function App() {
-
   useEffect(() => {
-    localStorage.clear();
+    localStorage.clear()
   }, [])
 
   return (

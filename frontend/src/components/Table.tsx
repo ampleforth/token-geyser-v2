@@ -1,7 +1,7 @@
-import { ReactNode } from "react"
-import styled from "styled-components/macro"
-import tw from "twin.macro"
-import { Align } from "../constants"
+import { ReactNode } from 'react'
+import styled from 'styled-components/macro'
+import tw from 'twin.macro'
+import { Align } from '../constants'
 
 export type Column = {
   title: ReactNode
@@ -23,18 +23,21 @@ interface Props {
 }
 
 export const Table: React.FC<Props> = ({ columns, dataSource }) => {
-  const getRowFromSource = (source: DataSource) => (
-    columns.map(({ dataIndex }) => Object.getOwnPropertyDescriptor(source, dataIndex) ? source[dataIndex] : '')
-  )
+  const getRowFromSource = (source: DataSource) =>
+    columns.map(({ dataIndex }) => (Object.getOwnPropertyDescriptor(source, dataIndex) ? source[dataIndex] : ''))
 
   const rows = dataSource.map(getRowFromSource)
 
   const getAlignmentClass = (textAlign: Align) => {
-    switch(textAlign) {
-      case Align.CENTER: return 'text-center'
-      case Align.LEFT: return 'text-left'
-      case Align.RIGHT: return 'text-right'
-      default: return ''
+    switch (textAlign) {
+      case Align.CENTER:
+        return 'text-center'
+      case Align.LEFT:
+        return 'text-left'
+      case Align.RIGHT:
+        return 'text-right'
+      default:
+        return ''
     }
   }
 
@@ -48,7 +51,10 @@ export const Table: React.FC<Props> = ({ columns, dataSource }) => {
           {columns.map(({ title, key, textAlign, widthClass }, colNumber) => (
             <HeaderCell
               key={key}
-              className={`${getAlignmentClass(textAlign || Align.LEFT)} ${widthClass} ${getPaddingClass(colNumber, columns.length)}`}
+              className={`${getAlignmentClass(textAlign || Align.LEFT)} ${widthClass} ${getPaddingClass(
+                colNumber,
+                columns.length,
+              )}`}
             >
               {title}
             </HeaderCell>
@@ -61,14 +67,17 @@ export const Table: React.FC<Props> = ({ columns, dataSource }) => {
             {row.map((cell, colNumber) => (
               <RowCell
                 key={`${dataSource[rowNumber].key}-${columns[colNumber].key}`}
-                className={`${getAlignmentClass(columns[colNumber].textAlign || Align.LEFT)} ${getPaddingClass(colNumber, columns.length)}`}
+                className={`${getAlignmentClass(columns[colNumber].textAlign || Align.LEFT)} ${getPaddingClass(
+                  colNumber,
+                  columns.length,
+                )}`}
               >
                 {cell}
               </RowCell>
             ))}
           </TableRow>
         ))}
-        <Spacer/>
+        <Spacer />
       </TableBody>
     </TableContent>
   )

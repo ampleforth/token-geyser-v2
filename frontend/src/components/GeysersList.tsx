@@ -6,16 +6,17 @@ import { GeyserContext } from 'context/GeyserContext'
 import { Dropdown } from './Dropdown'
 
 export const GeysersList = () => {
-  const { geysers, selectGeyserByName, selectedGeyserInfo: { geyser: selectedGeyser }, getGeyserName } = useContext(GeyserContext)
+  const {
+    geysers,
+    selectGeyserByName,
+    selectedGeyserInfo: { geyser: selectedGeyser },
+    getGeyserName,
+  } = useContext(GeyserContext)
   const handleGeyserChange = (geyserName: string) => selectGeyserByName(geyserName)
 
   const optgroups = (() => {
-    const activeGeysers = geysers
-      .filter(g => g.active === true)
-      .map(({ id }) => getGeyserName(id))
-    const inactiveGeysers = geysers
-      .filter(g => !(g.active === true))
-      .map(({ id }) => getGeyserName(id))
+    const activeGeysers = geysers.filter((g) => g.active === true).map(({ id }) => getGeyserName(id))
+    const inactiveGeysers = geysers.filter((g) => !(g.active === true)).map(({ id }) => getGeyserName(id))
     return [
       {
         group: 'Active Geysers',

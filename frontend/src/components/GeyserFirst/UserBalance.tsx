@@ -9,11 +9,18 @@ interface Props {
   decimals: number
   symbol: string
   isStakingAction: boolean
-  poolAddress?:string
+  poolAddress?: string
 }
 
-export const UserBalance: React.FC<Props> = ({ parsedAmount, currentAmount, decimals, symbol, isStakingAction, poolAddress }) => {
-  const formatDisplayAmount = (amt: BigNumberish, sym:string) => (
+export const UserBalance: React.FC<Props> = ({
+  parsedAmount,
+  currentAmount,
+  decimals,
+  symbol,
+  isStakingAction,
+  poolAddress,
+}) => {
+  const formatDisplayAmount = (amt: BigNumberish, sym: string) => (
     <a href={poolAddress} target="_blank" rel="noreferrer">
       {formatAmount(amt, decimals)} {sym}
     </a>
@@ -21,9 +28,14 @@ export const UserBalance: React.FC<Props> = ({ parsedAmount, currentAmount, deci
   return (
     <FlexDiv>
       {parsedAmount.isZero() ? (
-          <Text>{isStakingAction ? 'Available' : 'Staked'} balance: {formatDisplayAmount(currentAmount, symbol)}</Text>
+        <Text>
+          {isStakingAction ? 'Available' : 'Staked'} balance: {formatDisplayAmount(currentAmount, symbol)}
+        </Text>
       ) : (
-        <Text>New {isStakingAction ? 'available' : 'stake'} balance: {formatDisplayAmount(currentAmount.sub(parsedAmount), symbol)}</Text>
+        <Text>
+          New {isStakingAction ? 'available' : 'stake'} balance:{' '}
+          {formatDisplayAmount(currentAmount.sub(parsedAmount), symbol)}
+        </Text>
       )}
     </FlexDiv>
   )

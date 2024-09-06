@@ -43,7 +43,6 @@ const networkConfig: NetworkConfig = {
 
 const geyserList: AppGeysersList = {
   [Network.Mainnet]: [
-
     {
       name: 'ETH Crystal V1 (Charm WETH/WAMPL)',
       address: '0xEac308Fa45A9b64cfb6965e8d1237B39016862e3',

@@ -45,21 +45,17 @@ const DEFAULT_PRICES: Record<string, number> = {
 //   FORTH: 'ampleforth-governance-token',
 // }
 
-const URL = "https://web-api.ampleforth.org/util/get-price"
+const URL = 'https://web-api.ampleforth.org/util/get-price'
 
 export const getCurrentPrice = async (symbol: string) => {
   const cacheKey = `geyser|${symbol}|spot`
   const TTL = HOUR_IN_MS
 
   try {
-    const response = await fetch(`${URL}?symbol=${symbol}`);
-    const price = await response.json();
+    const response = await fetch(`${URL}?symbol=${symbol}`)
+    const price = await response.json()
 
-    return await ls.computeAndCache<number>(
-      async () => price as number,
-      cacheKey,
-      TTL,
-    )
+    return await ls.computeAndCache<number>(async () => price as number, cacheKey, TTL)
   } catch (e) {
     console.error(e)
     return DEFAULT_PRICES[symbol] || 0

@@ -1,18 +1,21 @@
-import { StatsContext } from "context/StatsContext"
-import { useContext, useState } from "react"
-import styled from "styled-components/macro"
-import tw from "twin.macro"
-import { safeNumeral } from "utils/numeral"
-import { VaultTokenBalance } from "types"
-import { VaultContext } from "context/VaultContext"
-import { WalletContext } from "context/WalletContext"
-import { Ellipsis } from "styling/styles"
-import { Column, Table } from "components/Table"
-import { SingleTxModal } from "components/SingleTxModal"
-import { Align } from "../../constants"
+import { StatsContext } from 'context/StatsContext'
+import { useContext, useState } from 'react'
+import styled from 'styled-components/macro'
+import tw from 'twin.macro'
+import { safeNumeral } from 'utils/numeral'
+import { VaultTokenBalance } from 'types'
+import { VaultContext } from 'context/VaultContext'
+import { WalletContext } from 'context/WalletContext'
+import { Ellipsis } from 'styling/styles'
+import { Column, Table } from 'components/Table'
+import { SingleTxModal } from 'components/SingleTxModal'
+import { Align } from '../../constants'
 
 export const VaultBalanceView = () => {
-  const { vaultStats: { vaultTokenBalances }, refreshVaultStats } = useContext(StatsContext)
+  const {
+    vaultStats: { vaultTokenBalances },
+    refreshVaultStats,
+  } = useContext(StatsContext)
   const { withdrawFromVault } = useContext(VaultContext)
 
   // state of the token about to be withdrawn
@@ -64,23 +67,20 @@ export const VaultBalanceView = () => {
     },
   ]
 
-  const dataSource = vaultTokenBalances
-    .map((vaultTokenBalance) =>
-      ({
-        key: vaultTokenBalance.symbol,
-        token: <TextEllipsis>{vaultTokenBalance.symbol}</TextEllipsis>,
-        balance: safeNumeral(vaultTokenBalance.balance, '0.00000'),
-        unlocked: safeNumeral(vaultTokenBalance.unlockedBalance, '0.00000'),
-        action: (
-          <ActionButton
-            disabled={vaultTokenBalance.parsedUnlockedBalance.isZero()}
-            onClick={() => confirmWithdraw(vaultTokenBalance)}
-          >
-            <ButtonText>Withdraw</ButtonText>
-          </ActionButton>
-        ),
-      })
-    )
+  const dataSource = vaultTokenBalances.map((vaultTokenBalance) => ({
+    key: vaultTokenBalance.symbol,
+    token: <TextEllipsis>{vaultTokenBalance.symbol}</TextEllipsis>,
+    balance: safeNumeral(vaultTokenBalance.balance, '0.00000'),
+    unlocked: safeNumeral(vaultTokenBalance.unlockedBalance, '0.00000'),
+    action: (
+      <ActionButton
+        disabled={vaultTokenBalance.parsedUnlockedBalance.isZero()}
+        onClick={() => confirmWithdraw(vaultTokenBalance)}
+      >
+        <ButtonText>Withdraw</ButtonText>
+      </ActionButton>
+    ),
+  }))
 
   return (
     <Container>
@@ -88,7 +88,15 @@ export const VaultBalanceView = () => {
       <SingleTxModal
         open={modalOpen}
         submit={submit}
-        txSuccessMessage={<span>Successfully withdrawn <b>{tokenBalance?.unlockedBalance} {tokenBalance?.symbol}</b>.</span>}
+        txSuccessMessage={
+          <span>
+            Successfully withdrawn{' '}
+            <b>
+              {tokenBalance?.unlockedBalance} {tokenBalance?.symbol}
+            </b>
+            .
+          </span>
+        }
         onClose={onClose}
       />
     </Container>

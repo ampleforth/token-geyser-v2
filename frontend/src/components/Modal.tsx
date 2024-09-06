@@ -9,14 +9,11 @@ import tw from 'twin.macro'
 const ModalContext = createContext<{
   ref: MutableRefObject<null> | null
 }>({
-  ref: null
+  ref: null,
 })
 
 const Title: React.FC = ({ children }) => (
-  <Dialog.Title
-    as="h3"
-    className="text-lg font-medium leading-6 text-gray-900"
-  >
+  <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
     {children}
   </Dialog.Title>
 )
@@ -25,19 +22,13 @@ const Body: React.FC = ({ children }) => (
   <ModalContext.Consumer>
     {({ ref }) => (
       <MessageContainer>
-        <Message ref={ref}>
-          {children}
-        </Message>
+        <Message ref={ref}>{children}</Message>
       </MessageContainer>
     )}
   </ModalContext.Consumer>
 )
 
-const Footer: React.FC = ({ children }) => (
-  <FooterContainer>
-    {children}
-  </FooterContainer>
-)
+const Footer: React.FC = ({ children }) => <FooterContainer>{children}</FooterContainer>
 
 interface ModalSubComponents {
   Title: React.FC
@@ -65,12 +56,9 @@ const ModalRoot: React.FC<Props> = ({ open, onClose, disableClose, children, ini
           initialFocus={ref}
         >
           <Container>
-            <Dialog.Overlay className="fixed inset-0 bg-black opacity-30"/>
+            <Dialog.Overlay className="fixed inset-0 bg-black opacity-30" />
             {/* This element is to trick the browser into centering the modal contents. */}
-            <span
-              className="inline-block h-screen align-middle"
-              aria-hidden="true"
-            >
+            <span className="inline-block h-screen align-middle" aria-hidden="true">
               &#8203;
             </span>
             <Transition.Child
@@ -82,9 +70,7 @@ const ModalRoot: React.FC<Props> = ({ open, onClose, disableClose, children, ini
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <ContentContainer>
-                {children}
-              </ContentContainer>
+              <ContentContainer>{children}</ContentContainer>
             </Transition.Child>
           </Container>
         </Dialog>

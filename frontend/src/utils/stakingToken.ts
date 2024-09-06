@@ -131,10 +131,12 @@ const uniswapV2Pair = async (
 
   const totalSupplyNumber = parseFloat(formatUnits(totalSupply, decimals))
 
-  const tokenCompositions = await getTokenCompositions([token0Address, token1Address], address, signerOrProvider, [
-    0.5,
-    0.5,
-  ])
+  const tokenCompositions = await getTokenCompositions(
+    [token0Address, token1Address],
+    address,
+    signerOrProvider,
+    [0.5, 0.5],
+  )
   const [token0Symbol, token1Symbol] = tokenCompositions.map((c) => c.symbol)
   const marketCap = getMarketCap(tokenCompositions)
 
@@ -172,10 +174,12 @@ const getMooniswap = async (tokenAddress: string, signerOrProvider: SignerOrProv
 
   const totalSupplyNumber = parseFloat(formatUnits(totalSupply, decimals))
 
-  const tokenCompositions = await getTokenCompositions([token0Address, token1Address], address, signerOrProvider, [
-    0.5,
-    0.5,
-  ])
+  const tokenCompositions = await getTokenCompositions(
+    [token0Address, token1Address],
+    address,
+    signerOrProvider,
+    [0.5, 0.5],
+  )
   const marketCap = getMarketCap(tokenCompositions)
 
   return {
@@ -445,23 +449,23 @@ const getBillBroker = async (tokenAddress: string, signerOrProvider: SignerOrPro
   const appraiserContract = new Contract(await contract.pricingStrategy(), SPOT_APPRAISER_ABI, signerOrProvider)
 
   const { name, symbol, decimals } = await getTokenInfo(address, signerOrProvider)
-  
+
   const usd = await contract.usd()
   const usdTokenInfo = await getTokenInfo(usd, signerOrProvider)
   const usdBalanceFixedPt = await ERC20Balance(usd, address, signerOrProvider)
-  const usdBalance = parseFloat(formatUnits((usdBalanceFixedPt) as BigNumber, usdTokenInfo.decimals))
+  const usdBalance = parseFloat(formatUnits(usdBalanceFixedPt as BigNumber, usdTokenInfo.decimals))
 
   const perp = await contract.perp()
   const perpTokenInfo = await getTokenInfo(perp, signerOrProvider)
   const perpBalanceFixedPt = await ERC20Balance(perp, address, signerOrProvider)
-  const perpBalance = parseFloat(formatUnits((perpBalanceFixedPt) as BigNumber, perpTokenInfo.decimals))
+  const perpBalance = parseFloat(formatUnits(perpBalanceFixedPt as BigNumber, perpTokenInfo.decimals))
 
   const perpPriceDt = await appraiserContract.callStatic.perpPrice()
   const usdPriceDt = await appraiserContract.callStatic.usdPrice()
 
   const perpVal = perpBalance * parseFloat(formatUnits(perpPriceDt[0], 18))
   const usdVal = usdBalance * parseFloat(formatUnits(usdPriceDt[0], 18))
-  const totalVal = perpVal+usdVal
+  const totalVal = perpVal + usdVal
 
   const totalSupply: BigNumber = await contract.totalSupply()
   const totalSupplyNumber = parseFloat(formatUnits(totalSupply, decimals))
@@ -470,7 +474,7 @@ const getBillBroker = async (tokenAddress: string, signerOrProvider: SignerOrPro
     [await contract.usd(), await contract.perp()],
     [usdBalanceFixedPt, perpBalanceFixedPt],
     signerOrProvider,
-    [usdBalance/totalVal, perpBalance/totalVal],
+    [usdBalance / totalVal, perpBalance / totalVal],
   )
   const marketCap = getMarketCap(tokenCompositions)
 

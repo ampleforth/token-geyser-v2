@@ -1,4 +1,11 @@
-import { getAmpleforthPolicy, getRebases, getXCAmpleController, getXCRebases, queries, entities } from '@ampleforthorg/sdk'
+import {
+  getAmpleforthPolicy,
+  getRebases,
+  getXCAmpleController,
+  getXCRebases,
+  queries,
+  entities,
+} from '@ampleforthorg/sdk'
 import { formatUnits } from 'ethers/lib/utils'
 import { Signer, providers } from 'ethers'
 import { RewardSchedule, SignerOrProvider } from '../types'

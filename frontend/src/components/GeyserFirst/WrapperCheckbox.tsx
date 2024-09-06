@@ -2,15 +2,15 @@ import styled from 'styled-components/macro'
 import tw from 'twin.macro'
 
 interface Props {
-  checked:boolean
-  onChange: (v:boolean) => void
+  checked: boolean
+  onChange: (v: boolean) => void
 }
 
-export const WrapperCheckbox: React.FC<Props> = ({checked, onChange}) => (
+export const WrapperCheckbox: React.FC<Props> = ({ checked, onChange }) => (
   <FlexDiv>
     <Text onClick={() => onChange(!checked)}>
-      <Input type="checkbox" checked={checked} onChange={() => {}}/>&nbsp;
-      Wrap and deposit into vault for staking
+      <Input type="checkbox" checked={checked} onChange={() => {}} />
+      &nbsp; Wrap and deposit into vault for staking
     </Text>
   </FlexDiv>
 )

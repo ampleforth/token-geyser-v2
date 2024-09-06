@@ -5,7 +5,7 @@ import { useContext, useEffect, useState } from 'react'
 import { StatsContext } from 'context/StatsContext'
 import { safeNumeral } from 'utils/numeral'
 import BigNumber from 'bignumber.js'
-import {BigNumber as BigInt} from 'ethers'
+import { BigNumber as BigInt } from 'ethers'
 import { Tooltip } from 'components/Tooltip'
 import { CardValue, CardLabel } from 'styling/styles'
 import { GeyserContext } from 'context/GeyserContext'
@@ -24,32 +24,27 @@ export const EstimatedRewards: React.FC<Props> = ({ parsedUserInput }) => {
       rewardTokenInfo: { symbol },
       stakingTokenInfo: { price: stakingTokenPrice, decimals: stakingTokenDecimals },
       bonusTokensInfo,
-    }
+    },
   } = useContext(GeyserContext)
   const {
     computeRewardsFromAdditionalStakes,
     computeRewardsShareFromAdditionalStakes,
     geyserStats: { bonusRewards, calcPeriodInDays },
-    vaultStats: { currentStake }
+    vaultStats: { currentStake },
   } = useContext(StatsContext)
 
   useEffect(() => {
-    (async () => {
+    ;(async () => {
       const aggregateDepositUSD = new BigNumber(parsedUserInput.toString())
-        .div(10**stakingTokenDecimals)
+        .div(10 ** stakingTokenDecimals)
         .plus(currentStake)
         .times(stakingTokenPrice)
-      setRewards(
-        aggregateDepositUSD.eq('0') ? 0.00 : await computeRewardsFromAdditionalStakes(parsedUserInput)
-      )
+      setRewards(aggregateDepositUSD.eq('0') ? 0.0 : await computeRewardsFromAdditionalStakes(parsedUserInput))
       setRewardsShare(
-        aggregateDepositUSD.eq('0') ? 0.00 : await computeRewardsShareFromAdditionalStakes(parsedUserInput)
+        aggregateDepositUSD.eq('0') ? 0.0 : await computeRewardsShareFromAdditionalStakes(parsedUserInput),
       )
-      setDeposits(
-        aggregateDepositUSD.eq('0') ? 0.00 : aggregateDepositUSD.toNumber()
-      )
-
-    })();
+      setDeposits(aggregateDepositUSD.eq('0') ? 0.0 : aggregateDepositUSD.toNumber())
+    })()
   }, [parsedUserInput])
 
   return (
@@ -66,26 +61,29 @@ export const EstimatedRewards: React.FC<Props> = ({ parsedUserInput }) => {
           />
         </CardLabel>
         <CardValue>
-          {safeNumeral(deposits, '0')} USD /{' '}
-          [
-            {' '}
-            {safeNumeral(rewards, '0.00')} {symbol}{' '}
-            {
-              // TODO: assuming bonusRewards.length == bonusTokensInfo.length
-              // this should be guarentted by data layer
-              (bonusRewards.length === bonusTokensInfo.length && bonusRewards.length > 0) ?
-                bonusRewards.map((b, i) => {
-                  const bonusReward = rewardsShare * b.balance
-                  return (
-                    <span key={b.symbol}>
-                      +{' '}{safeNumeral(bonusReward, '0.00')} {bonusTokensInfo[i].symbol}{' '}
-                    </span> 
-                  )
-                }) : <></>
-            }
+          {safeNumeral(deposits, '0')} USD / [ {safeNumeral(rewards, '0.00')} {symbol}{' '}
+          {
+            // TODO: assuming bonusRewards.length == bonusTokensInfo.length
+            // this should be guarentted by data layer
+            bonusRewards.length === bonusTokensInfo.length && bonusRewards.length > 0 ? (
+              bonusRewards.map((b, i) => {
+                const bonusReward = rewardsShare * b.balance
+                return (
+                  <span key={b.symbol}>
+                    + {safeNumeral(bonusReward, '0.00')} {bonusTokensInfo[i].symbol}{' '}
+                  </span>
+                )
+              })
+            ) : (
+              <></>
+            )
+          }
           ]
           <span>
-            {' '}{parsedUserInput.gt(0) && calcPeriodInDays > 0 ? `in ${safeNumeral(calcPeriodInDays, '0')} day${calcPeriodInDays > 1 ? 's' : ''}` : ''}
+            {' '}
+            {parsedUserInput.gt(0) && calcPeriodInDays > 0
+              ? `in ${safeNumeral(calcPeriodInDays, '0')} day${calcPeriodInDays > 1 ? 's' : ''}`
+              : ''}
           </span>
         </CardValue>
       </RewardsTextContainer>

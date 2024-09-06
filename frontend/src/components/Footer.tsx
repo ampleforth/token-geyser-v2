@@ -3,17 +3,31 @@ import tw from 'twin.macro'
 
 export const Footer = () => (
   <Container>
-    <LeftContainer/>
+    <LeftContainer />
     <MiddleContainer>
       <LinkSpan>
-        <a className="text-link" href="https://medium.com/ampleforth/quick-start-amplgeyser-guide-universal-vault-nft-c2705461de15">Getting started</a>{" | "}
-        <a className="text-link" href="https://medium.com/ampleforth/ampl-geyser-v2-launches-with-universal-vault-nft-7b7a459460da">Mining Rewards</a>{" | "}
-        <a className="text-link" href="https://ampleforth.org/geyser">GeyserV1</a>
+        <a
+          className="text-link"
+          href="https://medium.com/ampleforth/quick-start-amplgeyser-guide-universal-vault-nft-c2705461de15"
+        >
+          Getting started
+        </a>
+        {' | '}
+        <a
+          className="text-link"
+          href="https://medium.com/ampleforth/ampl-geyser-v2-launches-with-universal-vault-nft-7b7a459460da"
+        >
+          Mining Rewards
+        </a>
+        {' | '}
+        <a className="text-link" href="https://ampleforth.org/geyser">
+          GeyserV1
+        </a>
       </LinkSpan>
     </MiddleContainer>
-    <RightContainer/>
+    <RightContainer />
   </Container>
-);
+)
 
 const Container = styled.div`
   ${tw`shadow-sm flex flex-wrap py-1 -mt-1 h-fit`}

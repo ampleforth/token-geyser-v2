@@ -18,9 +18,13 @@ export const VaultContext = createContext<{
   selectVaultById: (id: string) => void
   currentLock: Lock | null
   withdrawFromVault: ((tokenAddress: string, amount: BigNumber) => Promise<TransactionResponse>) | null
-  withdrawRewardsFromVault: ((receipt: TransactionReceipt) => Promise<{ response: TransactionResponse, rewards: BigNumber } | null>) | null
-  withdrawUnlockedFromVault: ((tokenAddress: string) => Promise<{ response: TransactionResponse, amount: BigNumber } | null>) | null
-  rewardAmountClaimedOnUnstake:  ((receipt: TransactionReceipt) => Promise<BigNumber>) | null
+  withdrawRewardsFromVault:
+    | ((receipt: TransactionReceipt) => Promise<{ response: TransactionResponse; rewards: BigNumber } | null>)
+    | null
+  withdrawUnlockedFromVault:
+    | ((tokenAddress: string) => Promise<{ response: TransactionResponse; amount: BigNumber } | null>)
+    | null
+  rewardAmountClaimedOnUnstake: ((receipt: TransactionReceipt) => Promise<BigNumber>) | null
 }>({
   vaults: [],
   selectedVault: null,
@@ -35,7 +39,9 @@ export const VaultContext = createContext<{
 
 export const VaultContextProvider: React.FC = ({ children }) => {
   const { address, signer, ready, networkId } = useContext(Web3Context)
-  const { selectedGeyserInfo: { geyser: selectedGeyser } } = useContext(GeyserContext)
+  const {
+    selectedGeyserInfo: { geyser: selectedGeyser },
+  } = useContext(GeyserContext)
   const [getVaults, { loading: vaultLoading, data: vaultData }] = useLazyQuery(GET_USER_VAULTS, {
     pollInterval: POLL_INTERVAL,
   })
@@ -45,25 +51,29 @@ export const VaultContextProvider: React.FC = ({ children }) => {
   const [currentLock, setCurrentLock] = useState<Lock | null>(null)
 
   const selectVault = (vault: Vault) => setSelectedVault(vault)
-  const selectVaultById = (id: string) => setSelectedVault(vaults.find(vault => vault.id === id) || selectedVault)
-  const withdrawFromVault = address && signer && selectedVault
-    ? (tokenAddress: string, amount: BigNumber) => withdraw(selectedVault.id, tokenAddress, address, amount, signer)
-    : null
+  const selectVaultById = (id: string) => setSelectedVault(vaults.find((vault) => vault.id === id) || selectedVault)
+  const withdrawFromVault =
+    address && signer && selectedVault
+      ? (tokenAddress: string, amount: BigNumber) => withdraw(selectedVault.id, tokenAddress, address, amount, signer)
+      : null
 
-  const rewardAmountClaimedOnUnstake = signer && selectedGeyser
-    ? async (receipt: TransactionReceipt) => {
-      const rewardsClaimed = await getRewardsClaimedFromUnstake(receipt, selectedGeyser.id, signer)
-      return rewardsClaimed ? rewardsClaimed.amount : BigNumber.from("0")
-    }
-    : null
+  const rewardAmountClaimedOnUnstake =
+    signer && selectedGeyser
+      ? async (receipt: TransactionReceipt) => {
+          const rewardsClaimed = await getRewardsClaimedFromUnstake(receipt, selectedGeyser.id, signer)
+          return rewardsClaimed ? rewardsClaimed.amount : BigNumber.from('0')
+        }
+      : null
 
-  const withdrawRewardsFromVault = address && signer && selectedGeyser
-    ? (receipt: TransactionReceipt) => withdrawRewards(selectedGeyser.id, address, receipt, signer)
-    : null
+  const withdrawRewardsFromVault =
+    address && signer && selectedGeyser
+      ? (receipt: TransactionReceipt) => withdrawRewards(selectedGeyser.id, address, receipt, signer)
+      : null
 
-  const withdrawUnlockedFromVault = address && signer && selectedVault
-    ? (tokenAddress: string) => withdrawUnlocked(selectedVault.id, tokenAddress, address, signer)
-    : null
+  const withdrawUnlockedFromVault =
+    address && signer && selectedVault
+      ? (tokenAddress: string) => withdrawUnlocked(selectedVault.id, tokenAddress, address, signer)
+      : null
 
   useEffect(() => {
     if (address) getVaults({ variables: { id: address.toLowerCase() } })

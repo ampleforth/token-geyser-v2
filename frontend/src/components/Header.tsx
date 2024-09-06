@@ -12,7 +12,9 @@ export const Header = () => {
   return (
     <Container>
       <LeftContainer>
-        <LogoSpan><a href="https://www.ampleforth.org/dapps">Λ</a></LogoSpan>
+        <LogoSpan>
+          <a href="https://www.ampleforth.org/dapps">Λ</a>
+        </LogoSpan>
       </LeftContainer>
       <MiddleContainer>
         <HeaderToggle enabled={mode === Mode.VAULTS} toggle={toggleMode} options={['Geyser View', 'Vault View']} />

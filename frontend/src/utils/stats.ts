@@ -258,7 +258,7 @@ const getPoolAPY = async (
       const rewardTokenPrice = await getCurrentPrice(rewardTokenInfo.symbol)
 
       const inflowUsd = 20000.0 // avg_deposit: 20,000 USD
-      const stake = parseUnits((inflowUsd / stakingTokenPrice).toFixed(0), stakingTokenDecimals)
+      const stake = parseUnits((inflowUsd / stakingTokenPrice).toFixed(18), stakingTokenDecimals)
 
       const calcPeriod = getCalcPeriod(geyser)
       const stakeDripAfterPeriod = await getStakeDrip(geyser, stake, parseInt(scalingTime, 10), signerOrProvider)
@@ -278,7 +278,6 @@ const getPoolAPY = async (
           const bonusReward = rewardShare * bonusPool * bonusTokensInfo[i].price
           return m + bonusReward
         }, 0)
-
       return outflowWithBonus === 0 ? 0 : calculateAPY(inflowUsd, outflowWithBonus, periods)
     },
     `${toChecksumAddress(geyser.id)}|poolAPY`,

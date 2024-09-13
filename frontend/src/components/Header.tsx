@@ -13,7 +13,7 @@ export const Header = () => {
     <Container>
       <LeftContainer>
         <LogoSpan>
-          <a href="https://www.ampleforth.org/dapps">Λ</a>
+          <a href="https://www.ampleforth.org/stake">Λ</a>
         </LogoSpan>
       </LeftContainer>
       <MiddleContainer>

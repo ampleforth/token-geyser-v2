@@ -6,9 +6,13 @@ import { TransactionReceipt } from '@ethersproject/providers'
 import { getConnectionConfig } from '../config/app'
 
 export const loadNetworkConfig = async (signerOrProvider: Signer | providers.Provider) => {
-  const network = await (Signer.isSigner(signerOrProvider)
-    ? signerOrProvider.provider?.getNetwork()
-    : signerOrProvider.getNetwork())
+  // console.log('provider present', !!signerOrProvider.network || !!signerOrProvider.provider?.network)
+  const network =
+    signerOrProvider.network ||
+    signerOrProvider.provider?.network ||
+    (await (Signer.isSigner(signerOrProvider)
+      ? signerOrProvider.provider?.getNetwork()
+      : signerOrProvider.getNetwork()))
 
   const conn = getConnectionConfig(network?.chainId || null)
   let networkName = conn.ref
@@ -39,7 +43,9 @@ export const signPermission = async (
   // get nonce
   vaultNonce = vaultNonce || (await vault.getNonce())
   // get chainId
-  chainId = chainId || (await vault.provider.getNetwork()).chainId
+  // console.log("provider present", !!vault?.provider?.network)
+  const network = vault?.provider?.network || (await vault.provider.getNetwork())
+  chainId = chainId || network.chainId
   // craft permission
   const domain = {
     name: 'UniversalVault',

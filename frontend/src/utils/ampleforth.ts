@@ -10,9 +10,21 @@ import { formatUnits } from 'ethers/lib/utils'
 import { Signer, providers } from 'ethers'
 import { RewardSchedule, SignerOrProvider } from '../types'
 import * as ls from './cache'
-import { DAY_IN_MS } from '../constants'
+import { HOUR_IN_MS, DAY_IN_MS } from '../constants'
 
 const getClient = (chainId) => queries.initializeClient(queries.graphHostedURL(chainId))
+
+const apiEndpoint = 'https://web-api.ampleforth.org'
+export const loadStakeAPYsFromCache = async () =>
+  ls.computeAndCache<Record<Record<string, number>>>(
+    async () => {
+      const response = await fetch(`${apiEndpoint}/staking/apy`)
+      const data = await response.json()
+      return data
+    },
+    'LPAPYS',
+    HOUR_IN_MS,
+  )
 
 const loadXCRebasesFromCache = async (controller: entities.XCController, chainId: number) =>
   ls.computeAndCache<entities.XCRebaseData[]>(
@@ -38,7 +50,8 @@ export const computeAMPLRewardShares = async (
   signerOrProvider: SignerOrProvider,
 ) => {
   const provider = (signerOrProvider as Signer).provider || (signerOrProvider as providers.Provider)
-  const { chainId } = await provider.getNetwork()
+  // console.log("provider present", !!provider.network)
+  const { chainId } = provider.network || (await provider.getNetwork())
 
   if (isCrossChain) {
     const controller = await getXCAmpleController(chainId, getClient(chainId))

@@ -29,9 +29,6 @@ module.exports = {
     'import/no-extraneous-dependencies': 'off', // allow dependencies from sdk
     'import/prefer-default-export': 'off',
     'no-plusplus': ['warn', { allowForLoopAfterthoughts: true }],
-    // allow logs
-    'no-console': 'off',
-    'no-alert': 'off',
     // TODO: enable before shipping
     'jsx-a11y/label-has-associated-control': 'off',
     'jsx-a11y/click-events-have-key-events': 'off',
@@ -40,6 +37,8 @@ module.exports = {
     'no-else-return': 'off', // seems to be buggy
     'no-await-in-loop': 'off',
     'guard-for-in': 'off',
+    'func-names': 'off',
+    'prefer-arrow-callback': 'off',
   },
   settings: {
     'import/resolver': {

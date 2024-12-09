@@ -21,28 +21,37 @@ export const UserBalance: React.FC<Props> = ({
   poolAddress,
 }) => {
   const formatDisplayAmount = (amt: BigNumberish, sym: string) => (
-    <a href={poolAddress} target="_blank" rel="noreferrer">
+    <BalLink href={poolAddress} target="_blank" rel="noreferrer">
       {formatAmount(amt, decimals)} {sym}
-    </a>
+    </BalLink>
   )
-  return (
-    <FlexDiv>
-      {parsedAmount.isZero() ? (
-        <Text>
-          {isStakingAction ? 'Available' : 'Staked'} balance: {formatDisplayAmount(currentAmount, symbol)}
-        </Text>
-      ) : (
-        <Text>
-          New {isStakingAction ? 'available' : 'stake'} balance:{' '}
-          {formatDisplayAmount(currentAmount.sub(parsedAmount), symbol)}
-        </Text>
-      )}
-    </FlexDiv>
-  )
+
+  if (isStakingAction) {
+    const avail = currentAmount.sub(parsedAmount)
+    return (
+      <FlexDiv>
+        <Text>Available balance: {formatDisplayAmount(avail.lte(0) ? 0 : avail, symbol)}</Text>
+      </FlexDiv>
+    )
+  } else {
+    return (
+      <FlexDiv>
+        {parsedAmount.isZero() ? (
+          <Text>Staked balance: {formatDisplayAmount(currentAmount, symbol)}</Text>
+        ) : (
+          <Text>Remaining staked balance: {formatDisplayAmount(currentAmount.sub(parsedAmount), symbol)}</Text>
+        )}
+      </FlexDiv>
+    )
+  }
 }
 
 const Text = styled.span`
   ${tw`text-xs sm:text-sm`}
+`
+
+const BalLink = styled.a`
+  ${tw`hover:underline`}
 `
 
 const FlexDiv = styled.div`

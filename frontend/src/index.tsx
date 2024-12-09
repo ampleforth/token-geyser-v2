@@ -4,6 +4,16 @@ import './index.css'
 import App from './App'
 import reportWebVitals from './reportWebVitals'
 
+/// NOTE: BTOA monkey-patch. Required for coinbase wallet.
+const originalBtoa = window.btoa
+window.btoa = (str) => {
+  try {
+    return originalBtoa(str)
+  } catch (e) {
+    return originalBtoa(unescape(encodeURIComponent(str)))
+  }
+}
+
 ReactDOM.render(
   <React.StrictMode>
     <App />

@@ -18,7 +18,7 @@ export const loadHistoricalLogs = async (
     const partEnd = Math.min(i + BLOCKS_PER_PART, endBlock)
     const partLogs = await contract.queryFilter(filter, i, partEnd)
     logs = logs.concat(partLogs)
-    console.log('Loading rebase logs', i, endBlock, partLogs.length)
+    // console.log('Loading rebase logs', i, endBlock, partLogs.length)
   }
   return logs
 }

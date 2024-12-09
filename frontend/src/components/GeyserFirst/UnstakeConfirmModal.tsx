@@ -25,5 +25,5 @@ export const UnstakeConfirmModal: React.FC<Props> = ({ open, onClose, onConfirm 
 )
 
 const ConfirmButton = styled(ModalButton)`
-  ${tw`rounded-lg bg-primary text-secondary font-semibold`}
+  ${tw`rounded-lg bg-primary text-white font-semibold`}
 `

@@ -5,8 +5,8 @@ import { BigNumber } from 'ethers'
 import { GeyserContext } from 'context/GeyserContext'
 import { StatsContext } from 'context/StatsContext'
 import { CardValue, CardLabel } from 'styling/styles'
-import { amountOrZero } from 'utils/amount'
-import { safeNumeral, formatWithDecimals } from 'utils/numeral'
+import { formatTokenBalance } from 'utils/amount'
+import { safeNumeral } from 'utils/numeral'
 
 interface Props {
   userInput: string
@@ -34,8 +34,12 @@ export const UnstakeSummary: React.FC<Props> = ({ userInput, parsedUserInput }) 
 
   useEffect(() => {
     ;(async () => {
-      setRewardAmount(await computeRewardsFromUnstake(parsedUserInput))
-      setRewardsShare(await computeRewardsShareFromUnstake(parsedUserInput))
+      try {
+        setRewardAmount(await computeRewardsFromUnstake(parsedUserInput))
+        setRewardsShare(await computeRewardsShareFromUnstake(parsedUserInput))
+      } catch (e) {
+        console.log('Error: user input higher than user stake')
+      }
     })()
   }, [parsedUserInput])
 
@@ -44,11 +48,11 @@ export const UnstakeSummary: React.FC<Props> = ({ userInput, parsedUserInput }) 
       <SummaryCard>
         <Content>
           <Label>
-            Amount to Unstake
-            {unstakeUSD > 0 ? <small>&nbsp;({safeNumeral(unstakeUSD, '0.00')} USD)</small> : <></>}
+            Unstake Amount
+            {unstakeUSD > 0 ? <small>&nbsp;({safeNumeral(unstakeUSD, '0.00a')} USD)</small> : <></>}
           </Label>
           <Value>
-            <Amount>{formatWithDecimals(amountOrZero(userInput).toString())} </Amount>
+            <Amount>{formatTokenBalance(userInput)} </Amount>
             <span>{stakingTokenSymbol}</span>
           </Value>
         </Content>
@@ -56,8 +60,8 @@ export const UnstakeSummary: React.FC<Props> = ({ userInput, parsedUserInput }) 
       <SummaryCard>
         <Content>
           <Label>
-            Rewards to Claim
-            {rewardUSD > 0 ? <small>&nbsp;({safeNumeral(rewardUSD, '0.00')} USD)</small> : <></>}
+            Rewards
+            {rewardUSD > 0 ? <small>&nbsp;({safeNumeral(rewardUSD, '0.00a')} USD)</small> : <></>}
           </Label>
           <Value>
             <Amount>{safeNumeral(rewardAmount, '0.000')} </Amount>
@@ -81,7 +85,7 @@ const Container = styled.div`
 `
 
 const SummaryCard = styled.div`
-  ${tw`h-120px shadow-all-xs border border-lightGray rounded flex flex-col my-auto tracking-wide`}
+  ${tw`h-120px border border-lightGray rounded flex flex-col my-auto tracking-wide`}
 `
 
 const Label = styled(CardLabel)`

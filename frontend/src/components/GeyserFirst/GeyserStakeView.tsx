@@ -18,6 +18,7 @@ import { GeyserInteractionButton } from './GeyserInteractionButton'
 import { UserBalance } from './UserBalance'
 import { EstimatedRewards } from './EstimatedRewards'
 import { ConnectWalletWarning } from './ConnectWalletWarning'
+import { StakeWarning } from './StakeWarning'
 import { UnstakeSummary } from './UnstakeSummary'
 import { UnstakeConfirmModal } from './UnstakeConfirmModal'
 import { UnstakeTxModal } from './UnstakeTxModal'
@@ -51,7 +52,7 @@ export const GeyserStakeView = () => {
     refreshVaultStats,
     vaultStats: { currentStakeable },
   } = useContext(StatsContext)
-  const { selectWallet, address } = useContext(Web3Context)
+  const { connectWallet, address } = useContext(Web3Context)
   const currentStakeAmount = BigNumber.from(currentLock ? currentLock.amount : '0')
   const [unstakeConfirmModalOpen, setUnstakeConfirmModalOpen] = useState<boolean>(false)
   const [actualRewardsFromUnstake, setActualRewardsFromUnstake] = useState<BigNumber>(BigNumber.from('0'))
@@ -68,6 +69,13 @@ export const GeyserStakeView = () => {
 
   useEffect(() => {
     refreshInputAmount()
+    if (geyserAction === GeyserAction.STAKE && stakingTokenInfo.price > 0) {
+      const initialStakeAmountUSD = 1000
+      const stakeAmt = Math.max(initialStakeAmountUSD / stakingTokenInfo.price, 0.000001)
+      const stakeAmtFP = parseUnits(stakeAmt.toFixed(stakingTokenInfo.decimals), stakingTokenInfo.decimals)
+      setUserInput(stakeAmt)
+      setParsedUserInput(BigNumber.from(stakeAmtFP))
+    }
   }, [geyserAction])
 
   const handleGeyserInteraction = () => {
@@ -172,7 +180,10 @@ export const GeyserStakeView = () => {
         />
         {isWrapped ? <WrapperWarning /> : null}
         <EstimatedRewards parsedUserInput={parsedUserInput} />
-        {!address && <ConnectWalletWarning onClick={selectWallet} />}
+        {!address && <ConnectWalletWarning onClick={() => connectWallet()} />}
+        {address && parsedUserInput.gt(0) && (
+          <StakeWarning link={poolAddress} balance={stakableAmount} staked={currentStakeAmount} />
+        )}
         <GeyserInteractionButton
           disabled={!address || parsedUserInput.isZero() || parsedUserInput.gt(stakableAmount)}
           onClick={handleGeyserInteraction}
@@ -213,7 +224,7 @@ export const GeyserStakeView = () => {
           maxValue={currentStakeAmount}
         />
         <UnstakeSummary userInput={userInput} parsedUserInput={parsedUserInput} />
-        {!address && <ConnectWalletWarning onClick={selectWallet} />}
+        {!address && <ConnectWalletWarning onClick={() => connectWallet()} />}
         <GeyserInteractionButton
           disabled={!address || parsedUserInput.isZero()}
           onClick={handleGeyserInteraction}
@@ -234,7 +245,7 @@ export const GeyserStakeView = () => {
               <b>
                 {userInput} {stakingTokenSymbol}
               </b>
-              .
+              . Switch to the vault tab to withdraw tokens to your wallet.
             </span>
           }
           onClose={onCloseTxModal}

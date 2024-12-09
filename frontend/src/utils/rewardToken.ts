@@ -1,6 +1,6 @@
 import { Contract } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
-import { RewardToken } from '../constants'
+import { RewardToken, MIN_IN_MS } from '../constants'
 import { RewardSchedule, RewardTokenInfo, SignerOrProvider } from '../types'
 import { UFRAGMENTS_ABI } from './abis/UFragments'
 import { UFRAGMENTS_POLICY_ABI } from './abis/UFragmentsPolicy'
@@ -9,6 +9,15 @@ import { XC_CONTROLLER_ABI } from './abis/XCController'
 import { computeAMPLRewardShares } from './ampleforth'
 import { defaultTokenInfo, getTokenInfo } from './token'
 import { getCurrentPrice } from './price'
+import * as ls from './cache'
+
+const cacheTimeMs = 30 * MIN_IN_MS
+
+const nowInSeconds = () => Math.round(Date.now() / 1000)
+function filterActiveRewardSchedules(rewardSchedules) {
+  const now = nowInSeconds()
+  return rewardSchedules.filter((s) => parseInt(s.start, 10) + parseInt(s.duration, 10) > now)
+}
 
 export const defaultRewardTokenInfo = (): RewardTokenInfo => ({
   ...defaultTokenInfo(),
@@ -40,77 +49,104 @@ export const getRewardTokenInfo = async (
 }
 
 const getBasicToken = async (tokenAddress: string, signerOrProvider: SignerOrProvider): Promise<RewardTokenInfo> => {
-  const tokenInfo = await getTokenInfo(tokenAddress, signerOrProvider)
-  const price = await getCurrentPrice(tokenInfo.symbol)
-  const getTotalRewards = async (rewardSchedules: RewardSchedule[]) =>
-    rewardSchedules.reduce((acc, schedule) => acc + parseFloat(formatUnits(schedule.rewardAmount, 0)), 0)
-  return {
-    ...tokenInfo,
-    price,
-    getTotalRewards,
-  }
+  const rewardTokenInfo = await ls.computeAndCache<RewardTokenInfo>(
+    async function () {
+      const tokenInfo = await getTokenInfo(tokenAddress, signerOrProvider)
+      const price = await getCurrentPrice(tokenInfo.symbol)
+      return { price, ...tokenInfo }
+    },
+    `rewardTokenInfo:${tokenAddress}`,
+    cacheTimeMs,
+  )
+  rewardTokenInfo.getTotalRewards = async (rewardSchedules: RewardSchedule[]) =>
+    filterActiveRewardSchedules(rewardSchedules).reduce(
+      (acc, schedule) => acc + parseFloat(formatUnits(schedule.rewardAmount, 0)),
+      0,
+    )
+  return rewardTokenInfo
 }
 
 // TODO: use subgraph to get AMPL supply history
 const getAMPLToken = async (tokenAddress: string, signerOrProvider: SignerOrProvider): Promise<RewardTokenInfo> => {
-  const contract = new Contract(tokenAddress, UFRAGMENTS_ABI, signerOrProvider)
-  const tokenInfo = await getTokenInfo(tokenAddress, signerOrProvider)
-  const price = await getCurrentPrice('AMPL')
+  const rewardTokenInfo = await ls.computeAndCache<RewardTokenInfo>(
+    async function () {
+      const tokenInfo = await getTokenInfo(tokenAddress, signerOrProvider)
+      const price = await getCurrentPrice('AMPL')
+      return { price, ...tokenInfo }
+    },
+    `rewardTokenInfo:${tokenAddress}`,
+    cacheTimeMs,
+  )
 
-  const policyAddress: string = await contract.monetaryPolicy()
-  const policy = new Contract(policyAddress, UFRAGMENTS_POLICY_ABI, signerOrProvider)
+  rewardTokenInfo.amplInfo = await ls.computeAndCache<any>(
+    async function () {
+      const contract = new Contract(tokenAddress, UFRAGMENTS_ABI, signerOrProvider)
+      const policyAddress: string = await contract.monetaryPolicy()
+      const policy = new Contract(policyAddress, UFRAGMENTS_POLICY_ABI, signerOrProvider)
+      const totalSupply = await contract.totalSupply()
+      const epoch = await policy.epoch()
+      return { policyAddress, epoch, totalSupply }
+    },
+    `amplRewardTokenInfo:${tokenAddress}`,
+    cacheTimeMs,
+  )
 
-  const totalSupply = await contract.totalSupply()
-  const epoch = parseInt(await policy.epoch(), 10)
-
-  const getTotalRewards = async (rewardSchedules: RewardSchedule[]) => {
+  rewardTokenInfo.getTotalRewards = async (rewardSchedules: RewardSchedule[]) => {
+    const tokenInfo = rewardTokenInfo
+    const ampl = rewardTokenInfo.amplInfo
     const totalRewardShares = await computeAMPLRewardShares(
-      rewardSchedules,
+      filterActiveRewardSchedules(rewardSchedules),
       tokenAddress,
-      policyAddress,
+      ampl.policyAddress,
       false,
-      epoch,
+      parseInt(ampl.epoch, 10),
       tokenInfo.decimals,
       signerOrProvider,
     )
-    return totalRewardShares * totalSupply
+    return totalRewardShares * formatUnits(ampl.totalSupply, tokenInfo.decimals)
   }
 
-  return {
-    ...tokenInfo,
-    price,
-    getTotalRewards,
-  }
+  return rewardTokenInfo
 }
 
 const getXCAMPLToken = async (tokenAddress: string, signerOrProvider: SignerOrProvider): Promise<RewardTokenInfo> => {
-  const token = new Contract(tokenAddress, XC_AMPLE_ABI, signerOrProvider)
-  const tokenInfo = await getTokenInfo(tokenAddress, signerOrProvider)
-  const price = await getCurrentPrice('AMPL')
+  const rewardTokenInfo = await ls.computeAndCache<RewardTokenInfo>(
+    async function () {
+      const tokenInfo = await getTokenInfo(tokenAddress, signerOrProvider)
+      const price = await getCurrentPrice('AMPL')
+      return { price, ...tokenInfo }
+    },
+    `rewardTokenInfo:${tokenAddress}`,
+    0,
+  )
 
-  // define type XCWAMPL for AVAX
-  const controllerAddress: string = await token.controller()
-  const controller = new Contract(controllerAddress, XC_CONTROLLER_ABI, signerOrProvider)
+  rewardTokenInfo.amplInfo = await ls.computeAndCache<any>(
+    async function () {
+      const token = new Contract(tokenAddress, XC_AMPLE_ABI, signerOrProvider)
+      const controllerAddress: string = await token.controller()
+      const controller = new Contract(controllerAddress, XC_CONTROLLER_ABI, signerOrProvider)
+      const totalSupply = await token.globalAMPLSupply()
+      const epoch = await controller.globalAmpleforthEpoch()
+      return { epoch, totalSupply }
+    },
+    `xcAmplRewardTokenInfo:${tokenAddress}`,
+    cacheTimeMs,
+  )
 
-  const totalSupply = await token.globalAMPLSupply()
-  const epoch = parseInt(await controller.globalAmpleforthEpoch(), 10)
-
-  const getTotalRewards = async (rewardSchedules: RewardSchedule[]) => {
+  rewardTokenInfo.getTotalRewards = async (rewardSchedules: RewardSchedule[]) => {
+    const tokenInfo = rewardTokenInfo
+    const ampl = rewardTokenInfo.amplInfo
     const totalRewardShares = await computeAMPLRewardShares(
-      rewardSchedules,
+      filterActiveRewardSchedules(rewardSchedules),
       tokenAddress,
       controllerAddress,
       true,
-      epoch,
+      parseInt(ampl.epoch, 10),
       tokenInfo.decimals,
       signerOrProvider,
     )
-    return totalRewardShares * totalSupply
+    return totalRewardShares * formatUnits(ampl.totalSupply, tokenInfo.decimals)
   }
 
-  return {
-    ...tokenInfo,
-    price,
-    getTotalRewards,
-  }
+  return rewardTokenInfo
 }

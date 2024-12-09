@@ -47,3 +47,41 @@ export const ModalButton = styled(Button)`
   ${tw`inline-flex items-center justify-center px-4 py-2 text-sm font-medium border rounded-md`}
   ${tw`focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2`}
 `
+
+// loader
+
+export const Loader = styled.div`
+  height: 10px;
+  aspect-ratio: 6;
+  --c: #0000 64%, #000 66% 98%, #0000 101%;
+  background: radial-gradient(35% 146% at 50% 159%, var(--c)) 0 0,
+    radial-gradient(35% 146% at 50% -59%, var(--c)) 25% 100%;
+  background-size: calc(100% / 3) 50%;
+  background-repeat: repeat-x;
+  clip-path: inset(0 100% 0 0);
+  animation: l2 1s infinite linear;
+  @keyframes l2 {
+    90%,
+    to {
+      clip-path: inset(0);
+    }
+  }
+`
+
+export const LoaderDark = styled.div`
+  height: 10px;
+  aspect-ratio: 6;
+  --c: transparent 64%, white 66% 98%, transparent 101%;
+  background: radial-gradient(35% 146% at 50% 159%, var(--c)) 0 0,
+    radial-gradient(35% 146% at 50% -59%, var(--c)) 25% 100%;
+  background-size: calc(100% / 3) 50%;
+  background-repeat: repeat-x;
+  clip-path: inset(0 100% 0 0);
+  animation: l2 1s infinite linear;
+  @keyframes l2 {
+    90%,
+    to {
+      clip-path: inset(0);
+    }
+  }
+`

@@ -1,6 +1,5 @@
 import tw from 'twin.macro'
 import styled from 'styled-components/macro'
-import warning from 'assets/warning.svg'
 
 interface Props {
   onClick: () => void
@@ -11,7 +10,6 @@ export const ConnectWalletWarning: React.FC<Props> = ({ onClick }) => (
     <ColoredDiv />
     <Content>
       <MessageContainer>
-        <Img src={warning} alt="Warning" />
         <Message>Connect Your Ethereum Wallet</Message>
       </MessageContainer>
       <ButtonWrapper>
@@ -22,35 +20,31 @@ export const ConnectWalletWarning: React.FC<Props> = ({ onClick }) => (
 )
 
 const Content = styled.div`
-  ${tw`flex flex-row flex-grow`}
+  ${tw`flex flex-row flex-grow text-white bg-secondary font-bold`}
 `
 
 const ConnectWalletWarningContainer = styled.div`
-  ${tw`h-80px shadow-all-xs mt-1 mb-5 border border-primary rounded flex flex-row tracking-wider`}
+  ${tw`h-80px mt-1 mb-5 border border-lightGray flex flex-row tracking-wider`}
 `
 
 const ColoredDiv = styled.div`
-  ${tw`h-full w-4 rounded-l-sm bg-primary`}
-`
-
-const Img = styled.img`
-  ${tw`w-0 mx-4 h-3/5 my-auto`}
-  ${tw`sm:mx-8 sm:w-auto`}
+  ${tw`h-full w-2 bg-secondaryDark`}
 `
 
 const Message = styled.span`
-  ${tw`my-auto text-primary`}
+  ${tw`ml-5 my-auto`}
 `
 
 const ButtonWrapper = styled.div`
-  ${tw`flex-grow`}
+  ${tw`flex-grow w-2/12`}
 `
 
 const Button = styled.button`
-  ${tw`uppercase font-bold bg-primary text-secondary w-full h-full`}
-  ${tw`sm:text-lg`}
+  ${tw`uppercase font-bold bg-secondaryDark text-white w-120px h-40px mt-5 rounded`}
+  ${tw`sm:text-sm`}
+  ${tw`hover:border hover:border-white cursor-pointer`}
 `
 
 const MessageContainer = styled.div`
-  ${tw`flex flex-row flex-grow`}
+  ${tw`flex flex-row flex-grow w-8/12`}
 `

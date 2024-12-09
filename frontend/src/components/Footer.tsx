@@ -35,23 +35,23 @@ const Container = styled.div`
 
 const LeftContainer = styled.div`
   ${tw`flex w-auto`}
-  ${tw`header-wrap:w-2/12`}
+  ${tw`w-2/12`}
 `
 
 const MiddleContainer = styled.div`
   ${tw`flex flex-col xl:flex-row items-center justify-center w-full order-3 py-6`}
-  ${tw`header-wrap:py-0 header-wrap:max-w-830px header-wrap:mx-auto header-wrap:order-2 header-wrap:w-1/3 xl:w-7/12`}
+  ${tw`py-0 max-w-830px mx-auto order-2 w-1/3 xl:w-7/12`}
 `
 
 const RightContainer = styled.div`
   ${tw`ml-auto order-2 w-auto`}
-  ${tw`header-wrap:ml-0 header-wrap:order-3 header-wrap:w-2/12`}
+  ${tw`ml-0 order-3 w-2/12`}
 `
 
 // NOTE: this is hot fix!
 // Remove !important
 const LinkSpan = styled.span`
   ${tw`ml-2 p-3`}
-  ${tw`header-wrap:ml-20`}
+  ${tw`ml-20`}
   margin:0px !important;
 `

@@ -10,10 +10,11 @@ import { Ellipsis } from 'styling/styles'
 import { Column, Table } from 'components/Table'
 import { SingleTxModal } from 'components/SingleTxModal'
 import { Align } from '../../constants'
+import { formatTokenBalance } from '../../utils/amount'
 
 export const VaultBalanceView = () => {
   const {
-    vaultStats: { vaultTokenBalances },
+    vaultStats: { id: vaultId, vaultTokenBalances },
     refreshVaultStats,
   } = useContext(StatsContext)
   const { withdrawFromVault } = useContext(VaultContext)
@@ -44,43 +45,66 @@ export const VaultBalanceView = () => {
 
   const columns: Column[] = [
     {
-      title: 'Token',
+      title: <TitleText>Token</TitleText>,
       dataIndex: 'token',
       key: 'token',
       widthClass: 'sm:w-1/3 w-1/4',
     },
     {
-      title: 'Balance',
+      title: <TitleText>Balance</TitleText>,
       dataIndex: 'balance',
       key: 'balance',
     },
     {
-      title: 'Unlocked',
+      title: <TitleText>Unlocked</TitleText>,
       dataIndex: 'unlocked',
       key: 'unlocked',
     },
     {
-      title: 'Action',
+      title: <TitleText>Action</TitleText>,
       dataIndex: 'action',
       key: 'action',
       textAlign: Align.CENTER,
     },
   ]
 
-  const dataSource = vaultTokenBalances.map((vaultTokenBalance) => ({
-    key: vaultTokenBalance.symbol,
-    token: <TextEllipsis>{vaultTokenBalance.symbol}</TextEllipsis>,
-    balance: safeNumeral(vaultTokenBalance.balance, '0.00000'),
-    unlocked: safeNumeral(vaultTokenBalance.unlockedBalance, '0.00000'),
-    action: (
-      <ActionButton
-        disabled={vaultTokenBalance.parsedUnlockedBalance.isZero()}
-        onClick={() => confirmWithdraw(vaultTokenBalance)}
-      >
-        <ButtonText>Withdraw</ButtonText>
-      </ActionButton>
-    ),
-  }))
+  const dataSource = vaultTokenBalances
+    .filter((b) => b.balance > 0)
+    .map((vaultTokenBalance) => ({
+      key: vaultTokenBalance.symbol,
+      token: (
+        <TokenText>
+          <a
+            href={`https://etherscan.io/token/${vaultTokenBalance.address}?a=${vaultId}`}
+            className="hover:underline"
+            target="_blank"
+            rel="noreferrer"
+          >
+            {vaultTokenBalance.symbol}
+          </a>
+        </TokenText>
+      ),
+      balance: (
+        <BalanceText>
+          <a
+            href={`https://etherscan.io/token/${vaultTokenBalance.address}?a=${vaultId}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            {formatTokenBalance(vaultTokenBalance.balance)}
+          </a>
+        </BalanceText>
+      ),
+      unlocked: safeNumeral(vaultTokenBalance.unlockedBalance / vaultTokenBalance.balance, '0.00%'),
+      action: (
+        <ActionButton
+          disabled={vaultTokenBalance.parsedUnlockedBalance.isZero()}
+          onClick={() => confirmWithdraw(vaultTokenBalance)}
+        >
+          <ButtonText>Withdraw</ButtonText>
+        </ActionButton>
+      ),
+    }))
 
   return (
     <Container>
@@ -107,16 +131,28 @@ const Container = styled.div`
   ${tw`m-4`}
 `
 
+const TitleText = styled.span`
+  ${tw`font-bold underline`}
+`
+
 const ButtonText = styled.span`
   ${tw`m-1 text-xs py-3 sm:px-2`}
 `
 
 const ActionButton = styled.button`
-  ${tw`flex m-auto text-link bg-0D23EE bg-opacity-5 uppercase`}
-  ${tw`disabled:bg-lightGray disabled:bg-opacity-50 disabled:cursor-not-allowed disabled:border-none disabled:text-gray`}
+  ${tw`flex m-auto text-link bg-green uppercase text-white`}
+  ${tw`disabled:bg-lightGray disabled:bg-opacity-50 disabled:cursor-not-allowed disabled:border-none disabled:text-white`}
   ${tw`focus:outline-none`}
+  &:not(:disabled):hover {
+    ${tw`bg-greenDark`}
+  }
 `
 
-const TextEllipsis = styled.div`
+const TokenText = styled.div`
   ${Ellipsis}
+  ${tw`text-sm font-semiBold text-darkGray`}
+`
+
+const BalanceText = styled.span`
+  ${tw`text-sm cursor-pointer`}
 `

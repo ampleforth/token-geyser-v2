@@ -1,15 +1,15 @@
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
-import rewardSymbol from 'assets/rewardSymbol.svg'
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState, useRef } from 'react'
 import { StatsContext } from 'context/StatsContext'
 import { safeNumeral } from 'utils/numeral'
 import BigNumber from 'bignumber.js'
 import { BigNumber as BigInt } from 'ethers'
 import { Tooltip } from 'components/Tooltip'
-import { CardValue, CardLabel } from 'styling/styles'
+import { CardValue, CardLabel, Loader } from 'styling/styles'
 import { GeyserContext } from 'context/GeyserContext'
-import { GET_ESTIMATED_REWARDS_MSG } from '../../constants'
+import { DRIP_RATE_MSG } from '../../constants'
+import DepositInfoGraphic from './DepositInfoGraphic'
 
 interface Props {
   parsedUserInput: BigInt
@@ -17,93 +17,111 @@ interface Props {
 
 export const EstimatedRewards: React.FC<Props> = ({ parsedUserInput }) => {
   const [rewards, setRewards] = useState<number>(0.0)
-  const [rewardsShare, setRewardsShare] = useState<number>(0.0)
   const [deposits, setDeposits] = useState<number>(0.0)
+  const [isCalculating, setIsCalculating] = useState<boolean>(false)
+
   const {
     selectedGeyserInfo: {
-      rewardTokenInfo: { symbol },
+      rewardTokenInfo: { price: rewardTokenPrice },
       stakingTokenInfo: { price: stakingTokenPrice, decimals: stakingTokenDecimals },
-      bonusTokensInfo,
     },
   } = useContext(GeyserContext)
+
   const {
     computeRewardsFromAdditionalStakes,
-    computeRewardsShareFromAdditionalStakes,
-    geyserStats: { bonusRewards, calcPeriodInDays },
+    geyserStats: { calcPeriodInDays },
     vaultStats: { currentStake },
   } = useContext(StatsContext)
 
-  useEffect(() => {
-    ;(async () => {
-      const aggregateDepositUSD = new BigNumber(parsedUserInput.toString())
-        .div(10 ** stakingTokenDecimals)
-        .plus(currentStake)
-        .times(stakingTokenPrice)
-      setRewards(aggregateDepositUSD.eq('0') ? 0.0 : await computeRewardsFromAdditionalStakes(parsedUserInput))
-      setRewardsShare(
-        aggregateDepositUSD.eq('0') ? 0.0 : await computeRewardsShareFromAdditionalStakes(parsedUserInput),
-      )
-      setDeposits(aggregateDepositUSD.eq('0') ? 0.0 : aggregateDepositUSD.toNumber())
-    })()
-  }, [parsedUserInput])
+  const cacheRef = useRef<{
+    [key: string]: { rewards: number; deposits: number }
+  }>({})
 
+  useEffect(() => {
+    const inputKey = parsedUserInput.toString()
+    setIsCalculating(true)
+
+    const debounceTimer = setTimeout(async () => {
+      if (cacheRef.current[inputKey]) {
+        // Use cached results
+        const { rewards: cachedRewards, deposits: cachedDeposits } = cacheRef.current[inputKey]
+        setRewards(cachedRewards)
+        setDeposits(cachedDeposits)
+        setIsCalculating(false)
+      } else {
+        // Compute and store results
+        const aggregateDepositUSD = new BigNumber(parsedUserInput.toString())
+          .div(10 ** stakingTokenDecimals)
+          .plus(currentStake)
+          .times(stakingTokenPrice)
+
+        const isZero = aggregateDepositUSD.eq('0')
+
+        const newRewards = isZero ? 0.0 : await computeRewardsFromAdditionalStakes(parsedUserInput)
+        const newDeposits = isZero ? 0.0 : aggregateDepositUSD.toNumber()
+
+        cacheRef.current[inputKey] = {
+          rewards: newRewards,
+          deposits: newDeposits,
+        }
+
+        setRewards(newRewards)
+        setDeposits(newDeposits)
+        setIsCalculating(false)
+      }
+    }, 500)
+
+    return () => {
+      clearTimeout(debounceTimer)
+    }
+  }, [parsedUserInput, computeRewardsFromAdditionalStakes, currentStake, stakingTokenPrice, stakingTokenDecimals])
+
+  const geyserRewardsUSD = rewards * rewardTokenPrice
   return (
     <EstimatedRewardsContainer>
       <ColoredDiv />
-      <Icon src={rewardSymbol} alt="Rewards Symbol" />
-      <RewardsTextContainer>
-        <CardLabel>
-          <small>Aggregate Deposit / Estimated Rewards</small>
-          <Tooltip
-            classNames="my-auto ml-2 normal-case tracking-wide"
-            panelClassnames="-translate-x-3/4 xs:left-1/2 xs:-translate-x-1/2"
-            messages={[{ title: 'Estimated Rewards', body: GET_ESTIMATED_REWARDS_MSG() }]}
-          />
-        </CardLabel>
-        <CardValue>
-          {safeNumeral(deposits, '0')} USD / [ {safeNumeral(rewards, '0.00')} {symbol}{' '}
-          {
-            // TODO: assuming bonusRewards.length == bonusTokensInfo.length
-            // this should be guarentted by data layer
-            bonusRewards.length === bonusTokensInfo.length && bonusRewards.length > 0 ? (
-              bonusRewards.map((b, i) => {
-                const bonusReward = rewardsShare * b.balance
-                return (
-                  <span key={b.symbol}>
-                    + {safeNumeral(bonusReward, '0.00')} {bonusTokensInfo[i].symbol}{' '}
-                  </span>
-                )
-              })
-            ) : (
-              <></>
-            )
-          }
-          ]
-          <span>
-            {' '}
-            {parsedUserInput.gt(0) && calcPeriodInDays > 0
-              ? `in ${safeNumeral(calcPeriodInDays, '0')} day${calcPeriodInDays > 1 ? 's' : ''}`
-              : ''}
-          </span>
-        </CardValue>
-      </RewardsTextContainer>
+      <DepositInfoGraphic />
+      {isCalculating ? (
+        <LoaderContainer>
+          <Loader className="loader" />
+        </LoaderContainer>
+      ) : (
+        <RewardsTextContainer>
+          <CardLabel>
+            <small>Drip Rate</small>
+            <Tooltip
+              classNames="my-auto ml-2 normal-case tracking-wide"
+              panelClassnames="-translate-x-3/4 xs:left-1/2 xs:-translate-x-1/2"
+              messages={[{ title: 'Estimated Rewards', body: DRIP_RATE_MSG() }]}
+            />
+          </CardLabel>
+          <CardValue>
+            {safeNumeral(deposits, '0.00')} USD / {safeNumeral(geyserRewardsUSD, '0.00')} USD
+            <span>
+              {' '}
+              {geyserRewardsUSD > 0 && calcPeriodInDays > 0
+                ? `for ${safeNumeral(calcPeriodInDays, '0')} day${calcPeriodInDays > 1 ? 's' : ''}`
+                : ''}
+            </span>
+          </CardValue>
+        </RewardsTextContainer>
+      )}
     </EstimatedRewardsContainer>
   )
 }
 
 const EstimatedRewardsContainer = styled.div`
-  ${tw`h-120px shadow-all-xs my-6 border border-lightGray rounded flex flex-row tracking-wide`}
+  ${tw`h-120px my-6 border border-lightGray flex flex-row tracking-wide`}
 `
 
 const ColoredDiv = styled.div`
-  ${tw`rounded-l-sm h-full bg-radicalRed w-4`}
-`
-
-const Icon = styled.img`
-  ${tw`mx-4 w-0`}
-  ${tw`sm:w-auto`}
+  ${tw`h-full bg-radicalRed w-2`}
 `
 
 const RewardsTextContainer = styled.div`
-  ${tw`flex flex-col my-auto`}
+  ${tw`flex flex-col my-auto px-4`}
+`
+
+const LoaderContainer = styled.div`
+  ${tw`flex items-center w-full ml-4`}
 `

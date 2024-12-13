@@ -317,7 +317,7 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
 
     /* geyser getters */
 
-    function getGeyserData() external view override returns (GeyserData memory geyser) {
+    function getGeyserData() public view override returns (GeyserData memory geyser) {
         return _geyser;
     }
 
@@ -788,7 +788,7 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         address vault,
         uint256 amount,
         bytes calldata permission
-    ) external override onlyOnline {
+    ) public virtual override onlyOnline {
         // verify vault is valid
         require(isValidVault(vault), "Geyser: vault is not registered");
 

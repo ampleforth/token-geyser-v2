@@ -8,14 +8,14 @@ import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Recei
 import {IERC20Permit} from "@openzeppelin/contracts/drafts/IERC20Permit.sol";
 import {TransferHelper} from "@uniswap/lib/contracts/libraries/TransferHelper.sol";
 
-import {IGeyser} from "./Geyser.sol";
-import {IUniversalVault} from "./UniversalVault.sol";
-import {IFactory} from "./Factory/IFactory.sol";
+import {IGeyser} from "../Geyser.sol";
+import {IUniversalVault} from "../UniversalVault.sol";
+import {IFactory} from "../Factory/IFactory.sol";
 
-/// @title RouterV1
+/// @title GeyserRouter
 /// @notice Convenience contract for ampleforth geyser
 /// @dev Security contact: dev-support@ampleforth.org
-contract RouterV1 is IERC721Receiver {
+contract GeyserRouter is IERC721Receiver {
     function onERC721Received(
         address,
         address,

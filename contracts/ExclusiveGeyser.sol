@@ -28,7 +28,7 @@ contract ExclusiveGeyser is Geyser {
         uint256 lockCount = vault.getLockSetCount();
         for (uint256 i = 0; i < lockCount; i++) {
             IUniversalVault.LockData memory lock = vault.getLockAt(i);
-            if(lock.token == stakingToken){
+            if (lock.token == stakingToken) {
                 require(lock.delegate == address(this), "ExclusiveGeyser: expected exclusive stake");
             }
         }

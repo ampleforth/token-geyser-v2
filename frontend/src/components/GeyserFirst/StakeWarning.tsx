@@ -10,15 +10,16 @@ interface Props {
 }
 
 export const StakeWarning: React.FC<Props> = ({ link, balance, staked }) => {
-  if (balance.gt(0) && staked.lte(0)) {
+  if (balance.gte(0)) {
     return <></>
   }
+
   return (
     <StakeWarningContainer>
       <ColoredDiv />
       <Content>
         <MessageContainer>
-          <Message>{staked.lte(0) ? 'Insufficient balance' : 'Entire balance staked'}</Message>
+          <Message>Insufficient balance</Message>
         </MessageContainer>
         <ButtonWrapper>
           <Button onClick={() => window.open(link, '_blank')}>{staked.lte(0) ? 'Get LP' : 'Get more'}</Button>

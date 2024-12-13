@@ -70,13 +70,18 @@ export const GeyserStakeView = () => {
   useEffect(() => {
     refreshInputAmount()
     if (geyserAction === GeyserAction.STAKE && stakingTokenInfo.price > 0) {
-      const initialStakeAmountUSD = 1000
-      const stakeAmt = Math.max(initialStakeAmountUSD / stakingTokenInfo.price, 0.000001)
-      const stakeAmtFP = parseUnits(stakeAmt.toFixed(stakingTokenInfo.decimals), stakingTokenInfo.decimals)
-      setUserInput(stakeAmt)
-      setParsedUserInput(BigNumber.from(stakeAmtFP))
+      if (stakableAmount.eq(0)) {
+        const initialStakeAmountUSD = 1000
+        const stakeAmt = Math.max(initialStakeAmountUSD / stakingTokenInfo.price, 0.000001)
+        const stakeAmtFP = parseUnits(stakeAmt.toFixed(stakingTokenInfo.decimals), stakingTokenInfo.decimals)
+        setUserInput(stakeAmt)
+        setParsedUserInput(BigNumber.from(stakeAmtFP))
+      } else {
+        setUserInput(formatUnits(stakableAmount, stakingTokenDecimals))
+        setParsedUserInput(stakableAmount)
+      }
     }
-  }, [geyserAction])
+  }, [geyserAction, stakingTokenBalance, currentStakeable])
 
   const handleGeyserInteraction = () => {
     if (geyserAction === GeyserAction.STAKE) {
@@ -182,7 +187,7 @@ export const GeyserStakeView = () => {
         <EstimatedRewards parsedUserInput={parsedUserInput} />
         {!address && <ConnectWalletWarning onClick={() => connectWallet()} />}
         {address && parsedUserInput.gt(0) && (
-          <StakeWarning link={poolAddress} balance={stakableAmount} staked={currentStakeAmount} />
+          <StakeWarning link={poolAddress} balance={stakableAmount.sub(parsedUserInput)} staked={currentStakeAmount} />
         )}
         <GeyserInteractionButton
           disabled={!address || parsedUserInput.isZero() || parsedUserInput.gt(stakableAmount)}

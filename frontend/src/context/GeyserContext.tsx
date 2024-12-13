@@ -166,16 +166,24 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
     })()
   }
 
-  const handleStakeUnstake = async (selectedVault: Vault | null, parsedAmount: BigNumber) => {
-    let r: any
-    if (geyserAction === GeyserAction.STAKE) {
-      r = await handleStake(selectedVault, parsedAmount)
-    } else if (geyserAction === GeyserAction.UNSTAKE) {
-      r = await handleUnstake(selectedVault, parsedAmount)
+  const clearSatsCache = (selectedGeyser: Geyser | null, selectedVault: Vault | null) => {
+    if (selectedGeyser) {
+      clearGeyserStatsCache(selectedGeyser)
     }
-    clearGeyserStatsCache(selectedGeyser)
-    clearUserStatsCache(selectedGeyser, selectedVault)
-    return r
+    if (selectedGeyser && selectedVault) {
+      clearUserStatsCache(selectedGeyser, selectedVault)
+    }
+  }
+
+  const handleStakeUnstake = async (selectedVault: Vault | null, parsedAmount: BigNumber) => {
+    clearSatsCache(selectedGeyserInfo?.geyser, selectedVault)
+    if (geyserAction === GeyserAction.STAKE) {
+      return handleStake(selectedVault, parsedAmount)
+    } else if (geyserAction === GeyserAction.UNSTAKE) {
+      return handleUnstake(selectedVault, parsedAmount)
+    } else {
+      return undefined
+    }
   }
 
   const handleWrapping = async (

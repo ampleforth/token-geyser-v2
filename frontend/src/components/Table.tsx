@@ -61,7 +61,15 @@ export const Table: React.FC<Props> = ({ columns, dataSource }) => {
           ))}
         </tr>
       </TableHead>
+
       <TableBody>
+        {rows.length === 0 ? (
+          <EmptyRow>
+            <RowCell colSpan={columns.length}>
+              <i>Not Avaiable</i>
+            </RowCell>
+          </EmptyRow>
+        ) : null}
         {rows.map((row, rowNumber) => (
           <TableRow key={dataSource[rowNumber].key}>
             {row.map((cell, colNumber) => (
@@ -85,7 +93,7 @@ export const Table: React.FC<Props> = ({ columns, dataSource }) => {
 
 const TableContent = styled.table`
   width: 100%;
-  ${tw`table-fixed border-collapse space-y-2`}
+  ${tw`table-fixed space-y-2`}
 `
 
 const TableRow = styled.tr`
@@ -106,5 +114,10 @@ const Spacer = styled.tr`
 
 const RowCell = styled.td`
   ${tw`text-xs`}
+  ${tw`sm:px-6 sm:text-base whitespace-nowrap`}
+`
+
+const EmptyRow = styled.tr`
+  ${tw`text-xs bg-gray text-white h-40px`}
   ${tw`sm:px-6 sm:text-base whitespace-nowrap`}
 `

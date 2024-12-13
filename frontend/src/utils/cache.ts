@@ -5,6 +5,7 @@ export const set = (key: string, value: any, ttl: number) => {
 
 export const get = (key: string): any => {
   const data = localStorage.getItem(key)
+  // console.log("cache hit", !!data, key)
   if (data !== null) {
     const { value, expiresAt } = JSON.parse(data)
     if (expiresAt && expiresAt < new Date().getTime()) {
@@ -16,8 +17,6 @@ export const get = (key: string): any => {
   return null
 }
 
-// Returns the cached value if it exists and useCache(cachedValue) return true
-// Otherwise, compute the value, and cache it
 export async function computeAndCache<T>(
   getValueOperation: () => Promise<T>,
   key: string,

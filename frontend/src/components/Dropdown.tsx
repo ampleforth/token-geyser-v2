@@ -19,8 +19,8 @@ export const Dropdown: React.FC<Props> = ({ options, optgroups, selectedOption, 
       <Listbox.Option
         key={option}
         className={({ active }) =>
-          `${active ? 'text-primary' : 'text-gray'}
-                  cursor-default select-none relative py-2 pl-10 pr-4 text-left`
+          `${active ? 'text-white bg-gray' : 'text-gray'}
+          cursor-pointer hover:cursor-pointer select-none relative py-2 pl-10 pr-4 text-left`
         }
         value={option}
       >
@@ -40,7 +40,11 @@ export const Dropdown: React.FC<Props> = ({ options, optgroups, selectedOption, 
   const renderOptgroups = (groups: { group: string; options: string[] }[]) =>
     groups.map(({ group, options: opts }) => (
       <div key={group}>
-        <Listbox.Option disabled className="text-gray align-center justify-center flex" value={group}>
+        <Listbox.Option
+          disabled
+          className="text-md text-darkGray font-roboto align-center justify-center flex m-2 underline"
+          value={group}
+        >
           <span>{group}</span>
         </Listbox.Option>
         {renderOptions(opts)}
@@ -50,7 +54,7 @@ export const Dropdown: React.FC<Props> = ({ options, optgroups, selectedOption, 
   return (
     <Listbox value={selectedOption} onChange={onChange}>
       <OptionsWrapper>
-        <Listbox.Button className="relative w-full py-2 pl-3 pr-10 text-left bg-paleBlue rounded-lg shadow-all-xs cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-opacity-75 focus-visible:ring-white sm:text-sm">
+        <Listbox.Button className="cursor-pointer hover:cursor-pointer relative w-full py-2 pl-3 pr-10 text-left bg-paleBlue rounded-lg shadow-all-xs cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-opacity-75 focus-visible:ring-white sm:text-sm">
           <span className="block truncate">{selectedOption}</span>
           <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
             <Img src={caretDown} alt="Down arrow" />

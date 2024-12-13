@@ -47,7 +47,7 @@ export async function deployAmpl(admin: SignerWithAddress) {
   return { ampl, amplInitialSupply }
 }
 
-export async function deployGeyser(args: Array<any>, ref:string = 'Geyser') {
+export async function deployGeyser(args: Array<any>, ref: string = 'Geyser') {
   const factory = await ethers.getContractFactory(ref)
   return upgrades.deployProxy(factory, args, {
     unsafeAllowCustomTypes: true,

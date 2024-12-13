@@ -1,7 +1,7 @@
 import { BigNumber, Contract, constants } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 import { toChecksumAddress } from 'web3-utils'
-import { StakingToken } from '../constants'
+import { StakingToken, MIN_IN_MS } from '../constants'
 import { ERC20Balance } from '../sdk'
 import { SignerOrProvider, StakingTokenInfo, TokenComposition } from '../types'
 import { BALANCER_BPOOL_V1_ABI } from './abis/BalancerBPoolV1'
@@ -19,6 +19,9 @@ import { BILL_BROKER_ABI } from './abis/BillBroker'
 import { SPOT_APPRAISER_ABI } from './abis/SpotAppraiser'
 import { getCurrentPrice } from './price'
 import { defaultTokenInfo, getTokenInfo } from './token'
+import * as ls from './cache'
+
+const cacheTimeMs = 30 * MIN_IN_MS
 
 export const defaultStakingTokenInfo = (): StakingTokenInfo => ({
   ...defaultTokenInfo(),
@@ -31,40 +34,45 @@ export const getStakingTokenInfo = async (
   tokenAddress: string,
   token: StakingToken,
   signerOrProvider: SignerOrProvider,
-): Promise<StakingTokenInfo> => {
-  switch (token) {
-    case StakingToken.MOCK:
-      return getMockLPToken(tokenAddress)
-    case StakingToken.WAMPL:
-      return getBasicToken(tokenAddress, signerOrProvider)
-    case StakingToken.UNISWAP_V2:
-      return getUniswapV2(tokenAddress, signerOrProvider)
-    case StakingToken.SUSHISWAP:
-      return getSushiswap(tokenAddress, signerOrProvider)
-    case StakingToken.TRADER_JOE:
-      return getTraderJoe(tokenAddress, signerOrProvider)
-    case StakingToken.PANGOLIN:
-      return getPangolin(tokenAddress, signerOrProvider)
-    case StakingToken.MOONISWAP_V1:
-      return getMooniswap(tokenAddress, signerOrProvider)
-    case StakingToken.BALANCER_V1:
-      return getBalancerV1(tokenAddress, signerOrProvider)
-    case StakingToken.BALANCER_SMART_POOL_V1:
-      return getBalancerSmartPoolV1(tokenAddress, signerOrProvider)
-    case StakingToken.AAVE_V2_AMPL:
-      return getAaveV2(tokenAddress, signerOrProvider)
-    case StakingToken.BALANCER_WEIGHTED_POOL_V2:
-      return getBalancerWeightedPoolV2(tokenAddress, signerOrProvider)
-    case StakingToken.ARRAKIS_V1:
-      return getArrakisV1(tokenAddress, signerOrProvider)
-    case StakingToken.CHARM_V1:
-      return getCharmV1(tokenAddress, signerOrProvider)
-    case StakingToken.BILL_BROKER:
-      return getBillBroker(tokenAddress, signerOrProvider)
-    default:
-      throw new Error(`Handler for ${token} not found`)
-  }
-}
+): Promise<StakingTokenInfo> =>
+  ls.computeAndCache<StakingTokenInfo>(
+    async () => {
+      switch (token) {
+        case StakingToken.MOCK:
+          return getMockLPToken(tokenAddress)
+        case StakingToken.WAMPL:
+          return getBasicToken(tokenAddress, signerOrProvider)
+        case StakingToken.UNISWAP_V2:
+          return getUniswapV2(tokenAddress, signerOrProvider)
+        case StakingToken.SUSHISWAP:
+          return getSushiswap(tokenAddress, signerOrProvider)
+        case StakingToken.TRADER_JOE:
+          return getTraderJoe(tokenAddress, signerOrProvider)
+        case StakingToken.PANGOLIN:
+          return getPangolin(tokenAddress, signerOrProvider)
+        case StakingToken.MOONISWAP_V1:
+          return getMooniswap(tokenAddress, signerOrProvider)
+        case StakingToken.BALANCER_V1:
+          return getBalancerV1(tokenAddress, signerOrProvider)
+        case StakingToken.BALANCER_SMART_POOL_V1:
+          return getBalancerSmartPoolV1(tokenAddress, signerOrProvider)
+        case StakingToken.AAVE_V2_AMPL:
+          return getAaveV2(tokenAddress, signerOrProvider)
+        case StakingToken.BALANCER_WEIGHTED_POOL_V2:
+          return getBalancerWeightedPoolV2(tokenAddress, signerOrProvider)
+        case StakingToken.ARRAKIS_V1:
+          return getArrakisV1(tokenAddress, signerOrProvider)
+        case StakingToken.CHARM_V1:
+          return getCharmV1(tokenAddress, signerOrProvider)
+        case StakingToken.BILL_BROKER:
+          return getBillBroker(tokenAddress, signerOrProvider)
+        default:
+          throw new Error(`Handler for ${token} not found`)
+      }
+    },
+    `stakingTokenInfo:${tokenAddress}`,
+    cacheTimeMs,
+  )
 
 const getTokenCompositions = async (
   tokenAddresses: string[],
@@ -76,7 +84,7 @@ const getTokenCompositions = async (
     const { name, symbol, decimals } = await getTokenInfo(tokenAddress, signerOrProvider)
     const price = await getCurrentPrice(symbol)
     const balance = await ERC20Balance(tokenAddress, poolAddress, signerOrProvider)
-    const balanceNumber = parseInt(formatUnits(balance as BigNumber, decimals), 10)
+    const balanceNumber = parseFloat(formatUnits(balance as BigNumber, decimals))
     return {
       address: tokenAddress,
       name,
@@ -99,7 +107,7 @@ const getTokenCompositionsWithBalances = async (
   const compositions = tokenAddresses.map(async (tokenAddress, index) => {
     const { name, symbol, decimals } = await getTokenInfo(tokenAddress, signerOrProvider)
     const price = await getCurrentPrice(symbol)
-    const balanceNumber = parseInt(formatUnits(BigNumber.from(balances[index]), decimals), 10)
+    const balanceNumber = parseFloat(formatUnits(BigNumber.from(balances[index]), decimals))
     return {
       address: tokenAddress,
       name,
@@ -128,7 +136,6 @@ const uniswapV2Pair = async (
   const decimals: number = await contract.decimals()
 
   const totalSupply: BigNumber = await contract.totalSupply()
-
   const totalSupplyNumber = parseFloat(formatUnits(totalSupply, decimals))
 
   const tokenCompositions = await getTokenCompositions(
@@ -169,7 +176,6 @@ const getMooniswap = async (tokenAddress: string, signerOrProvider: SignerOrProv
   const tokens: [string, string] = await contract.getTokens()
   const [token0Address, token1Address] = tokens
   const { name, symbol, decimals } = await getTokenInfo(address, signerOrProvider)
-
   const totalSupply: BigNumber = await contract.totalSupply()
 
   const totalSupplyNumber = parseFloat(formatUnits(totalSupply, decimals))

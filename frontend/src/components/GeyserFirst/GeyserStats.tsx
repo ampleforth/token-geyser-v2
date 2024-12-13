@@ -5,30 +5,27 @@ import { StatsContext } from 'context/StatsContext'
 import { GeyserContext } from 'context/GeyserContext'
 import { safeNumeral } from 'utils/numeral'
 import { ResponsiveText } from 'styling/styles'
+import TooltipTable from 'components/TooltipTable'
 import { GeyserStatsBox } from './GeyserStatsBox'
-import { GeyserMultiStatsBox } from './GeyserMultiStatsBox'
-import { DAY_IN_SEC } from '../../constants'
+import { DAY_IN_SEC, TOTAL_REWARDS_MSG } from '../../constants'
 
 export const GeyserStats = () => {
   const {
-    geyserStats: { duration, totalDeposit, totalRewards, bonusRewards },
+    geyserStats: { duration, totalDeposit, totalRewards },
   } = useContext(StatsContext)
   const {
     selectedGeyserInfo: {
-      rewardTokenInfo: { symbol },
+      rewardTokenInfo: { symbol: rewardTokenSymbol, price: rewardTokenPrice },
     },
   } = useContext(GeyserContext)
 
-  const rewardsToShow = [{ value: totalRewards, units: symbol }].concat(
-    bonusRewards.map((r) => ({ value: r.balance, units: r.symbol })),
-  )
+  const baseRewards = totalRewards * rewardTokenPrice
 
   return (
     <GeyserStatsContainer>
       <Header>Geyser Stats</Header>
       <GeyserStatsBoxContainer>
         <GeyserStatsBox
-          containerClassName="sm:bg-paleBlue sm:border sm:border-lightGray sm:rounded-sm"
           name="Program Duration"
           value={duration / DAY_IN_SEC}
           units="days left"
@@ -37,19 +34,38 @@ export const GeyserStats = () => {
       </GeyserStatsBoxContainer>
       <GeyserStatsBoxContainer>
         <GeyserStatsBox
-          containerClassName="sm:bg-paleBlue sm:border sm:border-lightGray sm:rounded-sm"
           name="Total Deposits"
           value={totalDeposit}
           units="USD"
-          interpolate={(val) => safeNumeral(val, '0,0.00')}
+          interpolate={(val) => safeNumeral(val, '0,0')}
         />
       </GeyserStatsBoxContainer>
       <GeyserStatsBoxContainer>
-        <GeyserMultiStatsBox
-          containerClassName="sm:bg-paleBlue sm:border sm:border-lightGray sm:rounded-sm"
+        <GeyserStatsBox
+          containerClassName="w-full"
           name="Total Rewards"
-          stats={rewardsToShow}
-          interpolate={(val) => safeNumeral(val, '0,0.00')}
+          value={baseRewards}
+          units="USD"
+          interpolate={(val) => safeNumeral(val, '0,0')}
+          tooltipMessage={{
+            title: 'Total Rewards',
+            body: (
+              <div>
+                {TOTAL_REWARDS_MSG()}
+                <TooltipTable
+                  rows={[
+                    {
+                      label: `${rewardTokenSymbol} (${safeNumeral(totalRewards, '0,0')})`,
+                      value: `${safeNumeral(baseRewards, '0,0.00')} USD`,
+                    },
+                    { label: 'bonus (0)', value: `${safeNumeral(0, '0,0.00')} USD` },
+                  ]}
+                  totalLabel="Total"
+                  totalValue={`${safeNumeral(baseRewards, '0,0.00')} USD`}
+                />
+              </div>
+            ),
+          }}
         />
       </GeyserStatsBoxContainer>
     </GeyserStatsContainer>
@@ -67,6 +83,5 @@ const Header = styled.h3`
 `
 
 const GeyserStatsBoxContainer = styled.div`
-  ${tw`mt-4`}
-  ${tw`sm:mt-3`}
+  ${tw`flex mt-4 sm:mt-3`}
 `

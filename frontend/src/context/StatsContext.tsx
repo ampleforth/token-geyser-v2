@@ -82,6 +82,7 @@ export const StatsContextProvider: React.FC = ({ children }) => {
     if (selectedGeyser) {
       return getUserAPY(
         selectedGeyser,
+        selectedVault,
         currentLock,
         stakingTokenInfo,
         rewardTokenInfo,

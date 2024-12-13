@@ -1,26 +1,78 @@
-import { AppContext } from 'context/AppContext'
+import Web3Context from 'context/Web3Context'
+import { GeyserContext } from 'context/GeyserContext'
+import { VaultContext } from 'context/VaultContext'
 import { useContext } from 'react'
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
-import { Mode } from '../constants'
+import { Tab } from '@headlessui/react'
+import { ResponsiveHeader } from 'styling/styles'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { HeaderWalletButton } from './HeaderWalletButton'
-import { HeaderToggle } from './HeaderToggle'
-import { HeaderNetworkSelect } from './HeaderNetworkSelect'
+
+export const HeaderTab: React.FC = () => {
+  const { selectedGeyserConfig, getDefaultGeyserConfig } = useContext(GeyserContext)
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  const defaultGeyser = getDefaultGeyserConfig()
+  let selectedIndex = 0
+  if (/^\/geysers\/[^/]+$/.test(location.pathname)) {
+    selectedIndex = 1
+  } else if (location.pathname === '/vault') {
+    selectedIndex = 2
+  }
+  return (
+    <Tab.Group
+      selectedIndex={selectedIndex}
+      onChange={(index) => {
+        if (index === 0) {
+          navigate('/')
+        } else if (index === 1) {
+          navigate(`/geysers/${selectedGeyserConfig?.ref || defaultGeyser?.ref}`)
+        } else if (index === 2) {
+          navigate('/vault')
+        }
+      }}
+    >
+      <Tab.List className="flex items-center">
+        <HeaderTabItem className="hidden" isSelected={selectedIndex === 0}>
+          Home
+        </HeaderTabItem>
+        <HeaderTabItem isSelected={selectedIndex === 1}>Stake</HeaderTabItem>
+        <HeaderTabItem isSelected={selectedIndex === 2}>Vault</HeaderTabItem>
+      </Tab.List>
+    </Tab.Group>
+  )
+}
 
 export const Header = () => {
-  const { mode, toggleMode } = useContext(AppContext)
+  const { ready } = useContext(Web3Context)
+  const { vaults, loading } = useContext(VaultContext)
+  const navigate = useNavigate()
+  const showTabs = ready && (loading || vaults.length > 0)
+  if (showTabs) {
+    return (
+      <Container>
+        <LeftContainer>
+          <LogoSpan onClick={() => navigate('/')}>Λ</LogoSpan>
+        </LeftContainer>
+        <MiddleContainer>
+          <HeaderTab />
+        </MiddleContainer>
+        <RightContainer>
+          <HeaderWalletButton />
+        </RightContainer>
+      </Container>
+    )
+  }
+
   return (
     <Container>
-      <LeftContainer>
-        <LogoSpan>
-          <a href="https://www.ampleforth.org/stake">Λ</a>
-        </LogoSpan>
-      </LeftContainer>
+      <LeftContainer />
       <MiddleContainer>
-        <HeaderToggle enabled={mode === Mode.VAULTS} toggle={toggleMode} options={['Geyser View', 'Vault View']} />
+        <LogoSpan onClick={() => navigate('/')}>Λ</LogoSpan>
       </MiddleContainer>
       <RightContainer>
-        <HeaderNetworkSelect />
         <HeaderWalletButton />
       </RightContainer>
     </Container>
@@ -28,25 +80,35 @@ export const Header = () => {
 }
 
 const Container = styled.div`
-  ${tw`shadow-sm flex flex-wrap py-1 -mt-1 h-fit`}
+  ${tw`flex flex-wrap py-1 h-fit items-center justify-center`}
+  ${tw`bg-white border-b border-lightGray shadow py-2`}
 `
 
-const LogoSpan = styled.span`
+const LogoSpan = styled.a`
   font-family: 'Coromont Garamond';
-  ${tw`ml-2 p-3 text-3xl`}
-  ${tw`header-wrap:ml-20`}
+  ${tw`p-3 text-3xl w-full`}
+  ${tw`cursor-pointer`}
 `
 
 const LeftContainer = styled.div`
   ${tw`flex w-auto`}
-  ${tw`header-wrap:w-4/12`}
+  ${tw`w-4/12 text-right`}
 `
 
 const MiddleContainer = styled.div`
   ${tw`flex flex-col xl:flex-row items-center justify-center w-full order-3 py-6`}
-  ${tw`header-wrap:py-0 header-wrap:max-w-830px header-wrap:mx-auto header-wrap:order-2 header-wrap:w-1/3 xl:w-4/12`}
+  ${tw`py-0 max-w-md mx-auto order-2 w-1/3 xl:w-4/12 text-center`}
 `
+
 const RightContainer = styled.div`
   ${tw`ml-auto order-2 w-auto flex flex-wrap`}
-  ${tw`header-wrap:ml-0 header-wrap:order-3 header-wrap:w-4/12`}
+  ${tw`ml-0 order-3 w-4/12`}
+`
+
+const HeaderTabItem = styled(Tab)<{ isSelected: boolean }>`
+  ${ResponsiveHeader}
+  ${tw`font-normal tracking-wider px-4 py-2 text-center cursor-pointer`}
+  ${({ isSelected }) => (isSelected ? tw`text-black font-bold` : tw`text-gray hover:text-black`)};
+  ${({ isSelected }) => isSelected && `background-color: #f9f9f9;`}
+  ${tw`focus:outline-none focus:ring-0`}
 `

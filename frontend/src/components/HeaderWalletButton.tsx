@@ -2,30 +2,42 @@ import { useContext } from 'react'
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
 import Web3Context from 'context/Web3Context'
+import { AppContext } from 'context/AppContext'
 import { displayAddr } from 'utils/formatDisplayAddress'
-import { Paragraph } from 'styling/styles'
 import { NamedColors } from 'styling/colors'
+import { Mode } from '../constants'
 
 export const HeaderWalletButton = () => {
-  const { selectWallet, address } = useContext(Web3Context)
+  const { connectWallet, disconnectWallet, wallet, address } = useContext(Web3Context)
+  const { mode, toggleMode } = useContext(AppContext)
+
+  const handleButtonClick = async () => {
+    if (wallet) {
+      await disconnectWallet(wallet)
+      if (mode !== Mode.GEYSERS) {
+        toggleMode()
+      }
+    } else {
+      connectWallet()
+    }
+  }
 
   return (
     <ButtonContainer>
-      <Button onClick={selectWallet}>
-        <Paragraph autoCapitalize="yes" color={NamedColors.WHITE}>
+      <Button onClick={handleButtonClick} connected={!!address}>
+        <span autoCapitalize="yes" color={NamedColors.WHITE}>
           {address ? displayAddr(address) : 'CONNECT'}
-        </Paragraph>
+        </span>
       </Button>
     </ButtonContainer>
   )
 }
 
 const ButtonContainer = styled.div`
-  ${tw`w-6/12 flex`}
+  ${tw`flex mt-1 mr-3`}
 `
 
-const Button = styled.button`
-  ${tw`w-full px-8 py-4 rounded-bl-2xl float-right bg-radicalRed`}
-  ${tw`sm:px-14 sm:py-5`}
-  ${tw`hover:bg-amaranth`}
+const Button = styled.button<{ connected: boolean }>`
+  ${tw`w-full border-lightGray rounded w-120px h-40px text-white font-bold text-sm transition-all duration-300 ease-in-out`}
+  ${({ connected }) => (connected ? tw`bg-secondary` : tw`bg-primary hover:bg-primaryDark`)}
 `

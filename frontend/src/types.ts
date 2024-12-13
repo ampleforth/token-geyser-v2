@@ -1,5 +1,5 @@
 import { BigNumber, providers, Signer } from 'ethers'
-import { RewardToken, StakingToken, Network } from './constants'
+import { RewardToken, StakingToken, Network, Platform } from './constants'
 
 type ClaimedReward = {
   id: string
@@ -207,4 +207,14 @@ export type AppGeysersList = {
 
 export type AppAdditionalTokensList = {
   [key in Network]: AdditionalTokenConfig[]
+}
+
+export type PlatformConfig = {
+  name: string
+  url: string
+  iconUrl: string
+}
+
+export type PlatformsList = {
+  [key in Platform]: PlatformConfig
 }

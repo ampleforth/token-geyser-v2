@@ -12,12 +12,15 @@ export const GET_USER_VAULTS = gql`
           amount
           lastUpdate
         }
-        locks(first: 1000) {
+        locks(first: 1000, where: { amount_gt: 0 }) {
           id
           token
           amount
           stakeUnits
           lastUpdate
+          geyser {
+            id
+          }
         }
       }
     }

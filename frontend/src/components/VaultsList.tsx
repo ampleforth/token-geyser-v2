@@ -15,7 +15,7 @@ export const VaultsList = () => {
 
   return (
     <>
-      {vaults.length > 0 && (
+      {vaults.length > 1 && (
         <VaultsListContainer>
           <Heading>
             <Label>Vault ID</Label>
@@ -25,7 +25,7 @@ export const VaultsList = () => {
           </Heading>
           {vaults.length > 1 ? (
             <Dropdown
-              options={vaults.map((vault) => vault.id)}
+              options={vaults.map((v) => v.id)}
               selectedOption={selectedVault ? selectedVault.id : vaults[0].id}
               onChange={handleVaultChange}
             />

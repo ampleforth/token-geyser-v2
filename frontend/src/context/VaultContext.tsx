@@ -9,7 +9,6 @@ import { POLL_INTERVAL } from '../constants'
 import { Lock, Vault } from '../types'
 import Web3Context from './Web3Context'
 import { GeyserContext } from './GeyserContext'
-import { Centered } from '../styling/styles'
 
 export const VaultContext = createContext<{
   vaults: Vault[]
@@ -25,6 +24,7 @@ export const VaultContext = createContext<{
     | ((tokenAddress: string) => Promise<{ response: TransactionResponse; amount: BigNumber } | null>)
     | null
   rewardAmountClaimedOnUnstake: ((receipt: TransactionReceipt) => Promise<BigNumber>) | null
+  loading: bool
 }>({
   vaults: [],
   selectedVault: null,
@@ -35,6 +35,7 @@ export const VaultContext = createContext<{
   withdrawRewardsFromVault: null,
   withdrawUnlockedFromVault: null,
   rewardAmountClaimedOnUnstake: null,
+  loading: false,
 })
 
 export const VaultContextProvider: React.FC = ({ children }) => {
@@ -76,11 +77,14 @@ export const VaultContextProvider: React.FC = ({ children }) => {
       : null
 
   useEffect(() => {
-    if (address) getVaults({ variables: { id: address.toLowerCase() } })
+    if (address) {
+      console.log('vault refresh')
+      getVaults({ variables: { id: address.toLowerCase() } })
+    }
   }, [networkId, address, getVaults])
 
   useEffect(() => {
-    if (vaultData && vaultData.user) {
+    if (ready && !!vaultData && !!vaultData.user) {
       const userVaults = vaultData.user.vaults as Vault[]
       setVaults(userVaults)
       if (userVaults.length > 0 && !selectedVault) {
@@ -90,7 +94,8 @@ export const VaultContextProvider: React.FC = ({ children }) => {
       } else {
         setSelectedVault(null)
       }
-    } else {
+    }
+    if (!ready) {
       setVaults([])
       setSelectedVault(null)
     }
@@ -104,8 +109,6 @@ export const VaultContextProvider: React.FC = ({ children }) => {
     }
   }, [selectedVault, selectedGeyser])
 
-  if (vaultLoading || (!address && ready)) return <Centered>Loading...</Centered>
-
   return (
     <VaultContext.Provider
       value={{
@@ -118,6 +121,7 @@ export const VaultContextProvider: React.FC = ({ children }) => {
         withdrawRewardsFromVault,
         withdrawUnlockedFromVault,
         rewardAmountClaimedOnUnstake,
+        loading: vaultLoading || !ready,
       }}
     >
       {children}

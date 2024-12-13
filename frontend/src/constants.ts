@@ -21,7 +21,7 @@ export const POLL_INTERVAL = 30 * MS_PER_SEC
 export const CONST_CACHE_TIME_MS = YEAR_IN_MS
 
 // geyser stats cache time
-export const GEYSER_STATS_CACHE_TIME_MS = 0
+export const GEYSER_STATS_CACHE_TIME_MS = 900 * MS_PER_SEC
 
 export const MOCK_ERC_20_ADDRESS = '0x0165878A594ca255338adfa4d48449f69242Eb8F'
 
@@ -80,24 +80,36 @@ export enum Network {
   Avalanche = 43114,
 }
 
+// Platforms
+export enum Platform {
+  Ampleforth,
+  Charm,
+  Uniswap,
+  Balancer,
+  Sushiswap,
+  Arrakis,
+  Aave,
+}
+
 export const AMPL_LAUNCH_DATE = 1561687200
 export const INITIAL_SUPPLY = 50000000
 
-// tooltip messages
 export const GET_APY_STAKE_MSG = () =>
-  'APY is estimated for your current deposits till the end of the active program. The APY metric does not account for gains or losses from holding liquidity tokens, or gains from liquidity mining rewards distributed by the underlying platform for holding liquidity tokens.'
-
-export const GET_APY_NO_STAKE_MSG = () =>
-  `APY is estimated for an avg deposit (of 20,000 USD) till the end of the active program. The APY metric does not account for gains or losses from holding liquidity tokens, or gains from liquidity mining rewards distributed by the underlying platform for holding liquidity tokens.`
+  'The aggregate staking APY is estimated by combining geyser emissions and fees from liquidity provisioning. It does not capture the gains or losses from holding liquidity tokens.'
 
 export const GET_REWARD_MULTIPLIER_MSG = ({ days = '30', multiplier = '3.0' }) =>
-  `Deposit liquidity tokens for ${days} days to achieve a ${multiplier}x reward multiplier.`
+  `Stake at-least ${days} days to achieve a ${multiplier}x reward multiplier.`
 
-export const GET_CURRENT_REWARDS_MSG = () =>
-  'Your share of the total unlocked reward pool. Larger your deposit and for longer, higher your share.'
+export const DRIP_RATE_MSG = () =>
+  `The estimated reward rate for staking in this geyser, value staked to reward value out. Rewards will continue to drip until the current program is active.`
 
-export const GET_ESTIMATED_REWARDS_MSG = () =>
-  'Estimated rewards assume you have achieved the maximum reward multiplier.'
+export const UNIVERSAL_VAULT_MSG = () =>
+  'This is an on chain escrow contract which holds all your staked tokens and claimed rewards. You can withdraw all unlocked tokens to your wallet at any time. To withdraw locked tokens, first unstake from any active distribution programs.'
+
+export const CURRENT_REWARDS_MSG = () =>
+  'The total dollar denominated value of reward tokens you have accrued thus far. Your rewards depend on the both size and length of your stake.'
+
+export const TOTAL_REWARDS_MSG = () => 'The total dollar denominated value of reward tokens allocated to this geyser.'
 
 // alignment
 export enum Align {
@@ -107,7 +119,7 @@ export enum Align {
 }
 
 // Alchemy
-export const ALCHEMY_PROJECT_ID = 'geo5oyrZyF7LWPaAt7eoLzxHg76ljgsO'
+export const ALCHEMY_PROJECT_ID = process.env.REACT_APP_ALCHEMY_PROJECT_ID || 'ZHxuumw69-t77RswGL845CVVHQYja1bG'
 
 // Infura
 export const INFURA_PROJECT_ID = 'dee1a87a734042fcabc2fd116a7b776d'

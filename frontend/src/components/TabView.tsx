@@ -16,7 +16,7 @@ export const TabView: React.FC<Props> = ({ active, tabs, onChange }) => {
 
   const StyledTab = styled(Tab)`
     ${tw`outline-none  focus:outline-none`}
-    ${tw`font-bold uppercase z-10 h-full block rounded self-center`}
+    ${tw`font-bold uppercase h-full block rounded self-center`}
   `
 
   const FlexTabWidth2 = styled(StyledTab)`

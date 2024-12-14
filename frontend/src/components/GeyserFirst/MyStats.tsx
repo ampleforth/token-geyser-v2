@@ -4,7 +4,6 @@ import tw from 'twin.macro'
 import Web3Context from 'context/Web3Context'
 import { GeyserContext } from 'context/GeyserContext'
 import { StatsContext } from 'context/StatsContext'
-import { ResponsiveText } from 'styling/styles'
 import { safeNumeral } from 'utils/numeral'
 import TooltipTable from 'components/TooltipTable'
 import { GeyserStatsBox } from './GeyserStatsBox'
@@ -139,7 +138,6 @@ const MyStatsContainer = styled.div`
 `
 
 const Header = styled.h3`
-  ${ResponsiveText}
   ${tw`uppercase flex text-radicalRed font-medium sm:pl-3`}
 `
 

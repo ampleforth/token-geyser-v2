@@ -2,7 +2,6 @@ import React from 'react'
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
 import { animated } from 'react-spring'
-import { ResponsiveSubText, ResponsiveText } from 'styling/styles'
 
 interface Stat {
   value: number
@@ -41,7 +40,6 @@ const GeyserStatsBoxContainer = styled.div`
 `
 
 const GeyserStatsBoxLabel = styled.span`
-  ${ResponsiveText}
   ${tw`mb-1 flex font-light`}
 `
 
@@ -49,10 +47,6 @@ const GeyserStatsBoxValueContainer = styled.div`
   ${tw`flex flex-row`}
 `
 
-const GeyserStatsBoxValue = styled.span`
-  ${ResponsiveText}
-`
+const GeyserStatsBoxValue = styled.span``
 
-const GeyserStatsBoxUnits = styled.span`
-  ${ResponsiveSubText}
-`
+const GeyserStatsBoxUnits = styled.span``

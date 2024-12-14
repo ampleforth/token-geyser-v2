@@ -4,6 +4,7 @@
 
 body {
   min-width: 620px;
+  min-height: 1100px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #fff;

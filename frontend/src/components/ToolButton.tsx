@@ -1,6 +1,5 @@
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
-import { ResponsiveSubText } from 'styling/styles'
 
 interface Props {
   displayText: string
@@ -15,7 +14,6 @@ export const ToolButton: React.FC<Props> = ({ classNames, displayText, onClick, 
 )
 
 const Button = styled.button`
-  ${ResponsiveSubText}
   ${tw`p-0 inline-flex uppercase text-link`}
   ${tw`hover:underline`}
 `

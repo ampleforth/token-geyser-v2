@@ -31,7 +31,7 @@ export const StatsContext = createContext<{
   computeRewardsFromAdditionalStakes: (stakeAmount: BigNumberish) => Promise<number>
   computeRewardsShareFromAdditionalStakes: (stakeAmount: BigNumberish) => Promise<number>
   computeLossFromUnstake1Month: (unstakeAmount: BigNumberish) => Promise<number>
-  refreshVaultStats: () => void
+  refreshStats: () => void
 }>({
   userStats: defaultUserStats(),
   geyserStats: defaultGeyserStats(),
@@ -42,7 +42,7 @@ export const StatsContext = createContext<{
   computeRewardsFromAdditionalStakes: async () => 0,
   computeRewardsShareFromAdditionalStakes: async () => 0,
   computeLossFromUnstake1Month: async () => 0,
-  refreshVaultStats: () => {},
+  refreshStats: () => {},
 })
 
 export const StatsContextProvider: React.FC = ({ children }) => {
@@ -138,9 +138,28 @@ export const StatsContextProvider: React.FC = ({ children }) => {
     return 0
   }
 
-  const refreshVaultStats = async () => {
-    const { geyser: selectedGeyser, stakingTokenInfo, rewardTokenInfo } = selectedGeyserInfo
+  const refreshStats = async () => {
+    const { geyser: selectedGeyser, stakingTokenInfo, rewardTokenInfo, bonusTokensInfo } = selectedGeyserInfo
     if (selectedGeyser && stakingTokenInfo.address && rewardTokenInfo.address) {
+      setGeyserStats(await getGeyserStats(selectedGeyser, stakingTokenInfo, rewardTokenInfo, bonusTokensInfo))
+
+      let activeLock = null
+      if (selectedVault) {
+        const lockId = `${selectedVault.id}-${selectedGeyser.id}-${stakingTokenInfo.address.toLowerCase()}`
+        activeLock = selectedVault.locks.find((lock) => lock.id === lockId) || null
+      }
+
+      setUserStats(
+        await getUserStats(
+          selectedGeyser,
+          selectedVault,
+          activeLock,
+          stakingTokenInfo,
+          rewardTokenInfo,
+          bonusTokensInfo,
+          signer || provider,
+        ),
+      )
       setVaultStats(
         await getVaultStats(
           selectedGeyser,
@@ -148,7 +167,7 @@ export const StatsContextProvider: React.FC = ({ children }) => {
           rewardTokenInfo,
           allTokensInfos,
           selectedVault,
-          currentLock,
+          activeLock,
           signer || provider,
         ),
       )
@@ -159,40 +178,10 @@ export const StatsContextProvider: React.FC = ({ children }) => {
     let mounted = true
     ;(async () => {
       try {
-        const { geyser: selectedGeyser, stakingTokenInfo, rewardTokenInfo, bonusTokensInfo } = selectedGeyserInfo
+        const { geyser: selectedGeyser, stakingTokenInfo, rewardTokenInfo } = selectedGeyserInfo
         if (selectedGeyser && stakingTokenInfo.address && rewardTokenInfo.address) {
-          const newGeyserStats = await getGeyserStats(
-            selectedGeyser,
-            stakingTokenInfo,
-            rewardTokenInfo,
-            bonusTokensInfo,
-          )
           if (mounted) {
-            setGeyserStats(newGeyserStats)
-          }
-          const newUserStats = await getUserStats(
-            selectedGeyser,
-            selectedVault,
-            currentLock,
-            stakingTokenInfo,
-            rewardTokenInfo,
-            bonusTokensInfo,
-            signer || provider,
-          )
-          if (mounted) {
-            setUserStats(newUserStats)
-          }
-          const newVaultStats = await getVaultStats(
-            selectedGeyser,
-            stakingTokenInfo,
-            rewardTokenInfo,
-            allTokensInfos,
-            selectedVault,
-            currentLock,
-            signer || provider,
-          )
-          if (mounted) {
-            setVaultStats(newVaultStats)
+            await refreshStats()
           }
         }
       } catch (e) {
@@ -217,7 +206,7 @@ export const StatsContextProvider: React.FC = ({ children }) => {
         computeRewardsFromAdditionalStakes,
         computeRewardsShareFromAdditionalStakes,
         computeLossFromUnstake1Month,
-        refreshVaultStats,
+        refreshStats,
       }}
     >
       {children}

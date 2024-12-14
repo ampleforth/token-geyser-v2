@@ -15,7 +15,7 @@ import { formatTokenBalance } from '../../utils/amount'
 export const VaultBalanceView = () => {
   const {
     vaultStats: { id: vaultId, vaultTokenBalances },
-    refreshVaultStats,
+    refreshStats,
   } = useContext(StatsContext)
   const { withdrawFromVault } = useContext(VaultContext)
 
@@ -39,7 +39,7 @@ export const VaultBalanceView = () => {
 
   const onClose = async () => {
     setModalOpen(false)
-    await refreshVaultStats()
+    await refreshStats()
     await refreshWalletBalances()
   }
 

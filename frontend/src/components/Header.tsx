@@ -5,7 +5,6 @@ import { useContext } from 'react'
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
 import { Tab } from '@headlessui/react'
-import { ResponsiveHeader } from 'styling/styles'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { HeaderWalletButton } from './HeaderWalletButton'
 
@@ -106,7 +105,6 @@ const RightContainer = styled.div`
 `
 
 const HeaderTabItem = styled(Tab)<{ isSelected: boolean }>`
-  ${ResponsiveHeader}
   ${tw`font-normal tracking-wider px-4 py-2 text-center cursor-pointer`}
   ${({ isSelected }) => (isSelected ? tw`text-black font-bold` : tw`text-gray hover:text-black`)};
   ${({ isSelected }) => isSelected && `background-color: #f9f9f9;`}

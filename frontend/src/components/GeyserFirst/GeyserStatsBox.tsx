@@ -3,7 +3,6 @@ import styled from 'styled-components/macro'
 import tw from 'twin.macro'
 import { useSpring, animated } from 'react-spring'
 import { Popover, Transition } from '@headlessui/react'
-import { ResponsiveSubText, ResponsiveText } from 'styling/styles'
 import { TooltipMessage } from 'types'
 
 interface Props {
@@ -59,7 +58,6 @@ export const GeyserStatsBox: React.FC<Props> = ({
   }
 
   const handleMouseLeave = () => {
-    // Only close if not locked open by a click
     if (!clicked) {
       setIsTooltipOpen(false)
     }
@@ -89,7 +87,6 @@ export const GeyserStatsBox: React.FC<Props> = ({
     <GeyserStatsBoxContainer className={`relative ${containerClassName}`}>
       <GeyserStatsBoxLabel>{name}</GeyserStatsBoxLabel>
       <GeyserStatsBoxValueContainer>
-        {/* Wrap Popover in a DOM element to attach ref */}
         <div ref={popoverRef} className="relative inline-block">
           <Popover>
             <Popover.Button
@@ -117,7 +114,6 @@ export const GeyserStatsBox: React.FC<Props> = ({
                 <Popover.Panel
                   className="absolute z-30 w-max max-w-sm mt-3 -ml-3 transform"
                   onClick={(e) => e.stopPropagation()}
-                  // Keep popover open if cursor inside the panel
                   onMouseEnter={() => setIsTooltipOpen(true)}
                   onMouseLeave={() => {
                     if (!clicked) setIsTooltipOpen(false)
@@ -142,13 +138,12 @@ export const GeyserStatsBox: React.FC<Props> = ({
 }
 
 const GeyserStatsBoxContainer = styled.div`
-  ${tw`w-full h-40px`}
-  ${tw`sm:mr-5 sm:p-3 sm:h-72px`}
+  ${tw`w-full h-40px mb-3`}
+  ${tw`sm:mr-5 sm:p-3 sm:h-72px sm:mb-0`}
   ${tw`sm:bg-paleBlue sm:border sm:border-lightGray sm:rounded-sm`}
 `
 
 const GeyserStatsBoxLabel = styled.span`
-  ${ResponsiveText}
   ${tw`mb-1 flex font-light relative`}
 `
 
@@ -156,21 +151,16 @@ const GeyserStatsBoxValueContainer = styled.div`
   ${tw`flex flex-row`}
 `
 
-const GeyserStatsBoxValue = styled.span`
-  ${ResponsiveText}
-`
+const GeyserStatsBoxValue = styled.span``
 
 const GeyserStatsBoxValueWithTooltip = styled.span`
-  ${ResponsiveText}
-  ${tw`cursor-pointer border-b border-dotted border-darkGray transition-all ease-out duration-100`} 
+  ${tw`cursor-pointer border-b border-dotted border-darkGray transition-all ease-out duration-100`}
   &:hover {
     ${tw`border-b-2 border-greenDark border-dashed`}
   }
 `
 
-const GeyserStatsBoxUnits = styled.span`
-  ${ResponsiveSubText}
-`
+const GeyserStatsBoxUnits = styled.span``
 
 const TooltipOuterLayer = styled.div`
   ${tw`shadow-all max-w-sm rounded-lg overflow-hidden ring-1 ring-black ring-opacity-5`}
@@ -185,11 +175,9 @@ const TooltipMessageContainer = styled.div`
 `
 
 const TooltipTitle = styled.p`
-  ${ResponsiveText}
-  ${tw`text-gray mb-2`}
+  ${tw`text-gray text-lg mb-2`}
 `
 
 const TooltipBody = styled.div`
-  ${ResponsiveSubText}
-  ${tw`text-white text-left font-semiBold`}
+  ${tw`text-white text-left font-semiBold sm:leading-5 text-sm`}
 `

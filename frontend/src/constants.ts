@@ -15,7 +15,7 @@ export const MONTH_IN_MS = MONTH_IN_SEC * MS_PER_SEC
 export const YEAR_IN_MS = YEAR_IN_SEC * MS_PER_SEC
 
 // polling interval for querying subgraph
-export const POLL_INTERVAL = 30 * MS_PER_SEC
+export const POLL_INTERVAL = 60 * MS_PER_SEC
 
 // pseudo permanent cache time
 export const CONST_CACHE_TIME_MS = YEAR_IN_MS
@@ -95,7 +95,7 @@ export const AMPL_LAUNCH_DATE = 1561687200
 export const INITIAL_SUPPLY = 50000000
 
 export const GET_APY_STAKE_MSG = () =>
-  'The aggregate staking APY is estimated by combining geyser emissions and fees from liquidity provisioning. It does not capture the gains or losses from holding liquidity tokens.'
+  'The aggregate staking APY is estimated by combining geyser emissions and fees from liquidity provisioning. The geyser emission rate assumes that you have reached the max multiplier. The aggregated figure does not capture the gains or losses from holding liquidity tokens.'
 
 export const GET_REWARD_MULTIPLIER_MSG = ({ days = '30', multiplier = '3.0' }) =>
   `Stake at-least ${days} days to achieve a ${multiplier}x reward multiplier.`
@@ -119,7 +119,8 @@ export enum Align {
 }
 
 // Alchemy
-export const ALCHEMY_PROJECT_ID = process.env.REACT_APP_ALCHEMY_PROJECT_ID || 'ZHxuumw69-t77RswGL845CVVHQYja1bG'
+export const ALCHEMY_PROJECT_ID =
+  process.env.NODE_ENV === 'development' ? process.env.REACT_APP_ALCHEMY_PROJECT_ID : 'ZHxuumw69-t77RswGL845CVVHQYja1bG'
 
 // Infura
 export const INFURA_PROJECT_ID = 'dee1a87a734042fcabc2fd116a7b776d'

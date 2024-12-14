@@ -1,6 +1,5 @@
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
-import { ResponsiveText } from 'styling/styles'
 import { useContext } from 'react'
 import { GeyserContext } from 'context/GeyserContext'
 import { VaultContext } from 'context/VaultContext'
@@ -72,6 +71,5 @@ const Heading = styled.div`
 `
 
 const Label = styled.span`
-  ${ResponsiveText}
   ${tw`tracking-wider`}
 `

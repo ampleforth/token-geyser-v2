@@ -4,7 +4,6 @@ import styled from 'styled-components/macro'
 import tw from 'twin.macro'
 import { InformationCircleIcon } from '@heroicons/react/outline'
 import { TooltipMessage } from 'types'
-import { ResponsiveSubText, ResponsiveText } from 'styling/styles'
 
 interface Props {
   messages: TooltipMessage[]
@@ -75,11 +74,9 @@ const Message = styled.div`
 `
 
 const Title = styled.p`
-  ${ResponsiveText}
-  ${tw`text-gray mb-2`}
+  ${tw`text-gray mb-2 text-lg`}
 `
 
 const Body = styled.p`
-  ${ResponsiveSubText}
-  ${tw`text-white text-left font-semiBold`}
+  ${tw`text-white text-left font-semiBold sm:leading-5 text-sm`}
 `

@@ -21,9 +21,10 @@ module.exports = {
         '2xl': ['1.5rem', '2rem'],
         '3xl': ['1.8rem', '2.2rem'],
         '4xl': ['2rem', '2.5rem'],
-        sm: ['12px', '16px'],
+        sm: ['14px', '16px'],
         md: ['16px', '20px'],
-        xs: ['9px', '11px'],
+        xs: ['12px', '14px'],
+        xxs: ['10px', '12px'],
       },
       fontWeight: {
         regular: 300,

@@ -17,7 +17,7 @@ const networkConfig: NetworkConfig = {
     ref: 'mainnet',
     name: 'Ethereum',
     rpcUrl: `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_PROJECT_ID}`,
-    graphUrl: `https://web-api.ampleforth.org/graph-cache/ampleforth-token-geyser`,
+    graphUrl: `https://web-api.ampleforth.org/graph/ampleforth-token-geyser`,
     explorerUrl: 'https://etherscan.io/tx',
     nativeCurrency: {
       name: 'Ethereum',

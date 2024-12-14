@@ -1,13 +1,7 @@
 import { BigNumber, BigNumberish } from 'ethers'
 import { toChecksumAddress } from 'web3-utils'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
-import {
-  getGeyserVaultData,
-  getBalanceLocked,
-  getCurrentUnlockedRewards,
-  getCurrentVaultReward,
-  getFutureUnlockedRewards,
-} from '../sdk/stats'
+import { getGeyserVaultData, getBalanceLocked, getCurrentVaultReward, getFutureUnlockedRewards } from '../sdk/stats'
 import {
   Geyser,
   GeyserStats,
@@ -127,16 +121,14 @@ const getLockStakeUnits = (lock: Lock, timestamp: number) => {
 }
 
 /**
- * Returns the amount of reward token that will be unlocked between now and `end`
+ * Returns the amount of reward token that will be unlocked at the `end`
  */
 const getPoolDrip = async (geyser: Geyser, end: number, signerOrProvider: SignerOrProvider) => {
   const endTimeSec = end - (end % 86400) + 86400
   const geyserAddress = toChecksumAddress(geyser.id)
   const d = await ls.computeAndCache<GeyserStats>(
     async function () {
-      return (await getFutureUnlockedRewards(geyserAddress, endTimeSec, signerOrProvider))
-        .sub(await getCurrentUnlockedRewards(geyserAddress, signerOrProvider))
-        .toString()
+      return (await getFutureUnlockedRewards(geyserAddress, endTimeSec, signerOrProvider)).toString()
     },
     `${geyser.id}|${endTimeSec}|poolDrip`,
     statsCacheTimeMs,
@@ -156,6 +148,10 @@ export const getUserDrip = async (
   duration: number,
   signerOrProvider: SignerOrProvider,
 ) => {
+  const vaultAddress = toChecksumAddress(lock.id.split('-')[0])
+  const geyserAddress = toChecksumAddress(geyser.id)
+  const currentUserDrip = await getCurrentVaultReward(vaultAddress, geyserAddress, signerOrProvider)
+
   const now = nowInSeconds()
   const afterDuration = now + duration
   const poolDrip = await getPoolDrip(geyser, afterDuration, signerOrProvider)
@@ -163,7 +159,8 @@ export const getUserDrip = async (
   const totalStakeUnitsAfterDuration = getTotalStakeUnits(geyser, afterDuration).add(stakeUnitsFromAdditionalStake)
   const lockStakeUnitsAfterDuration = getLockStakeUnits(lock, afterDuration).add(stakeUnitsFromAdditionalStake)
   if (totalStakeUnitsAfterDuration.isZero()) return 0
-  const userDrip = poolDrip.mul(lockStakeUnitsAfterDuration).div(totalStakeUnitsAfterDuration)
+  const futureUserDrip = poolDrip.mul(lockStakeUnitsAfterDuration).div(totalStakeUnitsAfterDuration)
+  const userDrip = futureUserDrip.sub(currentUserDrip)
   return parseInt(userDrip.toString(), 10)
 }
 
@@ -191,7 +188,9 @@ export const getStakeDrip = async (
   return parseInt(stakeDrip.toString(), 10)
 }
 
-const calculateAPY = (inflow: number, outflow: number, periods: number) => (1 + outflow / inflow) ** periods - 1
+// NOTE: moving to straight APR instead of APY, because rewards don't compound.
+// const calculateAPY = (inflow: number, outflow: number, periods: number) => (1 + outflow / inflow) ** periods - 1
+const calculateAPY = (inflow: number, outflow: number, periods: number) => (outflow / inflow) * periods
 
 /**
  * APY = (1 + (outflow / inflow)) ** periods - 1

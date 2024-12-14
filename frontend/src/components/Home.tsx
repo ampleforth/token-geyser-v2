@@ -159,7 +159,7 @@ const ProgramName = styled.div`
 `
 
 const InfoText = styled.div`
-  ${tw`font-mono text-yellow-600 text-xs uppercase font-bold`}
+  ${tw`font-mono text-yellow-600 text-xxs uppercase font-bold`}
 `
 
 const LoaderContainer = styled.div`

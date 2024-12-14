@@ -1,6 +1,6 @@
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
-import { useContext, useEffect, useState, useRef } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { StatsContext } from 'context/StatsContext'
 import { safeNumeral } from 'utils/numeral'
 import BigNumber from 'bignumber.js'
@@ -33,42 +33,19 @@ export const EstimatedRewards: React.FC<Props> = ({ parsedUserInput }) => {
     vaultStats: { currentStake },
   } = useContext(StatsContext)
 
-  const cacheRef = useRef<{
-    [key: string]: { rewards: number; deposits: number }
-  }>({})
-
   useEffect(() => {
-    const inputKey = parsedUserInput.toString()
     setIsCalculating(true)
-
     const debounceTimer = setTimeout(async () => {
-      if (cacheRef.current[inputKey]) {
-        // Use cached results
-        const { rewards: cachedRewards, deposits: cachedDeposits } = cacheRef.current[inputKey]
-        setRewards(cachedRewards)
-        setDeposits(cachedDeposits)
-        setIsCalculating(false)
-      } else {
-        // Compute and store results
-        const aggregateDepositUSD = new BigNumber(parsedUserInput.toString())
-          .div(10 ** stakingTokenDecimals)
-          .plus(currentStake)
-          .times(stakingTokenPrice)
-
-        const isZero = aggregateDepositUSD.eq('0')
-
-        const newRewards = isZero ? 0.0 : await computeRewardsFromAdditionalStakes(parsedUserInput)
-        const newDeposits = isZero ? 0.0 : aggregateDepositUSD.toNumber()
-
-        cacheRef.current[inputKey] = {
-          rewards: newRewards,
-          deposits: newDeposits,
-        }
-
-        setRewards(newRewards)
-        setDeposits(newDeposits)
-        setIsCalculating(false)
-      }
+      const aggregateDepositUSD = new BigNumber(parsedUserInput.toString())
+        .div(10 ** stakingTokenDecimals)
+        .plus(currentStake)
+        .times(stakingTokenPrice)
+      const isZero = aggregateDepositUSD.eq('0')
+      const newRewards = isZero ? 0.0 : await computeRewardsFromAdditionalStakes(parsedUserInput)
+      const newDeposits = isZero ? 0.0 : aggregateDepositUSD.toNumber()
+      setRewards(newRewards)
+      setDeposits(newDeposits)
+      setIsCalculating(false)
     }, 500)
 
     return () => {

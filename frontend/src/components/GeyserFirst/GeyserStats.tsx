@@ -4,7 +4,6 @@ import { useContext } from 'react'
 import { StatsContext } from 'context/StatsContext'
 import { GeyserContext } from 'context/GeyserContext'
 import { safeNumeral } from 'utils/numeral'
-import { ResponsiveText } from 'styling/styles'
 import TooltipTable from 'components/TooltipTable'
 import { GeyserStatsBox } from './GeyserStatsBox'
 import { DAY_IN_SEC, TOTAL_REWARDS_MSG } from '../../constants'
@@ -77,7 +76,6 @@ const GeyserStatsContainer = styled.div`
 `
 
 const Header = styled.h3`
-  ${ResponsiveText}
   ${tw`uppercase flex font-medium text-radicalRed`}
   ${tw`sm:pl-3`}
 `

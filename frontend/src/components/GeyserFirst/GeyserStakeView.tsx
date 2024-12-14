@@ -49,7 +49,7 @@ export const GeyserStakeView = () => {
     useContext(VaultContext)
   const { stakingTokenBalance, underlyingTokenBalance, refreshWalletBalances } = useContext(WalletContext)
   const {
-    refreshVaultStats,
+    refreshStats,
     vaultStats: { currentStakeable },
   } = useContext(StatsContext)
   const { connectWallet, address } = useContext(Web3Context)
@@ -70,15 +70,17 @@ export const GeyserStakeView = () => {
   useEffect(() => {
     refreshInputAmount()
     if (geyserAction === GeyserAction.STAKE && stakingTokenInfo.price > 0) {
-      if (stakableAmount.eq(0)) {
-        const initialStakeAmountUSD = 1000
-        const stakeAmt = Math.max(initialStakeAmountUSD / stakingTokenInfo.price, 0.000001)
-        const stakeAmtFP = parseUnits(stakeAmt.toFixed(stakingTokenInfo.decimals), stakingTokenInfo.decimals)
-        setUserInput(stakeAmt)
-        setParsedUserInput(BigNumber.from(stakeAmtFP))
-      } else {
-        setUserInput(formatUnits(stakableAmount, stakingTokenDecimals))
-        setParsedUserInput(stakableAmount)
+      if (currentStakeAmount.eq(0)) {
+        if (stakableAmount.gt(0)) {
+          setUserInput(formatUnits(stakableAmount, stakingTokenDecimals))
+          setParsedUserInput(stakableAmount)
+        } else {
+          const initialStakeAmountUSD = 1000
+          const stakeAmt = Math.max(initialStakeAmountUSD / stakingTokenInfo.price, 0.000001)
+          const stakeAmtFP = parseUnits(stakeAmt.toFixed(stakingTokenInfo.decimals), stakingTokenInfo.decimals)
+          setUserInput(stakeAmt)
+          setParsedUserInput(BigNumber.from(stakeAmtFP))
+        }
       }
     }
   }, [geyserAction, stakingTokenBalance, currentStakeable])
@@ -111,7 +113,7 @@ export const GeyserStakeView = () => {
   const onCloseTxModal = async () => {
     setTxModalOpen(false)
     refreshInputAmount()
-    await refreshVaultStats()
+    await refreshStats()
     await refreshWalletBalances()
   }
 

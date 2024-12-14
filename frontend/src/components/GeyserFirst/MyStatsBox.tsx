@@ -2,7 +2,6 @@ import styled from 'styled-components/macro'
 import tw from 'twin.macro'
 import { useSpring, animated } from 'react-spring'
 import { useState } from 'react'
-import { ResponsiveSubText, ResponsiveText } from 'styling/styles'
 
 interface Props {
   name: string
@@ -53,7 +52,6 @@ const MyStatContainer = styled.div`
 `
 
 const MyStatName = styled.span`
-  ${ResponsiveText}
   ${tw`mb-1 flex font-light`}
   ${tw`sm:mb-2 sm:mr-8 sm:block sm:ml-3`}
 `
@@ -65,9 +63,6 @@ const MyStatValueContainer = styled.div`
 
 const MyStatValue = styled.span`
   ${tw`w-full text-left sm:text-center sm:font-bold`}
-  ${ResponsiveSubText}
 `
 
-const MyStatUnits = styled.span`
-  ${ResponsiveSubText}
-`
+const MyStatUnits = styled.span``

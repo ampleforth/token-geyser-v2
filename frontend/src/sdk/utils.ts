@@ -66,10 +66,18 @@ export const signPermission = async (
     amount: amount,
     nonce: vaultNonce,
   }
-  // sign permission
-  // todo: add fallback if wallet does not support eip 712 rpc
-  const signedPermission = await owner._signTypedData(domain, types, value)
-  // return
+
+  // Try to sign with EIP-712
+  let signedPermission
+  try {
+    signedPermission = await owner._signTypedData(domain, types, value)
+  } catch (error) {
+    console.log('EIP-712 signing failed, falling back to eth_sign:', error)
+
+    // Fallback to eth_sign
+    const messageHash = ethers.utils._TypedDataEncoder.hash(domain, types, value)
+    signedPermission = await owner.provider.send('eth_sign', [owner.address, messageHash])
+  }
 
   const replaceV: any = []
   replaceV['00'] = '1b'
@@ -114,9 +122,23 @@ export const signPermitEIP2612 = async (
     nonce: nonce,
     deadline: deadline,
   }
-  // sign permission
-  // todo: add fallback if wallet does not support eip 712 rpc
-  const signedPermission = await owner._signTypedData(domainSeparator, types, values)
+
+  // Try to sign with EIP-712
+  let signedPermission
+  try {
+    signedPermission = await owner._signTypedData(domainSeparator, types, values)
+  } catch (error) {
+    console.log('EIP-712 signing failed, falling back to eth_sign:', error)
+
+    // Fallback to eth_sign
+    const messageHash = ethers.utils._TypedDataEncoder.hash(
+      { chainId: await token.provider.getNetwork().chainId, ...domainSeparator },
+      types,
+      values,
+    )
+    signedPermission = await owner.provider.send('eth_sign', [owner.address, messageHash])
+  }
+
   // split signature
   const sig = splitSignature(signedPermission)
   // return

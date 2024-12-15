@@ -67,23 +67,29 @@ export const GeyserStakeView = () => {
     setParsedUserInput(BigNumber.from('0'))
   }
 
+  const setDefaultInputAmount = () => {
+    if (stakingTokenInfo.price > 0) {
+      const initialStakeAmountUSD = 1000
+      const stakeAmt = Math.max(initialStakeAmountUSD / stakingTokenInfo.price, 0.000001)
+      const stakeAmtFP = parseUnits(stakeAmt.toFixed(stakingTokenInfo.decimals), stakingTokenInfo.decimals)
+      setUserInput(stakeAmt)
+      setParsedUserInput(BigNumber.from(stakeAmtFP))
+    }
+  }
+
   useEffect(() => {
     refreshInputAmount()
-    if (geyserAction === GeyserAction.STAKE && stakingTokenInfo.price > 0) {
-      if (currentStakeAmount.eq(0)) {
-        if (stakableAmount.gt(0)) {
-          setUserInput(formatUnits(stakableAmount, stakingTokenDecimals))
-          setParsedUserInput(stakableAmount)
-        } else {
-          const initialStakeAmountUSD = 1000
-          const stakeAmt = Math.max(initialStakeAmountUSD / stakingTokenInfo.price, 0.000001)
-          const stakeAmtFP = parseUnits(stakeAmt.toFixed(stakingTokenInfo.decimals), stakingTokenInfo.decimals)
-          setUserInput(stakeAmt)
-          setParsedUserInput(BigNumber.from(stakeAmtFP))
-        }
+    if (geyserAction === GeyserAction.STAKE) {
+      if (!address) {
+        setDefaultInputAmount()
+      } else if (currentStakeAmount.eq(0) && stakableAmount.eq(0)) {
+        setDefaultInputAmount()
+      } else if (currentStakeAmount.eq(0) && stakableAmount.gt(0)) {
+        setUserInput(formatUnits(stakableAmount, stakingTokenDecimals))
+        setParsedUserInput(stakableAmount)
       }
     }
-  }, [geyserAction, stakingTokenBalance, currentStakeable])
+  }, [address, geyserAction, stakingTokenBalance, currentStakeable])
 
   const handleGeyserInteraction = () => {
     if (geyserAction === GeyserAction.STAKE) {

@@ -33,15 +33,25 @@ export const UnstakeSummary: React.FC<Props> = ({ userInput, parsedUserInput }) 
   const rewardUSD = rewardAmount * rewardTokenPrice + bonusRewards.reduce((m, b) => m + rewardsShare * b.value, 0)
 
   useEffect(() => {
+    let isMounted = true
     ;(async () => {
       try {
-        setRewardAmount(await computeRewardsFromUnstake(parsedUserInput))
-        setRewardsShare(await computeRewardsShareFromUnstake(parsedUserInput))
+        const computedRewardAmount = await computeRewardsFromUnstake(parsedUserInput)
+        const computedRewardsShare = await computeRewardsShareFromUnstake(parsedUserInput)
+        if (isMounted) {
+          setRewardAmount(computedRewardAmount)
+          setRewardsShare(computedRewardsShare)
+        }
       } catch (e) {
-        console.log('Error: user input higher than user stake')
+        if (isMounted) {
+          console.log('Error: user input higher than user stake')
+        }
       }
     })()
-  }, [parsedUserInput])
+    return () => {
+      isMounted = false
+    }
+  }, [parsedUserInput, computeRewardsFromUnstake, computeRewardsShareFromUnstake])
 
   return (
     <Container>

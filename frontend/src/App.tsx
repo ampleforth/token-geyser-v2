@@ -15,10 +15,10 @@ import { GeyserFirstContainer } from 'components/GeyserFirst/GeyserFirstContaine
 function App() {
   return (
     <Web3Provider>
-      <WalletContextProvider>
-        <SubgraphProvider>
-          <GeyserContextProvider>
-            <VaultContextProvider>
+      <SubgraphProvider>
+        <GeyserContextProvider>
+          <VaultContextProvider>
+            <WalletContextProvider>
               <StatsContextProvider>
                 <Router>
                   <Header />
@@ -46,10 +46,10 @@ function App() {
                   </Routes>
                 </Router>
               </StatsContextProvider>
-            </VaultContextProvider>
-          </GeyserContextProvider>
-        </SubgraphProvider>
-      </WalletContextProvider>
+            </WalletContextProvider>
+          </VaultContextProvider>
+        </GeyserContextProvider>
+      </SubgraphProvider>
     </Web3Provider>
   )
 }

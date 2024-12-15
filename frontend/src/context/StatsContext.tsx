@@ -50,7 +50,7 @@ export const StatsContextProvider: React.FC = ({ children }) => {
   const [geyserStats, setGeyserStats] = useState<GeyserStats>(defaultGeyserStats())
   const [vaultStats, setVaultStats] = useState<VaultStats>(defaultVaultStats())
 
-  const { signer, provider } = useContext(Web3Context)
+  const { signer, provider, validNetwork } = useContext(Web3Context)
   const { selectedGeyserInfo, allTokensInfos } = useContext(GeyserContext)
   const { selectedVault, currentLock } = useContext(VaultContext)
 
@@ -179,7 +179,7 @@ export const StatsContextProvider: React.FC = ({ children }) => {
     ;(async () => {
       try {
         const { geyser: selectedGeyser, stakingTokenInfo, rewardTokenInfo } = selectedGeyserInfo
-        if (selectedGeyser && stakingTokenInfo.address && rewardTokenInfo.address) {
+        if (validNetwork && selectedGeyser && stakingTokenInfo.address && rewardTokenInfo.address) {
           if (mounted) {
             await refreshStats()
           }

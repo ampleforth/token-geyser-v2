@@ -99,7 +99,7 @@ export const Home = () => {
                 </TableCell>
                 <DataCell>{g.tvl > 0 ? `${safeNumeral(g.tvl, '$0,0')}` : 'N/A'}</DataCell>
                 <DataCell>{g.rewards > 0 ? `${safeNumeral(g.rewards, '$0,0')}` : 'N/A'}</DataCell>
-                <ApyCell>{g.apy > 0 ? `>${safeNumeral(g.apy, '0.00%')}` : 'N/A'}</ApyCell>
+                <ApyCell>{g.apy > 0 ? `~${safeNumeral(g.apy, '0.00%')}` : 'N/A'}</ApyCell>
               </BodyRow>
             ))}
           </tbody>

@@ -34,26 +34,39 @@ export const EstimatedRewards: React.FC<Props> = ({ parsedUserInput }) => {
   } = useContext(StatsContext)
 
   useEffect(() => {
+    let isMounted = true
     setIsCalculating(true)
     const debounceTimer = setTimeout(async () => {
-      const aggregateDepositUSD = new BigNumber(parsedUserInput.toString())
-        .div(10 ** stakingTokenDecimals)
-        .plus(currentStake)
-        .times(stakingTokenPrice)
-      const isZero = aggregateDepositUSD.eq('0')
-      const newRewards = isZero ? 0.0 : await computeRewardsFromAdditionalStakes(parsedUserInput)
-      const newDeposits = isZero ? 0.0 : aggregateDepositUSD.toNumber()
-      setRewards(newRewards)
-      setDeposits(newDeposits)
-      setIsCalculating(false)
+      try {
+        const aggregateDepositUSD = new BigNumber(parsedUserInput.toString())
+          .div(10 ** stakingTokenDecimals)
+          .plus(currentStake)
+          .times(stakingTokenPrice)
+        const isZero = aggregateDepositUSD.eq('0')
+        const newRewards = isZero ? 0.0 : await computeRewardsFromAdditionalStakes(parsedUserInput)
+        const newDeposits = isZero ? 0.0 : aggregateDepositUSD.toNumber()
+
+        if (isMounted) {
+          setRewards(newRewards)
+          setDeposits(newDeposits)
+          setIsCalculating(false)
+        }
+      } catch (error) {
+        if (isMounted) {
+          setIsCalculating(false)
+        }
+        console.error('Error calculating rewards:', error)
+      }
     }, 500)
 
     return () => {
+      isMounted = false
       clearTimeout(debounceTimer)
     }
   }, [parsedUserInput, computeRewardsFromAdditionalStakes, currentStake, stakingTokenPrice, stakingTokenDecimals])
 
   const geyserRewardsUSD = rewards * rewardTokenPrice
+
   return (
     <EstimatedRewardsContainer>
       <ColoredDiv />

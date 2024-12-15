@@ -53,6 +53,7 @@ export const GeyserStakeView = () => {
     vaultStats: { currentStakeable },
   } = useContext(StatsContext)
   const { connectWallet, ready } = useContext(Web3Context)
+
   const currentStakeAmount = BigNumber.from(ready && currentLock ? currentLock.amount : '0')
   const [unstakeConfirmModalOpen, setUnstakeConfirmModalOpen] = useState<boolean>(false)
   const [actualRewardsFromUnstake, setActualRewardsFromUnstake] = useState<BigNumber>(BigNumber.from('0'))

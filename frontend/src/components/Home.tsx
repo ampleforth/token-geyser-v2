@@ -163,7 +163,7 @@ const InfoText = styled.div`
 `
 
 const LoaderContainer = styled.div`
-  ${tw`flex items-center justify-center w-full m-5`}
+  ${tw`m-auto my-4 flex flex-col flex-wrap w-full items-center justify-center`}
 `
 
 export default Home

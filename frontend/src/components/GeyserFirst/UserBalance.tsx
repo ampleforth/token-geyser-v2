@@ -1,7 +1,8 @@
 import { BigNumber, BigNumberish } from 'ethers'
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
-import { formatAmount } from 'utils/amount'
+import { formatUnits } from 'ethers/lib/utils'
+import { formatTokenBalance } from 'utils/amount'
 
 interface Props {
   parsedAmount: BigNumber
@@ -22,7 +23,7 @@ export const UserBalance: React.FC<Props> = ({
 }) => {
   const formatDisplayAmount = (amt: BigNumberish, sym: string) => (
     <BalLink href={poolAddress} target="_blank" rel="noreferrer">
-      {formatAmount(amt, decimals)} {sym}
+      {formatTokenBalance(formatUnits(amt, decimals))} {sym}
     </BalLink>
   )
 

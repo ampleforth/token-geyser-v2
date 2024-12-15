@@ -29,7 +29,7 @@ export const WelcomeMessage = () => (
 )
 
 const Container = styled.div`
-  ${tw`w-full max-w-4xl mx-auto my-8 px-4`}
+  ${tw`w-full my-8 px-4`}
 `
 
 const Title = styled.h1`

@@ -54,7 +54,7 @@ const WelcomeHero = ({ tvl, totalRewards }) => {
 }
 
 const CalloutBox = styled.div`
-  ${tw`justify-around flex flex-col`}
+  ${tw`justify-around flex flex-col w-full`}
   ${tw`bg-black text-white p-8 rounded-lg text-md font-mono bg-opacity-90`}
   ${tw`mb-10`}
 `
@@ -97,7 +97,7 @@ const Hr = styled.hr`
   ${tw`border-t border-white w-full`}
 `
 const LoaderContainer = styled.div`
-  ${tw`flex items-center justify-center w-full m-5 mt-11 mb-10`}
+  ${tw`flex items-center justify-center w-full mt-11 mb-10`}
 `
 
 export default WelcomeHero

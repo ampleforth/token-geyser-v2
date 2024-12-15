@@ -79,12 +79,15 @@ export const VaultContextProvider: React.FC = ({ children }) => {
   useEffect(() => {
     if (address) {
       console.log('vault refresh')
+      setVaults([])
+      setSelectedVault(null)
+      setCurrentLock(null)
       getVaults({ variables: { id: address.toLowerCase() } })
     }
-  }, [networkId, address, getVaults])
+  }, [ready, networkId, address, getVaults])
 
   useEffect(() => {
-    if (ready && !!vaultData && !!vaultData.user) {
+    if (ready && vaultData?.user) {
       const userVaults = vaultData.user.vaults as Vault[]
       setVaults(userVaults)
       if (userVaults.length > 0 && !selectedVault) {
@@ -95,19 +98,17 @@ export const VaultContextProvider: React.FC = ({ children }) => {
         setSelectedVault(null)
       }
     }
-    if (!ready) {
-      setVaults([])
-      setSelectedVault(null)
-    }
   }, [vaultData, selectedVault])
 
   useEffect(() => {
-    if (selectedVault && selectedGeyser) {
+    if (address && selectedVault && selectedGeyser) {
       const { stakingToken } = selectedGeyser
       const lockId = `${selectedVault.id}-${selectedGeyser.id}-${stakingToken}`
       setCurrentLock(selectedVault.locks.find((lock) => lock.id === lockId) || null)
+    } else {
+      setCurrentLock(null)
     }
-  }, [selectedVault, selectedGeyser])
+  }, [address, selectedVault, selectedGeyser])
 
   return (
     <VaultContext.Provider

@@ -108,7 +108,7 @@ export const VaultBalanceView = () => {
 
   return (
     <Container>
-      <Table columns={columns} dataSource={dataSource} />
+      <Table columns={columns} dataSource={dataSource} loading={dataSource.length === 0} />
       <SingleTxModal
         open={modalOpen}
         submit={submit}
@@ -116,7 +116,7 @@ export const VaultBalanceView = () => {
           <span>
             Successfully withdrawn{' '}
             <b>
-              {tokenBalance?.unlockedBalance} {tokenBalance?.symbol}
+              {formatTokenBalance(tokenBalance?.unlockedBalance)} {tokenBalance?.symbol}
             </b>
             .
           </span>

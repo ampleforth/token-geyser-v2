@@ -59,14 +59,18 @@ export const UnstakeTxModal: React.FC<Props> = ({
     if (unstakeTxStateMachine.state !== TxState.MINED)
       return <SingleTxMessage txStateMachine={unstakeTxStateMachine} successMessage={unstakeSuccessMessage} />
     return (
-      <div className="flex flex-col space-y-2">
-        <div>
+      <div className="flex flex-col space-y-4">
+        <div className="border-b border-lightGray border-b-2">
           <SingleTxMessage txStateMachine={unstakeTxStateMachine} successMessage={unstakeSuccessMessage} />
         </div>
-        <div>{withdrawStakingTxMessage(withdrawStakeStateMachine)}</div>
-        <div>{withdrawRewardTxMessage(withdrawRewardStateMachine)}</div>
+        <div className="border-b border-lightGray border-b-2">
+          {withdrawStakingTxMessage(withdrawStakeStateMachine)}
+        </div>
+        <div className="border-b border-lightGray border-b-2">
+          {withdrawRewardTxMessage(withdrawRewardStateMachine)}
+        </div>
         <span className="text-gray text-xs">
-          <i>Unlocked tokens can be withdrawn from your vault view at anytime.</i>
+          <i>Unlocked tokens can be withdrawn from the vault view to your wallet at anytime.</i>
         </span>
       </div>
     )

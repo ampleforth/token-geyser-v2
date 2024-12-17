@@ -12,10 +12,9 @@ import { VaultBalanceView } from './VaultBalanceView'
 import { UNIVERSAL_VAULT_MSG } from '../../constants'
 
 export const VaultFirstContainer = () => {
-  const { ready, connectWallet, validNetwork, loading } = useContext(Web3Context)
-  const { vaults } = useContext(VaultContext)
+  const { ready, connectWallet, validNetwork } = useContext(Web3Context)
+  const { vaults, loading } = useContext(VaultContext)
   const navigate = useNavigate()
-
   if (loading) return <PageLoader />
 
   if (ready && validNetwork === false) {
@@ -45,7 +44,6 @@ export const VaultFirstContainer = () => {
             ]}
           />
         </Title>
-
         <VaultBalanceView />
       </Overlay>
     </Container>

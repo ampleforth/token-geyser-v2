@@ -24,7 +24,7 @@ export const SingleTxMessage: React.FC<Props> = ({ txStateMachine: { state, resp
           <>
             {successMessage}{' '}
             <span>
-              View on <EtherscanLink txHash={response?.hash} />
+              View on <EtherscanLink txHash={response?.hash} />.
             </span>
           </>
         )

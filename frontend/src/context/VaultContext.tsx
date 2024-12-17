@@ -42,6 +42,8 @@ export const VaultContextProvider: React.FC = ({ children }) => {
   const { address, signer, ready, networkId } = useContext(Web3Context)
   const {
     selectedGeyserInfo: { geyser: selectedGeyser },
+    loading: geyserLoading,
+    geysers,
   } = useContext(GeyserContext)
   const [getVaults, { loading: vaultLoading, data: vaultData }] = useLazyQuery(GET_USER_VAULTS, {
     pollInterval: POLL_INTERVAL,
@@ -54,12 +56,12 @@ export const VaultContextProvider: React.FC = ({ children }) => {
   const selectVault = (vault: Vault) => setSelectedVault(vault)
   const selectVaultById = (id: string) => setSelectedVault(vaults.find((vault) => vault.id === id) || selectedVault)
   const withdrawFromVault =
-    address && signer && selectedVault
+    ready && selectedVault
       ? (tokenAddress: string, amount: BigNumber) => withdraw(selectedVault.id, tokenAddress, address, amount, signer)
       : null
 
   const rewardAmountClaimedOnUnstake =
-    signer && selectedGeyser
+    ready && selectedGeyser
       ? async (receipt: TransactionReceipt) => {
           const rewardsClaimed = await getRewardsClaimedFromUnstake(receipt, selectedGeyser.id, signer)
           return rewardsClaimed ? rewardsClaimed.amount : BigNumber.from('0')
@@ -67,12 +69,12 @@ export const VaultContextProvider: React.FC = ({ children }) => {
       : null
 
   const withdrawRewardsFromVault =
-    address && signer && selectedGeyser
+    ready && selectedGeyser
       ? (receipt: TransactionReceipt) => withdrawRewards(selectedGeyser.id, address, receipt, signer)
       : null
 
   const withdrawUnlockedFromVault =
-    address && signer && selectedVault
+    ready && selectedVault
       ? (tokenAddress: string) => withdrawUnlocked(selectedVault.id, tokenAddress, address, signer)
       : null
 
@@ -87,7 +89,7 @@ export const VaultContextProvider: React.FC = ({ children }) => {
   }, [ready, networkId, address, getVaults])
 
   useEffect(() => {
-    if (ready && vaultData?.user) {
+    if (ready && vaultData?.user && geysers.length > 0) {
       const userVaults = vaultData.user.vaults as Vault[]
       setVaults(userVaults)
       if (userVaults.length > 0 && !selectedVault) {
@@ -98,17 +100,17 @@ export const VaultContextProvider: React.FC = ({ children }) => {
         setSelectedVault(null)
       }
     }
-  }, [vaultData, selectedVault])
+  }, [vaultData, selectedVault, geyserLoading])
 
   useEffect(() => {
-    if (address && selectedVault && selectedGeyser) {
+    if (address && selectedVault && geysers.length > 0 && selectedGeyser) {
       const { stakingToken } = selectedGeyser
       const lockId = `${selectedVault.id}-${selectedGeyser.id}-${stakingToken}`
       setCurrentLock(selectedVault.locks.find((lock) => lock.id === lockId) || null)
     } else {
       setCurrentLock(null)
     }
-  }, [address, selectedVault, selectedGeyser])
+  }, [address, selectedVault, selectedGeyser, geyserLoading])
 
   return (
     <VaultContext.Provider
@@ -122,7 +124,7 @@ export const VaultContextProvider: React.FC = ({ children }) => {
         withdrawRewardsFromVault,
         withdrawUnlockedFromVault,
         rewardAmountClaimedOnUnstake,
-        loading: vaultLoading || !ready,
+        loading: !ready || vaultLoading || geyserLoading,
       }}
     >
       {children}

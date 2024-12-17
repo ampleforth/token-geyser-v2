@@ -72,7 +72,7 @@ export const Home = () => {
     <Container>
       <WelcomeMessage />
       <WelcomeHero tvl={totalTVL} totalRewards={totalRewards} />
-      {geysersToShow.length > 0 ? (
+      {geysersToShow.length > 0 && totalTVL > 0 ? (
         <GeysersTable>
           <thead>
             <tr>

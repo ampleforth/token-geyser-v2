@@ -51,7 +51,7 @@ export const StatsContextProvider: React.FC = ({ children }) => {
   const [vaultStats, setVaultStats] = useState<VaultStats>(defaultVaultStats())
 
   const { signer, provider, validNetwork } = useContext(Web3Context)
-  const { selectedGeyserInfo, allTokensInfos } = useContext(GeyserContext)
+  const { geysers, selectedGeyserInfo, allTokensInfos } = useContext(GeyserContext)
   const { selectedVault, currentLock } = useContext(VaultContext)
 
   const computeRewardsFromUnstake = async (unstakeAmount: BigNumberish) => {
@@ -140,7 +140,7 @@ export const StatsContextProvider: React.FC = ({ children }) => {
 
   const refreshStats = async () => {
     const { geyser: selectedGeyser, stakingTokenInfo, rewardTokenInfo, bonusTokensInfo } = selectedGeyserInfo
-    if (selectedGeyser && stakingTokenInfo.address && rewardTokenInfo.address) {
+    if (validNetwork && selectedGeyser && stakingTokenInfo.address && rewardTokenInfo.address) {
       setGeyserStats(await getGeyserStats(selectedGeyser, stakingTokenInfo, rewardTokenInfo, bonusTokensInfo))
 
       let activeLock = null
@@ -160,6 +160,7 @@ export const StatsContextProvider: React.FC = ({ children }) => {
           signer || provider,
         ),
       )
+
       setVaultStats(
         await getVaultStats(
           selectedGeyser,
@@ -178,21 +179,18 @@ export const StatsContextProvider: React.FC = ({ children }) => {
     let mounted = true
     ;(async () => {
       try {
-        const { geyser: selectedGeyser, stakingTokenInfo, rewardTokenInfo } = selectedGeyserInfo
-        if (validNetwork && selectedGeyser && stakingTokenInfo.address && rewardTokenInfo.address) {
-          if (mounted) {
-            await refreshStats()
-          }
+        if (mounted) {
+          await refreshStats()
         }
       } catch (e) {
         console.log('stats query error')
-        console.error(e)
+        // console.error(e)
       }
     })()
     return () => {
       mounted = false
     }
-  }, [selectedGeyserInfo, selectedVault, currentLock])
+  }, [geysers, selectedGeyserInfo, selectedVault, currentLock])
 
   return (
     <StatsContext.Provider

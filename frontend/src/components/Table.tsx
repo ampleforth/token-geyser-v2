@@ -1,6 +1,7 @@
 import { ReactNode } from 'react'
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
+import { LoaderDark } from 'styling/styles'
 import { Align } from '../constants'
 
 export type Column = {
@@ -20,9 +21,10 @@ export type DataSource = {
 interface Props {
   columns: Column[]
   dataSource: DataSource[]
+  loading: bool
 }
 
-export const Table: React.FC<Props> = ({ columns, dataSource }) => {
+export const Table: React.FC<Props> = ({ columns, loading, dataSource }) => {
   const getRowFromSource = (source: DataSource) =>
     columns.map(({ dataIndex }) => (Object.getOwnPropertyDescriptor(source, dataIndex) ? source[dataIndex] : ''))
 
@@ -63,28 +65,36 @@ export const Table: React.FC<Props> = ({ columns, dataSource }) => {
       </TableHead>
 
       <TableBody>
-        {rows.length === 0 ? (
+        {loading ? (
           <EmptyRow>
             <RowCell colSpan={columns.length}>
-              <i>Not Avaiable</i>
+              <LoaderContainer>
+                <LoaderDark />
+              </LoaderContainer>
             </RowCell>
           </EmptyRow>
-        ) : null}
-        {rows.map((row, rowNumber) => (
-          <TableRow key={dataSource[rowNumber].key}>
-            {row.map((cell, colNumber) => (
-              <RowCell
-                key={`${dataSource[rowNumber].key}-${columns[colNumber].key}`}
-                className={`${getAlignmentClass(columns[colNumber].textAlign || Align.LEFT)} ${getPaddingClass(
-                  colNumber,
-                  columns.length,
-                )}`}
-              >
-                {cell}
-              </RowCell>
-            ))}
-          </TableRow>
-        ))}
+        ) : (
+          <></>
+        )}
+        {!loading ? (
+          rows.map((row, rowNumber) => (
+            <TableRow key={dataSource[rowNumber].key}>
+              {row.map((cell, colNumber) => (
+                <RowCell
+                  key={`${dataSource[rowNumber].key}-${columns[colNumber].key}`}
+                  className={`${getAlignmentClass(columns[colNumber].textAlign || Align.LEFT)} ${getPaddingClass(
+                    colNumber,
+                    columns.length,
+                  )}`}
+                >
+                  {cell}
+                </RowCell>
+              ))}
+            </TableRow>
+          ))
+        ) : (
+          <></>
+        )}
         <Spacer />
       </TableBody>
     </TableContent>
@@ -120,4 +130,8 @@ const RowCell = styled.td`
 const EmptyRow = styled.tr`
   ${tw`text-xs bg-gray text-white h-40px`}
   ${tw`sm:px-6 sm:text-base whitespace-nowrap`}
+`
+
+const LoaderContainer = styled.div`
+  ${tw`m-auto my-4 flex flex-col flex-wrap w-full items-center justify-center`}
 `

@@ -11,7 +11,7 @@ import { WalletContext } from 'context/WalletContext'
 import { StatsContext } from 'context/StatsContext'
 import Web3Context from 'context/Web3Context'
 import { TxStateMachine } from 'hooks/useTxStateMachine'
-import { amountOrZero } from 'utils/amount'
+import { amountOrZero, formatTokenBalance } from 'utils/amount'
 import { PositiveInput } from 'components/PositiveInput'
 import { SingleTxModal } from 'components/SingleTxModal'
 import { GeyserInteractionButton } from './GeyserInteractionButton'
@@ -43,8 +43,7 @@ export const GeyserStakeView = () => {
     geyserAction,
   } = useContext(GeyserContext)
   const { decimals: stakingTokenDecimals, symbol: stakingTokenSymbol, address: stakingTokenAddress } = stakingTokenInfo
-  const { decimals: rewardTokenDecimals, symbol: rewardTokenSymbol, address: rewardTokenAddress } = rewardTokenInfo
-  // const { signer } = useContext(Web3Context)
+  const { symbol: rewardTokenSymbol, address: rewardTokenAddress } = rewardTokenInfo
   const { selectedVault, currentLock, withdrawUnlockedFromVault, rewardAmountClaimedOnUnstake } =
     useContext(VaultContext)
   const { stakingTokenBalance, underlyingTokenBalance, refreshWalletBalances } = useContext(WalletContext)
@@ -56,7 +55,6 @@ export const GeyserStakeView = () => {
 
   const currentStakeAmount = BigNumber.from(ready && currentLock ? currentLock.amount : '0')
   const [unstakeConfirmModalOpen, setUnstakeConfirmModalOpen] = useState<boolean>(false)
-  const [actualRewardsFromUnstake, setActualRewardsFromUnstake] = useState<BigNumber>(BigNumber.from('0'))
   const [actualStakingTokensFromUnstake, setActualStakingTokensFromUnstake] = useState<BigNumber>(BigNumber.from('0'))
   const [txModalOpen, setTxModalOpen] = useState<boolean>(false)
   const [wrapToken, setWrapToken] = useState<number>(1)
@@ -169,7 +167,7 @@ export const GeyserStakeView = () => {
     <WithdrawTxMessage
       txStateMachine={txStateMachine}
       symbol={rewardTokenSymbol}
-      amount={formatUnits(actualRewardsFromUnstake, rewardTokenDecimals)}
+      amount={formatUnits(actualStakingTokensFromUnstake, stakingTokenDecimals)}
     />
   )
 
@@ -209,7 +207,7 @@ export const GeyserStakeView = () => {
             <span>
               Successfully staked{' '}
               <b>
-                {userInput} {stakingTokenSymbol}
+                {formatTokenBalance(userInput)} {stakingTokenSymbol}
               </b>
               .
             </span>
@@ -257,9 +255,9 @@ export const GeyserStakeView = () => {
             <span>
               Successfully unstaked{' '}
               <b>
-                {userInput} {stakingTokenSymbol}
+                {formatTokenBalance(userInput)} {stakingTokenSymbol}
               </b>
-              . Switch to the vault tab to withdraw tokens to your wallet.
+              .
             </span>
           }
           onClose={onCloseTxModal}

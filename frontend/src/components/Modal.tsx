@@ -13,7 +13,7 @@ const ModalContext = createContext<{
 })
 
 const Title: React.FC = ({ children }) => (
-  <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
+  <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900 mb-5">
     {children}
   </Dialog.Title>
 )
@@ -86,7 +86,7 @@ const Container = styled.div`
 `
 
 const ContentContainer = styled.div`
-  ${tw`inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl`}
+  ${tw`inline-block min-h-180px w-full w-sm p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl`}
 `
 
 const MessageContainer = styled.div`
@@ -94,7 +94,7 @@ const MessageContainer = styled.div`
 `
 
 const Message = styled.div`
-  ${tw`text-sm`}
+  ${tw`text-sm leading-5`}
 `
 
 const FooterContainer = styled.div`

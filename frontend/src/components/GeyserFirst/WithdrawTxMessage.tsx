@@ -1,5 +1,6 @@
 import { TxStateMachine } from 'hooks/useTxStateMachine'
 import { EtherscanLink } from 'components/EtherscanLink'
+import { formatTokenBalance } from 'utils/amount'
 import { TxState } from '../../constants'
 
 interface Props {
@@ -20,11 +21,15 @@ export const WithdrawTxMessage: React.FC<Props> = ({
   const getTxMessage = () => {
     switch (state) {
       case TxState.PENDING:
-        return <span>Withdrawing {symbol} from your vault...</span>
+        return (
+          <span>
+            Withdrawing <b>{symbol}</b> to your wallet...
+          </span>
+        )
       case TxState.SUBMITTED:
         return (
           <span>
-            Withdrawing {symbol} from your vault... View on <EtherscanLink txHash={response?.hash} />
+            Submitted <b>{symbol}</b> withdrawal transaction. View on <EtherscanLink txHash={response?.hash} />
           </span>
         )
       case TxState.MINED:
@@ -32,7 +37,7 @@ export const WithdrawTxMessage: React.FC<Props> = ({
           <span>
             Successfully withdrew{' '}
             <b>
-              {amount} {symbol}
+              {formatTokenBalance(amount)} {symbol}
             </b>{' '}
             to your wallet. View on <EtherscanLink txHash={response?.hash} />. {successMessage}
           </span>
@@ -42,9 +47,9 @@ export const WithdrawTxMessage: React.FC<Props> = ({
           <span>
             Unlocked{' '}
             <b>
-              {amount} {symbol}
-            </b>
-            . {errorMessage}
+              {formatTokenBalance(amount)} {symbol}
+            </b>{' '}
+            from the vault. {errorMessage}
           </span>
         )
       default:

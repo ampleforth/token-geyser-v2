@@ -76,7 +76,7 @@ module.exports = {
         '120px': '120px',
         '336px': '336px',
         btnsm: '120px',
-        sm: '608px',
+        sm: '638px',
         md: '768px',
         lg: '1024px',
         xl: '1280px',

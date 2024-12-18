@@ -15,7 +15,10 @@ export const VaultFirstContainer = () => {
   const { ready, connectWallet, validNetwork } = useContext(Web3Context)
   const { vaults, loading } = useContext(VaultContext)
   const navigate = useNavigate()
-  if (loading) return <PageLoader />
+
+  if (!ready) {
+    return <ErrorPage message="Wallet not connected" button="connect" onClick={() => connectWallet()} />
+  }
 
   if (ready && validNetwork === false) {
     return <ErrorPage message="Unsupported Network" button="Go back" onClick={() => navigate('/')} />
@@ -25,8 +28,8 @@ export const VaultFirstContainer = () => {
     return <ErrorPage message="Vault not found" button="Go back" onClick={() => navigate('/')} />
   }
 
-  if (!ready) {
-    return <ErrorPage message="Wallet not connected" button="connect" onClick={() => connectWallet()} />
+  if (ready && loading) {
+    return <PageLoader />
   }
 
   return (

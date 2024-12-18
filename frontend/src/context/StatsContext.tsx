@@ -140,7 +140,7 @@ export const StatsContextProvider: React.FC = ({ children }) => {
 
   const refreshStats = async () => {
     const { geyser: selectedGeyser, stakingTokenInfo, rewardTokenInfo, bonusTokensInfo } = selectedGeyserInfo
-    if (validNetwork && selectedGeyser && stakingTokenInfo.address && rewardTokenInfo.address) {
+    if (validNetwork && selectedGeyser && stakingTokenInfo?.address && rewardTokenInfo?.address) {
       setGeyserStats(await getGeyserStats(selectedGeyser, stakingTokenInfo, rewardTokenInfo, bonusTokensInfo))
 
       let activeLock = null

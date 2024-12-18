@@ -12,6 +12,7 @@ import TokenIcons from 'components/TokenIcons'
 import { safeNumeral } from 'utils/numeral'
 import { getGeyserTotalDeposit } from 'utils/stats'
 import { formatUnits } from 'ethers/lib/utils'
+import { getPlatformConfig } from 'config/app'
 
 const nowInSeconds = () => Math.round(Date.now() / 1000)
 
@@ -37,6 +38,7 @@ export const Home = () => {
       const geyserAPY = (stakeAPYs.geysers && stakeAPYs.geysers[config.ref]) || 0
       const apy = lpAPY + geyserAPY
       const programName = extractProgramName(config.name)
+      const platform = getPlatformConfig(config)
 
       let rewards = 0
       if (rewardTokenInfo) {
@@ -60,6 +62,7 @@ export const Home = () => {
         ref: config.ref,
         poolAddress: config.poolAddress,
         poolType,
+        platform,
       }
     })
     .sort((g1, g2) => g2.apy - g1.apy)
@@ -87,9 +90,14 @@ export const Home = () => {
             {geysersToShow.map((g) => (
               <BodyRow key={g.ref} $inactive={!g.active}>
                 <TableCell>
-                  <a href={g.poolAddress} target="_blank" rel="noreferrer">
-                    <TokenIcons tokens={g.stakingTokens} />
-                  </a>
+                  <IconContainer>
+                    <a href={g.poolAddress} target="_blank" rel="noreferrer">
+                      <TokenIcons tokens={g.stakingTokens} />
+                    </a>
+                    <a href={g.platform?.url} target="_blank" rel="noreferrer">
+                      <PlaformName>{g.platform?.name}</PlaformName>
+                    </a>
+                  </IconContainer>
                 </TableCell>
                 <TableCell>
                   <ProgramInfo>
@@ -142,11 +150,20 @@ const TableCell = styled.td`
 `
 
 const DataCell = styled.td`
-  ${tw`text-right pr-8`}
+  ${tw`text-right pr-8 pt-2`}
 `
 
 const ApyCell = styled.td`
-  ${tw`text-right pr-8 font-bold text-md`}
+  ${tw`text-right pr-8 font-bold text-md pt-2`}
+`
+
+const IconContainer = styled.div`
+  ${tw`-mt-3`}
+`
+
+const PlaformName = styled.div`
+  ${tw`cursor-pointer text-black text-xxs uppercase font-bold`}
+  ${tw`hover:underline -mt-2`}
 `
 
 const ProgramInfo = styled.div`

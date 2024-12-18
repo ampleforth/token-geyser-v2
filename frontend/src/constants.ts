@@ -95,7 +95,10 @@ export const AMPL_LAUNCH_DATE = 1561687200
 export const INITIAL_SUPPLY = 50000000
 
 export const GET_APY_STAKE_MSG = () =>
-  'The aggregate staking APY is estimated by combining geyser emissions and fees from liquidity provisioning. The geyser emission rate assumes that you have reached the max multiplier. The aggregated figure does not capture the gains or losses from holding liquidity tokens.'
+  'The aggregate staking APY is an estimate based on two components: fees from liquidity provisioning and rewards from geyser emissions. This figure does not account for potential gains or losses associated with holding liquidity tokens.'
+
+export const GET_APY_WARN_MSG = () =>
+  '1) The LP APY is estimated by annualizing the yield from swap fees generated over the past 30 days. 2) The geyser drip rate assumes that you have reached the max multiplier.'
 
 export const GET_REWARD_MULTIPLIER_MSG = ({ days = '30', multiplier = '3.0' }) =>
   `Stake at-least ${days} days to achieve a ${multiplier}x reward multiplier.`

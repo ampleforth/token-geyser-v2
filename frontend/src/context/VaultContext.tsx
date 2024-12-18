@@ -79,11 +79,11 @@ export const VaultContextProvider: React.FC = ({ children }) => {
       : null
 
   useEffect(() => {
-    if (address) {
-      console.log('vault refresh')
-      setVaults([])
-      setSelectedVault(null)
-      setCurrentLock(null)
+    console.log('vault refresh')
+    setVaults([])
+    setSelectedVault(null)
+    setCurrentLock(null)
+    if (ready) {
       getVaults({ variables: { id: address.toLowerCase() } })
     }
   }, [ready, networkId, address, getVaults])
@@ -124,7 +124,7 @@ export const VaultContextProvider: React.FC = ({ children }) => {
         withdrawRewardsFromVault,
         withdrawUnlockedFromVault,
         rewardAmountClaimedOnUnstake,
-        loading: !ready || vaultLoading || geyserLoading,
+        loading: vaultLoading || geyserLoading,
       }}
     >
       {children}

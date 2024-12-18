@@ -7,7 +7,7 @@ import { StatsContext } from 'context/StatsContext'
 import { safeNumeral } from 'utils/numeral'
 import TooltipTable from 'components/TooltipTable'
 import { GeyserStatsBox } from './GeyserStatsBox'
-import { GET_APY_STAKE_MSG, GET_REWARD_MULTIPLIER_MSG, CURRENT_REWARDS_MSG } from '../../constants'
+import { GET_APY_STAKE_MSG, GET_APY_WARN_MSG, GET_REWARD_MULTIPLIER_MSG, CURRENT_REWARDS_MSG } from '../../constants'
 
 export const MyStats = () => {
   const { ready } = useContext(Web3Context)
@@ -62,13 +62,14 @@ export const MyStats = () => {
                   {GET_APY_STAKE_MSG()}
                   <TooltipTable
                     rows={[
-                      { label: 'LP yield', value: safeNumeral(lpAPY, '0.00%') },
-                      { label: 'Geyser drip', value: safeNumeral(geyserAPY, '0.00%') },
-                      { label: 'Bonus', value: '0.00%' },
+                      { label: 'LP APY', value: safeNumeral(lpAPY, '0.00%') },
+                      { label: 'Geyser drip rate', value: safeNumeral(geyserAPY, '0.00%') },
+                      // { label: 'Bonus', value: '0.00%' },
                     ]}
                     totalLabel="Combined APY"
                     totalValue={safeNumeral(finalAPY, '0.00%')}
                   />
+                  <ApyWarning>{GET_APY_WARN_MSG()}</ApyWarning>
                 </div>
               ),
             }}
@@ -148,4 +149,8 @@ const GeyserStatsContainer = styled.div`
 
 const GeyserStatsBoxContainer = styled.div`
   ${tw`flex mt-4 sm:mt-3`}
+`
+
+const ApyWarning = styled.div`
+  ${tw`mt-4 text-xs italic leading-4`}
 `

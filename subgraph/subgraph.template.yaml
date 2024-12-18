@@ -186,3 +186,28 @@ templates:
           handler: handleUnlocked
         - event: RageQuit(address,address,bool,string)
           handler: handleRageQuit
+  - kind: ethereum/contract
+    name: RebasingERC20
+    network: {{ network }}
+    source:
+      abi: RebasingERC20
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - Rebase
+        - LogRebase
+      abis:
+        - name: GeyserContract
+          file: ./abis/IGeyser.json
+        - name: ERC20
+          file: ./abis/IERC20.json
+        - name: RebasingERC20
+          file: ./abis/IRebasingERC20.json
+      eventHandlers:
+        - event: Rebase(indexed uint256,uint256)
+          handler: handleRebase
+        - event: LogRebase(indexed uint256,uint256)
+          handler: handleLogRebase
+      file: ./src/rebasingToken.ts

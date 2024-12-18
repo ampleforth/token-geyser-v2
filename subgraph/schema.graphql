@@ -27,6 +27,7 @@ type Geyser @entity {
   lastUpdate: BigInt!
   rewardSchedules: [RewardSchedule]! @derivedFrom(field: "geyser")
   locks: [Lock]! @derivedFrom(field: "geyser")
+  dailyStats: [GeyserDailyStat!]! @derivedFrom(field: "geyser")
 }
 
 type User @entity {
@@ -84,4 +85,16 @@ type RewardPoolBalance @entity {
   token: Bytes!
   balance: BigInt!
   lastUpdate: BigInt!
+}
+
+type GeyserDailyStat @entity {
+  "<geyser address>-<day timestamp>"
+  id: ID!
+  geyser: Geyser!
+  timestamp: BigInt!
+  unlockedReward: BigInt!
+  rewardBalance: BigInt!
+  totalStake: BigInt!
+  totalStakeUnits: BigInt!
+  rewardPoolBalances: [BigInt!]!
 }

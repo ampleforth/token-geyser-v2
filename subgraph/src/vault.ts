@@ -10,7 +10,12 @@ import { Lock, LockedBalance, User, Vault } from '../generated/schema'
 import { Transfer } from '../generated/UniversalVaultNFT/ERC721'
 
 // entity imports
-import { Locked, RageQuit, Unlocked, VaultContract } from '../generated/templates/VaultTemplate/VaultContract'
+import {
+  Locked,
+  RageQuit,
+  Unlocked,
+  VaultContract,
+} from '../generated/templates/VaultTemplate/VaultContract'
 
 // template instantiation
 function updateVault(vaultAddress: Address): void {
@@ -35,11 +40,18 @@ export function handleNewVault(event: InstanceAdded): void {
 }
 
 // event handlers
-function updateLock(vaultAddress: Address, geyserAddress: Address, tokenAddress: Address, timestamp: BigInt): void {
+function updateLock(
+  vaultAddress: Address,
+  geyserAddress: Address,
+  tokenAddress: Address,
+  timestamp: BigInt,
+): void {
   updateVault(vaultAddress)
 
   let vaultContract = VaultContract.bind(vaultAddress)
-  let lock = new Lock(vaultAddress.toHex() + '-' + geyserAddress.toHex() + '-' + tokenAddress.toHex())
+  let lock = new Lock(
+    vaultAddress.toHex() + '-' + geyserAddress.toHex() + '-' + tokenAddress.toHex(),
+  )
   let lockedBalance = new LockedBalance(vaultAddress.toHex() + '-' + tokenAddress.toHex())
 
   lock.amount = vaultContract.getBalanceDelegated(tokenAddress, geyserAddress)
@@ -70,7 +82,12 @@ export function handleRageQuit(event: RageQuit): void {
 }
 
 function bigIntToAddress(value: BigInt): Address {
-  return Address.fromString(value.toHex().slice(2).padStart(40, '0'))
+  return Address.fromString(
+    value
+      .toHex()
+      .slice(2)
+      .padStart(40, '0'),
+  )
 }
 
 export function handleTransfer(event: Transfer): void {

@@ -10,15 +10,13 @@ import { DAY_IN_SEC, TOTAL_REWARDS_MSG } from '../../constants'
 
 export const GeyserStats = () => {
   const {
-    geyserStats: { duration, totalDeposit, totalRewards },
+    geyserStats: { duration, totalDepositVal, totalRewards, totalRewardsVal },
   } = useContext(StatsContext)
   const {
     selectedGeyserInfo: {
-      rewardTokenInfo: { symbol: rewardTokenSymbol, price: rewardTokenPrice },
+      rewardTokenInfo: { symbol: rewardTokenSymbol },
     },
   } = useContext(GeyserContext)
-
-  const baseRewards = totalRewards * rewardTokenPrice
 
   return (
     <GeyserStatsContainer>
@@ -34,7 +32,7 @@ export const GeyserStats = () => {
       <GeyserStatsBoxContainer>
         <GeyserStatsBox
           name="Total Deposits"
-          value={totalDeposit}
+          value={totalDepositVal}
           units="USD"
           interpolate={(val) => safeNumeral(val, '0,0')}
         />
@@ -43,7 +41,7 @@ export const GeyserStats = () => {
         <GeyserStatsBox
           containerClassName="w-full"
           name="Total Rewards"
-          value={baseRewards}
+          value={totalRewardsVal}
           units="USD"
           interpolate={(val) => safeNumeral(val, '0,0')}
           tooltipMessage={{
@@ -55,12 +53,12 @@ export const GeyserStats = () => {
                   rows={[
                     {
                       label: `${rewardTokenSymbol} (${safeNumeral(totalRewards, '0,0')})`,
-                      value: `${safeNumeral(baseRewards, '0,0.00')} USD`,
+                      value: `${safeNumeral(totalRewardsVal, '0,0.00')} USD`,
                     },
                     { label: 'bonus (0)', value: `${safeNumeral(0, '0,0.00')} USD` },
                   ]}
                   totalLabel="Total"
-                  totalValue={`${safeNumeral(baseRewards, '0,0.00')} USD`}
+                  totalValue={`${safeNumeral(totalRewardsVal, '0,0.00')} USD`}
                 />
               </div>
             ),

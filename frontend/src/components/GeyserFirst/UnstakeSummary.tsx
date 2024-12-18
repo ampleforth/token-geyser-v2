@@ -20,18 +20,15 @@ export const UnstakeSummary: React.FC<Props> = ({ userInput, parsedUserInput }) 
       stakingTokenInfo: { symbol: stakingTokenSymbol, price: stakingTokenPrice },
     },
   } = useContext(GeyserContext)
-  const {
-    geyserStats: { bonusRewards },
-    computeRewardsFromUnstake,
-    computeRewardsShareFromUnstake,
-  } = useContext(StatsContext)
+  const { computeRewardsFromUnstake, computeRewardsShareFromUnstake } = useContext(StatsContext)
 
   const [rewardAmount, setRewardAmount] = useState<number>(0.0)
-  const [rewardsShare, setRewardsShare] = useState<number>(0.0)
+  // const [rewardsShare, setRewardsShare] = useState<number>(0.0)
 
   const unstakeUSD = parseFloat(userInput) * stakingTokenPrice
-  const rewardUSD = rewardAmount * rewardTokenPrice + bonusRewards.reduce((m, b) => m + rewardsShare * b.value, 0)
-
+  const rewardUSD = rewardAmount * rewardTokenPrice
+  // TODO: handle bonus rewards
+  // bonusRewards.reduce((m, b) => m + rewardsShare * b.value, 0)
   useEffect(() => {
     let isMounted = true
     ;(async () => {
@@ -78,12 +75,12 @@ export const UnstakeSummary: React.FC<Props> = ({ userInput, parsedUserInput }) 
             <span>{rewardTokenSymbol}</span>
           </Value>
 
-          {bonusRewards.map((b) => (
+          {/* {bonusRewards.map((b) => (
             <Value key={b.symbol}>
               <Amount>{safeNumeral(rewardsShare * b.balance, '0.000')} </Amount>
               <span>{b.symbol}</span>
             </Value>
-          ))}
+          ))} */}
         </Content>
       </SummaryCard>
     </Container>

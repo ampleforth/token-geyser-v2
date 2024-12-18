@@ -42,7 +42,7 @@ export const MyStats = () => {
     setFinalAPY(Math.min(geyserAPYNew + lpAPYNew, 100000))
   }, [selectedGeyser, apy])
 
-  // NOTE: removed bonus tokens
+  // TODO: handle bonus tokens
   const baseRewards = currentReward * rewardTokenPrice
   return (
     <MyStatsContainer>

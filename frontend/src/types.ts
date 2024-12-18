@@ -88,7 +88,6 @@ export type StakingTokenInfo = TokenInfo & {
 
 export type RewardTokenInfo = TokenInfo & {
   price: number
-  getTotalRewards: (rewardSchedules: RewardSchedule[]) => Promise<number>
 }
 
 export type BonusTokenInfo = TokenInfo & {
@@ -114,10 +113,13 @@ export type RewardStats = {
 export type GeyserStats = {
   duration: number
   totalDeposit: number
+  totalDepositVal: number
   totalRewards: number
+  totalRewardVal: number
   calcPeriodInDays: number
   unlockedRewards: number
   bonusRewards: RewardStats[]
+  bonusRewardsVal: number
 }
 
 export type VaultTokenBalance = TokenInfo & {

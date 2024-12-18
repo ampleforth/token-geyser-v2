@@ -36,10 +36,13 @@ export const defaultUserStats = (): UserStats => ({
 export const defaultGeyserStats = (): GeyserStats => ({
   duration: 0,
   totalDeposit: 0,
+  totalDepositVal: 0,
   totalRewards: 0,
+  totalRewardsVal: 0,
   calcPeriodInDays: 0,
   unlockedRewards: 0,
   bonusRewards: [],
+  bonusRewardsVal: 0,
 })
 
 export const defaultVaultStats = (): VaultStats => ({
@@ -74,6 +77,13 @@ export const getGeyserTotalDeposit = (geyser: Geyser, stakingTokenInfo: StakingT
   return stakingTokenAmount * stakingTokenInfo.price
 }
 
+export const getGeyserTotalRewards = (geyser: Geyser, rewardTokenInfo: RewardTokenInfo) => {
+  const { rewardBalance } = geyser
+  const { decimals } = rewardTokenInfo
+  const rewardAmt = parseFloat(formatUnits(rewardBalance, decimals))
+  return rewardAmt * rewardTokenInfo.price
+}
+
 export const getGeyserStats = async (
   geyser: Geyser,
   stakingTokenInfo: StakingTokenInfo,
@@ -83,16 +93,17 @@ export const getGeyserStats = async (
   ls.computeAndCache<GeyserStats>(
     async () => ({
       duration: getGeyserDuration(geyser),
-      totalDeposit: getGeyserTotalDeposit(geyser, stakingTokenInfo),
-      totalRewards:
-        (await rewardTokenInfo.getTotalRewards(geyser.rewardSchedules)) / 10 ** (rewardTokenInfo.decimals || 1),
       calcPeriodInDays: getCalcPeriod(geyser) / DAY_IN_SEC,
-      unlockedRewards: parseFloat(geyser.unlockedReward) / 10 ** (rewardTokenInfo.decimals || 1),
+      totalDeposit: parseFloat(formatUnits(geyser.totalStake, stakingTokenInfo.decimals)),
+      totalDepositVal: getGeyserTotalDeposit(geyser, stakingTokenInfo),
+      totalRewards: parseFloat(formatUnits(geyser.rewardBalance, rewardTokenInfo.decimals)),
+      totalRewardsVal: getGeyserTotalRewards(geyser, rewardTokenInfo),
+      unlockedRewards: parseFloat(formatUnits(geyser.unlockedReward, rewardTokenInfo.decimals)),
       bonusRewards:
         geyser.rewardPoolBalances.length === bonusTokensInfo.length
           ? geyser.rewardPoolBalances.map((b, i) => {
               const info = bonusTokensInfo[i]
-              const balance = parseFloat(b.balance) / 10 ** info.decimals
+              const balance = parseFloat(formatUnits(b.balance, info.decimals))
               return {
                 name: info.name,
                 symbol: info.symbol,
@@ -101,6 +112,14 @@ export const getGeyserStats = async (
               }
             })
           : [],
+      bonusRewardsVal:
+        geyser.rewardPoolBalances.length === bonusTokensInfo.length
+          ? geyser.rewardPoolBalances.reduce((m, b, i) => {
+              const info = bonusTokensInfo[i]
+              const balance = parseFloat(formatUnits(b.balance, info.decimals))
+              return m + info.price * balance
+            }, 0)
+          : 0,
     }),
     `${toChecksumAddress(geyser.id)}|stats`,
     statsCacheTimeMs,
@@ -234,8 +253,6 @@ export const getUserAPY = async (
 
       const rewardPool = parseFloat(geyser.rewardBalance) / 10 ** rewardTokenDecimals
       const rewardShare = outflowReward / rewardPool
-
-      // TODO: data layer should guarantee that rewardPoolBalances and bonusTokensInfo are inline
       const outflowWithBonus =
         outflow +
         geyser.rewardPoolBalances.reduce((m, b, i) => {

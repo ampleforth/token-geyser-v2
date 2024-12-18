@@ -10,18 +10,14 @@ import { Loader } from 'styling/styles'
 import { toChecksumAddress } from 'web3-utils'
 import TokenIcons from 'components/TokenIcons'
 import { safeNumeral } from 'utils/numeral'
-import { getGeyserTotalDeposit } from 'utils/stats'
-import { formatUnits } from 'ethers/lib/utils'
+import { getGeyserTotalDeposit, getGeyserTotalRewards } from 'utils/stats'
 import { getPlatformConfig } from 'config/app'
-
-const nowInSeconds = () => Math.round(Date.now() / 1000)
 
 export const Home = () => {
   const { geysers, getGeyserConfig, allTokensInfos, stakeAPYs } = useContext(GeyserContext)
   const { selectedVault } = useContext(VaultContext)
   const navigate = useNavigate()
   const stakedGeysers = selectedVault ? selectedVault.locks.map((l) => l.geyser) : []
-  const now = nowInSeconds()
   const tokensByAddress = allTokensInfos.reduce((acc, t) => {
     acc[toChecksumAddress(t.address)] = t
     return acc
@@ -39,16 +35,7 @@ export const Home = () => {
       const apy = lpAPY + geyserAPY
       const programName = extractProgramName(config.name)
       const platform = getPlatformConfig(config)
-
-      let rewards = 0
-      if (rewardTokenInfo) {
-        // NOTE: This math doesn't work if AMPL is the reward token as it doesn't account for rebasing!
-        const rewardAmt = g.rewardSchedules
-          .filter((s) => parseInt(s.start, 10) + parseInt(s.duration, 10) > now)
-          .reduce((m, s) => m + parseFloat(formatUnits(s.rewardAmount, rewardTokenInfo.decimals)), 0)
-        rewards = rewardAmt * rewardTokenInfo.price
-      }
-
+      const rewards = rewardTokenInfo ? getGeyserTotalRewards(g, rewardTokenInfo) : 0
       const isStablePool = config.name.includes('USDC') && config.name.includes('SPOT')
       const poolType = `${isStablePool ? 'Stable' : 'Vol'}[${stakingTokens.join('/')}]`
       return {

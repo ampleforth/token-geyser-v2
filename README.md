@@ -69,8 +69,8 @@ avalanche:
   proxyAdmin: 0x5396479b65ed39360Ba6C16f6D7c9fd357674534
   geyserRegistry: 0x60156bB86e9125639c624712a360FD3AbBb52421
   geysers:
-    - poolRef: "PNG-AVAX-ETH-AMPL (The great geysir V1)"
-      deployment: 0x26645e8513B1D20aDb729E7114eDfA930D411720
+    # - poolRef: "PNG-AVAX-ETH-AMPL (The great geysir V1)"
+    #   deployment: 0x26645e8513B1D20aDb729E7114eDfA930D411720
   externalVaultFactoriesWhitelisted: [ ]
 ```
 

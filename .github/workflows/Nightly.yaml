@@ -1,0 +1,34 @@
+name: Nightly
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  test-contracts:
+    name: Test Contracts
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: '20'
+      - run: yarn install
+      - run: yarn compile
+      - run: yarn test
+  test-coverage:
+    name: Test Contracts Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: '20'
+      - run: yarn install
+      - run: yarn compile
+      - run: yarn coverage
+      - uses: coverallsapp/github-action@v1.1.2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}

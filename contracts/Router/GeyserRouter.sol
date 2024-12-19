@@ -135,4 +135,9 @@ contract GeyserRouter is IERC721Receiver {
             IGeyser(request.geyser).unstakeAndClaim(request.vault, request.amount, request.permission);
         }
     }
+
+    function unstakeAndRestake(UnstakeRequest calldata r1, StakeRequest calldata r2) external {
+        IGeyser(r1.geyser).stake(r1.vault, r1.amount, r1.permission);
+        IGeyser(r2.geyser).unstakeAndClaim(r2.vault, r2.amount, r2.permission);
+    }
 }

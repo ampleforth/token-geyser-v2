@@ -57,7 +57,7 @@ contract CharmGeyserRouter is GeyserRouter {
         // transfers liquidity tokens directly to the vault
         _checkAndApproveMax(depositToken0, address(charm), d.token0Amt);
         _checkAndApproveMax(depositToken1, address(charm), d.token1Amt);
-        (uint256 lpAmt,,) = charm.deposit(d.token0Amt, d.token1Amt, d.token0MinAmt, d.token1MinAmt, vault);
+        (uint256 lpAmt, , ) = charm.deposit(d.token0Amt, d.token1Amt, d.token0MinAmt, d.token1MinAmt, vault);
 
         // Stake liquidity tokens from the vault
         IGeyser(geyser).stake(vault, lpAmt, permission);

@@ -138,12 +138,10 @@ const uniswapV2Pair = async (
   const totalSupply: BigNumber = await contract.totalSupply()
   const totalSupplyNumber = parseFloat(formatUnits(totalSupply, decimals))
 
-  const tokenCompositions = await getTokenCompositions(
-    [token0Address, token1Address],
-    address,
-    signerOrProvider,
-    [0.5, 0.5],
-  )
+  const tokenCompositions = await getTokenCompositions([token0Address, token1Address], address, signerOrProvider, [
+    0.5,
+    0.5,
+  ])
   const [token0Symbol, token1Symbol] = tokenCompositions.map((c) => c.symbol)
   const marketCap = getMarketCap(tokenCompositions)
 
@@ -180,12 +178,10 @@ const getMooniswap = async (tokenAddress: string, signerOrProvider: SignerOrProv
 
   const totalSupplyNumber = parseFloat(formatUnits(totalSupply, decimals))
 
-  const tokenCompositions = await getTokenCompositions(
-    [token0Address, token1Address],
-    address,
-    signerOrProvider,
-    [0.5, 0.5],
-  )
+  const tokenCompositions = await getTokenCompositions([token0Address, token1Address], address, signerOrProvider, [
+    0.5,
+    0.5,
+  ])
   const marketCap = getMarketCap(tokenCompositions)
 
   return {

@@ -18,11 +18,7 @@ import {
   Staked,
   Unstaked,
 } from '../generated/templates/GeyserTemplate/GeyserContract'
-import {
-  EmergencyShutdown,
-  PowerOff,
-  PowerOn,
-} from '../generated/templates/PowerSwitchTemplate/PowerSwitchContract'
+import { EmergencyShutdown, PowerOff, PowerOn } from '../generated/templates/PowerSwitchTemplate/PowerSwitchContract'
 import { ERC20 } from '../generated/templates/GeyserTemplate/ERC20'
 import { RebasingERC20 } from '../generated/templates'
 
@@ -199,11 +195,7 @@ function updateVaultStake(geyserAddress: Address, vaultAddress: Address, timesta
 
   let geyserContract = GeyserContract.bind(geyserAddress)
   let lock = new Lock(
-    vaultAddress.toHex() +
-      '-' +
-      geyserAddress.toHex() +
-      '-' +
-      geyserContract.getGeyserData().stakingToken.toHex(),
+    vaultAddress.toHex() + '-' + geyserAddress.toHex() + '-' + geyserContract.getGeyserData().stakingToken.toHex(),
   )
   lock.geyser = geyserAddress.toHex()
   lock.vault = vaultAddress.toHex()

@@ -75,12 +75,7 @@ contract CharmGeyserRouter is GeyserRouter {
         bytes calldata permission,
         LiqCreationPayload memory d
     ) external returns (address vault) {
-        // create vault
-        vault = create2Vault(vaultFactory, salt);
-
-        // transfer ownership
-        IERC721(vaultFactory).safeTransferFrom(address(this), vaultOwner, uint256(vault));
-
+        vault = create2Vault(vaultFactory, salt, vaultOwner);
         // create liquidity and stake
         createLiqAndStake(geyser, vault, permission, d);
     }

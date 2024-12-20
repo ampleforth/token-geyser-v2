@@ -25,8 +25,15 @@ contract GeyserRouter is IERC721Receiver {
         return IERC721Receiver.onERC721Received.selector;
     }
 
-    function create2Vault(address vaultFactory, bytes32 salt) public returns (address vault) {
+    function create2Vault(
+        address vaultFactory,
+        bytes32 salt,
+        address vaultOwner
+    ) public returns (address vault) {
+        // create vault
         vault = IFactory(vaultFactory).create2("", salt);
+        // transfer ownership
+        IERC721(vaultFactory).safeTransferFrom(address(this), vaultOwner, uint256(vault));
     }
 
     function depositStake(
@@ -48,10 +55,7 @@ contract GeyserRouter is IERC721Receiver {
         bytes32 salt,
         bytes calldata permission
     ) external returns (address vault) {
-        // create vault
-        vault = create2Vault(vaultFactory, salt);
-        // transfer ownership
-        IERC721(vaultFactory).safeTransferFrom(address(this), vaultOwner, uint256(vault));
+        vault = create2Vault(vaultFactory, salt, vaultOwner);
         // transfer tokens and stake
         depositStake(geyser, vault, amount, permission);
     }

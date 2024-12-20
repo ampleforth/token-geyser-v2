@@ -216,9 +216,9 @@ describe('GeyserRouter', function () {
 
       await expect(router.unstakeAndRestake(r1, r2))
         .to.emit(geyser, 'Staked')
-        .withArgs(vault1, amount1, '0x')
-        .and.to.emit(geyser, 'UnstakedAndClaimed')
         .withArgs(vault2, amount2, '0x')
+        .and.to.emit(geyser, 'UnstakedAndClaimed')
+        .withArgs(vault1, amount1, '0x')
     })
   })
 })

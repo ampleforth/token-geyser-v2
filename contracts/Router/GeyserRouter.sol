@@ -112,36 +112,29 @@ contract GeyserRouter is IERC721Receiver {
         IGeyser(geyser).stake(vault, permit.value, permission);
     }
 
-    struct StakeRequest {
+    struct GeyserAction {
         address geyser;
         address vault;
         uint256 amount;
         bytes permission;
     }
 
-    function stakeMulti(StakeRequest[] calldata requests) external {
-        for (uint256 index = 0; index < requests.length; index++) {
-            StakeRequest calldata request = requests[index];
-            IGeyser(request.geyser).stake(request.vault, request.amount, request.permission);
+    function stakeMulti(GeyserAction[] calldata actions) external {
+        for (uint256 index = 0; index < actions.length; index++) {
+            GeyserAction calldata act = actions[index];
+            IGeyser(act.geyser).stake(act.vault, act.amount, act.permission);
         }
     }
 
-    struct UnstakeRequest {
-        address geyser;
-        address vault;
-        uint256 amount;
-        bytes permission;
-    }
-
-    function unstakeMulti(UnstakeRequest[] calldata requests) external {
-        for (uint256 index = 0; index < requests.length; index++) {
-            UnstakeRequest calldata request = requests[index];
-            IGeyser(request.geyser).unstakeAndClaim(request.vault, request.amount, request.permission);
+    function unstakeMulti(GeyserAction[] calldata actions) external {
+        for (uint256 index = 0; index < actions.length; index++) {
+            GeyserAction calldata act = actions[index];
+            IGeyser(act.geyser).unstakeAndClaim(act.vault, act.amount, act.permission);
         }
     }
 
-    function unstakeAndRestake(UnstakeRequest calldata r1, StakeRequest calldata r2) external {
-        IGeyser(r1.geyser).stake(r1.vault, r1.amount, r1.permission);
-        IGeyser(r2.geyser).unstakeAndClaim(r2.vault, r2.amount, r2.permission);
+    function unstakeAndRestake(GeyserAction calldata unstakeAct, GeyserAction calldata stakeAct) external {
+        IGeyser(unstakeAct.geyser).unstakeAndClaim(unstakeAct.vault, unstakeAct.amount, unstakeAct.permission);
+        IGeyser(stakeAct.geyser).stake(stakeAct.vault, stakeAct.amount, stakeAct.permission);
     }
 }

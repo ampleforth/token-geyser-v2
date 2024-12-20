@@ -17,7 +17,7 @@ contract MockVaultFactory is ERC721("MockVaultFactory", "MVF") {
     ) external returns (address) {
         uint256 vaultId = nextVaultId;
         nextVaultId++;
-        _mint(msg.sender, vaultId);
+        ERC721._safeMint(msg.sender, vaultId);
         return address(uint160(vaultId));
     }
 }

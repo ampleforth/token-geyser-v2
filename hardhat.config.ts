@@ -269,7 +269,11 @@ task('create-geyser', 'deploy an instance of Geyser')
         )
         await (await powerSwitch.transferOwnership(finalOwner)).wait(1)
         await (await geyser.transferOwnership(finalOwner)).wait(1)
-        await (await proxyAdmin.transferOwnership(finalOwner)).wait(1)
+        try {
+          await (await proxyAdmin.transferOwnership(finalOwner)).wait(1)
+        } catch (e) {
+          console.log('Proxy admin not owned by deployed')
+        }
       }
     },
   )

@@ -16,6 +16,7 @@ import { ARRAKIS_V1_ABI } from './abis/ArrakisV1'
 import { CHARM_V1_ABI } from './abis/CharmV1'
 import { UNISWAP_V3_POOL_ABI } from './abis/UniswapV3Pool'
 import { BILL_BROKER_ABI } from './abis/BillBroker'
+import { STAMPL_ABI } from './abis/Stampl'
 import { SPOT_APPRAISER_ABI } from './abis/SpotAppraiser'
 import { getCurrentPrice } from './price'
 import { defaultTokenInfo, getTokenInfo } from './token'
@@ -66,6 +67,8 @@ export const getStakingTokenInfo = async (
           return getCharmV1(tokenAddress, signerOrProvider)
         case StakingToken.BILL_BROKER:
           return getBillBroker(tokenAddress, signerOrProvider)
+        case StakingToken.STAMPL:
+          return getSTAMPL(tokenAddress, signerOrProvider)
         default:
           throw new Error(`Handler for ${token} not found`)
       }
@@ -138,10 +141,12 @@ const uniswapV2Pair = async (
   const totalSupply: BigNumber = await contract.totalSupply()
   const totalSupplyNumber = parseFloat(formatUnits(totalSupply, decimals))
 
-  const tokenCompositions = await getTokenCompositions([token0Address, token1Address], address, signerOrProvider, [
-    0.5,
-    0.5,
-  ])
+  const tokenCompositions = await getTokenCompositions(
+    [token0Address, token1Address],
+    address,
+    signerOrProvider,
+    [0.5, 0.5],
+  )
   const [token0Symbol, token1Symbol] = tokenCompositions.map((c) => c.symbol)
   const marketCap = getMarketCap(tokenCompositions)
 
@@ -178,10 +183,12 @@ const getMooniswap = async (tokenAddress: string, signerOrProvider: SignerOrProv
 
   const totalSupplyNumber = parseFloat(formatUnits(totalSupply, decimals))
 
-  const tokenCompositions = await getTokenCompositions([token0Address, token1Address], address, signerOrProvider, [
-    0.5,
-    0.5,
-  ])
+  const tokenCompositions = await getTokenCompositions(
+    [token0Address, token1Address],
+    address,
+    signerOrProvider,
+    [0.5, 0.5],
+  )
   const marketCap = getMarketCap(tokenCompositions)
 
   return {
@@ -486,6 +493,38 @@ const getBillBroker = async (tokenAddress: string, signerOrProvider: SignerOrPro
     name,
     symbol,
     price: marketCap / totalSupplyNumber,
+    composition: tokenCompositions,
+    wrappedToken: null,
+  }
+}
+
+const getSTAMPL = async (tokenAddress: string, signerOrProvider: SignerOrProvider): Promise<StakingTokenInfo> => {
+  const address = toChecksumAddress(tokenAddress)
+  const { name, symbol, decimals } = await getTokenInfo(address, signerOrProvider)
+
+  const contract = new Contract(address, STAMPL_ABI, signerOrProvider)
+  const ampl = await contract.underlying()
+  const amplTokenInfo = await getTokenInfo(ampl, signerOrProvider)
+  const amplPrice = await getCurrentPrice(amplTokenInfo.symbol)
+
+  const tvl = parseFloat(formatUnits(await contract.callStatic.getTVL(), amplTokenInfo.decimals))
+  const totalSupply = parseFloat(formatUnits(await contract.totalSupply(), decimals))
+  const tokenCompositions = [
+    {
+      address: ampl.address,
+      ...amplTokenInfo,
+      balance: tvl,
+      value: amplPrice * tvl,
+      weight: 1.0,
+    },
+  ]
+  const marketCap = tokenCompositions[0].value
+  return {
+    address,
+    decimals,
+    name,
+    symbol,
+    price: marketCap / totalSupply,
     composition: tokenCompositions,
     wrappedToken: null,
   }

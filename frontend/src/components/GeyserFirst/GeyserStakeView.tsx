@@ -44,7 +44,7 @@ export const GeyserStakeView = () => {
   } = useContext(GeyserContext)
   const { decimals: stakingTokenDecimals, symbol: stakingTokenSymbol, address: stakingTokenAddress } = stakingTokenInfo
   const { symbol: rewardTokenSymbol, address: rewardTokenAddress } = rewardTokenInfo
-  const { selectedVault, currentLock, withdrawUnlockedFromVault, rewardAmountClaimedOnUnstake } =
+  const { selectedVault, currentLock, withdrawUnlockedFromVault, rewardAmountClaimedOnUnstake, otherActiveLock } =
     useContext(VaultContext)
   const { stakingTokenBalance, underlyingTokenBalance, refreshWalletBalances } = useContext(WalletContext)
   const {
@@ -69,8 +69,10 @@ export const GeyserStakeView = () => {
   const setDefaultInputAmount = () => {
     if (stakingTokenInfo.price > 0) {
       const initialStakeAmountUSD = 1000
-      const stakeAmt = Math.max(initialStakeAmountUSD / stakingTokenInfo.price, 0.000001)
-      const stakeAmtFP = parseUnits(stakeAmt.toFixed(stakingTokenInfo.decimals), stakingTokenInfo.decimals)
+      const stakeAmt = Math.max(initialStakeAmountUSD / stakingTokenInfo.price, 0.0000001).toFixed(
+        stakingTokenInfo.decimals,
+      )
+      const stakeAmtFP = parseUnits(stakeAmt, stakingTokenInfo.decimals)
       setUserInput(stakeAmt)
       setParsedUserInput(BigNumber.from(stakeAmtFP))
     }
@@ -194,10 +196,15 @@ export const GeyserStakeView = () => {
         <EstimatedRewards parsedUserInput={parsedUserInput} />
         {!ready && <ConnectWalletWarning onClick={() => connectWallet()} />}
         {ready && parsedUserInput.gt(0) && (
-          <StakeWarning link={poolAddress} balance={stakableAmount.sub(parsedUserInput)} staked={currentStakeAmount} />
+          <StakeWarning
+            poolAddress={poolAddress}
+            balance={stakableAmount.sub(parsedUserInput)}
+            staked={currentStakeAmount}
+            otherActiveLock={otherActiveLock}
+          />
         )}
         <GeyserInteractionButton
-          disabled={!ready || parsedUserInput.isZero() || parsedUserInput.gt(stakableAmount)}
+          disabled={!ready || parsedUserInput.isZero() || parsedUserInput.gt(stakableAmount) || otherActiveLock}
           onClick={handleGeyserInteraction}
           displayText="Stake"
         />

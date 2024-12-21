@@ -15,17 +15,23 @@ ethereum:
   proxyAdmin: 0xc70F5bc82ccb3de00400814ff8bD406C271db3c4
   geyserRegistry: 0xFc43803F203e3821213bE687120aD44C8a21A7e7
   geysers:
+    - poolRef: "CHARM-SPOT-USDC (Bootstrap V1)"
+      deployment: 0x569f042C54B094A10E6fe1b52515eEC507D8da06
+
     - poolRef: "CHARM-WAMPL-WETH (Crystal V2)"
       deployment: 0x59d177f718e902e59CF3Cbd19519194bcC437FeF
 
     - poolRef: "STAMPL (Riverside V1)"
       deployment: 0xa19604b951592170DDa857CBE46609B85AB00Dee
 
-    - poolRef: "BB-SPOT-USDC (Steamboat V1)"
-      deployment: 0xF0a45FA4fBec33A2A51E08058bEA92761c08D7D5
+    # - poolRef: "CHARM-WAMPL-WETH (Crystal V1)"
+    #   deployment: 0xEac308Fa45A9b64cfb6965e8d1237B39016862e3
 
-    - poolRef: "CHARM-SPOT-USDC (Great geyser V1)"
-      deployment: 0x7B2e9353D3Bf71d9f9246B1291eE29DFB11B32C7
+    # - poolRef: "BB-SPOT-USDC (Steamboat V1)"
+    #   deployment: 0xF0a45FA4fBec33A2A51E08058bEA92761c08D7D5
+
+    # - poolRef: "CHARM-SPOT-USDC (Great geyser V1)"
+    #   deployment: 0x7B2e9353D3Bf71d9f9246B1291eE29DFB11B32C7
 
     # - poolRef: "UNI-ETH-AMPL-V2 (Beehive V7)"
     #   deployment: 0x5Ec6f02D0b657E4a56d6020Bc21F19f2Ca13EcA9

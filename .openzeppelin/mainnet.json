@@ -226,6 +226,232 @@
           }
         }
       }
+    },
+    "f5994764c094d27dccc784eac5674d3f8721c6d83bed328d38defdf246f3e7d1": {
+      "address": "0x49c3D3735084f5F69D4E214Fe2680A0c870Bbfe3",
+      "txHash": "0xb7296e77121ef7e86ec989139197e0509cf172b90c671a0c1544d9439e28b7b9",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Powered",
+            "label": "_powerSwitch",
+            "type": "t_address",
+            "src": "contracts/PowerSwitch/Powered.sol:24"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts/proxy/Initializable.sol:25"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts/proxy/Initializable.sol:30"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:31"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:20"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:74"
+          },
+          {
+            "contract": "Geyser",
+            "label": "_geyser",
+            "type": "t_struct(GeyserData)5791_storage",
+            "src": "contracts/Geyser.sol:222"
+          },
+          {
+            "contract": "Geyser",
+            "label": "_vaults",
+            "type": "t_mapping(t_address,t_struct(VaultData)5804_storage)",
+            "src": "contracts/Geyser.sol:223"
+          },
+          {
+            "contract": "Geyser",
+            "label": "_bonusTokenSet",
+            "type": "t_struct(AddressSet)4188_storage",
+            "src": "contracts/Geyser.sol:224"
+          },
+          {
+            "contract": "Geyser",
+            "label": "_vaultFactorySet",
+            "type": "t_struct(AddressSet)4188_storage",
+            "src": "contracts/Geyser.sol:225"
+          }
+        ],
+        "types": {
+          "t_struct(GeyserData)5791_storage": {
+            "label": "struct IGeyser.GeyserData",
+            "members": [
+              {
+                "label": "stakingToken",
+                "type": "t_address"
+              },
+              {
+                "label": "rewardToken",
+                "type": "t_address"
+              },
+              {
+                "label": "rewardPool",
+                "type": "t_address"
+              },
+              {
+                "label": "rewardScaling",
+                "type": "t_struct(RewardScaling)5816_storage"
+              },
+              {
+                "label": "rewardSharesOutstanding",
+                "type": "t_uint256"
+              },
+              {
+                "label": "totalStake",
+                "type": "t_uint256"
+              },
+              {
+                "label": "totalStakeUnits",
+                "type": "t_uint256"
+              },
+              {
+                "label": "lastUpdate",
+                "type": "t_uint256"
+              },
+              {
+                "label": "rewardSchedules",
+                "type": "t_array(t_struct(RewardSchedule)5798_storage)dyn_storage"
+              }
+            ]
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_struct(RewardScaling)5816_storage": {
+            "label": "struct IGeyser.RewardScaling",
+            "members": [
+              {
+                "label": "floor",
+                "type": "t_uint256"
+              },
+              {
+                "label": "ceiling",
+                "type": "t_uint256"
+              },
+              {
+                "label": "time",
+                "type": "t_uint256"
+              }
+            ]
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_array(t_struct(RewardSchedule)5798_storage)dyn_storage": {
+            "label": "struct IGeyser.RewardSchedule[]"
+          },
+          "t_struct(RewardSchedule)5798_storage": {
+            "label": "struct IGeyser.RewardSchedule",
+            "members": [
+              {
+                "label": "duration",
+                "type": "t_uint256"
+              },
+              {
+                "label": "start",
+                "type": "t_uint256"
+              },
+              {
+                "label": "shares",
+                "type": "t_uint256"
+              }
+            ]
+          },
+          "t_mapping(t_address,t_struct(VaultData)5804_storage)": {
+            "label": "mapping(address => struct IGeyser.VaultData)"
+          },
+          "t_struct(VaultData)5804_storage": {
+            "label": "struct IGeyser.VaultData",
+            "members": [
+              {
+                "label": "totalStake",
+                "type": "t_uint256"
+              },
+              {
+                "label": "stakes",
+                "type": "t_array(t_struct(StakeData)5809_storage)dyn_storage"
+              }
+            ]
+          },
+          "t_array(t_struct(StakeData)5809_storage)dyn_storage": {
+            "label": "struct IGeyser.StakeData[]"
+          },
+          "t_struct(StakeData)5809_storage": {
+            "label": "struct IGeyser.StakeData",
+            "members": [
+              {
+                "label": "amount",
+                "type": "t_uint256"
+              },
+              {
+                "label": "timestamp",
+                "type": "t_uint256"
+              }
+            ]
+          },
+          "t_struct(AddressSet)4188_storage": {
+            "label": "struct EnumerableSet.AddressSet",
+            "members": [
+              {
+                "label": "_inner",
+                "type": "t_struct(Set)3923_storage"
+              }
+            ]
+          },
+          "t_struct(Set)3923_storage": {
+            "label": "struct EnumerableSet.Set",
+            "members": [
+              {
+                "label": "_values",
+                "type": "t_array(t_bytes32)dyn_storage"
+              },
+              {
+                "label": "_indexes",
+                "type": "t_mapping(t_bytes32,t_uint256)"
+              }
+            ]
+          },
+          "t_array(t_bytes32)dyn_storage": {
+            "label": "bytes32[]"
+          },
+          "t_bytes32": {
+            "label": "bytes32"
+          },
+          "t_mapping(t_bytes32,t_uint256)": {
+            "label": "mapping(bytes32 => uint256)"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          }
+        }
+      }
     }
   },
   "admin": {

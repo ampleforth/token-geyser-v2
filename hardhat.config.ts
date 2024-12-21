@@ -86,7 +86,7 @@ task('deploy', 'deploy full set of factory contracts')
       UniversalVault.address,
     ])
     const GeyserRegistry = await deployContract('GeyserRegistry', ethers.getContractFactory, signer)
-    const RouterV1 = await deployContract('RouterV1', ethers.getContractFactory, signer)
+    const GeyserRouter = await deployContract('GeyserRouter', ethers.getContractFactory, signer)
 
     if (mock) {
       const totalSupply = parseUnits('10')
@@ -129,9 +129,9 @@ task('deploy', 'deploy full set of factory contracts')
       GeyserTemplate: {
         abi: (await ethers.getContractAt('Geyser', ethers.constants.AddressZero)).interface.format(),
       },
-      RouterV1: {
-        address: RouterV1.address,
-        abi: RouterV1.interface.format(),
+      GeyserRouter: {
+        address: GeyserRouter.address,
+        abi: GeyserRouter.interface.format(),
       },
     })
 
@@ -201,10 +201,11 @@ task('create-geyser', 'deploy an instance of Geyser')
   .addParam('ceiling', 'the ceiling of reward scaling')
   .addParam('time', 'the time of reward scaling in seconds')
   .addOptionalParam('finalOwner', 'the address of the final owner', '0x')
+  .addOptionalParam('instanceType', 'the type of geyser to be deployed', 'Geyser')
   .addOptionalParam('factoryVersion', 'the factory version', 'latest')
   .setAction(
     async (
-      { factoryVersion, stakingToken, rewardToken, floor, ceiling, time, finalOwner },
+      { factoryVersion, stakingToken, rewardToken, floor, ceiling, time, finalOwner, instanceType },
       { ethers, run, upgrades, network },
     ) => {
       await run('compile')
@@ -216,7 +217,7 @@ task('create-geyser', 'deploy an instance of Geyser')
         readFileSync(`${SDK_PATH}/deployments/${network.name}/factories-${factoryVersion}.json`).toString(),
       )
 
-      const factory = await ethers.getContractFactory('Geyser', signer)
+      const factory = await ethers.getContractFactory(instanceType, signer)
       const geyser = await upgrades.deployProxy(factory, undefined, {
         initializer: false,
       })
@@ -234,10 +235,7 @@ task('create-geyser', 'deploy an instance of Geyser')
       console.log('  reward ceiling', ceiling)
 
       // CRITICAL: The ordering of the following transaction can't change for the subgraph to be indexed
-
-      // Note: geyser registry is owned by the ecofund multisig
-      // this script will fail here
-      // the following need to be executed manually
+      // NOTE: geyser registry is currently owned by the ampeforth deploy wallet.
       console.log('Register Geyser Instance')
       const geyserRegistry = await ethers.getContractAt('GeyserRegistry', GeyserRegistry.address, signer)
       await (await geyserRegistry.register(geyser.address)).wait(1)
@@ -272,7 +270,7 @@ task('create-geyser', 'deploy an instance of Geyser')
         try {
           await (await proxyAdmin.transferOwnership(finalOwner)).wait(1)
         } catch (e) {
-          console.log('Proxy admin not owned by deployed')
+          console.log('Proxy admin not owned by deployer')
         }
       }
     },

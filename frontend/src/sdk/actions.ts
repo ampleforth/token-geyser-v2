@@ -129,7 +129,11 @@ export const approveCreateDepositStake = async (geyserAddress: string, amount: B
   const token = new Contract(tokenAddress, ERC20_ABI, signer)
 
   const salt = randomBytes(32)
-  const vaultAddress = await router.callStatic.create2Vault(config.VaultFactory.address, salt)
+  const vaultAddress = await router.callStatic.create2Vault(
+    config.VaultFactory.address,
+    salt,
+    await signer.getAddress(),
+  )
   const vault = new Contract(vaultAddress, config.VaultTemplate.abi, signer)
   const lockPermission = await signPermission('Lock', vault, signer, geyserAddress, token.address, amount, '0')
   const args = [geyserAddress, config.VaultFactory.address, await signer.getAddress(), amount, salt, lockPermission]
@@ -186,7 +190,11 @@ export const permitCreateDepositStake = async (geyserAddress: string, amount: Bi
   }
 
   const salt = randomBytes(32)
-  const vaultAddress = await router.callStatic.create2Vault(config.VaultFactory.address, salt)
+  const vaultAddress = await router.callStatic.create2Vault(
+    config.VaultFactory.address,
+    salt,
+    await signer.getAddress(),
+  )
   const vault = new Contract(vaultAddress, config.VaultTemplate.address, signer)
 
   const permit = await signPermitEIP2612(signer, tokenAddress, router.address, amount, deadline)

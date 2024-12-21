@@ -65,7 +65,7 @@ describe('CharmGeyserRouter', function () {
       }
 
       await expect(router.connect(user).createLiqAndStake(geyser.address, vault, '0x', liqPayload))
-        .to.emit(geyser, 'LogStaked')
+        .to.emit(geyser, 'Staked')
         .withArgs(vault, token0Amount.add(token1Amount), '0x')
 
       // After staking, router should have transferred all tokens out
@@ -98,7 +98,7 @@ describe('CharmGeyserRouter', function () {
       const args = [geyser.address, vaultFactory.address, await vaultOwner.getAddress(), salt, '0x', liqPayload]
       const vault = await router.connect(user).callStatic.create2VaultCreateLiqAndStake(...args)
       await expect(router.connect(user).create2VaultCreateLiqAndStake(...args))
-        .to.emit(geyser, 'LogStaked')
+        .to.emit(geyser, 'Staked')
         .withArgs(vault, token0Amount.add(token1Amount), '0x')
       expect(await vaultFactory.ownerOf(1)).to.equal(await vaultOwner.getAddress())
     })
@@ -145,7 +145,7 @@ describe('CharmGeyserRouter', function () {
       }
 
       await expect(router.connect(user).createLiqAndStake(geyser.address, vault, '0x', liqPayload))
-        .to.emit(geyser, 'LogStaked')
+        .to.emit(geyser, 'Staked')
         .withArgs(vault, 0, '0x')
     })
   })

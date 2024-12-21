@@ -27,13 +27,22 @@ contract MockGeyser {
             });
     }
 
-    event LogStaked(address vault, uint256 amount, bytes permission);
+    event Staked(address vault, uint256 amount, bytes permission);
+    event UnstakedAndClaimed(address vault, uint256 amount, bytes permission);
 
     function stake(
         address vault,
         uint256 amount,
         bytes calldata permission
     ) external {
-        emit LogStaked(vault, amount, permission);
+        emit Staked(vault, amount, permission);
+    }
+
+    function unstakeAndClaim(
+        address vault,
+        uint256 amount,
+        bytes calldata permission
+    ) external {
+        emit UnstakedAndClaimed(vault, amount, permission);
     }
 }

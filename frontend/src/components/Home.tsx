@@ -133,7 +133,7 @@ const BodyRow = styled.tr<{ $inactive?: boolean }>`
 `
 
 const TableCell = styled.td`
-  ${tw`p-4 text-center`}
+  ${tw`px-2 py-4 text-center`}
 `
 
 const DataCell = styled.td`

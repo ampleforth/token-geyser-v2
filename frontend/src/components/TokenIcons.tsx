@@ -30,15 +30,15 @@ function getTokenIcon(token) {
 }
 
 const TokenIcons = ({ tokens }) => (
-  <div className="flex bg-gray-900 p-4 items-center">
+  <div className="flex bg-gray-900 p-4 items-center justify-center">
     {tokens.map((token, index) => (
       <div
         key={token}
         className={`
-              rounded-full bg-white flex items-center justify-center w-9 h-9
-              border border-gray
-              ${index > 0 ? '-ml-3' : ''}
-            `}
+          rounded-full bg-white flex items-center justify-center w-9 h-9
+          border border-gray
+          ${index > 0 ? '-ml-3' : ''}
+        `}
       >
         <img src={getTokenIcon(token)} alt={token} className="h-6 w-6" />
       </div>

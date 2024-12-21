@@ -154,6 +154,7 @@ export type GeyserConfig = {
   rewardToken: RewardToken
   isWrapped: boolean
   poolAddress?: string
+  exclusive?: boolean
 }
 
 export type AdditionalTokenConfig = {

@@ -69,7 +69,7 @@ export const MyStats = () => {
                     totalLabel="Combined APY"
                     totalValue={safeNumeral(finalAPY, '0.00%')}
                   />
-                  <ApyWarning>{GET_APY_WARN_MSG()}</ApyWarning>
+                  <ApyWarning>{GET_APY_WARN_MSG(ready)}</ApyWarning>
                 </div>
               ),
             }}

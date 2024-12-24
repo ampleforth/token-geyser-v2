@@ -23,8 +23,8 @@ export const GeyserContext = createContext<{
   selectedGeyserInfo: GeyserInfo
   selectGeyser: (geyser: Geyser) => void
   selectGeyserById: (id: string) => void
-  getGeyserRefByName: (name: string) => string
-  selectGeyserByRef: (name: string) => bool
+  getGeyserSlugByName: (name: string) => string
+  selectGeyserBySlug: (name: string) => bool
   geyserAction: GeyserAction
   updateGeyserAction: (a: GeyserAction) => void
   handleStakeUnstake: (arg0: Vault | null, arg1: BigNumber) => Promise<TransactionResponse | undefined>
@@ -54,8 +54,8 @@ export const GeyserContext = createContext<{
   },
   selectGeyser: () => {},
   selectGeyserById: () => {},
-  getGeyserRefByName: () => '',
-  selectGeyserByRef: () => false,
+  getGeyserSlugByName: () => '',
+  selectGeyserBySlug: () => false,
   geyserAction: GeyserAction.STAKE,
   updateGeyserAction: () => {},
   handleStakeUnstake: async () => undefined,
@@ -266,19 +266,19 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
     if (geyser) await selectGeyser(geyser)
   }
 
-  const getGeyserRefByName = (name: string): string => {
+  const getGeyserSlugByName = (name: string): string => {
     const geyserConfigs = getGeysersConfigList(networkId)
     const geyser = geyserConfigs.find((g) => g.name === name)
     if (geyser) {
-      return geyser.ref
+      return geyser.slug
     } else {
-      return geyserConfigs[0].ref
+      return geyserConfigs[0].slug
     }
   }
 
-  const selectGeyserByRef = async (ref: string): bool => {
+  const selectGeyserBySlug = async (slug: string): bool => {
     const geyserConfigs = getGeysersConfigList(networkId)
-    const geyser = geyserConfigs.find((g) => g.ref === ref)
+    const geyser = geyserConfigs.find((g) => g.slug === slug)
     if (!geyser) {
       return false
     }
@@ -331,8 +331,8 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
         selectedGeyserInfo,
         selectGeyser,
         selectGeyserById,
-        getGeyserRefByName,
-        selectGeyserByRef,
+        getGeyserSlugByName,
+        selectGeyserBySlug,
         geyserAction,
         updateGeyserAction,
         handleStakeUnstake,

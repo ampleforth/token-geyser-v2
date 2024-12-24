@@ -27,7 +27,7 @@ export const HeaderTab: React.FC = () => {
         if (index === 0) {
           navigate('/')
         } else if (index === 1) {
-          navigate(`/geysers/${selectedGeyserConfig?.ref || defaultGeyser?.ref}`)
+          navigate(`/geysers/${selectedGeyserConfig?.slug || defaultGeyser?.slug}`)
         } else if (index === 2) {
           navigate('/vault')
         }

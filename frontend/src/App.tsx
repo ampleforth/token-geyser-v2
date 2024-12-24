@@ -25,7 +25,7 @@ function App() {
                   <Routes>
                     <Route path="/" element={<Home />} />
                     <Route
-                      path="/geysers/:ref"
+                      path="/geysers/:slug"
                       element={
                         <div>
                           <DropdownsContainer showVaults showGeysers />

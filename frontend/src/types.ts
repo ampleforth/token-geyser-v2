@@ -152,9 +152,11 @@ export type GeyserConfig = {
   address: string
   stakingToken: StakingToken
   rewardToken: RewardToken
-  isWrapped: boolean
+  isWrapped?: boolean
   poolAddress?: string
   exclusive?: boolean
+  slug: string
+  platform: Platform
 }
 
 export type AdditionalTokenConfig = {

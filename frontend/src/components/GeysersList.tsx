@@ -10,14 +10,14 @@ export const GeysersList = () => {
   const navigate = useNavigate()
   const {
     geysers,
-    getGeyserRefByName,
+    getGeyserSlugByName,
     selectedGeyserInfo: { geyser: selectedGeyser },
     getGeyserName,
   } = useContext(GeyserContext)
   const { selectedVault } = useContext(VaultContext)
 
   const handleGeyserChange = async (geyserName: string) => {
-    navigate(`/geysers/${getGeyserRefByName(geyserName)}`)
+    navigate(`/geysers/${getGeyserSlugByName(geyserName)}`)
   }
 
   const optgroups = (() => {

@@ -89,8 +89,8 @@ const geyserList: AppGeysersList = {
       rewardToken: RewardToken.AMPL,
       isWrapped: false,
       poolAddress: 'https://alpha.charm.fi/ethereum/vault/0x2dcaff0f75765d7867887fc402b71c841b3a4bfb',
-      ref: 'bootstrap-v1',
-      lpRef: 'charm-usdc-spot',
+      slug: 'bootstrap-v1',
+      lpRef: 'charmUsdcSpot',
       platform: Platform.Charm,
       exclusive: true,
       // staked pool address: 0x898adc9aa0c23dce3fed6456c34dbe2b57784325
@@ -103,7 +103,7 @@ const geyserList: AppGeysersList = {
       rewardToken: RewardToken.FORTH,
       isWrapped: false,
       poolAddress: 'https://app.spot.cash/vault',
-      ref: 'riverside-v1',
+      slug: 'riverside-v1',
       lpRef: 'stampl',
       platform: Platform.Ampleforth,
       // staked pool address: 0xa19604b951592170DDa857CBE46609B85AB00Dee
@@ -116,8 +116,8 @@ const geyserList: AppGeysersList = {
       rewardToken: RewardToken.FORTH,
       isWrapped: false,
       poolAddress: 'https://alpha.charm.fi/ethereum/vault/0x9658b5bdcad59dd0b7b936d955e5df81ea2b4dcb',
-      ref: 'crystal-geyser-v2',
-      lpRef: 'charm-weth-wampl',
+      slug: 'crystal-geyser-v2',
+      lpRef: 'charmWethWampl',
       platform: Platform.Charm,
       // staked pool address: 0x0c2b6bf7322a3cceb47c7ba74f2c75a19f530f11
     },
@@ -129,8 +129,8 @@ const geyserList: AppGeysersList = {
       rewardToken: RewardToken.FORTH,
       isWrapped: false,
       poolAddress: 'https://alpha.charm.fi/ethereum/vault/0x9658b5bdcad59dd0b7b936d955e5df81ea2b4dcb',
-      ref: 'crystal-geyser-v1',
-      lpRef: 'charm-weth-wampl',
+      slug: 'crystal-geyser-v1',
+      lpRef: 'charmWethWampl',
       platform: Platform.Charm,
       // staked pool address: 0x0c2b6bf7322a3cceb47c7ba74f2c75a19f530f11
     },
@@ -142,8 +142,8 @@ const geyserList: AppGeysersList = {
       rewardToken: RewardToken.FORTH,
       isWrapped: false,
       poolAddress: 'http://app.spot.cash/broker',
-      ref: 'steamboat-v1',
-      lpRef: 'bill-broker',
+      slug: 'steamboat-v1',
+      lpRef: 'billBroker',
       platform: Platform.Ampleforth,
       // staked pool address: 0xA088Aef966CAD7fE0B38e28c2E07590127Ab4ccB
     },
@@ -155,8 +155,8 @@ const geyserList: AppGeysersList = {
       rewardToken: RewardToken.FORTH,
       isWrapped: false,
       poolAddress: 'https://alpha.charm.fi/ethereum/vault/0x2dcaff0f75765d7867887fc402b71c841b3a4bfb',
-      ref: 'great-geyser-v1',
-      lpRef: 'charm-usdc-spot',
+      slug: 'great-geyser-v1',
+      lpRef: 'charmUsdcSpot',
       platform: Platform.Charm,
       // staked pool address: 0x898adc9aa0c23dce3fed6456c34dbe2b57784325
     },
@@ -168,8 +168,8 @@ const geyserList: AppGeysersList = {
       rewardToken: RewardToken.FORTH,
       isWrapped: false,
       poolAddress: 'https://app.uniswap.org/#/add/v2/0xD46bA6D942050d489DBd938a2C909A5d5039A161/ETH',
-      ref: 'beehive-v7',
-      lpRef: 'univ2-ampl-eth',
+      slug: 'beehive-v7',
+      lpRef: 'uniswapV2AmplEth',
       platform: Platform.Uniswap,
       // staked pool address: 0xc5be99A02C6857f9Eac67BbCE58DF5572498F40c
     },
@@ -181,7 +181,7 @@ const geyserList: AppGeysersList = {
       rewardToken: RewardToken.FORTH,
       isWrapped: false,
       poolAddress: 'https://beta.arrakis.finance/vaults/1/0xDF367477C5E596af88E8797c3CDe8E28854cb79c',
-      ref: 'fly-v2',
+      slug: 'fly-v2',
       platform: Platform.Arrakis,
       // staked pool address: 0x7E0C73AF898E1ad50a8eFd7D3A678C23cD90b74C
     },
@@ -193,8 +193,8 @@ const geyserList: AppGeysersList = {
       rewardToken: RewardToken.SPOT,
       isWrapped: false,
       poolAddress: 'https://app.uniswap.org/#/add/v2/0xD46bA6D942050d489DBd938a2C909A5d5039A161/ETH',
-      ref: 'beehive-v6',
-      lpRef: 'univ2-ampl-eth',
+      slug: 'beehive-v6',
+      lpRef: 'uniswapV2AmplEth',
       platform: Platform.Uniswap,
       // staked pool address: 0xc5be99A02C6857f9Eac67BbCE58DF5572498F40c
     },
@@ -206,7 +206,7 @@ const geyserList: AppGeysersList = {
       rewardToken: RewardToken.SPOT,
       isWrapped: false,
       poolAddress: 'https://beta.arrakis.finance/vaults/1/0xDF367477C5E596af88E8797c3CDe8E28854cb79c',
-      ref: 'fly-v1',
+      slug: 'fly-v1',
       platform: Platform.Arrakis,
       // staked pool address: 0x7E0C73AF898E1ad50a8eFd7D3A678C23cD90b74C
     },
@@ -218,8 +218,8 @@ const geyserList: AppGeysersList = {
       rewardToken: RewardToken.AMPL,
       isWrapped: false,
       poolAddress: 'https://app.uniswap.org/#/add/v2/0xD46bA6D942050d489DBd938a2C909A5d5039A161/ETH',
-      ref: 'beehive-v5',
-      lpRef: 'univ2-ampl-eth',
+      slug: 'beehive-v5',
+      lpRef: 'uniswapV2AmplEth',
       platform: Platform.Uniswap,
       // staked pool address: 0xc5be99A02C6857f9Eac67BbCE58DF5572498F40c
     },
@@ -230,7 +230,7 @@ const geyserList: AppGeysersList = {
       rewardToken: RewardToken.AMPL,
       isWrapped: false,
       poolAddress: 'https://app.balancer.fi/#/pool/0xd4e2af4507b6b89333441c0c398edffb40f86f4d0001000000000000000002ab',
-      ref: 'trinity-v5',
+      slug: 'trinity-v5',
       platform: Platform.Balancer,
       // staked pool address: 0xd4E2af4507B6B89333441C0c398edfFB40f86f4D
       // poolID:0xd4e2af4507b6b89333441c0c398edffb40f86f4d0001000000000000000002ab
@@ -244,7 +244,7 @@ const geyserList: AppGeysersList = {
       isWrapped: true,
       poolAddress:
         'https://app.aave.com/reserve-overview/?underlyingAsset=0xd46ba6d942050d489dbd938a2c909a5d5039a161&marketName=proto_mainnet',
-      ref: 'splendid-v5',
+      slug: 'splendid-v5',
       platform: Platform.Aave,
       // staked pool address: 0x1e6bb68acec8fefbd87d192be09bb274170a0548
     },
@@ -255,8 +255,8 @@ const geyserList: AppGeysersList = {
       rewardToken: RewardToken.AMPL,
       isWrapped: false,
       poolAddress: 'https://app.uniswap.org/#/add/v2/0xD46bA6D942050d489DBd938a2C909A5d5039A161/ETH',
-      ref: 'beehive-v4',
-      lpRef: 'univ2-ampl-eth',
+      slug: 'beehive-v4',
+      lpRef: 'uniswapV2AmplEth',
       platform: Platform.Uniswap,
       // staked pool address: 0xc5be99A02C6857f9Eac67BbCE58DF5572498F40c
     },
@@ -266,7 +266,7 @@ const geyserList: AppGeysersList = {
       stakingToken: StakingToken.BALANCER_V1,
       rewardToken: RewardToken.AMPL,
       isWrapped: false,
-      ref: 'trinity-v2',
+      slug: 'trinity-v2',
       platform: Platform.Balancer,
       // staked pool address: 0xa751A143f8fe0a108800Bfb915585E4255C2FE80
     },
@@ -276,7 +276,7 @@ const geyserList: AppGeysersList = {
       stakingToken: StakingToken.BALANCER_SMART_POOL_V1,
       rewardToken: RewardToken.AMPL,
       isWrapped: false,
-      ref: 'old-faithful-v2',
+      slug: 'old-faithful-v2',
       platform: Platform.Balancer,
       // staked pool address: 0x49F2befF98cE62999792Ec98D0eE4Ad790E7786F
     },
@@ -286,7 +286,7 @@ const geyserList: AppGeysersList = {
       stakingToken: StakingToken.SUSHISWAP,
       rewardToken: RewardToken.AMPL,
       isWrapped: false,
-      ref: 'pescadero-v2',
+      slug: 'pescadero-v2',
       platform: Platform.Sushiswap,
       // staked pool address: 0xCb2286d9471cc185281c4f763d34A962ED212962
     },

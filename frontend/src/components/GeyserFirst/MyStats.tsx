@@ -35,7 +35,7 @@ export const MyStats = () => {
     }
     const config = getGeyserConfig(selectedGeyser.id)
     const lpAPYNew = (stakeAPYs.lp && stakeAPYs.lp[config.lpRef]) || 0
-    const geyserAPYGlobal = stakeAPYs.geysers && stakeAPYs.geysers[config.ref]
+    const geyserAPYGlobal = stakeAPYs.geysers && stakeAPYs.geysers[config.slug]
     const geyserAPYNew = ready ? apy : geyserAPYGlobal || apy
     setLPAPY(lpAPYNew)
     setGeyserAPY(geyserAPYNew)

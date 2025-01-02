@@ -179,6 +179,7 @@ export const getUserDrip = async (
   const lockStakeUnitsAfterDuration = getLockStakeUnits(lock, afterDuration).add(stakeUnitsFromAdditionalStake)
   if (totalStakeUnitsAfterDuration.isZero()) return 0
   const futureUserDrip = poolDrip.mul(lockStakeUnitsAfterDuration).div(totalStakeUnitsAfterDuration)
+  if (futureUserDrip.sub(currentUserDrip).lt('0')) return 0
   const userDrip = futureUserDrip.sub(currentUserDrip)
   return parseInt(userDrip.toString(), 10)
 }

@@ -98,10 +98,8 @@ export const INITIAL_SUPPLY = 50000000
 export const GET_APY_STAKE_MSG = () =>
   'The aggregate staking APY is an estimate based on two components: fees from liquidity provisioning and rewards from geyser emissions. This figure does not account for potential gains or losses associated with holding liquidity tokens.'
 
-export const GET_APY_WARN_MSG = (staker) =>
-  `1) The LP APY is estimated by annualizing the yield from swap fees generated over the past 30 days. 2) The geyser drip rate assumes ${
-    !staker ? 'that you are staking at-least 1000$ worth of tokens and ' : ''
-  } you reach the max multiplier.`
+export const GET_APY_WARN_MSG = () =>
+  `1) The LP APY is estimated by annualizing the yield from swap fees generated over the past 30 days. 2) The geyser drip rate assumes that you are staking at-least 1000$ worth of tokens and that you reach the max multiplier.`
 
 export const GET_REWARD_MULTIPLIER_MSG = ({ days = '30', multiplier = '3.0' }) =>
   `Stake at-least ${days} days to achieve a ${multiplier}x reward multiplier.`

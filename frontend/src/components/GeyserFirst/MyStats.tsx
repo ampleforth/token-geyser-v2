@@ -14,7 +14,7 @@ export const MyStats = () => {
   const {
     userStats: { apy, currentMultiplier, maxMultiplier, currentReward },
     vaultStats: { currentStake },
-    geyserStats: { calcPeriodInDays },
+    geyserStats: { calcPeriodInDays, duration },
   } = useContext(StatsContext)
   const {
     selectedGeyserInfo: {
@@ -38,11 +38,14 @@ export const MyStats = () => {
     const geyserAPYGlobal = stakeAPYs.geysers && stakeAPYs.geysers[config.slug]
     // const geyserAPYNew = ready ? apy : geyserAPYGlobal || apy
     // NOTE: just showing the global APY as a guideline for most users.
-    const geyserAPYNew = geyserAPYGlobal || apy
+    let geyserAPYNew = (geyserAPYGlobal || apy)
+    if(duration === 0) {
+      geyserAPYNew = 0
+    }
     setLPAPY(lpAPYNew)
     setGeyserAPY(geyserAPYNew)
     setFinalAPY(Math.min(geyserAPYNew + lpAPYNew, 100000))
-  }, [selectedGeyser, apy])
+  }, [selectedGeyser, apy, duration])
 
   // TODO: handle bonus tokens
   const baseRewards = currentReward * rewardTokenPrice

@@ -57,7 +57,7 @@ export const Home = () => {
   const totalTVL = geyserData.reduce((s, g) => g.tvl + s, 0)
   const totalRewards = geyserData.filter((g) => g.active).reduce((s, g) => g.rewards + s, 0)
   let geysersToShow = geyserData.filter((g) => g.active || stakedGeysers.find((s) => s.id === g.id))
-  if(geysersToShow.length === 0){
+  if (geysersToShow.length === 0) {
     geysersToShow = geyserData.slice(0, 3)
   }
 

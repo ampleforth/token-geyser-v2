@@ -38,8 +38,8 @@ export const MyStats = () => {
     const geyserAPYGlobal = stakeAPYs.geysers && stakeAPYs.geysers[config.slug]
     // const geyserAPYNew = ready ? apy : geyserAPYGlobal || apy
     // NOTE: just showing the global APY as a guideline for most users.
-    let geyserAPYNew = (geyserAPYGlobal || apy)
-    if(duration === 0) {
+    let geyserAPYNew = geyserAPYGlobal || apy
+    if (duration === 0) {
       geyserAPYNew = 0
     }
     setLPAPY(lpAPYNew)

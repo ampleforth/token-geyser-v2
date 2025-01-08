@@ -23,7 +23,7 @@ export const GeysersList = () => {
   const optgroups = (() => {
     const stakedGeysers = selectedVault ? selectedVault.locks.map((l) => l.geyser) : []
     let geysersToShow = geysers.filter((g) => g.active || stakedGeysers.find((s) => s.id === g.id))
-    if(geysersToShow.length === 0){
+    if (geysersToShow.length === 0) {
       geysersToShow = geysers.slice(0, 3)
     }
 

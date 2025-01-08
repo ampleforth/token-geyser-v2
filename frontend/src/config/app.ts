@@ -96,31 +96,31 @@ const geyserList: AppGeysersList = {
     //   // staked pool address: 0x898adc9aa0c23dce3fed6456c34dbe2b57784325
     // },
 
-    // {
-    //   name: 'Riverside I (stAMPL)',
-    //   address: '0xa19604b951592170DDa857CBE46609B85AB00Dee',
-    //   stakingToken: StakingToken.STAMPL,
-    //   rewardToken: RewardToken.FORTH,
-    //   isWrapped: false,
-    //   poolAddress: 'https://app.spot.cash/vault',
-    //   slug: 'riverside-v1',
-    //   lpRef: 'stampl',
-    //   platform: Platform.Ampleforth,
-    //   // staked pool address: 0xa19604b951592170DDa857CBE46609B85AB00Dee
-    // },
+    {
+      name: 'Riverside I (STAMPL)',
+      address: '0xa19604b951592170DDa857CBE46609B85AB00Dee',
+      stakingToken: StakingToken.STAMPL,
+      rewardToken: RewardToken.FORTH,
+      isWrapped: false,
+      poolAddress: 'https://app.spot.cash/vault',
+      slug: 'riverside-v1',
+      lpRef: 'stampl',
+      platform: Platform.Ampleforth,
+      // staked pool address: 0xa19604b951592170DDa857CBE46609B85AB00Dee
+    },
 
-    // {
-    //   name: 'Crystal II (Charm WETH/WAMPL)',
-    //   address: '0x59d177f718e902e59CF3Cbd19519194bcC437FeF',
-    //   stakingToken: StakingToken.CHARM_V1,
-    //   rewardToken: RewardToken.FORTH,
-    //   isWrapped: false,
-    //   poolAddress: 'https://alpha.charm.fi/ethereum/vault/0x9658b5bdcad59dd0b7b936d955e5df81ea2b4dcb',
-    //   slug: 'crystal-geyser-v2',
-    //   lpRef: 'charmWethWampl',
-    //   platform: Platform.Charm,
-    //   // staked pool address: 0x0c2b6bf7322a3cceb47c7ba74f2c75a19f530f11
-    // },
+    {
+      name: 'Crystal II (Charm WETH/WAMPL)',
+      address: '0x59d177f718e902e59CF3Cbd19519194bcC437FeF',
+      stakingToken: StakingToken.CHARM_V1,
+      rewardToken: RewardToken.FORTH,
+      isWrapped: false,
+      poolAddress: 'https://alpha.charm.fi/ethereum/vault/0x9658b5bdcad59dd0b7b936d955e5df81ea2b4dcb',
+      slug: 'crystal-geyser-v2',
+      lpRef: 'charmWethWampl',
+      platform: Platform.Charm,
+      // staked pool address: 0x0c2b6bf7322a3cceb47c7ba74f2c75a19f530f11
+    },
 
     {
       name: 'Crystal I (Charm WETH/WAMPL)',

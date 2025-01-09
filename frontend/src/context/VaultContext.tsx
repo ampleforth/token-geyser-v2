@@ -25,6 +25,7 @@ export const VaultContext = createContext<{
     | null
   rewardAmountClaimedOnUnstake: ((receipt: TransactionReceipt) => Promise<BigNumber>) | null
   loading: bool
+  otherActiveLock: bool
 }>({
   vaults: [],
   selectedVault: null,
@@ -36,12 +37,14 @@ export const VaultContext = createContext<{
   withdrawUnlockedFromVault: null,
   rewardAmountClaimedOnUnstake: null,
   loading: false,
+  otherActiveLock: false,
 })
 
 export const VaultContextProvider: React.FC = ({ children }) => {
   const { address, signer, ready, networkId } = useContext(Web3Context)
   const {
     selectedGeyserInfo: { geyser: selectedGeyser },
+    selectedGeyserConfig,
     loading: geyserLoading,
     geysers,
   } = useContext(GeyserContext)
@@ -52,6 +55,7 @@ export const VaultContextProvider: React.FC = ({ children }) => {
   const [vaults, setVaults] = useState<Vault[]>([])
   const [selectedVault, setSelectedVault] = useState<Vault | null>(null)
   const [currentLock, setCurrentLock] = useState<Lock | null>(null)
+  const [otherActiveLock, setOtherActiveLock] = useState<boolean>(false)
 
   const selectVault = (vault: Vault) => setSelectedVault(vault)
   const selectVaultById = (id: string) => setSelectedVault(vaults.find((vault) => vault.id === id) || selectedVault)
@@ -83,6 +87,7 @@ export const VaultContextProvider: React.FC = ({ children }) => {
     setVaults([])
     setSelectedVault(null)
     setCurrentLock(null)
+    setOtherActiveLock(false)
     if (ready) {
       getVaults({ variables: { id: address.toLowerCase() } })
     }
@@ -103,12 +108,19 @@ export const VaultContextProvider: React.FC = ({ children }) => {
   }, [vaultData, selectedVault, geyserLoading])
 
   useEffect(() => {
-    if (address && selectedVault && geysers.length > 0 && selectedGeyser) {
+    if (address && selectedVault && geysers.length > 0 && selectedGeyser && selectedGeyserConfig) {
       const { stakingToken } = selectedGeyser
       const lockId = `${selectedVault.id}-${selectedGeyser.id}-${stakingToken}`
       setCurrentLock(selectedVault.locks.find((lock) => lock.id === lockId) || null)
+      setOtherActiveLock(
+        !!selectedGeyserConfig.exclusive &&
+          !!selectedVault.locks.find(
+            (lock) => lock.token === selectedGeyser.stakingToken && lock.geyser.id !== selectedGeyser.id,
+          ),
+      )
     } else {
       setCurrentLock(null)
+      setOtherActiveLock(false)
     }
   }, [address, selectedVault, selectedGeyser, geyserLoading])
 
@@ -125,6 +137,7 @@ export const VaultContextProvider: React.FC = ({ children }) => {
         withdrawUnlockedFromVault,
         rewardAmountClaimedOnUnstake,
         loading: vaultLoading || geyserLoading,
+        otherActiveLock,
       }}
     >
       {children}

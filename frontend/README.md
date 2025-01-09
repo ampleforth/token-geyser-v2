@@ -282,4 +282,5 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 
 ```
 ./scripts/deploy-s3.sh
+./scripts/flush-cache-prod.sh DIST.cloudfront.net
 ```

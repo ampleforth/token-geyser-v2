@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from 'react'
 import styled from 'styled-components/macro'
 import tw from 'twin.macro'
-import Web3Context from 'context/Web3Context'
+// import Web3Context from 'context/Web3Context'
 import { GeyserContext } from 'context/GeyserContext'
 import { StatsContext } from 'context/StatsContext'
 import { safeNumeral } from 'utils/numeral'
@@ -10,11 +10,11 @@ import { GeyserStatsBox } from './GeyserStatsBox'
 import { GET_APY_STAKE_MSG, GET_APY_WARN_MSG, GET_REWARD_MULTIPLIER_MSG, CURRENT_REWARDS_MSG } from '../../constants'
 
 export const MyStats = () => {
-  const { ready } = useContext(Web3Context)
+  // const { ready } = useContext(Web3Context)
   const {
     userStats: { apy, currentMultiplier, maxMultiplier, currentReward },
     vaultStats: { currentStake },
-    geyserStats: { calcPeriodInDays },
+    geyserStats: { calcPeriodInDays, duration },
   } = useContext(StatsContext)
   const {
     selectedGeyserInfo: {
@@ -35,12 +35,17 @@ export const MyStats = () => {
     }
     const config = getGeyserConfig(selectedGeyser.id)
     const lpAPYNew = (stakeAPYs.lp && stakeAPYs.lp[config.lpRef]) || 0
-    const geyserAPYGlobal = stakeAPYs.geysers && stakeAPYs.geysers[config.ref]
-    const geyserAPYNew = ready ? apy : geyserAPYGlobal || apy
+    const geyserAPYGlobal = stakeAPYs.geysers && stakeAPYs.geysers[config.slug]
+    // const geyserAPYNew = ready ? apy : geyserAPYGlobal || apy
+    // NOTE: just showing the global APY as a guideline for most users.
+    let geyserAPYNew = geyserAPYGlobal || apy
+    if (duration === 0) {
+      geyserAPYNew = 0
+    }
     setLPAPY(lpAPYNew)
     setGeyserAPY(geyserAPYNew)
     setFinalAPY(Math.min(geyserAPYNew + lpAPYNew, 100000))
-  }, [selectedGeyser, apy])
+  }, [selectedGeyser, apy, duration])
 
   // TODO: handle bonus tokens
   const baseRewards = currentReward * rewardTokenPrice
@@ -62,7 +67,7 @@ export const MyStats = () => {
                   {GET_APY_STAKE_MSG()}
                   <TooltipTable
                     rows={[
-                      { label: 'LP APY', value: safeNumeral(lpAPY, '0.00%') },
+                      { label: 'LP APY', value: lpAPY ? safeNumeral(lpAPY, '0.00%') : 'N.A' },
                       { label: 'Geyser drip rate', value: safeNumeral(geyserAPY, '0.00%') },
                       // { label: 'Bonus', value: '0.00%' },
                     ]}

@@ -31,7 +31,7 @@ export const Home = () => {
       const tvl = stakingTokenInfo ? getGeyserTotalDeposit(g, stakingTokenInfo) : 0
       const stakingTokens = (stakingTokenInfo && stakingTokenInfo.composition.map((t) => t.symbol)) || []
       const lpAPY = (stakeAPYs.lp && stakeAPYs.lp[config.lpRef]) || 0
-      const geyserAPY = (stakeAPYs.geysers && stakeAPYs.geysers[config.ref]) || 0
+      const geyserAPY = (stakeAPYs.geysers && stakeAPYs.geysers[config.slug]) || 0
       const apy = lpAPY + geyserAPY
       const programName = extractProgramName(config.name)
       const platform = getPlatformConfig(config)
@@ -46,7 +46,7 @@ export const Home = () => {
         rewards,
         apy,
         name: programName,
-        ref: config.ref,
+        slug: config.slug,
         poolAddress: config.poolAddress,
         poolType,
         platform,
@@ -56,7 +56,10 @@ export const Home = () => {
 
   const totalTVL = geyserData.reduce((s, g) => g.tvl + s, 0)
   const totalRewards = geyserData.filter((g) => g.active).reduce((s, g) => g.rewards + s, 0)
-  const geysersToShow = geyserData.filter((g) => g.active || stakedGeysers.find((s) => s.id === g.id))
+  let geysersToShow = geyserData.filter((g) => g.active || stakedGeysers.find((s) => s.id === g.id))
+  if (geysersToShow.length === 0) {
+    geysersToShow = geyserData.slice(0, 3)
+  }
 
   return (
     <Container>
@@ -75,7 +78,7 @@ export const Home = () => {
           </thead>
           <tbody>
             {geysersToShow.map((g) => (
-              <BodyRow key={g.ref} $inactive={!g.active}>
+              <BodyRow key={g.slug} $inactive={!g.active}>
                 <TableCell>
                   <IconContainer>
                     <a href={g.poolAddress} target="_blank" rel="noreferrer">
@@ -88,7 +91,7 @@ export const Home = () => {
                 </TableCell>
                 <TableCell>
                   <ProgramInfo>
-                    <ProgramName onClick={() => navigate(`/geysers/${g.ref}`)}>{g.name}</ProgramName>
+                    <ProgramName onClick={() => navigate(`/geysers/${g.slug}`)}>{g.name}</ProgramName>
                     <InfoText>{g.poolType}</InfoText>
                   </ProgramInfo>
                 </TableCell>
@@ -133,7 +136,7 @@ const BodyRow = styled.tr<{ $inactive?: boolean }>`
 `
 
 const TableCell = styled.td`
-  ${tw`p-4 text-center`}
+  ${tw`px-2 py-4 text-center`}
 `
 
 const DataCell = styled.td`

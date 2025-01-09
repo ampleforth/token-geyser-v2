@@ -13,13 +13,13 @@ import { GeyserStakeView } from './GeyserStakeView'
 import { GeyserStatsView } from './GeyserStatsView'
 
 export const GeyserFirstContainer = () => {
-  const { ref } = useParams()
+  const { slug } = useParams()
   const { ready, validNetwork } = useContext(Web3Context)
   const {
     geyserAction,
     updateGeyserAction,
     selectedGeyserInfo: { isWrapped },
-    selectGeyserByRef,
+    selectGeyserBySlug,
     geysers,
     loading,
   } = useContext(GeyserContext)
@@ -29,13 +29,13 @@ export const GeyserFirstContainer = () => {
   const [geyserNotFound, setGeyserNotFound] = useState(false)
   useEffect(() => {
     const fetchGeyser = async () => {
-      if (ref && geysers.length > 0) {
-        const found = await selectGeyserByRef(ref)
+      if (slug && geysers.length > 0) {
+        const found = await selectGeyserBySlug(slug)
         setGeyserNotFound(!found)
       }
     }
     fetchGeyser()
-  }, [ref, geysers, selectGeyserByRef])
+  }, [slug, geysers, selectGeyserBySlug])
 
   if (loading) return <PageLoader />
 

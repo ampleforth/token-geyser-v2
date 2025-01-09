@@ -10,36 +10,38 @@ export const GeysersList = () => {
   const navigate = useNavigate()
   const {
     geysers,
-    getGeyserRefByName,
+    getGeyserSlugByName,
     selectedGeyserInfo: { geyser: selectedGeyser },
     getGeyserName,
   } = useContext(GeyserContext)
   const { selectedVault } = useContext(VaultContext)
 
   const handleGeyserChange = async (geyserName: string) => {
-    navigate(`/geysers/${getGeyserRefByName(geyserName)}`)
+    navigate(`/geysers/${getGeyserSlugByName(geyserName)}`)
   }
 
   const optgroups = (() => {
     const stakedGeysers = selectedVault ? selectedVault.locks.map((l) => l.geyser) : []
-    const geysersToShow = geysers.filter((g) => g.active || stakedGeysers.find((s) => s.id === g.id))
+    let geysersToShow = geysers.filter((g) => g.active || stakedGeysers.find((s) => s.id === g.id))
+    if (geysersToShow.length === 0) {
+      geysersToShow = geysers.slice(0, 3)
+    }
+
     const activeGeysers = geysersToShow.filter((g) => g.active === true).map(({ id }) => getGeyserName(id))
     const inactiveGeysers = geysersToShow.filter((g) => !(g.active === true)).map(({ id }) => getGeyserName(id))
-
-    const options = [
-      {
+    const options = []
+    if (activeGeysers.length > 0) {
+      options.push({
         group: 'Active Geysers',
         options: activeGeysers,
-      },
-    ]
-
+      })
+    }
     if (inactiveGeysers.length > 0) {
       options.push({
         group: 'Inactive Geysers',
         options: inactiveGeysers,
       })
     }
-
     return options
   })()
 

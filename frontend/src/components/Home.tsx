@@ -60,6 +60,7 @@ export const Home = () => {
   if (geysersToShow.length === 0) {
     geysersToShow = geyserData.slice(0, 3)
   }
+  geysersToShow = geysersToShow.sort((g1, g2) => g2.active - g1.active)
 
   return (
     <Container>

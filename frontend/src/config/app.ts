@@ -97,7 +97,7 @@ const geyserList: AppGeysersList = {
     // },
 
     {
-      name: 'Riverside I (STAMPL)',
+      name: 'Riverside I (stAMPL)',
       address: '0xa19604b951592170DDa857CBE46609B85AB00Dee',
       stakingToken: StakingToken.STAMPL,
       rewardToken: RewardToken.FORTH,

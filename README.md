@@ -9,20 +9,21 @@ Reward distribution contract with time multiplier.
 ```yaml
 # Geyser V2 deployment
 ethereum:
-  router: 0x90013fB4D3f9844f930f5dB8DD53CfF38824e3CF
+  geyserRouter: 0x90013fB4D3f9844f930f5dB8DD53CfF38824e3CF
+  charmGeyserRouter: 0x7BB91daFDb5e1aA7d56a1D6C93Fa774678406cEB
   vaultFactory: 0x8A09fFA4d4310c7F59DC538a1481D8Ba2214Cef0
   vaultTemplate: 0x9F723008Eec3493A31b6fAf7d9fdf3a82322223C
   proxyAdmin: 0xc70F5bc82ccb3de00400814ff8bD406C271db3c4
   geyserRegistry: 0xFc43803F203e3821213bE687120aD44C8a21A7e7
   geysers:
-    - poolRef: "CHARM-SPOT-USDC (Bootstrap V1)"
-      deployment: 0x569f042C54B094A10E6fe1b52515eEC507D8da06
-
     - poolRef: "CHARM-WAMPL-WETH (Crystal V2)"
       deployment: 0x59d177f718e902e59CF3Cbd19519194bcC437FeF
 
     - poolRef: "STAMPL (Riverside V1)"
       deployment: 0xa19604b951592170DDa857CBE46609B85AB00Dee
+
+    # - poolRef: "CHARM-SPOT-USDC (Bootstrap V1)"
+    #   deployment: 0x569f042C54B094A10E6fe1b52515eEC507D8da06
 
     # - poolRef: "CHARM-WAMPL-WETH (Crystal V1)"
     #   deployment: 0xEac308Fa45A9b64cfb6965e8d1237B39016862e3

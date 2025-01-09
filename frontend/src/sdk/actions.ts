@@ -123,7 +123,7 @@ export const approveCreateDepositStake = async (geyserAddress: string, amount: B
   const config = await loadNetworkConfig(signer)
 
   const geyser = new Contract(geyserAddress, config.GeyserTemplate.abi, signer)
-  const router = new Contract(config.RouterV1.address, config.RouterV1.abi, signer)
+  const router = new Contract(config.GeyserRouter.address, config.GeyserRouter.abi, signer)
 
   const tokenAddress = (await geyser.getGeyserData()).stakingToken
   const token = new Contract(tokenAddress, ERC20_ABI, signer)
@@ -177,7 +177,7 @@ export const permitCreateDepositStake = async (geyserAddress: string, amount: Bi
   const config = await loadNetworkConfig(signer)
 
   const geyser = new Contract(geyserAddress, config.GeyserTemplate.abi, signer)
-  const router = new Contract(config.RouterV1.address, config.RouterV1.abi, signer)
+  const router = new Contract(config.GeyserRouter.address, config.GeyserRouter.abi, signer)
 
   const tokenAddress = (await geyser.getGeyserData()).stakingToken
   const deadline = (await signer.provider.getBlock('latest')).timestamp + 60 * 60 * 24
@@ -209,7 +209,7 @@ export const permitDepositStake = async (
   const config = await loadNetworkConfig(signer)
 
   const geyser = new Contract(geyserAddress, config.GeyserTemplate.abi, signer)
-  const router = new Contract(config.RouterV1.address, config.RouterV1.abi, signer)
+  const router = new Contract(config.GeyserRouter.address, config.GeyserRouter.abi, signer)
 
   const tokenAddress = (await geyser.getGeyserData()).stakingToken
   const deadline = (await signer.provider.getBlock('latest')).timestamp + 60 * 60 * 24

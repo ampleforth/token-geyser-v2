@@ -163,7 +163,7 @@
       "function unstakeAndClaim(address vault, uint256 amount, bytes permission)"
     ]
   },
-  "RouterV1": {
+  "GeyserRouter": {
     "address": "0xAA17f42C2F28ba8eF1De171C5E8e4EBd3cd5F2Ec",
     "abi": [
       "function create2Vault(address vaultFactory, bytes32 salt) returns (address vault)",

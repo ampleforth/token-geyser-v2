@@ -7,7 +7,8 @@ import 'solidity-coverage'
 import { getAdminAddress, getImplementationAddress } from '@openzeppelin/upgrades-core'
 
 import { Contract, Signer, Wallet, BigNumber } from 'ethers'
-import { mkdirSync, readFileSync, writeFileSync } from 'fs'
+import { mkdirSync, existsSync, readFileSync, writeFileSync } from 'fs'
+import { join } from 'path'
 import { HardhatUserConfig, task } from 'hardhat/config'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/dist/src/signer-with-address'
 import { parseUnits } from 'ethers/lib/utils'
@@ -140,10 +141,64 @@ task('deploy', 'deploy full set of factory contracts')
     writeFileSync(path + latest, blob)
   })
 
+const fs = require('fs')
+const path = require('path')
+
+task('deploy-charmRouter', 'deploys charm router')
+  .setAction(async (args, { ethers, run, network, upgrades }) => {
+    await run('compile')
+
+    const signer = (await ethers.getSigners())[0]
+    console.log('Signer', signer.address)
+
+    const router = await deployContract(
+      'CharmGeyserRouter',
+      ethers.getContractFactory,
+      signer
+    )
+
+    const deploymentsPath = `${SDK_PATH}/deployments/${network.name}/`
+    const timestamp = (await signer.provider?.getBlock('latest'))?.timestamp
+    const fileName = `factories-${timestamp}.json`
+    const latestFileName = `factories-latest.json`
+
+    const newData = {
+      CharmGeyserRouter: {
+        address: router.address,
+        abi: router.interface.format(),
+      },
+    }
+
+    mkdirSync(deploymentsPath, { recursive: true })
+
+    function extendJsonFile(filePath:string, data:any) {
+      let existingData = {}
+      if (existsSync(filePath)) {
+        try {
+          const fileContent = readFileSync(filePath, 'utf-8')
+          existingData = JSON.parse(fileContent)
+        } catch (e) {
+          console.warn(`Could not parse JSON in ${filePath}, overwriting...`)
+        }
+      }
+      const updatedData = {
+        ...existingData,
+        ...data,
+      }
+
+      writeFileSync(filePath, JSON.stringify(updatedData, null, 2))
+      console.log(`Updated file => ${filePath}`)
+    }
+
+    extendJsonFile(join(deploymentsPath, fileName), newData)
+    extendJsonFile(join(deploymentsPath, latestFileName), newData)
+  })
+
+
 task('verify-factories', 'verfires the deployed factories')
   .addOptionalParam('factoryVersion', 'the factory version', 'latest')
   .setAction(async ({ factoryVersion }, { ethers, run, network }) => {
-    const { PowerSwitchFactory, RewardPoolFactory, VaultFactory, GeyserRegistry, VaultTemplate } = JSON.parse(
+    const { PowerSwitchFactory, RewardPoolFactory, VaultFactory, GeyserRegistry, VaultTemplate, CharmGeyserRouter } = JSON.parse(
       readFileSync(`${SDK_PATH}/deployments/${network.name}/factories-${factoryVersion}.json`).toString(),
     )
 
@@ -172,6 +227,11 @@ task('verify-factories', 'verfires the deployed factories')
     try {
       await run('verify:verify', {
         address: GeyserRegistry.address,
+      })
+    } catch (e) {}
+    try {
+      await run('verify:verify', {
+        address: CharmGeyserRouter.address,
       })
     } catch (e) {}
   })

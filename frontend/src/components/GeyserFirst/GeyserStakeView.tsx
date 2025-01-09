@@ -66,31 +66,36 @@ export const GeyserStakeView = () => {
     setParsedUserInput(BigNumber.from('0'))
   }
 
-  const setDefaultInputAmount = () => {
-    if (stakingTokenInfo.price > 0) {
-      const initialStakeAmountUSD = 1000
-      const stakeAmt = Math.max(initialStakeAmountUSD / stakingTokenInfo.price, 0.0000001).toFixed(
-        stakingTokenInfo.decimals,
-      )
-      const stakeAmtFP = parseUnits(stakeAmt, stakingTokenInfo.decimals)
-      setUserInput(stakeAmt)
-      setParsedUserInput(BigNumber.from(stakeAmtFP))
-    }
-  }
+  // NOTE: Disabling pre-populating, because some users find it confusing
+  // TODO: Remove entirely.
+  // const setDefaultInputAmount = () => {
+  //   if (stakingTokenInfo.price > 0) {
+  //     const initialStakeAmountUSD = 1000
+  //     const stakeAmt = Math.max(initialStakeAmountUSD / stakingTokenInfo.price, 0.0000001).toFixed(
+  //       stakingTokenInfo.decimals,
+  //     )
+  //     const stakeAmtFP = parseUnits(stakeAmt, stakingTokenInfo.decimals)
+  //     setUserInput(stakeAmt)
+  //     setParsedUserInput(BigNumber.from(stakeAmtFP))
+  //   }
+  // }
+  // useEffect(() => {
+  //   refreshInputAmount()
+  //   if (geyserAction === GeyserAction.STAKE) {
+  //     if (!ready) {
+  //       setDefaultInputAmount()
+  //     } else if (currentStakeAmount.eq(0) && stakableAmount.eq(0)) {
+  //       setDefaultInputAmount()
+  //     } else if (ready && currentStakeAmount.eq(0) && stakableAmount.gt(0)) {
+  //       setUserInput(formatUnits(stakableAmount, stakingTokenDecimals))
+  //       setParsedUserInput(stakableAmount)
+  //     }
+  //   }
+  // }, [ready, geyserAction, stakingTokenBalance, currentStakeable])
 
   useEffect(() => {
     refreshInputAmount()
-    if (geyserAction === GeyserAction.STAKE) {
-      if (!ready) {
-        setDefaultInputAmount()
-      } else if (currentStakeAmount.eq(0) && stakableAmount.eq(0)) {
-        setDefaultInputAmount()
-      } else if (currentStakeAmount.eq(0) && stakableAmount.gt(0)) {
-        setUserInput(formatUnits(stakableAmount, stakingTokenDecimals))
-        setParsedUserInput(stakableAmount)
-      }
-    }
-  }, [ready, geyserAction, stakingTokenBalance, currentStakeable])
+  }, [geyserAction])
 
   const handleGeyserInteraction = () => {
     if (geyserAction === GeyserAction.STAKE) {

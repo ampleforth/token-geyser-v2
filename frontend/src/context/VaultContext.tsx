@@ -112,12 +112,16 @@ export const VaultContextProvider: React.FC = ({ children }) => {
       const { stakingToken } = selectedGeyser
       const lockId = `${selectedVault.id}-${selectedGeyser.id}-${stakingToken}`
       setCurrentLock(selectedVault.locks.find((lock) => lock.id === lockId) || null)
-      setOtherActiveLock(
-        !!selectedGeyserConfig.exclusive &&
-          !!selectedVault.locks.find(
-            (lock) => lock.token === selectedGeyser.stakingToken && lock.geyser.id !== selectedGeyser.id,
-          ),
+      // We check if the current geyser is exclusive.
+      // if so, we check if the user has locked this staking token in other geysers.
+      const hasOtherActiveLock = (
+        selectedGeyserConfig.exclusive &&
+        selectedVault.locks.find(
+          (lock) =>
+            (lock.token === selectedGeyser.stakingToken) && (lock.geyser?.id !== selectedGeyser.id),
+        )
       )
+      setOtherActiveLock(!!hasOtherActiveLock)
     } else {
       setCurrentLock(null)
       setOtherActiveLock(false)

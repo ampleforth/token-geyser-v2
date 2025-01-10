@@ -46,7 +46,7 @@ type Vault @entity {
 type Lock @entity {
   id: ID! # ${vault.id}-${geyser.id}-${token.address}
   vault: Vault!
-  geyser: Geyser!
+  geyser: Geyser
   token: Bytes!
   amount: BigInt!
   stakeUnits: BigInt

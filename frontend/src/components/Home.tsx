@@ -52,7 +52,7 @@ export const Home = () => {
         platform,
       }
     })
-    .sort((g1, g2) => g2.apy - g1.apy)
+    .sort((g1, g2) => g2.tvl - g1.tvl)
 
   const totalTVL = geyserData.reduce((s, g) => g.tvl + s, 0)
   const totalRewards = geyserData.filter((g) => g.active).reduce((s, g) => g.rewards + s, 0)

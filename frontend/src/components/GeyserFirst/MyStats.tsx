@@ -80,20 +80,24 @@ export const MyStats = () => {
             }}
           />
 
-          <GeyserStatsBox
-            containerClassName="w-1/2"
-            name="Multiplier"
-            value={currentMultiplier}
-            units="x"
-            interpolate={(val) => safeNumeral(val, '0.0')}
-            tooltipMessage={{
-              title: 'Bonus Multiplier',
-              body: GET_REWARD_MULTIPLIER_MSG({
-                days: safeNumeral(Math.max(calcPeriodInDays || 30, 30), '0'),
-                multiplier: safeNumeral(maxMultiplier || 3, '0.0'),
-              }),
-            }}
-          />
+          {calcPeriodInDays > 1 ? (
+            <GeyserStatsBox
+              containerClassName="w-1/2"
+              name="Multiplier"
+              value={currentMultiplier}
+              units="x"
+              interpolate={(val) => safeNumeral(val, '0.0')}
+              tooltipMessage={{
+                title: 'Bonus Multiplier',
+                body: GET_REWARD_MULTIPLIER_MSG({
+                  days: safeNumeral(Math.max(calcPeriodInDays || 30, 30), '0'),
+                  multiplier: safeNumeral(maxMultiplier || 3, '0.0'),
+                }),
+              }}
+            />
+          ) : (
+            <></>
+          )}
         </GeyserStatsBoxContainer>
 
         <GeyserStatsBoxContainer>

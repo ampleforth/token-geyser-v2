@@ -83,13 +83,13 @@ export const platformsList: PlatformsList = {
 const geyserList: AppGeysersList = {
   [Network.Mainnet]: [
     // {
-    //   name: 'Bootstrap I (Charm USDC/SPOT)',
-    //   address: '0x569f042C54B094A10E6fe1b52515eEC507D8da06',
+    //   name: 'Bootstrap Troposphere (Charm USDC/SPOT)',
+    //   address: '0xFF7D65c538b2968E72E7a4bf59d33Eb4081CE4e8',
     //   stakingToken: StakingToken.CHARM_V1,
     //   rewardToken: RewardToken.AMPL,
     //   isWrapped: false,
     //   poolAddress: 'https://alpha.charm.fi/ethereum/vault/0x2dcaff0f75765d7867887fc402b71c841b3a4bfb',
-    //   slug: 'bootstrap-v1',
+    //   slug: 'bootstrap-troposphere',
     //   lpRef: 'charmUsdcSpot',
     //   platform: Platform.Charm,
     //   exclusive: true,

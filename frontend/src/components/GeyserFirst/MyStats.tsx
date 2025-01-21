@@ -14,7 +14,7 @@ export const MyStats = () => {
   const {
     userStats: { apy, currentMultiplier, maxMultiplier, currentReward },
     vaultStats: { currentStake },
-    geyserStats: { calcPeriodInDays, duration },
+    geyserStats: { calcPeriodInDays, duration, hasMultiplier },
   } = useContext(StatsContext)
   const {
     selectedGeyserInfo: {
@@ -80,7 +80,7 @@ export const MyStats = () => {
             }}
           />
 
-          {calcPeriodInDays > 1 ? (
+          {hasMultiplier ? (
             <GeyserStatsBox
               containerClassName="w-1/2"
               name="Multiplier"

@@ -43,6 +43,7 @@ export const defaultGeyserStats = (): GeyserStats => ({
   unlockedRewards: 0,
   bonusRewards: [],
   bonusRewardsVal: 0,
+  hasMultiplier: true,
 })
 
 export const defaultVaultStats = (): VaultStats => ({
@@ -65,9 +66,8 @@ const getGeyserDuration = (geyser: Geyser) => {
 }
 
 export const getCalcPeriod = (geyser: Geyser) => {
-  const { scalingTime } = geyser
   const geyserDuration = getGeyserDuration(geyser)
-  return Math.max(Math.min(geyserDuration, parseInt(scalingTime, 10)), DAY_IN_SEC)
+  return Math.max(geyserDuration, DAY_IN_SEC)
 }
 
 export const getGeyserTotalDeposit = (geyser: Geyser, stakingTokenInfo: StakingTokenInfo) => {
@@ -93,6 +93,7 @@ export const getGeyserStats = async (
   ls.computeAndCache<GeyserStats>(
     async () => ({
       duration: getGeyserDuration(geyser),
+      hasMultiplier: geyser.scalingFloor !== geyser.scalingCeiling,
       calcPeriodInDays: getCalcPeriod(geyser) / DAY_IN_SEC,
       totalDeposit: parseFloat(formatUnits(geyser.totalStake, stakingTokenInfo.decimals)),
       totalDepositVal: getGeyserTotalDeposit(geyser, stakingTokenInfo),
@@ -216,10 +217,10 @@ const calculateAPY = (inflow: number, outflow: number, periods: number) => (outf
  * APY = (1 + (outflow / inflow)) ** periods - 1
  *
  * inflow = (amount staked by vault * price of the staking token)
- * outflow = (reward that will be unlocked by vault in the next `scalingTime * price of reward token)
+ * outflow = (reward that will be unlocked by vault in the next calcPeriod * price of reward token)
  * periods = number of `calcPeriod` in a year
  *
- * calcPeriod = max(min(geyserDuration, scalingTime), day)
+ * calcPeriod = min(geyserDuration, 30 days)
  */
 export const getUserAPY = async (
   geyser: Geyser,
@@ -233,14 +234,13 @@ export const getUserAPY = async (
 ) =>
   ls.computeAndCache<number>(
     async function () {
-      const { scalingTime } = geyser
       const { decimals: stakingTokenDecimals, price: stakingTokenPrice } = stakingTokenInfo
       const { decimals: rewardTokenDecimals, symbol: rewardTokenSymbol } = rewardTokenInfo
       const rewardTokenPrice = await getCurrentPrice(rewardTokenSymbol)
       const calcPeriod = getCalcPeriod(geyser)
       const drip = await (lock
-        ? getUserDrip(geyser, lock, additionalStakes, parseInt(scalingTime, 10), signerOrProvider)
-        : getStakeDrip(geyser, additionalStakes, parseInt(scalingTime, 10), signerOrProvider))
+        ? getUserDrip(geyser, lock, additionalStakes, calcPeriod, signerOrProvider)
+        : getStakeDrip(geyser, additionalStakes, calcPeriod, signerOrProvider))
 
       const stakedAmount = BigNumber.from(additionalStakes)
         .add(lock ? lock.amount : '0')

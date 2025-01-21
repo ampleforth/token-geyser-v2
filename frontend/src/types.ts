@@ -120,6 +120,7 @@ export type GeyserStats = {
   unlockedRewards: number
   bonusRewards: RewardStats[]
   bonusRewardsVal: number
+  hasMultiplier: boolean
 }
 
 export type VaultTokenBalance = TokenInfo & {

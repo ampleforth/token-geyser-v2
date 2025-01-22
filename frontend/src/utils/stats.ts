@@ -1,7 +1,13 @@
 import { BigNumber, BigNumberish } from 'ethers'
 import { toChecksumAddress } from 'web3-utils'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
-import { getGeyserVaultData, getBalanceLocked, getCurrentVaultReward, getFutureUnlockedRewards } from '../sdk/stats'
+import {
+  getGeyserVaultData,
+  getBalanceLocked,
+  getCurrentVaultReward,
+  getCurrentUnlockedRewards,
+  getFutureUnlockedRewards,
+} from '../sdk/stats'
 import {
   Geyser,
   GeyserStats,
@@ -148,7 +154,9 @@ const getPoolDrip = async (geyser: Geyser, end: number, signerOrProvider: Signer
   const geyserAddress = toChecksumAddress(geyser.id)
   const d = await ls.computeAndCache<GeyserStats>(
     async function () {
-      return (await getFutureUnlockedRewards(geyserAddress, endTimeSec, signerOrProvider)).toString()
+      const futureRewards = await getFutureUnlockedRewards(geyserAddress, endTimeSec, signerOrProvider)
+      const currentRewards = await getCurrentUnlockedRewards(geyserAddress, signerOrProvider)
+      return futureRewards.sub(currentRewards).toString()
     },
     `${geyser.id}|${endTimeSec}|poolDrip`,
     statsCacheTimeMs,

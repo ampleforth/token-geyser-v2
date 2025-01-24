@@ -25061,7 +25061,7 @@ function compareX(a, b) {
   return a.x - b.x
 }
 
-// find a bridge between vertices that connects hole with an outer ring and and link it
+// find a bridge between vertices that connects hole with an outer ring and link it
 function eliminateHole(hole, outerNode) {
   outerNode = findHoleBridge(hole, outerNode)
   if (outerNode) {

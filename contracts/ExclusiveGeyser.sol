@@ -42,6 +42,6 @@ contract ExclusiveGeyser is Geyser {
                 totalStakedBal += lock.balance;
             }
         }
-        return vaultBal - totalStakedBal;
+        return (vaultBal > totalStakedBal) ? vaultBal - totalStakedBal : 0;
     }
 }

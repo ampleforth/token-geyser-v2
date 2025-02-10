@@ -17,7 +17,7 @@ export const Home = () => {
   const { geysers, getGeyserConfig, allTokensInfos, stakeAPYs } = useContext(GeyserContext)
   const { selectedVault } = useContext(VaultContext)
   const navigate = useNavigate()
-  const stakedGeysers = selectedVault ? selectedVault.locks.map((l) => l.geyser) : []
+  const stakedGeysers = selectedVault ? selectedVault.locks.map((l) => l.geyser).filter((g) => !!g) : []
   const tokensByAddress = allTokensInfos.reduce((acc, t) => {
     acc[toChecksumAddress(t.address)] = t
     return acc

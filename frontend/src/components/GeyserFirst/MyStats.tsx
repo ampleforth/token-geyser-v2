@@ -14,7 +14,7 @@ export const MyStats = () => {
   const {
     userStats: { apy, currentMultiplier, maxMultiplier, currentReward },
     vaultStats: { currentStake },
-    geyserStats: { calcPeriodInDays, duration, hasMultiplier },
+    geyserStats: { duration, hasMultiplier, multiplierDurationInDays },
   } = useContext(StatsContext)
   const {
     selectedGeyserInfo: {
@@ -90,7 +90,7 @@ export const MyStats = () => {
               tooltipMessage={{
                 title: 'Bonus Multiplier',
                 body: GET_REWARD_MULTIPLIER_MSG({
-                  days: safeNumeral(Math.max(calcPeriodInDays || 30, 30), '0'),
+                  days: safeNumeral(multiplierDurationInDays || 30, '0'),
                   multiplier: safeNumeral(maxMultiplier || 3, '0.0'),
                 }),
               }}

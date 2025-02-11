@@ -121,6 +121,7 @@ export type GeyserStats = {
   bonusRewards: RewardStats[]
   bonusRewardsVal: number
   hasMultiplier: boolean
+  multiplierDurationInDays: number
 }
 
 export type VaultTokenBalance = TokenInfo & {

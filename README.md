@@ -15,6 +15,9 @@ ethereum:
   proxyAdmin: 0xc70F5bc82ccb3de00400814ff8bD406C271db3c4
   geyserRegistry: 0xFc43803F203e3821213bE687120aD44C8a21A7e7
   geysers:
+    - poolRef: "CHARM-SPOT-USDC (Bootstrap Stratosphere)"
+      deployment: 0x0b3f315e9e7BD3ec8C38bBd31a18a26982F29A66
+
     - poolRef: "CHARM-SPOT-USDC (Bootstrap Troposphere)"
       deployment: 0xFF7D65c538b2968E72E7a4bf59d33Eb4081CE4e8
 

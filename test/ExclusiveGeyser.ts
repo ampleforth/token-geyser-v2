@@ -1031,8 +1031,9 @@ describe('ExclusiveGeyser', function () {
       })
       describe('with insufficient balance', function () {
         it('should fail', async function () {
+          // Exclusive stake condition fails first
           await expect(stake(user, geyser, vault, stakingToken, stakeAmount.mul(2))).to.be.revertedWith(
-            'UniversalVault: insufficient balance',
+            'ExclusiveGeyser: expected exclusive stake',
           )
         })
       })
@@ -1123,7 +1124,7 @@ describe('ExclusiveGeyser', function () {
             }
           })
           it('should fail', async function () {
-            await expect(stake(user, geyser, vault, stakingToken, stakeAmount.div(quantity))).to.be.revertedWith(
+            await expect(stake(user, geyser, vault, stakingToken, 1)).to.be.revertedWith(
               'Geyser: MAX_STAKES_PER_VAULT reached',
             )
           })
@@ -1166,28 +1167,61 @@ describe('ExclusiveGeyser', function () {
       describe('non-exclusive stake', function () {
         let otherGeyser: Contract
         beforeEach(async function () {
-          const args = [
+          otherGeyser = await deployGeyser([
             admin.address,
             rewardPoolFactory.address,
             powerSwitchFactory.address,
             stakingToken.address,
             rewardToken.address,
             [rewardScaling.floor, rewardScaling.ceiling, rewardScaling.time],
-          ]
-          otherGeyser = await deployGeyser(args, 'Geyser')
+          ], 'Geyser')
           await otherGeyser.connect(admin).registerVaultFactory(vaultFactory.address)
-          await stake(user, otherGeyser, vault, stakingToken, 1)
+          await stake(user, otherGeyser, vault, stakingToken, stakeAmount)
         })
+
+
         it('should fail', async function () {
           await expect(stake(user, geyser, vault, stakingToken, stakeAmount)).to.be.revertedWith(
             'ExclusiveGeyser: expected exclusive stake',
           )
+          expect(await geyser.computeAvailableStakingBalance(vault.address)).to.eq(0)
+          expect(await vault.checkBalances()).to.eq(true)
         })
-        it('should not fail when there are no locks', async function () {
-          await unstakeAndClaim(user, otherGeyser, vault, stakingToken, 1)
-          await expect(stake(user, geyser, vault, stakingToken, stakeAmount)).not.to.be.revertedWith(
+
+        it('should fail', async function () {
+          // Note: stakeAmount is staked in both otherGeyser and yetAnotherGeyser
+          const yetAnotherGeyser = await deployGeyser([
+            admin.address,
+            rewardPoolFactory.address,
+            powerSwitchFactory.address,
+            stakingToken.address,
+            rewardToken.address,
+            [rewardScaling.floor, rewardScaling.ceiling, rewardScaling.time],
+          ], 'Geyser')
+          await yetAnotherGeyser.connect(admin).registerVaultFactory(vaultFactory.address)
+          await stake(user, yetAnotherGeyser, vault, stakingToken, stakeAmount)
+          await expect(stake(user, geyser, vault, stakingToken, stakeAmount)).to.be.revertedWith(
             'ExclusiveGeyser: expected exclusive stake',
           )
+          expect(await geyser.computeAvailableStakingBalance(vault.address)).to.eq(0)
+          expect(await vault.checkBalances()).to.eq(true)
+        })
+
+        it('should NOT fail when there is some unlocked amount', async function () {
+          await unstakeAndClaim(user, otherGeyser, vault, stakingToken, 15)
+          await expect(stake(user, geyser, vault, stakingToken, 14)).not.to.be.reverted
+          expect(await geyser.computeAvailableStakingBalance(vault.address)).to.eq(1)
+          expect(await vault.checkBalances()).to.eq(true)
+          await expect(stake(user, geyser, vault, stakingToken, 1)).not.to.be.reverted
+          expect(await geyser.computeAvailableStakingBalance(vault.address)).to.eq(0)
+          expect(await vault.checkBalances()).to.eq(true)
+        })
+
+        it('should NOT fail when there are no locks', async function () {
+          await unstakeAndClaim(user, otherGeyser, vault, stakingToken, stakeAmount)
+          await expect(stake(user, geyser, vault, stakingToken, stakeAmount)).not.to.be.reverted
+          expect(await geyser.computeAvailableStakingBalance(vault.address)).to.eq(0)
+          expect(await vault.checkBalances()).to.eq(true)
         })
       })
     })

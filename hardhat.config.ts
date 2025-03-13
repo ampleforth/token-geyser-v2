@@ -194,6 +194,15 @@ task('create-vault', 'deploy an instance of UniversalVault')
     await createInstance('UniversalVault', vaultFactory, ethers.getContractAt, signer)
   })
 
+task('deploy-geyser-template', 'deploys the current geyser template')
+  .addOptionalParam('instanceType', 'the type of geyser to be deployed', 'Geyser')
+  .setAction(async ({ instanceType }, { ethers, run, network, upgrades }) => {
+    await run('compile')
+    const signer = (await ethers.getSigners())[0]
+    console.log('Signer', signer.address)
+    await deployContract(instanceType, ethers.getContractFactory, signer)
+  })
+
 task('create-geyser', 'deploy an instance of Geyser')
   .addParam('stakingToken', 'the staking token')
   .addParam('rewardToken', 'the reward token')
@@ -357,7 +366,7 @@ export default {
       allowUnlimitedContractSize: true,
     },
     mainnet: {
-      url: `https://mainnet.infura.io/v3/${process.env.INFURA_SECRET}`,
+      url: `https://eth-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_SECRET}`,
       accounts: {
         mnemonic: process.env.PROD_MNEMONIC || Wallet.createRandom().mnemonic.phrase,
       },

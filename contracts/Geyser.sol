@@ -737,8 +737,8 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
     }
 
     /// @notice Rescue tokens from RewardPool
-    /// @dev use this function to rescue tokens from RewardPool contract
-    ///      without distributing to stakers or triggering emergency shutdown
+    /// @dev Use this function to rescue tokens from RewardPool contract
+    ///      without distributing to stakers or triggering emergency shutdown.
     /// access control: only admin
     /// state machine:
     ///   - can be called multiple times
@@ -755,12 +755,6 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
     ) external onlyOwner onlyOnline {
         // verify recipient
         _validateAddress(recipient);
-
-        // check not attempting to unstake reward token
-        require(token != _geyser.rewardToken, "Geyser: invalid address");
-
-        // check not attempting to wthdraw bonus token
-        require(!_bonusTokenSet.contains(token), "Geyser: invalid address");
 
         // transfer tokens to recipient
         IRewardPool(_geyser.rewardPool).sendERC20(token, recipient, amount);

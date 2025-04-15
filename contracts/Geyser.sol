@@ -673,6 +673,14 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         emit GeyserFunded(amount, duration);
     }
 
+    /// @notice Allows owner to terminate an existing reward schedule.
+    /// @param index The index of the reward schedule to terminate.
+    function terminateRewardSchedule(uint256 index) external onlyOwner {
+        RewardSchedule storage reward = _geyser.rewardSchedules[index];
+        require(reward.start + reward.duration > block.timestamp, "Reward schedule ended");
+        reward.duration = (block.timestamp - reward.start);
+    }
+
     /// @notice Add vault factory to whitelist
     /// @dev use this function to enable stakes to vaults coming from the specified
     ///      factory contract

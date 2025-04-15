@@ -18,7 +18,7 @@ contract ExclusiveGeyser is Geyser {
         bytes calldata permission
     ) public override {
         // DISABLING STAKING
-        require(false, "Staking disabled");
+        revert("Staking disabled");
 
         // verify that vault isn't staking the same tokens in multiple programs
         _enforceExclusiveStake(IUniversalVault(vault), amount);

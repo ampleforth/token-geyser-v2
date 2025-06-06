@@ -13,7 +13,7 @@ export const HeaderWalletButton = () => {
 
   const handleButtonClick = async () => {
     if (wallet) {
-      await disconnectWallet(wallet)
+      await disconnectWallet()
       if (mode !== Mode.GEYSERS) {
         toggleMode()
       }

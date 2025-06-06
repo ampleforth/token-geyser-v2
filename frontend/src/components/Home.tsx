@@ -30,7 +30,7 @@ export const Home = () => {
       const rewardTokenInfo = tokensByAddress[toChecksumAddress(g.rewardToken)]
       const tvl = stakingTokenInfo ? getGeyserTotalDeposit(g, stakingTokenInfo) : 0
       const stakingTokens = (stakingTokenInfo && stakingTokenInfo.composition.map((t) => t.symbol)) || []
-      const lpAPY = (stakeAPYs.lp && stakeAPYs.lp[config.lpRef]) || 0
+      const lpAPY = (stakeAPYs.lp && config.lpRef && stakeAPYs.lp[config.lpRef]) || 0
       const geyserAPY = (stakeAPYs.geysers && stakeAPYs.geysers[config.slug]) || 0
       const apy = lpAPY + geyserAPY
       const programName = extractProgramName(config.name)
@@ -60,7 +60,7 @@ export const Home = () => {
   if (geysersToShow.length === 0) {
     geysersToShow = geyserData.slice(0, 3)
   }
-  geysersToShow = geysersToShow.sort((g1, g2) => g2.active - g1.active)
+  geysersToShow = geysersToShow.sort((g1, g2) => Number(g2.active) - Number(g1.active))
 
   return (
     <Container>

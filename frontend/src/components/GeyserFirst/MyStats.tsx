@@ -29,12 +29,13 @@ export const MyStats = () => {
   const [lpAPY, setLPAPY] = useState<number>(0)
   const [geyserAPY, setGeyserAPY] = useState<number>(0)
   const [finalAPY, setFinalAPY] = useState<number>(0)
-  useEffect(async () => {
+  useEffect(() => {
+    (async () => {
     if (!selectedGeyser) {
       return
     }
     const config = getGeyserConfig(selectedGeyser.id)
-    const lpAPYNew = (stakeAPYs.lp && stakeAPYs.lp[config.lpRef]) || 0
+    const lpAPYNew = (stakeAPYs.lp && config.lpRef && stakeAPYs.lp[config.lpRef]) || 0
     const geyserAPYGlobal = stakeAPYs.geysers && stakeAPYs.geysers[config.slug]
     // const geyserAPYNew = ready ? apy : geyserAPYGlobal || apy
     // NOTE: just showing the global APY as a guideline for most users.
@@ -45,7 +46,7 @@ export const MyStats = () => {
     setLPAPY(lpAPYNew)
     setGeyserAPY(geyserAPYNew)
     setFinalAPY(Math.min(geyserAPYNew + lpAPYNew, 100000))
-  }, [selectedGeyser, apy, duration])
+  })()}, [selectedGeyser, apy, duration])
 
   // TODO: handle bonus tokens
   const baseRewards = currentReward * rewardTokenPrice

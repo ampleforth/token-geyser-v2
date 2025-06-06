@@ -37,7 +37,7 @@ function App() {
                       path="/vault"
                       element={
                         <div>
-                          <DropdownsContainer showVaults />
+                          <DropdownsContainer showVaults showGeysers={false} />
                           <VaultFirstContainer />
                         </div>
                       }

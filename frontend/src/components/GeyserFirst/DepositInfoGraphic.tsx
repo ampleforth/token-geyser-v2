@@ -5,7 +5,7 @@ import React, { useEffect, useRef } from 'react'
 import * as THREE from 'assets/three.module'
 
 const DepositInfoGraphic = () => {
-  const containerRef = useRef(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     let camera
     let scene

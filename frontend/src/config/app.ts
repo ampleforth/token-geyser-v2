@@ -7,6 +7,8 @@ import {
   AdditionalTokenConfig,
   AppAdditionalTokensList,
   PlatformsList,
+  PlatformConfig,
+  StakingTokenInfo,
 } from '../types'
 
 const networkConfig: NetworkConfig = {
@@ -46,37 +48,37 @@ export const platformsList: PlatformsList = {
   [Platform.Ampleforth]: {
     name: 'Ampleforth',
     url: 'https://ampleforth.org/',
-    icon: '',
+    iconUrl: '',
   },
   [Platform.Charm]: {
     name: 'Charm',
     url: 'https://charm.fi/',
-    icon: '',
+    iconUrl: '',
   },
   [Platform.Uniswap]: {
     name: 'Uniswap',
     url: 'https://uniswap.info/',
-    icon: '',
+    iconUrl: '',
   },
   [Platform.Balancer]: {
     name: 'Balancer',
     url: 'https://balancer.fi/#/',
-    icon: '',
+    iconUrl: '',
   },
   [Platform.Sushiswap]: {
     name: 'Sushiswap',
     url: 'https://www.sushi.com/',
-    icon: '',
+    iconUrl: '',
   },
   [Platform.Arrakis]: {
     name: 'Arrakis',
     url: 'https://arrakis.finance/',
-    icon: '',
+    iconUrl: '',
   },
   [Platform.Aave]: {
     name: 'Aave',
     url: 'https://aave.com/',
-    icon: '',
+    iconUrl: '',
   },
 }
 
@@ -321,13 +323,13 @@ const additionalTokens: AppAdditionalTokensList = {
       enabled: true,
     },
   ],
-  [Network.Avalanche]: [
-    {
-      token: 'pangolin',
-      address: '0x60781c2586d68229fde47564546784ab3faca982',
-      enabled: true,
-    },
-  ],
+  // [Network.Avalanche]: [
+  //   {
+  //     token: 'pangolin',
+  //     address: '0x60781c2586d68229fde47564546784ab3faca982',
+  //     enabled: true,
+  //   },
+  // ],
 }
 
 export const activeNetworks: Network[] = [Network.Mainnet]

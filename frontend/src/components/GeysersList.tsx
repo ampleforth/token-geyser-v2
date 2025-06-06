@@ -29,7 +29,7 @@ export const GeysersList = () => {
 
     const activeGeysers = geysersToShow.filter((g) => g.active === true).map(({ id }) => getGeyserName(id))
     const inactiveGeysers = geysersToShow.filter((g) => !(g.active === true)).map(({ id }) => getGeyserName(id))
-    const options = []
+    const options: { group: string; options: string[] }[] = []
     if (activeGeysers.length > 0) {
       options.push({
         group: 'Active Geysers',

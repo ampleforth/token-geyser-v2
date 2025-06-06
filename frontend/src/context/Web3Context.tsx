@@ -3,6 +3,7 @@ import { init, useConnectWallet, useSetChain, useWallets } from '@web3-onboard/r
 import injectedModule from '@web3-onboard/injected-wallets'
 import coinbaseModule from '@web3-onboard/coinbase'
 import metamaskModule from '@web3-onboard/metamask'
+import walletConnectModule from '@web3-onboard/walletconnect'
 
 import { providers } from 'ethers'
 import { StaticJsonRpcProvider } from '@ethersproject/providers'
@@ -46,12 +47,17 @@ const metamask = metamaskModule({
     },
   },
 })
+const walletConnect = walletConnectModule({
+  projectId: '16bba530aa0eda3aa9266168e8b26be7',
+  requiredChains: activeNetworks,
+  dappUrl: 'https://geyser.ampleforth.org',
+})
 
 init({
   connect: {
     autoConnectAllPreviousWallet: true,
   },
-  wallets: [injected, metamask, coinbase],
+  wallets: [injected, metamask, coinbase, walletConnect],
   chains: activeNetworks.map((networkId) => {
     const config = getConnectionConfig(networkId)
     return {

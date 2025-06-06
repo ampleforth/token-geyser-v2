@@ -7,10 +7,9 @@ import { getConnectionConfig } from '../config/app'
 
 export const loadNetworkConfig = async (signerOrProvider: Signer | providers.Provider) => {
   // console.log('provider present', !!signerOrProvider.network || !!signerOrProvider.provider?.network)
-  const network =
-    (await (Signer.isSigner(signerOrProvider)
-      ? signerOrProvider.provider?.getNetwork()
-      : signerOrProvider.getNetwork()))
+  const network = await (Signer.isSigner(signerOrProvider)
+    ? signerOrProvider.provider?.getNetwork()
+    : signerOrProvider.getNetwork())
 
   const conn = getConnectionConfig(network?.chainId || null)
   let networkName = conn.ref

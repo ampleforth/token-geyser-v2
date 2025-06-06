@@ -51,7 +51,7 @@ export const computeAMPLRewardShares = async (
 ) => {
   const provider = (signerOrProvider as Signer).provider || (signerOrProvider as providers.Provider)
   // console.log("provider present", !!provider.network)
-  const { chainId } = (await provider.getNetwork())
+  const { chainId } = await provider.getNetwork()
 
   if (isCrossChain) {
     const controller = await getXCAmpleController(chainId, getClient(chainId))

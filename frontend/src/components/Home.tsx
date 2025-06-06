@@ -30,13 +30,13 @@ export const Home = () => {
       const rewardTokenInfo = tokensByAddress[toChecksumAddress(g.rewardToken)]
       const tvl = stakingTokenInfo ? getGeyserTotalDeposit(g, stakingTokenInfo) : 0
       const stakingTokens = (stakingTokenInfo && stakingTokenInfo.composition.map((t) => t.symbol)) || []
-      const lpAPY = (stakeAPYs.lp && config.lpRef && stakeAPYs.lp[config.lpRef]) || 0
-      const geyserAPY = (stakeAPYs.geysers && stakeAPYs.geysers[config.slug]) || 0
+      const lpAPY = (stakeAPYs.lp && config && config.lpRef && stakeAPYs.lp[config.lpRef]) || 0
+      const geyserAPY = (stakeAPYs.geysers && config && stakeAPYs.geysers[config.slug]) || 0
       const apy = lpAPY + geyserAPY
-      const programName = extractProgramName(config.name)
-      const platform = getPlatformConfig(config)
+      const programName = config ? extractProgramName(config.name) : ''
+      const platform = config ? getPlatformConfig(config) : null
       const rewards = rewardTokenInfo ? getGeyserTotalRewards(g, rewardTokenInfo) : 0
-      const isStablePool = config.name.includes('USDC') && config.name.includes('SPOT')
+      const isStablePool = config && config.name.includes('USDC') && config.name.includes('SPOT')
       const poolType = `${isStablePool ? 'Stable' : 'Vol'}[${stakingTokens.join('/')}]`
       return {
         id: g.id,
@@ -46,8 +46,8 @@ export const Home = () => {
         rewards,
         apy,
         name: programName,
-        slug: config.slug,
-        poolAddress: config.poolAddress,
+        slug: config ? config.slug : '',
+        poolAddress: config ? config.poolAddress : '',
         poolType,
         platform,
       }

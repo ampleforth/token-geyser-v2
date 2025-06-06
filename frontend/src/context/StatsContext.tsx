@@ -3,7 +3,7 @@ import { formatUnits } from 'ethers/lib/utils'
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { toChecksumAddress } from 'web3-utils'
 import { getCurrentStakeReward } from 'sdk/stats'
-import { GeyserStats, UserStats, VaultStats } from 'types'
+import { GeyserStats, UserStats, VaultStats, Lock } from 'types'
 import {
   defaultGeyserStats,
   defaultUserStats,
@@ -79,7 +79,7 @@ export const StatsContextProvider: React.FC = ({ children }) => {
 
   const computeAPYFromAdditionalStakes = async (stakeAmount: BigNumberish) => {
     const { geyser: selectedGeyser, stakingTokenInfo, rewardTokenInfo, bonusTokensInfo } = selectedGeyserInfo
-    if (selectedGeyser) {
+    if (selectedGeyser && selectedVault) {
       return getUserAPY(
         selectedGeyser,
         selectedVault,
@@ -143,7 +143,7 @@ export const StatsContextProvider: React.FC = ({ children }) => {
     if (validNetwork && selectedGeyser && stakingTokenInfo?.address && rewardTokenInfo?.address) {
       setGeyserStats(await getGeyserStats(selectedGeyser, stakingTokenInfo, rewardTokenInfo, bonusTokensInfo))
 
-      let activeLock = null
+      let activeLock: Lock | null = null
       if (selectedVault) {
         const lockId = `${selectedVault.id}-${selectedGeyser.id}-${stakingTokenInfo.address.toLowerCase()}`
         activeLock = selectedVault.locks.find((lock) => lock.id === lockId) || null

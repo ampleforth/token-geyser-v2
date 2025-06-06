@@ -1,5 +1,5 @@
 import { TypedDataField } from '@ethersproject/abstract-signer'
-import { BigNumberish, Contract, providers, Signer, Wallet } from 'ethers'
+import { BigNumberish, Contract, providers, Signer, utils as ethersUtils, Wallet } from 'ethers'
 import { LogDescription, splitSignature } from 'ethers/lib/utils'
 import { TransactionReceipt } from '@ethersproject/providers'
 
@@ -8,8 +8,6 @@ import { getConnectionConfig } from '../config/app'
 export const loadNetworkConfig = async (signerOrProvider: Signer | providers.Provider) => {
   // console.log('provider present', !!signerOrProvider.network || !!signerOrProvider.provider?.network)
   const network =
-    signerOrProvider.network ||
-    signerOrProvider.provider?.network ||
     (await (Signer.isSigner(signerOrProvider)
       ? signerOrProvider.provider?.getNetwork()
       : signerOrProvider.getNetwork()))
@@ -33,7 +31,7 @@ export const isPermitable = async (tokenAddress: string) => {
 export const signPermission = async (
   method: string,
   vault: Contract,
-  owner: Wallet,
+  owner: Signer,
   delegateAddress: string,
   tokenAddress: string,
   amount: BigNumberish,
@@ -44,7 +42,10 @@ export const signPermission = async (
   vaultNonce = vaultNonce || (await vault.getNonce())
   // get chainId
   // console.log("provider present", !!vault?.provider?.network)
-  const network = vault?.provider?.network || (await vault.provider.getNetwork())
+  const network = await vault.provider?.getNetwork()
+  if (!network) {
+    throw new Error('Network not found')
+  }
   chainId = chainId || network.chainId
   // craft permission
   const domain = {
@@ -70,13 +71,13 @@ export const signPermission = async (
   // Try to sign with EIP-712
   let signedPermission
   try {
-    signedPermission = await owner._signTypedData(domain, types, value)
+    signedPermission = await (owner as Wallet)._signTypedData(domain, types, value)
   } catch (error) {
     console.log('EIP-712 signing failed, falling back to eth_sign:', error)
 
     // Fallback to eth_sign
-    const messageHash = ethers.utils._TypedDataEncoder.hash(domain, types, value)
-    signedPermission = await owner.provider.send('eth_sign', [owner.address, messageHash])
+    const messageHash = ethersUtils._TypedDataEncoder.hash(domain, types, value)
+    signedPermission = await owner.signMessage(messageHash)
   }
 
   const replaceV: any = []
@@ -94,7 +95,7 @@ export const signPermission = async (
 }
 
 export const signPermitEIP2612 = async (
-  owner: Wallet,
+  owner: Signer,
   token: Contract,
   spenderAddress: string,
   value: BigNumberish,
@@ -102,7 +103,7 @@ export const signPermitEIP2612 = async (
   nonce?: BigNumberish,
 ) => {
   // get nonce
-  nonce = nonce || (await token.nonces(owner.address))
+  nonce = nonce || (await token.nonces(owner.getAddress()))
   // get domain
   const domainSeparator = await token.DOMAIN_SEPARATOR()
   // get types
@@ -116,7 +117,7 @@ export const signPermitEIP2612 = async (
   ]
   // get values
   const values = {
-    owner: owner.address,
+    owner: owner.getAddress(),
     spender: spenderAddress,
     value: value,
     nonce: nonce,
@@ -126,17 +127,17 @@ export const signPermitEIP2612 = async (
   // Try to sign with EIP-712
   let signedPermission
   try {
-    signedPermission = await owner._signTypedData(domainSeparator, types, values)
+    signedPermission = await (owner as Wallet)._signTypedData(domainSeparator, types, values)
   } catch (error) {
     console.log('EIP-712 signing failed, falling back to eth_sign:', error)
 
     // Fallback to eth_sign
-    const messageHash = ethers.utils._TypedDataEncoder.hash(
-      { chainId: await token.provider.getNetwork().chainId, ...domainSeparator },
+    const messageHash = ethersUtils._TypedDataEncoder.hash(
+      { chainId: (await owner.provider?.getNetwork())?.chainId, ...domainSeparator },
       types,
       values,
     )
-    signedPermission = await owner.provider.send('eth_sign', [owner.address, messageHash])
+    signedPermission = await owner.signMessage(messageHash)
   }
 
   // split signature

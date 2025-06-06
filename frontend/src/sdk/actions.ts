@@ -1,5 +1,5 @@
 import { TransactionResponse, TransactionReceipt } from '@ethersproject/providers'
-import { BigNumber, BigNumberish, Contract, Signer, Wallet } from 'ethers'
+import { BigNumber, BigNumberish, Contract, Signer } from 'ethers'
 import { randomBytes } from 'ethers/lib/utils'
 import { ERC20_ABI } from './abis'
 import { getBalanceLocked, getRewardsClaimedFromUnstake } from './stats'
@@ -41,7 +41,7 @@ export const deposit = async (vaultAddress: string, tokenAddress: string, amount
   return token.transfer(vaultAddress, amount) as Promise<TransactionResponse>
 }
 
-export const stake = async (geyserAddress: string, vaultAddress: string, amount: BigNumberish, signer: Wallet) => {
+export const stake = async (geyserAddress: string, vaultAddress: string, amount: BigNumberish, signer: Signer) => {
   const config = await loadNetworkConfig(signer)
 
   const geyser = new Contract(geyserAddress, config.GeyserTemplate.abi, signer)
@@ -54,7 +54,7 @@ export const stake = async (geyserAddress: string, vaultAddress: string, amount:
   return geyser.stake(vault.address, amount, permission) as Promise<TransactionResponse>
 }
 
-export const unstake = async (geyserAddress: string, vaultAddress: string, amount: BigNumberish, signer: Wallet) => {
+export const unstake = async (geyserAddress: string, vaultAddress: string, amount: BigNumberish, signer: Signer) => {
   const config = await loadNetworkConfig(signer)
 
   const geyser = new Contract(geyserAddress, config.GeyserTemplate.abi, signer)
@@ -119,7 +119,7 @@ export const withdrawUnlocked = async (
 
 /// Combined Actions ///
 
-export const approveCreateDepositStake = async (geyserAddress: string, amount: BigNumberish, signer: Wallet) => {
+export const approveCreateDepositStake = async (geyserAddress: string, amount: BigNumberish, signer: Signer) => {
   const config = await loadNetworkConfig(signer)
 
   const geyser = new Contract(geyserAddress, config.GeyserTemplate.abi, signer)
@@ -146,7 +146,7 @@ export const approveDepositStake = async (
   geyserAddress: string,
   vaultAddress: string,
   amountToStake: BigNumberish,
-  signer: Wallet,
+  signer: Signer,
 ) => {
   const config = await loadNetworkConfig(signer)
   const geyser = new Contract(geyserAddress, config.GeyserTemplate.abi, signer)
@@ -173,14 +173,20 @@ export const approveDepositStake = async (
   return r as Promise<TransactionResponse>
 }
 
-export const permitCreateDepositStake = async (geyserAddress: string, amount: BigNumberish, signer: Wallet) => {
+export const permitCreateDepositStake = async (geyserAddress: string, amount: BigNumberish, signer: Signer) => {
+  if (!signer.provider) {
+    throw new Error('Signer provider not found')
+  }
   const config = await loadNetworkConfig(signer)
+  if (!config) {
+    throw new Error('Network config not found')
+  }
 
   const geyser = new Contract(geyserAddress, config.GeyserTemplate.abi, signer)
   const router = new Contract(config.RouterV1.address, config.RouterV1.abi, signer)
 
   const tokenAddress = (await geyser.getGeyserData()).stakingToken
-  const deadline = (await signer.provider.getBlock('latest')).timestamp + 60 * 60 * 24
+  const deadline = (await signer.provider?.getBlock('latest'))?.timestamp + 60 * 60 * 24
 
   if (!isPermitable(tokenAddress)) {
     throw new Error('Staking token not recognized as having EIP2612 permit() interface')
@@ -204,15 +210,21 @@ export const permitDepositStake = async (
   geyserAddress: string,
   vaultAddress: string,
   amount: BigNumberish,
-  signer: Wallet,
+  signer: Signer,
 ) => {
+  if (!signer.provider) {
+    throw new Error('Signer provider not found')
+  }
   const config = await loadNetworkConfig(signer)
+  if (!config) {
+    throw new Error('Network config not found')
+  }
 
   const geyser = new Contract(geyserAddress, config.GeyserTemplate.abi, signer)
   const router = new Contract(config.RouterV1.address, config.RouterV1.abi, signer)
 
   const tokenAddress = (await geyser.getGeyserData()).stakingToken
-  const deadline = (await signer.provider.getBlock('latest')).timestamp + 60 * 60 * 24
+  const deadline = (await signer.provider?.getBlock('latest'))?.timestamp + 60 * 60 * 24
 
   if (!isPermitable(tokenAddress)) {
     throw new Error('Staking token not recognized as having EIP2612 permit() interface')

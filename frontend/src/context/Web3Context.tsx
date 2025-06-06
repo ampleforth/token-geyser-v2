@@ -32,11 +32,7 @@ const Web3Context = createContext({
 })
 
 const injected = injectedModule()
-const coinbase = coinbaseModule({
-  appName: 'Geyser',
-  appLogoUrl: 'https://assets.fragments.org/ampl.png',
-  dappUrl: 'https://geyser.ampleforth.org',
-})
+const coinbase = coinbaseModule({})
 const metamask = metamaskModule({
   options: {
     extensionOnly: false,

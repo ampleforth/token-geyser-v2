@@ -477,7 +477,7 @@ const getBillBroker = async (tokenAddress: string, signerOrProvider: SignerOrPro
 
   const tokenCompositions = await getTokenCompositionsWithBalances(
     [await contract.usd(), await contract.perp()],
-    [usdBalanceFixedPt, perpBalanceFixedPt],
+    [usdBalanceFixedPt.toString(), perpBalanceFixedPt.toString()],
     signerOrProvider,
     [usdBalance / totalVal, perpBalance / totalVal],
   )
@@ -507,7 +507,6 @@ const getSTAMPL = async (tokenAddress: string, signerOrProvider: SignerOrProvide
   const totalSupply = parseFloat(formatUnits(await contract.totalSupply(), decimals))
   const tokenCompositions = [
     {
-      address: ampl.address,
       ...amplTokenInfo,
       balance: tvl,
       value: amplPrice * tvl,

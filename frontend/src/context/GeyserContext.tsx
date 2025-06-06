@@ -2,8 +2,8 @@ import { useLazyQuery } from '@apollo/client'
 import { createContext, useContext, useEffect, useState } from 'react'
 import { toChecksumAddress } from 'web3-utils'
 import { TransactionResponse } from '@ethersproject/providers'
-import { BigNumber, Wallet } from 'ethers'
-import { Geyser, TokenInfo, GeyserConfig, Vault, GeyserInfo, GeyserAction } from 'types'
+import { BigNumber } from 'ethers'
+import { Geyser, TokenInfo, GeyserConfig, Vault, GeyserInfo, GeyserAction, BonusTokenInfo } from 'types'
 import { getTokenInfo } from 'utils/token'
 import { getBonusTokenInfo } from 'utils/bonusToken'
 import { defaultStakingTokenInfo, getStakingTokenInfo } from 'utils/stakingToken'
@@ -24,7 +24,7 @@ export const GeyserContext = createContext<{
   selectGeyser: (geyser: Geyser) => void
   selectGeyserById: (id: string) => void
   getGeyserSlugByName: (name: string) => string
-  selectGeyserBySlug: (name: string) => bool
+  selectGeyserBySlug: (name: string) => Promise<boolean>
   geyserAction: GeyserAction
   updateGeyserAction: (a: GeyserAction) => void
   handleStakeUnstake: (arg0: Vault | null, arg1: BigNumber) => Promise<TransactionResponse | undefined>
@@ -37,12 +37,12 @@ export const GeyserContext = createContext<{
     arg6: boolean,
   ) => Promise<TransactionResponse | undefined>
   allTokensInfos: TokenInfo[]
-  getGeyserConfig: (id: string) => GeyserConfig
-  getDefaultGeyserConfig: () => GeyserConfig
+  getGeyserConfig: (id: string) => GeyserConfig | null
+  getDefaultGeyserConfig: () => GeyserConfig | null 
   getGeyserName: (id: string) => string
   selectedGeyserConfig: GeyserConfig | null
-  stakeAPYs: Record<Record<string, number>>
-  loading: bool
+  stakeAPYs: Record<string, Record<string, number>>
+  loading: boolean
 }>({
   geysers: [],
   selectedGeyserInfo: {
@@ -55,14 +55,14 @@ export const GeyserContext = createContext<{
   selectGeyser: () => {},
   selectGeyserById: () => {},
   getGeyserSlugByName: () => '',
-  selectGeyserBySlug: () => false,
+  selectGeyserBySlug: () => Promise.resolve(false),
   geyserAction: GeyserAction.STAKE,
   updateGeyserAction: () => {},
   handleStakeUnstake: async () => undefined,
   handleWrapping: async () => undefined,
   allTokensInfos: [],
-  getGeyserConfig: () => {},
-  getDefaultGeyserConfig: () => {},
+  getGeyserConfig: (id: string) => { return (null) },
+  getDefaultGeyserConfig: () => { return (null) },
   getGeyserName: () => '',
   selectedGeyserConfig: null,
   stakeAPYs: {},
@@ -74,7 +74,7 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
   const signerOrProvider = signer || provider
 
   // Polling to fetch fresh geyser stats
-  const [dataLoading, setDataLoading] = useState<bool>(false)
+  const [dataLoading, setDataLoading] = useState<boolean>(false)
   const [getGeysers, { loading: geyserLoading, data: geyserData }] = useLazyQuery(GET_GEYSERS, {
     pollInterval: POLL_INTERVAL,
   })
@@ -89,7 +89,7 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
 
   const [selectedGeyserConfig, setSelectedGeyserConfig] = useState<GeyserConfig | null>(null)
   const [allTokensInfos, setAllTokensInfos] = useState<TokenInfo[]>([])
-  const [stakeAPYs, setStakeAPYs] = useState<Record<Record<string, number>>>({})
+  const [stakeAPYs, setStakeAPYs] = useState<Record<string, Record<string, number>>>({})
 
   const [geyserAction, setAction] = useState<GeyserAction>(GeyserAction.STAKE)
   const updateGeyserAction = (a: GeyserAction) => setAction(a)
@@ -210,7 +210,7 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
     if (selectedGeyserInfo.geyser && selectedVault && signer) {
       const geyserAddress = selectedGeyserInfo.geyser.id
       const vaultAddress = selectedVault.id
-      return unstake(geyserAddress, vaultAddress, parsedAmount, signer as Wallet)
+      return unstake(geyserAddress, vaultAddress, parsedAmount, signer)
     }
     return undefined
   }
@@ -219,8 +219,8 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
     if (selectedGeyserInfo.geyser && signer && !parsedAmount.isZero()) {
       const geyserAddress = selectedGeyserInfo.geyser.id
       return selectedVault
-        ? approveDepositStake(geyserAddress, selectedVault.id, parsedAmount, signer as Wallet)
-        : approveCreateDepositStake(geyserAddress, parsedAmount, signer as Wallet)
+        ? approveDepositStake(geyserAddress, selectedVault.id, parsedAmount, signer)
+        : approveCreateDepositStake(geyserAddress, parsedAmount, signer)
     }
     return undefined
   }
@@ -242,7 +242,7 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
       signerOrProvider,
     )
     const newRewardTokenInfo = await getRewardTokenInfo(geyser.rewardToken, geyserConfig.rewardToken, signerOrProvider)
-    const newBonusTokensInfo = []
+    const newBonusTokensInfo: BonusTokenInfo[] = []
     for (let a = 0; a < geyser.bonusTokens.length; a++) {
       const bonusToken = await getBonusTokenInfo(geyser.bonusTokens[a], signerOrProvider)
       newBonusTokensInfo.push(bonusToken)
@@ -251,7 +251,7 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
     setSelectedGeyserConfig(geyserConfig)
     setSelectedGeyserInfo({
       geyser,
-      isWrapped: geyserConfig.isWrapped,
+      isWrapped: geyserConfig.isWrapped || false,
       poolAddress: geyserConfig.poolAddress,
       stakingTokenInfo: newStakingTokenInfo,
       rewardTokenInfo: newRewardTokenInfo,
@@ -276,7 +276,7 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
     }
   }
 
-  const selectGeyserBySlug = async (slug: string): bool => {
+  const selectGeyserBySlug = async (slug: string): Promise<boolean> => {
     const geyserConfigs = getGeysersConfigList(networkId)
     const geyser = geyserConfigs.find((g) => g.slug === slug)
     if (!geyser) {
@@ -289,12 +289,12 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
   const getGeyserConfig = (id: string) => {
     const geyserConfigs = getGeysersConfigList(networkId)
     const config = geyserConfigs.find((g) => toChecksumAddress(g.address) === toChecksumAddress(id))
-    return config || {}
+    return config || null
   }
 
   const getDefaultGeyserConfig = () => {
     const geyserConfigs = getGeysersConfigList(networkId)
-    return geyserConfigs[0] || {}
+    return geyserConfigs[0] || null
   }
 
   const getGeyserName = (id: string) => {
@@ -310,18 +310,22 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
     console.log('network refresh')
   }, [networkId])
 
-  useEffect(async () => {
-    if (geyserData && geyserData.geysers && !selectedGeyserInfo.geyser) {
-      await setupGeysers()
-      console.log('geyser list refresh')
-    }
+  useEffect(() => {
+    (async () => {
+      if (geyserData && geyserData.geysers && !selectedGeyserInfo.geyser) {
+        await setupGeysers()
+        console.log('geyser list refresh')
+      }
+    })()
   }, [geyserData])
 
-  useEffect(async () => {
-    if (geysers.length > 0) {
-      await selectGeyser(geysers.find((geyser) => geyser.id === selectedGeyserInfo.geyser?.id) || geysers[0])
-      console.log('geyser refresh')
-    }
+  useEffect(() => {
+    (async () => {
+      if (geysers.length > 0) {
+        await selectGeyser(geysers.find((geyser) => geyser.id === selectedGeyserInfo.geyser?.id) || geysers[0])
+        console.log('geyser refresh')
+      }
+    })()
   }, [geysers])
 
   return (
@@ -343,7 +347,7 @@ export const GeyserContextProvider: React.FC = ({ children }) => {
         getGeyserName,
         selectedGeyserConfig,
         stakeAPYs,
-        loading: dataLoading || (geyserLoading && !geysers.length > 0),
+        loading: dataLoading || (geyserLoading && !(geysers.length > 0)),
       }}
     >
       {children}

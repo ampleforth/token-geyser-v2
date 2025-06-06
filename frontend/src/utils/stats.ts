@@ -101,7 +101,7 @@ export const getGeyserStats = async (
     async () => ({
       duration: getGeyserDuration(geyser),
       hasMultiplier: geyser.scalingFloor !== geyser.scalingCeiling,
-      multiplierDurationInDays: (geyser.scalingTime / DAY_IN_SEC || 30),
+      multiplierDurationInDays: geyser.scalingTime / DAY_IN_SEC || 30,
       calcPeriodInDays: getCalcPeriod(geyser) / DAY_IN_SEC,
       totalDeposit: parseFloat(formatUnits(geyser.totalStake, stakingTokenInfo.decimals)),
       totalDepositVal: getGeyserTotalDeposit(geyser, stakingTokenInfo),

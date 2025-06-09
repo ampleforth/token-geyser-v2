@@ -21,7 +21,7 @@ export type DataSource = {
 interface Props {
   columns: Column[]
   dataSource: DataSource[]
-  loading: bool
+  loading: boolean
 }
 
 export const Table: React.FC<Props> = ({ columns, loading, dataSource }) => {

@@ -23,7 +23,7 @@ export const HeaderNetworkSelect: React.FC<Props> = () => {
       <Select
         options={networkOptions}
         selected={selected}
-        onChange={(t) => selectNetwork({ chainId: parseInt(networkOptions[t].id, 10) })}
+        onChange={(t) => selectNetwork({ chainId: `0x${parseInt(networkOptions[t].id).toString(16)}` })}
       />
     </SelectContainer>
   )

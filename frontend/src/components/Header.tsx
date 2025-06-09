@@ -105,7 +105,7 @@ const RightContainer = styled.div`
 `
 
 const HeaderTabItem = styled(Tab).withConfig({
-  shouldForwardProp: (prop) => prop !== 'isSelected',
+  shouldForwardProp: (prop: string | number) => prop !== 'isSelected',
 })<{ isSelected: boolean }>`
   ${tw`font-normal tracking-wider px-4 py-2 text-center cursor-pointer`}
   ${({ isSelected }) => (isSelected ? tw`text-black font-bold` : tw`text-gray hover:text-black`)};

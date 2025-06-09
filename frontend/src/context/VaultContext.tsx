@@ -24,8 +24,8 @@ export const VaultContext = createContext<{
     | ((tokenAddress: string) => Promise<{ response: TransactionResponse; amount: BigNumber } | null>)
     | null
   rewardAmountClaimedOnUnstake: ((receipt: TransactionReceipt) => Promise<BigNumber>) | null
-  loading: bool
-  otherActiveLock: bool
+  loading: boolean
+  otherActiveLock: boolean
 }>({
   vaults: [],
   selectedVault: null,
@@ -60,12 +60,12 @@ export const VaultContextProvider: React.FC = ({ children }) => {
   const selectVault = (vault: Vault) => setSelectedVault(vault)
   const selectVaultById = (id: string) => setSelectedVault(vaults.find((vault) => vault.id === id) || selectedVault)
   const withdrawFromVault =
-    ready && selectedVault
+    ready && selectedVault && address && signer
       ? (tokenAddress: string, amount: BigNumber) => withdraw(selectedVault.id, tokenAddress, address, amount, signer)
       : null
 
   const rewardAmountClaimedOnUnstake =
-    ready && selectedGeyser
+    ready && selectedGeyser && signer
       ? async (receipt: TransactionReceipt) => {
           const rewardsClaimed = await getRewardsClaimedFromUnstake(receipt, selectedGeyser.id, signer)
           return rewardsClaimed ? rewardsClaimed.amount : BigNumber.from('0')
@@ -73,12 +73,12 @@ export const VaultContextProvider: React.FC = ({ children }) => {
       : null
 
   const withdrawRewardsFromVault =
-    ready && selectedGeyser
+    ready && selectedGeyser && address && signer
       ? (receipt: TransactionReceipt) => withdrawRewards(selectedGeyser.id, address, receipt, signer)
       : null
 
   const withdrawUnlockedFromVault =
-    ready && selectedVault
+    ready && selectedVault && address && signer
       ? (tokenAddress: string) => withdrawUnlocked(selectedVault.id, tokenAddress, address, signer)
       : null
 
@@ -88,7 +88,7 @@ export const VaultContextProvider: React.FC = ({ children }) => {
     setSelectedVault(null)
     setCurrentLock(null)
     setOtherActiveLock(false)
-    if (ready) {
+    if (ready && address) {
       getVaults({ variables: { id: address.toLowerCase() } })
     }
   }, [ready, networkId, address, getVaults])

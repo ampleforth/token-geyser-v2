@@ -77,8 +77,8 @@ export enum RewardToken {
 // Netowrks
 export enum Network {
   Mainnet = 1,
-  Kovan = 42,
-  Avalanche = 43114,
+  // Kovan = 42,
+  // Avalanche = 43114,
 }
 
 // Platforms

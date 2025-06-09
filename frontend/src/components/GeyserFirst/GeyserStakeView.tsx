@@ -151,13 +151,13 @@ export const GeyserStakeView = () => {
         const tx = await withdrawUnlockedFromVault(rewardTokenAddress)
         if (tx) {
           const { response, amount } = tx
-          setActualRewardsFromUnstake(amount)
+          // setActualRewardsFromUnstake(amount)
           return response
         }
       }
     }
     if (receipt && rewardAmountClaimedOnUnstake) {
-      setActualRewardsFromUnstake(await rewardAmountClaimedOnUnstake(receipt))
+      // setActualRewardsFromUnstake(await rewardAmountClaimedOnUnstake(receipt))
     }
     return undefined
   }
@@ -187,7 +187,7 @@ export const GeyserStakeView = () => {
           decimals={stakingTokenDecimals}
           symbol={stakingTokenSymbol}
           isStakingAction
-          poolAddress={poolAddress}
+          poolAddress={poolAddress ?? ''}
         />
         <PositiveInput
           placeholder="Enter amount"
@@ -202,7 +202,7 @@ export const GeyserStakeView = () => {
         {!ready && <ConnectWalletWarning onClick={() => connectWallet()} />}
         {ready && parsedUserInput.gt(0) && (
           <StakeWarning
-            poolAddress={poolAddress}
+            poolAddress={poolAddress ?? ''}
             balance={stakableAmount.sub(parsedUserInput)}
             staked={currentStakeAmount}
             otherActiveLock={otherActiveLock}
@@ -238,7 +238,7 @@ export const GeyserStakeView = () => {
           decimals={stakingTokenDecimals}
           symbol={stakingTokenSymbol}
           isStakingAction={false}
-          poolAddress={poolAddress}
+          poolAddress={poolAddress ?? ''}
         />
         <PositiveInput
           placeholder="Enter amount"

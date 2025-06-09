@@ -44,7 +44,7 @@ export const defaultGeyserStats = (): GeyserStats => ({
   totalDeposit: 0,
   totalDepositVal: 0,
   totalRewards: 0,
-  totalRewardsVal: 0,
+  totalRewardVal: 0,
   calcPeriodInDays: 0,
   unlockedRewards: 0,
   bonusRewards: [],
@@ -101,12 +101,12 @@ export const getGeyserStats = async (
     async () => ({
       duration: getGeyserDuration(geyser),
       hasMultiplier: geyser.scalingFloor !== geyser.scalingCeiling,
-      multiplierDurationInDays: (geyser.scalingTime / DAY_IN_SEC || 30),
+      multiplierDurationInDays: Number(geyser.scalingTime) / DAY_IN_SEC || 30,
       calcPeriodInDays: getCalcPeriod(geyser) / DAY_IN_SEC,
       totalDeposit: parseFloat(formatUnits(geyser.totalStake, stakingTokenInfo.decimals)),
       totalDepositVal: getGeyserTotalDeposit(geyser, stakingTokenInfo),
       totalRewards: parseFloat(formatUnits(geyser.rewardBalance, rewardTokenInfo.decimals)),
-      totalRewardsVal: getGeyserTotalRewards(geyser, rewardTokenInfo),
+      totalRewardVal: getGeyserTotalRewards(geyser, rewardTokenInfo),
       unlockedRewards: parseFloat(formatUnits(geyser.unlockedReward, rewardTokenInfo.decimals)),
       bonusRewards:
         geyser.rewardPoolBalances.length === bonusTokensInfo.length
@@ -154,7 +154,7 @@ const getLockStakeUnits = (lock: Lock, timestamp: number) => {
 const getPoolDrip = async (geyser: Geyser, end: number, signerOrProvider: SignerOrProvider) => {
   const endTimeSec = end - (end % 86400) + 86400
   const geyserAddress = toChecksumAddress(geyser.id)
-  const d = await ls.computeAndCache<GeyserStats>(
+  const d = await ls.computeAndCache<string>(
     async function () {
       const futureRewards = await getFutureUnlockedRewards(geyserAddress, endTimeSec, signerOrProvider)
       const currentRewards = await getCurrentUnlockedRewards(geyserAddress, signerOrProvider)
@@ -405,7 +405,7 @@ export const getUserStats = async (
         currentRewardShare: formattedCurrentRewards / formattedTotalRewards,
       }
     },
-    `${toChecksumAddress(geyser.id)}|${toChecksumAddress(vault?.id)}|userStats`,
+    `${toChecksumAddress(geyser.id)}|${toChecksumAddress(vault ? vault.id : 'undefinedvault')}|userStats`,
     statsCacheTimeMs,
   )
 

@@ -37,7 +37,7 @@ export const UnstakeSummary: React.FC<Props> = ({ userInput, parsedUserInput }) 
         const computedRewardsShare = await computeRewardsShareFromUnstake(parsedUserInput)
         if (isMounted) {
           setRewardAmount(computedRewardAmount)
-          setRewardsShare(computedRewardsShare)
+          // setRewardsShare(computedRewardsShare)
         }
       } catch (e) {
         if (isMounted) {

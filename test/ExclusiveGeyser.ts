@@ -1167,18 +1167,20 @@ describe('ExclusiveGeyser', function () {
       describe('non-exclusive stake', function () {
         let otherGeyser: Contract
         beforeEach(async function () {
-          otherGeyser = await deployGeyser([
-            admin.address,
-            rewardPoolFactory.address,
-            powerSwitchFactory.address,
-            stakingToken.address,
-            rewardToken.address,
-            [rewardScaling.floor, rewardScaling.ceiling, rewardScaling.time],
-          ], 'Geyser')
+          otherGeyser = await deployGeyser(
+            [
+              admin.address,
+              rewardPoolFactory.address,
+              powerSwitchFactory.address,
+              stakingToken.address,
+              rewardToken.address,
+              [rewardScaling.floor, rewardScaling.ceiling, rewardScaling.time],
+            ],
+            'Geyser',
+          )
           await otherGeyser.connect(admin).registerVaultFactory(vaultFactory.address)
           await stake(user, otherGeyser, vault, stakingToken, stakeAmount)
         })
-
 
         it('should fail', async function () {
           await expect(stake(user, geyser, vault, stakingToken, stakeAmount)).to.be.revertedWith(
@@ -1190,14 +1192,17 @@ describe('ExclusiveGeyser', function () {
 
         it('should fail', async function () {
           // Note: stakeAmount is staked in both otherGeyser and yetAnotherGeyser
-          const yetAnotherGeyser = await deployGeyser([
-            admin.address,
-            rewardPoolFactory.address,
-            powerSwitchFactory.address,
-            stakingToken.address,
-            rewardToken.address,
-            [rewardScaling.floor, rewardScaling.ceiling, rewardScaling.time],
-          ], 'Geyser')
+          const yetAnotherGeyser = await deployGeyser(
+            [
+              admin.address,
+              rewardPoolFactory.address,
+              powerSwitchFactory.address,
+              stakingToken.address,
+              rewardToken.address,
+              [rewardScaling.floor, rewardScaling.ceiling, rewardScaling.time],
+            ],
+            'Geyser',
+          )
           await yetAnotherGeyser.connect(admin).registerVaultFactory(vaultFactory.address)
           await stake(user, yetAnotherGeyser, vault, stakingToken, stakeAmount)
           await expect(stake(user, geyser, vault, stakingToken, stakeAmount)).to.be.revertedWith(

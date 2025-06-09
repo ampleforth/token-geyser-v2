@@ -11,7 +11,7 @@ interface Props {
 }
 
 export const StakeWarning: React.FC<Props> = ({ poolAddress, balance, staked, otherActiveLock }) => {
-  const renderStakeWarning = (message: string, buttonLabel: string, url: string, newTab: bool) => (
+  const renderStakeWarning = (message: string, buttonLabel: string, url: string, newTab: boolean) => (
     <StakeWarningContainer>
       <ColoredDiv />
       <Content>

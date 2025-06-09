@@ -159,6 +159,7 @@ export type GeyserConfig = {
   exclusive?: boolean
   slug: string
   platform: Platform
+  lpRef?: string
 }
 
 export type AdditionalTokenConfig = {
@@ -177,7 +178,7 @@ export type SignerOrProvider = Signer | providers.Provider
 
 export type TooltipMessage = {
   title: string
-  body: string
+  body: string | React.ReactNode
 }
 
 export enum GeyserAction {

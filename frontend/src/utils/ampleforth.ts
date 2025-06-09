@@ -16,7 +16,7 @@ const getClient = (chainId) => queries.initializeClient(queries.graphHostedURL(c
 
 const apiEndpoint = 'https://web-api.ampleforth.org'
 export const loadStakeAPYsFromCache = async () =>
-  ls.computeAndCache<Record<Record<string, number>>>(
+  ls.computeAndCache<Record<string, Record<string, number>>>(
     async () => {
       const response = await fetch(`${apiEndpoint}/staking/apy`)
       const data = await response.json()
@@ -28,14 +28,14 @@ export const loadStakeAPYsFromCache = async () =>
 
 const loadXCRebasesFromCache = async (controller: entities.XCController, chainId: number) =>
   ls.computeAndCache<entities.XCRebaseData[]>(
-    async () => (await getXCRebases(controller, chainId, getClient(chainId))).map((r) => r.rawData),
+    async () => (await getXCRebases(controller, getClient(chainId))).map((r) => r.rawData),
     `${controller.address}|xc_rebases|${controller.epoch.toString()}`,
     DAY_IN_MS,
   )
 
 const loadRebasesFromCache = async (policy: entities.Policy, chainId: number) =>
   ls.computeAndCache<entities.RebaseData[]>(
-    async () => (await getRebases(policy, chainId, getClient(chainId))).map((r) => r.rawData),
+    async () => (await getRebases(policy, getClient(chainId))).map((r) => r.rawData),
     `${policy.address}|rebases|${policy.epoch.toString()}`,
     DAY_IN_MS,
   )
@@ -51,11 +51,11 @@ export const computeAMPLRewardShares = async (
 ) => {
   const provider = (signerOrProvider as Signer).provider || (signerOrProvider as providers.Provider)
   // console.log("provider present", !!provider.network)
-  const { chainId } = provider.network || (await provider.getNetwork())
+  const { chainId } = await provider.getNetwork()
 
   if (isCrossChain) {
     const controller = await getXCAmpleController(chainId, getClient(chainId))
-    const rebases = await loadXCRebasesFromCache(controller, chainId, getClient(chainId))
+    const rebases = await loadXCRebasesFromCache(controller, chainId)
     controller.loadHistoricalRebases(rebases.map((r) => new entities.XCRebase(r)))
     // const rebases = await getXCRebases(controller, chainId, getClient(chainId))
     // controller.loadHistoricalRebases(rebases)
@@ -65,7 +65,7 @@ export const computeAMPLRewardShares = async (
   }
 
   const policy = await getAmpleforthPolicy(chainId, getClient(chainId))
-  const rebases = await loadRebasesFromCache(policy, chainId, getClient(chainId))
+  const rebases = await loadRebasesFromCache(policy, chainId)
   policy.loadHistoricalRebases(rebases.map((r) => new entities.Rebase(r)))
   // const rebases = await getRebases(policy, chainId, getClient(chainId))
   // policy.loadHistoricalRebases(rebases)

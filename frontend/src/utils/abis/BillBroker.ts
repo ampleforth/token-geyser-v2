@@ -16,6 +16,11 @@ export const BILL_BROKER_ABI = [
   },
   {
     inputs: [],
+    name: 'InvalidRange',
+    type: 'error',
+  },
+  {
+    inputs: [],
     name: 'SlippageTooHigh',
     type: 'error',
   },
@@ -31,12 +36,12 @@ export const BILL_BROKER_ABI = [
   },
   {
     inputs: [],
-    name: 'UnexpectedARDelta',
+    name: 'UnexpectedDecimals',
     type: 'error',
   },
   {
     inputs: [],
-    name: 'UnexpectedDecimals',
+    name: 'UnexpectedRangeDelta',
     type: 'error',
   },
   {
@@ -67,6 +72,88 @@ export const BILL_BROKER_ABI = [
       },
     ],
     name: 'Approval',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'perpAmtIn',
+        type: 'uint256',
+      },
+      {
+        components: [
+          {
+            internalType: 'uint256',
+            name: 'usdBalance',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'perpBalance',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'usdPrice',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'perpPrice',
+            type: 'uint256',
+          },
+        ],
+        indexed: false,
+        internalType: 'struct ReserveState',
+        name: 'preOpState',
+        type: 'tuple',
+      },
+    ],
+    name: 'DepositPerp',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'usdAmtIn',
+        type: 'uint256',
+      },
+      {
+        components: [
+          {
+            internalType: 'uint256',
+            name: 'usdBalance',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'perpBalance',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'usdPrice',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'perpPrice',
+            type: 'uint256',
+          },
+        ],
+        indexed: false,
+        internalType: 'struct ReserveState',
+        name: 'preOpState',
+        type: 'tuple',
+      },
+    ],
+    name: 'DepositUSD',
     type: 'event',
   },
   {
@@ -118,6 +205,88 @@ export const BILL_BROKER_ABI = [
     anonymous: false,
     inputs: [
       {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'perpAmtIn',
+        type: 'uint256',
+      },
+      {
+        components: [
+          {
+            internalType: 'uint256',
+            name: 'usdBalance',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'perpBalance',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'usdPrice',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'perpPrice',
+            type: 'uint256',
+          },
+        ],
+        indexed: false,
+        internalType: 'struct ReserveState',
+        name: 'preOpState',
+        type: 'tuple',
+      },
+    ],
+    name: 'SwapPerpsForUSD',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'usdAmtIn',
+        type: 'uint256',
+      },
+      {
+        components: [
+          {
+            internalType: 'uint256',
+            name: 'usdBalance',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'perpBalance',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'usdPrice',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'perpPrice',
+            type: 'uint256',
+          },
+        ],
+        indexed: false,
+        internalType: 'struct ReserveState',
+        name: 'preOpState',
+        type: 'tuple',
+      },
+    ],
+    name: 'SwapUSDForPerps',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: true,
         internalType: 'address',
         name: 'from',
@@ -154,7 +323,20 @@ export const BILL_BROKER_ABI = [
   },
   {
     inputs: [],
-    name: 'DECIMALS',
+    name: 'MAX_ASSET_RATIO',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'MAX_FEE_FACTOR',
     outputs: [
       {
         internalType: 'uint256',
@@ -181,6 +363,19 @@ export const BILL_BROKER_ABI = [
   {
     inputs: [],
     name: 'ONE',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'TWO',
     outputs: [
       {
         internalType: 'uint256',
@@ -413,6 +608,136 @@ export const BILL_BROKER_ABI = [
         type: 'uint256',
       },
     ],
+    name: 'computeMintAmtWithPerp',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'mintAmt',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'perpAmtIn',
+        type: 'uint256',
+      },
+      {
+        components: [
+          {
+            internalType: 'uint256',
+            name: 'usdBalance',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'perpBalance',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'usdPrice',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'perpPrice',
+            type: 'uint256',
+          },
+        ],
+        internalType: 'struct ReserveState',
+        name: 's',
+        type: 'tuple',
+      },
+    ],
+    name: 'computeMintAmtWithPerp',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'mintAmt',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'usdAmtIn',
+        type: 'uint256',
+      },
+    ],
+    name: 'computeMintAmtWithUSD',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'mintAmt',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'usdAmtIn',
+        type: 'uint256',
+      },
+      {
+        components: [
+          {
+            internalType: 'uint256',
+            name: 'usdBalance',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'perpBalance',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'usdPrice',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'perpPrice',
+            type: 'uint256',
+          },
+        ],
+        internalType: 'struct ReserveState',
+        name: 's',
+        type: 'tuple',
+      },
+    ],
+    name: 'computeMintAmtWithUSD',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'mintAmt',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'perpAmtIn',
+        type: 'uint256',
+      },
+    ],
     name: 'computePerpToUSDSwapAmt',
     outputs: [
       {
@@ -468,11 +793,6 @@ export const BILL_BROKER_ABI = [
       },
       {
         internalType: 'uint256',
-        name: 'lpFeeUsdAmt',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
         name: 'protocolFeeUsdAmt',
         type: 'uint256',
       },
@@ -493,7 +813,7 @@ export const BILL_BROKER_ABI = [
         type: 'uint256',
       },
     ],
-    name: 'computePerpToUSDSwapFeePerc',
+    name: 'computePerpToUSDSwapFeeFactor',
     outputs: [
       {
         internalType: 'uint256',
@@ -572,11 +892,6 @@ export const BILL_BROKER_ABI = [
       },
       {
         internalType: 'uint256',
-        name: 'lpFeePerpAmt',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
         name: 'protocolFeePerpAmt',
         type: 'uint256',
       },
@@ -616,7 +931,7 @@ export const BILL_BROKER_ABI = [
         type: 'uint256',
       },
     ],
-    name: 'computeUSDToPerpSwapFeePerc',
+    name: 'computeUSDToPerpSwapFeeFactor',
     outputs: [
       {
         internalType: 'uint256',
@@ -699,6 +1014,54 @@ export const BILL_BROKER_ABI = [
     type: 'function',
   },
   {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'perpAmtIn',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'postOpAssetRatioMin',
+        type: 'uint256',
+      },
+    ],
+    name: 'depositPerp',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'mintAmt',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'usdAmtIn',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'postOpAssetRatioMax',
+        type: 'uint256',
+      },
+    ],
+    name: 'depositUSD',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'mintAmt',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
     inputs: [],
     name: 'fees',
     outputs: [
@@ -726,7 +1089,7 @@ export const BILL_BROKER_ABI = [
           },
         ],
         internalType: 'struct Range',
-        name: 'perpToUSDSwapFeePercs',
+        name: 'perpToUSDSwapFeeFactors',
         type: 'tuple',
       },
       {
@@ -743,7 +1106,7 @@ export const BILL_BROKER_ABI = [
           },
         ],
         internalType: 'struct Range',
-        name: 'usdToPerpSwapFeePercs',
+        name: 'usdToPerpSwapFeeFactors',
         type: 'tuple',
       },
       {
@@ -802,8 +1165,8 @@ export const BILL_BROKER_ABI = [
         type: 'address',
       },
       {
-        internalType: 'contract ISpotPricingStrategy',
-        name: 'pricingStrategy_',
+        internalType: 'contract IPerpPricer',
+        name: 'oracle_',
         type: 'address',
       },
     ],
@@ -833,6 +1196,19 @@ export const BILL_BROKER_ABI = [
         internalType: 'string',
         name: '',
         type: 'string',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'oracle',
+    outputs: [
+      {
+        internalType: 'contract IPerpPricer',
+        name: '',
+        type: 'address',
       },
     ],
     stateMutability: 'view',
@@ -918,19 +1294,6 @@ export const BILL_BROKER_ABI = [
         internalType: 'uint256',
         name: '',
         type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'pricingStrategy',
-    outputs: [
-      {
-        internalType: 'contract ISpotPricingStrategy',
-        name: '',
-        type: 'address',
       },
     ],
     stateMutability: 'view',
@@ -1232,7 +1595,7 @@ export const BILL_BROKER_ABI = [
               },
             ],
             internalType: 'struct Range',
-            name: 'perpToUSDSwapFeePercs',
+            name: 'perpToUSDSwapFeeFactors',
             type: 'tuple',
           },
           {
@@ -1249,7 +1612,7 @@ export const BILL_BROKER_ABI = [
               },
             ],
             internalType: 'struct Range',
-            name: 'usdToPerpSwapFeePercs',
+            name: 'usdToPerpSwapFeeFactors',
             type: 'tuple',
           },
           {
@@ -1284,12 +1647,12 @@ export const BILL_BROKER_ABI = [
   {
     inputs: [
       {
-        internalType: 'contract ISpotPricingStrategy',
-        name: 'pricingStrategy_',
+        internalType: 'contract IPerpPricer',
+        name: 'oracle_',
         type: 'address',
       },
     ],
-    name: 'updatePricingStrategy',
+    name: 'updateOracle',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',

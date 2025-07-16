@@ -451,7 +451,7 @@ const getCharmV1 = async (tokenAddress: string, signerOrProvider: SignerOrProvid
 const getBillBroker = async (tokenAddress: string, signerOrProvider: SignerOrProvider): Promise<StakingTokenInfo> => {
   const address = toChecksumAddress(tokenAddress)
   const contract = new Contract(address, BILL_BROKER_ABI, signerOrProvider)
-  const appraiserContract = new Contract(await contract.pricingStrategy(), SPOT_APPRAISER_ABI, signerOrProvider)
+  const appraiserContract = new Contract(await contract.oracle(), SPOT_APPRAISER_ABI, signerOrProvider)
 
   const { name, symbol, decimals } = await getTokenInfo(address, signerOrProvider)
 
@@ -465,8 +465,8 @@ const getBillBroker = async (tokenAddress: string, signerOrProvider: SignerOrPro
   const perpBalanceFixedPt = await ERC20Balance(perp, address, signerOrProvider)
   const perpBalance = parseFloat(formatUnits(perpBalanceFixedPt as BigNumber, perpTokenInfo.decimals))
 
-  const perpPriceDt = await appraiserContract.callStatic.perpPrice()
-  const usdPriceDt = await appraiserContract.callStatic.usdPrice()
+  const perpPriceDt = await appraiserContract.perpUsdPrice()
+  const usdPriceDt = await appraiserContract.usdPrice()
 
   const perpVal = perpBalance * parseFloat(formatUnits(perpPriceDt[0], 18))
   const usdVal = usdBalance * parseFloat(formatUnits(usdPriceDt[0], 18))

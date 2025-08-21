@@ -673,6 +673,14 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
         emit GeyserFunded(amount, duration);
     }
 
+    /// @notice Allows owner to terminate an existing reward schedule.
+    /// @param index The index of the reward schedule to terminate.
+    function terminateRewardSchedule(uint256 index) external onlyOwner {
+        RewardSchedule storage reward = _geyser.rewardSchedules[index];
+        require(reward.start + reward.duration > block.timestamp, "Reward schedule ended");
+        reward.duration = (block.timestamp - reward.start);
+    }
+
     /// @notice Add vault factory to whitelist
     /// @dev use this function to enable stakes to vaults coming from the specified
     ///      factory contract
@@ -737,8 +745,8 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
     }
 
     /// @notice Rescue tokens from RewardPool
-    /// @dev use this function to rescue tokens from RewardPool contract
-    ///      without distributing to stakers or triggering emergency shutdown
+    /// @dev Use this function to rescue tokens from RewardPool contract
+    ///      without distributing to stakers or triggering emergency shutdown.
     /// access control: only admin
     /// state machine:
     ///   - can be called multiple times
@@ -755,12 +763,6 @@ contract Geyser is IGeyser, Powered, OwnableUpgradeable {
     ) external onlyOwner onlyOnline {
         // verify recipient
         _validateAddress(recipient);
-
-        // check not attempting to unstake reward token
-        require(token != _geyser.rewardToken, "Geyser: invalid address");
-
-        // check not attempting to wthdraw bonus token
-        require(!_bonusTokenSet.contains(token), "Geyser: invalid address");
 
         // transfer tokens to recipient
         IRewardPool(_geyser.rewardPool).sendERC20(token, recipient, amount);

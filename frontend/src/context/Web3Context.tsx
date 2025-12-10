@@ -11,7 +11,7 @@ import { StaticJsonRpcProvider } from '@ethersproject/providers'
 import { getConnectionConfig, activeNetworks } from 'config/app'
 import { Network, ALCHEMY_PROJECT_ID } from '../constants'
 
-const DEFAULT_RPC_ENDPOINT = `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_PROJECT_ID}`
+const DEFAULT_RPC_ENDPOINT = `https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_PROJECT_ID}`
 
 const defaultProvider = new StaticJsonRpcProvider(DEFAULT_RPC_ENDPOINT, {
   name: 'mainnet',

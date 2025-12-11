@@ -3,10 +3,4 @@ set -e
 
 yarn mustache ./configs/$1.json subgraph.template.yaml > ./subgraph.yaml
 
-yarn codegen
-
-yarn build
-
-yarn graph deploy $2 \
-  --node https://subgraphs.alchemy.com/api/subgraphs/deploy \
-  --deploy-key $GRAPH_AUTH
+goldsky subgraph deploy $2/$3 --path .

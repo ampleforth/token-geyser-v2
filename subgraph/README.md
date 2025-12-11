@@ -31,7 +31,14 @@ To build and deploy the subgraph to the graph hosted service:
 ```
 # local deployment
 ./scripts/deploy-local.sh mainnet ampleforth-token-geyser-v2
+```
 
+You should have your own Goldsky API key to use with the Goldsky CLI.
+
+Note you must set the (new) version to deploy to, and then update the tag separately.
+```
 # prod deployment
-./scripts/deploy.sh mainnet ampleforth-token-geyser-v2
+./scripts/deploy.sh mainnet ampleforth-token-geyser-v2 <VERSION>
+# once deployed, update the tag that frg-web-api looks for.
+goldsky subgraph tag create ampleforth-token-geyser-v2/<VERSION> --tag prod
 ```
